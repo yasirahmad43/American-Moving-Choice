@@ -63,3 +63,12 @@ Google Tag Manager/Ads, Microsoft Clarity, Pinterest, Facebook, Hotjar, Ahrefs a
 
 ## Automated quote-walk: long-distance landing page
 - Step 0: the page had no form fields, only "GET MY FREE QUOTE" / "GET QUOTE" buttons. Clicking "GET MY FREE QUOTE" did not change the page; the walk stopped. This matches the unrendered form shortcode above. The homepage From/To estimator still needs a guided walk.
+
+## Guided walk: `/moving-cost-calculator` (2026-10-27, `runplan.js` with `browserd.js`)
+- From / To → "Get Your Free Estimate" opens a four-step form:
+  1. From and To → Next.
+  2. "Moving Distance ( 662 miles )", move date (calendar) and move size (4 Bedroom Home … Studio) → Next.
+  3. "Preferred contact method? (Select one or more)": Text / Email / Call / All → Next.
+  4. Name, email, phone and an unticked checkbox: "By submitting, you agree to our Terms & Privacy Policy and consent to be contacted by moving companies via call, text, or email." → Submit.
+- The page FAQ explains the result: "Your rough estimate appears after you submit the form. Up to three moving companies may also contact you with personalized quotes." · "Yes. Up to three moving companies may contact you using the contact method you selected in the form."
+- So the estimate is shown only after contact details are submitted. The consent names no companies and says nothing about automated calls or that consent is not a condition of purchase. The limit of three companies appears only in the FAQ, not on the consent step. The walk stopped at step 4; nothing was entered.

@@ -64,3 +64,10 @@ Google Tag Manager, Microsoft Clarity, OpenAI pixel host, Bing UET, Facebook, Go
 ## Automated quote-walk: homepage estimator
 - Step 0: estimator fields: Moving from / Moving to (state selects), approximate road miles, shipment weight (lb) or cubic feet, checkboxes (Full packing, Stairs or no elevator, Long carry or shuttle, Storage 1 month, Ship a car). Buttons include "Find Movers", "Compare movers", "Get quotes from vetted movers →". The walker selected Arizona → Arizona and clicked "Find Movers".
 - Step 1: landed on `/best-interstate-moving-companies/` (ranking page with inline ZIP quote forms prefilled by the site with sample ZIPs 33101 / 78701). The walker stopped on a script error before reaching any contact step. The `/request-a-quote/` flow (state → state → Continue) still needs a guided walk.
+
+## Guided walk: `/request-a-quote/` (2026-10-27, `runplan.js` with `browserd.js`)
+- Step 1 of 2, "Where are you moving?": Moving from (state list) and Moving to (state list) → "Continue →". Chose Georgia → Florida.
+- Step 2 of 2, "How can we reach you?": "We'll need to speak with you to give an accurate quote. A specialist will call to discuss your move and share personalized route options. Please use a real phone number and email."
+  - Fields: Full name, Email, Phone, Move size (Studio / 1 BR, 2 BR, 3 BR, 4+ BR, Just a few items, Office / commercial), Preferred move date, and a hidden "Company website" field (looks like a spam trap). Button: "Get my matches".
+  - The step has no consent checkbox and no wording about automated calls or texts. The only consent language is the page line "By submitting, you agree to be contacted by a vetted moving specialist. We never sell your info." The consumer is not asked how many companies may contact them.
+- Contact details are requested on the second screen, before any price or match is shown. The walk stopped there; nothing was entered.

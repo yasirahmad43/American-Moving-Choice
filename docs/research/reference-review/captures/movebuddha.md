@@ -68,3 +68,19 @@ Microsoft Clarity, Mixpanel, Facebook, Bing UET, OpenAI pixel host, Google Tag M
 ## Automated quote-walks
 - Calculator (`/moving-cost-calculator/`): typed 30303 and picked "Atlanta, GA, USA"; typed 33101 and picked "Miami, FL, USA"; clicked "find movers". The page did not advance (custom widget; property type and size were still empty).
 - Homepage form (From / To / Move Size / Move Date → "Calculate Cost"): filled ZIPs and "2 bedroom"; the page did not advance. A guided walk is still needed. No contact details had been requested at this point.
+
+## Guided walks (2026-10-27, `runplan.js` with `browserd.js`)
+
+### Calculator: prices without contact details
+- Inputs: from and to (autocomplete), date, property type (Studio apartment, Apartment, Condo, Townhome, Single-story house, Multi-story house) and property size (1 to 5+ bedrooms).
+- With Atlanta 30303 → Miami 33101, Apartment, 2 bedrooms, the widget showed live ranges and no form: "About 730 miles · Professional $3,044 – $8,893 · Container $1,614 – $4,253 · Freight $2,585 – $7,814" and "See my prices · No email or phone required".
+- "See my prices" opened `/moving-cost-calculator-tool/` with different ranges for the same move: "PROFESSIONAL $2,455 – $5,126 · CONTAINER $1,429 – $2,133 · FREIGHT $1,068 – $1,761", plus "These price ranges are a rough estimate!" The two tools disagree.
+- The results page shows partner cards with phone numbers and "get a quote" links, an exit-intent email box, and a "Let Movers Bid On My Move" call to action: "One 10-minute conversation with a helpful relocation specialist, not a pushy salesperson. Licensed, insured movers send competing quotes… Save up to 30% on your move · Up to $1,000 in added move protection".
+
+### "Mover Marketplace" (`/marketplace/`)
+- The first screen asks for "Full pickup address" and "Full destination address" (street addresses). The walk stopped there.
+
+### Partner quote form (`my.bestinterstatemoving.com/movebuddha/safeway-moving/quote`)
+- Each partner card links to a form for that one mover ("Safeway Moving | powered by moveBuddha"). It is a chat-style form in three parts (Move Info, Move Size, Final Steps): "Hey! I'm Ryan. Where are you moving from?"
+- Screens in order: origin → destination → move date (calendar, or "I don't have an exact move date") → "Roughly when are you thinking of moving?" (next few weeks / month or two / more than 2 months) → what is being moved (boxes and furniture / only boxes / known weight) → property type → bedrooms → "how much stuff" (less than / average / more than average) → "how much of it needs to be moved?" → email.
+- The first contact request comes after nine screens: "Almost done! What's the best email to keep you updated? We'll use this to send helpful information about your quote request. Or call us directly at (855) 650-0657". The walk stopped at the email field, so the later screens (phone, consent wording) were not seen.

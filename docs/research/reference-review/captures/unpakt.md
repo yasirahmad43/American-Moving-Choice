@@ -37,3 +37,7 @@ Google Tag Manager, Google Maps (address autocomplete), Zoho PageSense, Cloudfla
 ## Automated quote-walk: homepage
 - Step 0: fields "Moving From: address, city, or zip" and "Moving To: address, city, or zip" (Google address autocomplete), button "Get Prices & Compare Movers".
 - The walker typed 30303 → selected "Atlanta, GA 30303, USA". It typed 33101 into the destination, but the autocomplete returned the origin suggestion again (a walker limitation), so the form did not advance: "Page did not change after clicking". The flow beyond the first screen was not observed. Contact details had not been requested by this point. A guided deep dive is needed.
+
+## Guided walk: homepage (2026-10-27, `runplan.js` with `browserd.js`)
+- Form: Moving From / Moving To (Google address suggestions; both inputs share the same element id), Move Size (default "1 Bedroom, Small (600-800 sq ft)"), Move Date (prefilled "Nov 06"), optional extra pick-up or drop-off stop, and storage.
+- After choosing "Atlanta, GA 30303, USA" and "Miami, FL 33101, USA" and clicking "Get Prices & Compare Movers", the site showed "OOPS!!! Something went wrong creating your move plan. Try refreshing your page." and redirected to `/sign-in/`. This happened on both attempts. The inventory and price-comparison steps could not be observed from the sandbox; the process is known only from `/how-it-works/`.
