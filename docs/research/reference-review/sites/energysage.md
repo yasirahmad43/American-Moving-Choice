@@ -33,7 +33,7 @@ A solar and home-energy marketplace where homeowners compare installer quotes, l
 No installer-facing page was captured, so fees, lead rules, exclusivity and caps are unknown [capture]. v1 says installers pay and consumers use it free [v1 §2.9]. A help-center excerpt says installers "pay a small fee to join our marketplace, but only after we vet them" [search: help.energysage.com, own page, not rechecked]. Excerpts from 2018 and 2022 describe in-platform messaging, with the shopper's number shared only after they pick an installer [search: info.energysage.com, own; solarpowerworldonline.com, electrek.co, third party; not rechecked]. Corporate partners may "link to or embed" content, guides and calculators [capture: /partners/corporations/].
 
 ## Trust, verification and reviews
-- **Advisor.** The H1 "Compare solar quotes. Choose with an expert." and "a free, unbiased Energy Advisor by your side" lead the homepage, but no captured page says how advisors are paid [capture: /]. The advisor is more prominent than v1 recorded, though still optional ("as much help as you want", /about-us/) [capture; v1 §2.9].
+- **Advisor.** The homepage leads with "Choose with an expert" and "a free, unbiased Energy Advisor", but no captured page says how advisors are paid [capture: /]. That is more prominence than v1 recorded, though help stays optional ("as much help as you want") [capture: /about-us/; v1 §2.9].
 - **Vetting.** "Pre-screened, certified installers" (/) and "vetted installers" (/about-us/) are never defined, and no guarantee goes beyond "we have your back" [capture]. Published criteria are search-only [search: help.energysage.com, own page, not rechecked].
 - **Claims.** The / meta says "over 50,000 homeowners" while H2s say 60,000, and /editorial-guidelines/ says "since our founding in 2009" while /about-us/ says "Twelve years ago" [capture; inference: about 2014]. "Most trusted", "largest" and "Save 20 to 30%" claims show no basis [capture: /, /about-us/, /partners/corporations/].
 - **Backers.** Schneider Electric backing, DOE funding and the founder are named; whether logos link anywhere was not recorded [capture: /partners/corporations/, /, /about-us/]. The 2022 controlling-stake purchase is search-only [search: pv-magazine.com, third party, not rechecked].
@@ -50,8 +50,7 @@ No installer-facing page was captured, so fees, lead rules, exclusivity and caps
 ## SEO and content
 - **Traffic.** The top 25 pages hold 42.3% of visits; cost pages plus the calculator take 33,520 (14% of the site) and 14 informational pages 46,116 (19.3%) [semrush: top_pages_more]. No backlink data was pulled [semrush].
 - **Geo.** /local-data/solar-panel-cost/va/ is #6 (4,305 visits, 55 keywords), the only state cost page in the top 25; none was captured [semrush; capture].
-- **IA.** A product-led menu and a /local-data/ geo namespace; whether the cost page links to state pages was not recorded [capture; semrush].
-- **Best-of.** The ranking is not in the top 25, one supplier profile is (1,899), and family totals were not pulled [semrush].
+- **IA and best-of.** A product-led menu and a /local-data/ geo namespace [capture; semrush]. The ranking is not in the top 25, one supplier profile is (1,899), and family totals were not pulled [semrush].
 - **Templates.** All three articles (2,618 to 3,320 words) carry writer, editor, "Updated" date, contents list, question H2s, related links, BreadcrumbList and two ZIP boxes, without credentials; years sit in titles, not URLs [capture].
 - **Tool page.** The calculator has no H1, no JSON-LD and 86 words, yet is the #3 page (1,160 keywords) [capture; semrush].
 - **Numbers.** The cost page's meta says "about $30,500" and "$37,000 to $154,000", its body $31,135 and $41,000 to $155,000 [capture: /local-data/solar-panel-cost/]. The About meta is just "About us" [capture].
@@ -61,11 +60,10 @@ No installer-facing page was captured, so fees, lead rules, exclusivity and caps
 - The mobile first screen holds the H1, value line, ZIP field, "Get started" and a Privacy Policy link [capture: /].
 - Each captured article has two "See solar prices" ZIP boxes [capture].
 - The calculator uses a focused shell with no menu, a loading checklist of factors and an accessiBe overlay [capture: /solar/calculator/].
-- A financing example turns a $200 bill into a 25-year cost "accounting for inflation", naming no rate [capture: /solar/how-to-pay-for-solar/].
 
 ## What AMC should adopt or adapt
-- **"Free" beside the pay model** [capture: /]. Better: every component that says free also says movers pay for the requests they buy, in one counsel-approved role statement. Serves consent draft §1, §7; visual-direction §13.7.
-- **A short start and single-topic screens** [capture: /; walk]. Better: from and to in the first mobile screen, the coverage pre-check before contact, events rather than URLs, and no presets on matching, the sharing limit or consent. Serves lead-lifecycle §2; site-architecture §9; consent draft §4, §5.
+- **"Free" beside the pay model** [capture: /]. Better: wherever AMC says free, the same component says movers pay for requests, in one counsel-approved statement. Serves consent draft §1, §7; visual-direction §13.7.
+- **Short start, one question per screen** [capture: /; walk]. Better: from and to in the first mobile screen, a coverage pre-check before contact, step events instead of URLs, and no presets on matching, sharing limit or consent. Serves lead-lifecycle §2; site-architecture §9; consent draft §4, §5.
 - **A calculator with a stated basis** [capture: /solar/calculator/]. Better: ungated, with an H1, named inputs and sources, a "data as of" date, a range that is not a quote and no "actual offers" claim; inputs carry into step 1. Serves value before contact; site-architecture §6.3; compliance facts §2.
 - **Cost data as a product** [semrush; capture]. Better: dated ranges with source and sample, from member rate cards or cited data; one dataset for meta, body and schema; a credentialed "Reviewed by" line; a "costs by state" module once demand is measured. Serves site-architecture §3.2, §6.3, §7.2, G4.
 - **Ranking criteria** [capture]. Better: disclose that movers may pay AMC without changing order, or rank no paying movers; never score on leads bought. Serves site-architecture §4.6; compliance facts §4.
@@ -92,11 +90,11 @@ No installer-facing page was captured, so fees, lead rules, exclusivity and caps
 - Whether a phone number is optional today (evidence from 2018 to 2022).
 - Installers per request and shopper control; /market-process/.
 - Whether the calculator shows an estimate before contact.
-- Installer fees, terms and caps; how advisors are paid.
+- Installer fees, terms and caps; advisor pay.
 - Installer profiles and reviews; the "Verified Customer" label.
-- Full Terms of Use; the basis for savings and superlative claims.
+- Full Terms; the basis for savings and superlatives.
 - Ownership (two pv magazine items differ); BBB and court records.
-- Onboarding scripts, canonicals, internal links, backlinks and uncaptured templates.
+- Onboarding scripts, canonicals, internal links, backlinks, uncaptured templates.
 - Every [search] item needs a live check before citing.
 
 ## Sources

@@ -7,7 +7,6 @@ A self-declared household-goods broker that arranges interstate moves on affilia
 ## At a glance
 - BVL says it is "a federally licensed full service moving broker" and "not a motor carrier"; its agents "coordinate your move" [capture /terms-of-use, /about-us].
 - The home page, whose two URLs take about 99.7% of estimated organic visits, showed no broker line in the capture; inner pages state it [capture /; semrush top_pages_more].
-- The quote flow asks for the origin ZIP, then opens a widget the walker could not operate [walk /999moving].
 - The Terms allow sharing with "other moving companies" [capture /terms-of-use]. No captured page gives a number or says how BVL is paid [capture].
 - BBB grades BVL A+, but its BBB reviews average 1.68/5 and Trustpilot shows 1/5 [search: bbb.org, trustpilot.com, third party].
 - About 1,934 estimated organic visits a month, no geo, route or profile pages, and no JSON-LD [semrush domain_rank; capture].
@@ -31,7 +30,7 @@ Carriers join an "affiliate program" and report their unfilled trucks [capture /
 ## Trust, verification and reviews
 - **Vetting.** "All the moving companies in our network are insured and licensed by the FMCSA" gives no method, date or carrier names [capture /pricing]. v1's `/carrier-list` was not captured, so it is unconfirmed, not missing [v1 §2.3].
 - **Claims.** "Up to 50%" savings and "hundreds of motor carriers and thousands of trucks" have no source [capture /how-it-works, /about-us]. The H1, "Arranging Full-Service Moves at Self-Service Rates", is an unsourced price comparison that opens with "Arranging" [capture /].
-- **Reviews.** A "Shopper Approved" logo image sits above the fold [capture /]. In excerpts dated 2026-10-27, BBB shows A+, accreditation since 4/12/2013 and 3 complaints in 3 years, but its reviews page shows 1.68/5 from 47 [search: bbb.org, third party]. Trustpilot shows 1/5 from 95 with no company replies, and MoveAdvisor 2.3 from 157 [search: nz.trustpilot.com, moveadvisor.com, third party].
+- **Reviews.** A "Shopper Approved" logo image sits above the fold [capture /]. In excerpts dated 2026-10-27, BBB shows A+, accreditation since 4/12/2013 and 3 complaints in 3 years, but its reviews page shows 1.68/5 from 47 reviews [search: bbb.org, third party]. Trustpilot shows 1/5 from 95 with no company replies, and MoveAdvisor 2.3 from 157 [search: nz.trustpilot.com, moveadvisor.com, third party].
 - **Complaints.** Unverified posts describe price increases at pickup, lost, damaged or late goods, unwanted calls and moves handled by other carriers [search: bbb.org, complaintsboard.com, third party]. A 2011 post alleges goods were held for more than double a binding estimate [search: complaintsboard.com, third party]. Web searches, not re-run, found no lawsuits or regulator actions; court, enforcement and FTC records were not checked [search].
 - **Details.** /terms-of-use gives two Las Vegas addresses and "Last Updated: June 2, 2016" above "© 2026" [capture /terms-of-use].
 
@@ -49,7 +48,7 @@ Carriers join an "affiliate program" and report their unfilled trucks [capture /
 - **URLs.** The http and https home URLs both rank, and `/Moving_Pods` and `/landing_page1` mix case and underscores [semrush]. Semrush's small paid estimate covers Google ads only, so v1's paid landing variants are neither confirmed nor refuted [semrush; v1 §2.3].
 - **Thin pages.** The home page has 106 words and the other marketing pages 251 to 380, all built around one ZIP form [capture].
 - **Answer shape.** /pricing gives one heading per cost factor, without numbers or sources, and draws about 1 visit a month [capture /pricing; semrush]. No captured page names an author or has JSON-LD [capture].
-- **AI search** (one tool). Brand searches did not list budgetvanlines.com, though the domain is indexed; answers cited CB Insights and review sites and still called BVL a broker [search, third party]. Review answers relied on Trustpilot and MoveAdvisor, some reviews dating from 2011 to 2014 [search, third party].
+- **AI search** (one tool). Brand searches did not list budgetvanlines.com, though the domain is indexed; answers cited CB Insights and review sites and still called BVL a broker [search, third party]. Review answers relied on Trustpilot and MoveAdvisor, where some reviews date from 2011 to 2014 [search, third party].
 
 ## Design and UX
 - On desktop, "Any Questions?" and a phone icon come before the H1 [capture /]. The pack lists ten elements, so the desktop ZIP position is unknown; on mobile the field is above the fold [capture /].
