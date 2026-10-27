@@ -16,40 +16,39 @@ An editorial site that ranks long-distance movers, publishes route guides and ru
 | step | what it asks | what it shows before contact | evidence |
 |---|---|---|---|
 | 1. "Where are you moving?" | From and to, state lists only; "Continue →" | Trust row; below the button, the 250-mile scope line and the consent line | [walk; capture /request-a-quote/] |
-| 2. "How can we reach you?" | Name, email, phone, move size, date; a hidden field that looks like a spam trap; "Get my matches" | No price, mover name or count; "A specialist will call to discuss your move" | [walk /request-a-quote/] |
+| 2. "How can we reach you?" | Name, email, phone, move size, date; a hidden, likely spam-trap field; "Get my matches" | No price, mover name or count; "A specialist will call to discuss your move" | [walk /request-a-quote/] |
 | After submit | Not observed | Not observed | [walk] |
-| Side path: homepage estimator | States, road miles, weight or cubic feet, add-ons; no contact fields | Output not recorded | [capture /; walk /] |
+| Homepage estimator | States, road miles, weight or cubic feet, add-ons; no contact fields | Output not recorded | [capture /; walk /] |
 
 - The hero promises "two quick questions", but screen 2 adds five fields [capture /request-a-quote/; walk].
 - Copy says both "the right carrier" and "your carriers"; v1's "up to 4 quotes" CTA is unconfirmed [capture /request-a-quote/; v1 §2.1].
-- Step 2 says "We'll need to speak with you to give an accurate quote", though an H2 promises "Know your number before you talk to anyone" [walk; capture /request-a-quote/]. An "AI-built inventory" is also pitched but was not walked [capture /request-a-quote/].
+- Step 2 says "We'll need to speak with you to give an accurate quote", though an H2 promises "Know your number before you talk to anyone"; an "AI-built inventory" pitch went unwalked [walk; capture /request-a-quote/].
 - One estimator walk (Arizona → Arizona, "Find Movers") reached the interstate ranking; one input proves little [walk /].
 
 ## Mover side
 No "for movers" or "advertise" link, join path, lead price or sharing rule appeared [capture, navigation]. The interstate page says "No mover pays to be listed or ranked." and discloses consulting ties, the owner and two related movers, but no paid relationship [capture /best-interstate-moving-companies/]. AMC should publish its mover path, pricing rules and sharing cap (shared-pricing §3).
 
 ## Trust, verification and reviews
-- **Conflict.** "CMR is owned by Preferred Movers Network Inc."; A Plus Moving and Storage and Jacob and Sons are "related companies" (the capture cuts the sentence off) [capture /best-interstate-moving-companies/]. It adds "Each holds its own USDOT number and is scored on its own record." [capture]. The quick answer just below ranks A Plus first at 10.0, the only 10.0 seen, and Jacob and Sons (9.4) above MC Movers (9.6) [capture]. The small-moves page leads with the same two, quotes Jacob and Sons "from $1,799.99" and shows no captured disclosure [capture /best-movers-for-small-long-distance-moves/].
+- **Conflict.** "CMR is owned by Preferred Movers Network Inc."; A Plus Moving and Storage and Jacob and Sons are "related companies" (the capture cuts the sentence off) [capture /best-interstate-moving-companies/]. It adds "Each holds its own USDOT number and is scored on its own record." [capture]. The quick answer just below puts A Plus first (10.0, the only 10.0 seen) and Jacob and Sons (9.4) above MC Movers (9.6) [capture]. The small-moves page leads with the same two, quotes Jacob and Sons "from $1,799.99" and shows no captured disclosure [capture /best-movers-for-small-long-distance-moves/].
 - **Badges and licensing.** A gold "Certified Approved seal" and a teal "Verified mark" each get a one-line meaning, and CMR says neither is paid [capture /how-we-rank-movers/, /advertiser-disclosure/]. Lists cite an FMCSA check "on Oct 23, 2026", show rows like "Carrier · USDOT 3006268", label brokers and keep lower scorers for lookup [capture /best-interstate-moving-companies/, /best-movers-for-small-long-distance-moves/]. CMR says featured movers show a BBB grade; no MC numbers appeared [capture /how-we-rank-movers/].
 - **Method.** Five pillars, 3-to-6-month re-checks and "No invented data" are published, but bylines name teams, not people, and /about/ words the criteria differently [capture /editorial-methodology/, /, /about/, /best-interstate-moving-companies/].
 - **Numbers.** Home counters (8,200+ moves, 900+ profiles) show no captured source or date; the 29 verified interstate movers are about 3% of the profiles [capture /, /best-interstate-moving-companies/; inference: arithmetic]. The quote form takes only moves "OVER 250 MILES", while the interstate page cites a mover (E.E. Ward) for "about 400 miles" and recommends only scores of 7.0 or higher [capture]. The small-moves page, with no stated threshold, names Bekins (6.9) "Best guaranteed delivery date" [capture].
 - **Reviews.** A sitewide "Write a Review" link exists, but the form was not captured; third-party feedback feeds an editorial 1-to-10 score, and no Review or AggregateRating type was recorded [capture /how-we-rank-movers/, /editorial-methodology/].
 
 ## Disclosure and consent
-- **Role and money.** The role line sits below the form, under the fourth H2 [capture /request-a-quote/]. /advertiser-disclosure/ says "There are no paid placements on CMR." and makes referral fees hypothetical, where v1 had "may earn a referral fee" [capture; v1 §2.1].
+- **Role and money.** The role line sits below the form [capture /request-a-quote/]. /advertiser-disclosure/ says "There are no paid placements on CMR." and makes referral fees hypothetical, where v1 had "may earn" [capture; v1 §2.1].
 - **Consent.** "By submitting, you agree to be contacted by a vetted moving specialist. We never sell your info." sits under the step-1 button; step 2 had no checkbox or call or text wording, and no arbitration wording appeared [capture, walk /request-a-quote/]. It lacks the written-consent elements in compliance facts §3, which may or may not apply to the unobserved calls [inference].
 - **Sharing.** "Never sell" and "Private by default" promises stand without a captured privacy policy, so recipients are unknown [capture /request-a-quote/, /advertiser-disclosure/].
 - **Broker-like wording.** The "accurate quote" line, moves "booked through the CMR network", "2,046 BOOKED MOVES PRICED" and matching to "the top-rated carriers" describe pricing, booking and judgment [walk; capture /best-movers-for-small-long-distance-moves/, /, /request-a-quote/]. No USDOT or MC number for CMR appeared [capture]. Compliance facts §2 treats these as broker risks; this is a pattern, not a finding that CMR is a broker.
 - **Tracking.** Tag Manager, Clarity session replay, Bing, Facebook, Google Ads and a bzrcdn.openai.com script load; no consent-certificate script was detected [capture].
 
 ## SEO and content
-- **Traffic.** 191 visits a month from 879 keywords, worth $187, with no paid keywords: a tenth of Budget Van Lines' 1,934 visits despite more keywords [semrush domain_rank; keyword-research §1].
+- **Traffic.** 191 visits a month from 879 keywords, worth $187, with no paid keywords: a tenth of Budget Van Lines' 1,934 visits despite more keywords [semrush domain_rank; keyword-research §1]. So CMR is no SEO model; AMC should expect near-zero launch traffic and start with low-difficulty terms such as "usdot number lookup" (KD 18) [keyword-research §3; inference].
 - **Profiles.** /companies/jason-jasons-relocations/ brings 162 visits (84.81%) from 2 keywords; profiles take 177 of 191 [semrush top_pages_more]. The unpulled keywords are most likely the company's name [inference].
 - **Routes.** Four ZIP-to-ZIP lanes earn 1 to 3 visits each [semrush top_pages_more]. /routes/state/ca/ lists title-cased anchors ("Fresno Ca 93722 To Inman Sc 29349") under generic H2s, while /routes/ promises data "for that exact move"; no lane page was captured [capture].
 - **Best-of pages.** At least 10 overlapping lists (Interstate, Long Distance, Nationwide, Cross-Country and more) fill the home menu, as v1 warned [capture /; v1 §2.1]. The captured two run 9,708 and 12,344 words and miss the top 15, which reaches 0-visit rows [capture; semrush].
 - **Shapes and markup.** The interstate page opens with a quick answer, jump index and plain definition; its disclosure is a separate block a quote can drop [capture /best-interstate-moving-companies/; inference]. FAQPage stays on 4 of 10 pages, and Article marks up hubs [capture].
-- **Other.** An "of the month" label clashes with 3-to-6-month re-checks [capture /]. URLs include a 2-letter state hub, a "-3" slug suffix and a HireAHelper profile [capture /routes/state/ca/; semrush]. Car-shipping URLs and the "2026 Moving Cost Report" earn little or nothing measurable [semrush; capture /].
-- **For AMC.** Learn trust from CMR, not SEO; start with low-difficulty families such as "usdot number lookup" (KD 18) and state routes (KD 10–25) [semrush keyword-research §3].
+- **Other.** An "of the month" label clashes with 3-to-6-month re-checks [capture /]. URLs include a 2-letter state hub and a "-3" slug suffix [capture /routes/state/ca/; semrush]. Car-shipping URLs and the "2026 Moving Cost Report" earn little or nothing measurable [semrush; capture /].
 
 ## Design and UX
 On mobile, /request-a-quote/ opens on the form with no H1 above the fold [capture]. On the four desktop pages recorded, "(888) 695-0663" precedes "Get a Quote"; best-of pages pair "Get free quotes" with a call line [capture /, /best-interstate-moving-companies/]. Best-of pages repeat inline ZIP forms, and one table says "Scroll sideways on a phone." [capture /best-movers-for-small-long-distance-moves/].
@@ -79,16 +78,15 @@ On mobile, /request-a-quote/ opens on the form with no H1 above the fold [captur
 ## Gaps and open questions
 - After submit: what appears, how many companies, who calls and how often.
 - Who the "specialist" and phone line are, and whether leads reach the related movers.
-- The full ownership sentence, privacy policy and terms.
+- The full ownership sentence, privacy policy and terms; the whole mover side.
 - Profiles, reviews, nested JSON-LD, lane pages, estimator output, the inventory tool and the OpenAI-hosted script.
-- Sources of the counters and "booked" moves; the mover side.
-- v1's score and BBB-grade conflicts, not re-confirmed [v1 §2.1].
+- Sources of the counters and "booked" moves; v1's score and BBB-grade conflicts [v1 §2.1].
 - "Preferred Movers" registries and trademarks; other firms using the name [search, not re-checked].
 - BBB, complaint and court records; CMR's keywords and backlinks; answer-engine tests.
 - Owner decision: third-party grades such as BBB on AMC profiles (mover-verification §5).
 
 ## Sources
-- Evidence: `docs/research/reference-review/captures/consumermovingreviews.md`, `_provenance.md`, `moveorg.md`; private raw pack (not in the repository).
+- Evidence (in `docs/research/reference-review/captures/`): `consumermovingreviews.md`, `_provenance.md`, `moveorg.md`; private raw pack (not in the repository).
 - v1: `docs/research/reference-matrix.md` §2.1, §3.
 - Semrush (US, 2026-10-27): `docs/research/raw/semrush/domain_rank_2026-10-27.json`, `top_pages_more_2026-10-27.csv`; `docs/research/keyword-research.md` §1, §3.
 - AMC docs: `docs/business-rules/` (copy draft, lead-lifecycle, mover-verification, shared-pricing), `docs/research/compliance-and-platform-facts.md` (compliance facts), `docs/seo/site-architecture.md`, `docs/design/visual-direction.md`.
