@@ -24,15 +24,15 @@ A solar and home-energy marketplace where homeowners compare installer quotes, l
 | Side: /solar/calculator/ | Address, property type, monthly bill | Not run; whether an estimate precedes contact is unknown | [capture] |
 
 - Each step has its own URL (`/onboarding/start/{Step}/?zip_code=20147&product=solar-pv`); robots and canonical tags were not recorded [walk].
-- The ZIP arrived prefilled with 20147 (Ashburn VA, where the sandbox runs), so the test ZIP was never typed, and no screen confirmed it [walk; inference: an IP-based lookup].
+- The ZIP arrived prefilled with 20147 (Ashburn VA, where the sandbox runs), so the test ZIP was never typed, and no screen asked to confirm it [walk; inference: an IP-based lookup].
 - The hero promises "multiple quotes" with no number, and no installer count appeared on screens 1 to 4 [capture: /; walk]. v1 says shoppers choose whether installers may phone them [v1 §2.9].
-- Two "See solar prices" boxes per article and a "Check battery prices" button promise prices, but the walked homepage entry showed only questions [capture: articles, /; walk].
+- Article "See solar prices" boxes (two each) and a "Check battery prices" button promise prices, but the walked homepage entry showed only questions [capture: articles, /; walk].
 
 ## Mover side
 No installer-facing page was captured, so fees, lead rules and caps are unknown; v1 says installers pay and consumers use it free [capture; v1 §2.9]. A help-center excerpt says installers "pay a small fee to join our marketplace, but only after we vet them" [search: help.energysage.com, own page, not rechecked]. A help page and articles from 2018 and 2022 describe in-platform messaging, with the shopper's number shared only after they pick an installer [search: info.energysage.com, own; solarpowerworldonline.com, electrek.co, third party; not rechecked]. Corporate partners may "link to or embed" content, guides and calculators [capture: /partners/corporations/].
 
 ## Trust, verification and reviews
-- **Advisor.** The homepage leads with "Choose with an expert" and "a free, unbiased Energy Advisor", but no captured page says how advisors are paid [capture: /]. That is more prominence than v1 recorded, though help stays optional ("as much help as you want") [capture: /about-us/; v1 §2.9].
+- **Advisor.** The homepage leads with "Choose with an expert" and "a free, unbiased Energy Advisor", but no captured page says how advisors are paid [capture: /]. The advisor is more prominent than v1 recorded, though help stays optional ("as much help as you want") [capture: /about-us/; v1 §2.9].
 - **Vetting.** "Pre-screened, certified installers" (/) and "vetted installers" (/about-us/) are not defined on captured pages, and no guarantee goes beyond "we have your back" [capture]. Published criteria are search-only [search: help.energysage.com, own page, not rechecked].
 - **Claims.** The / meta says "over 50,000 homeowners" while H2s say 60,000, and /editorial-guidelines/ says "since our founding in 2009" while /about-us/ says "Twelve years ago" [capture; inference: about 2014]. "Most trusted", "largest" and "Save 20 to 30%" claims show no basis [capture: /, /about-us/, /partners/corporations/].
 - **Backers.** Schneider Electric backing, DOE funding and the founder are named, but whether logos link anywhere was not recorded [capture: /partners/corporations/, /, /about-us/]. The 2022 controlling-stake purchase is search-only [search: pv-magazine.com, third party, not rechecked].
@@ -49,10 +49,10 @@ No installer-facing page was captured, so fees, lead rules and caps are unknown;
 ## SEO and content
 - **Traffic.** The top 25 pages hold 42.3% of visits; cost and incentive pages plus the calculator take 33,520 (14% of the site) and 14 informational pages 46,116 (19.3%) [semrush: top_pages_more]. No backlink data was pulled [semrush].
 - **Geo.** /local-data/solar-panel-cost/va/ is #6 (4,305 visits, 55 keywords), the only state cost page in the top 25; none was captured [semrush; capture].
-- **IA and best-of.** A product-led menu and a /local-data/ geo namespace [capture; semrush]. The ranking is not in the top 25, one supplier profile is (1,899), and family totals were not pulled [semrush].
+- **IA.** A product-led menu and a /local-data/ geo namespace; the best-panels ranking is not among the top 25 pages [capture; semrush].
 - **Templates.** All three articles (2,618 to 3,320 words) carry writer, editor, "Updated" date, contents list, question H2s, related links and BreadcrumbList, without credentials; years sit in titles, not URLs [capture].
 - **Tool page.** The calculator has no H1, no JSON-LD and 86 words, yet is the #3 page (1,160 keywords) [capture; semrush].
-- **Numbers.** The cost page's meta says "about $30,500" and "$37,000 to $154,000", its body $31,135 and $41,000 to $155,000 [capture: /local-data/solar-panel-cost/]. The About meta is just "About us" [capture].
+- **Numbers.** The cost page's meta says "about $30,500" and "$37,000 to $154,000", its body $31,135 and $41,000 to $155,000 [capture: /local-data/solar-panel-cost/].
 - **Markup.** Only WebSite, WebPage, Article and BreadcrumbList were recorded, with no FAQPage or AggregateRating; nested objects were not inspected [capture].
 
 ## Design and UX
@@ -63,12 +63,13 @@ No installer-facing page was captured, so fees, lead rules and caps are unknown;
 - **"Free" beside the pay model** [capture: /]. Better: wherever AMC says free, the same component says movers pay for requests, in one counsel-approved statement. Serves consent draft §1, §7; visual-direction §13.7.
 - **Short start, one question per screen** [capture: /; walk]. Better: from and to in the first mobile screen and content modules, the coverage pre-check before contact, step events not URLs, and no presets affecting matching, price, sharing or consent. Serves lead-lifecycle §2; site-architecture §9; consent draft §4, §5.
 - **A calculator with a stated basis** [capture: /solar/calculator/]. Better: ungated, with an H1, named inputs and sources, a "data as of" date, a range that is not a quote and no "actual offers" claim; inputs carry into step 1. Serves value before contact; site-architecture §6.3; compliance facts §2.
-- **Cost data as a product** [semrush; capture]. Better: dated ranges with source and sample, from member rate cards or cited data; one dataset for meta, body and schema; a credentialed "Reviewed by" line; a "costs by state" module once demand is measured; and an embeddable version for realtor and HR partners. Serves site-architecture §1.1, §3.2, §6.3, §7.2, G4; link earning (keyword-research §1).
-- **Ranking criteria** [capture]. Better: disclose that movers may pay AMC without changing order, or rank no paying movers; never score on leads bought. Serves site-architecture §4.6; compliance facts §4.
+- **Cost data as a product** [semrush; capture]. Better: dated, sourced ranges with sample sizes, from member rate cards or cited data; one dataset for meta, body and schema; a credentialed reviewer; a "costs by state" module once demand is measured; an embeddable version for partners. Serves site-architecture §1.1, §3.2, §6.3, §7.2, G4; link earning (keyword-research §1).
+- **Ranking criteria** [capture]. Better: disclose that listed movers may pay AMC and that payment never changes order, or rank no paying movers; never score on leads bought. Serves site-architecture §4.6; compliance facts §4.
 - **Named owner and one facts record** [capture]. Better: name AMC's owner and any tie to a mover, broker or lead buyer, link every logo to its item, and date every count. Serves site-architecture §7.1; compliance facts §4; discovery brief §11 Q1.
 - **Privacy controls** [capture]. Better: GPC, a share-or-sale opt-out, a text-opt-in non-sharing clause and named affiliates. Serves compliance facts §3.
 - **Partner named at the hand-off** [capture: /]. Better: name referral partners there and in consent; car shipping must first clear the movers-only rule. Serves consent draft §5; site-architecture §0 decision 7; mvp-scope.
 - **Contact preference** [v1 §2.9; search]. Better: with no in-platform messaging at MVP, capture a preference, send it with each lead, bind movers to it, and promise only "up to {N} movers". Serves consent draft §6, §11; compliance facts §3.
+
 ## What AMC should avoid
 - A vague "multiple"; state the maximum and ask 1 to N, nothing preselected (lead-lifecycle §2 step 7; consent draft §4) [capture: /].
 - "Unbiased" or "neutral" claims, even in testimonials, while movers pay; undefined "vetted" or "certified" (compliance facts §4; mover-verification §4, §7) [capture].
