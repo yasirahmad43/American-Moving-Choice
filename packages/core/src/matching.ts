@@ -89,3 +89,16 @@ export function matchCompany(c: CompanyMatchProfile, lead: LeadFacts): MatchResu
   const included = active.find((r) => r.kind === "include" && ruleMatches(r, lead));
   return included ? { eligible: true, ruleId: included.id } : { eligible: false, reason: "no_matching_coverage" };
 }
+
+/**
+ * Eligibility snapshot for a newly qualified lead. These rows are written to `lead_eligibility`
+ * (named_in_consent = true for the movers shown to the consumer) and rechecked at purchase time.
+ */
+export function eligibleCompanies(companies: CompanyMatchProfile[], lead: LeadFacts): { companyId: string; ruleId: string }[] {
+  const out: { companyId: string; ruleId: string }[] = [];
+  for (const c of companies) {
+    const r = matchCompany(c, lead);
+    if (r.eligible) out.push({ companyId: c.companyId, ruleId: r.ruleId });
+  }
+  return out;
+}

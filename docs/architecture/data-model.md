@@ -40,7 +40,7 @@ erDiagram
 | Table | Key fields | Notes |
 |---|---|---|
 | `users` | id (= auth user id), email, name, phone, mfa_enrolled | Managed by Supabase Auth; profile mirror |
-| `companies` **(built, partial)** | legal_name, dba_name, status (`applied → verifying → in_review → approved / rejected`, `suspended`), usdot_number, mc_number, has_broker_authority, credentials_valid_until, billing_status, stripe_customer_id | Status history in `company_status_history` |
+| `companies` **(built, partial)** | legal_name, dba_name, status (`applied → verifying → in_review → approved / rejected`, `suspended`), usdot_number, mc_number, has_broker_authority, credentials_valid_until, coverage_version (built), billing_status, stripe_customer_id | Status history in `company_status_history` |
 | `company_memberships` | company_id, user_id, role (`owner`, `manager`, `agent`, `billing`), status, invited_by | Unique (company_id, user_id) |
 | `invitations` | company_id, email, role, token_hash, expires_at, accepted_at | Single-use |
 | `admin_users` | user_id, admin_role (`super_admin`, `ops`, `verification`, `finance`, `content_editor`, `content_reviewer`, `moderator`, `support`) | Separate from company roles |
@@ -98,7 +98,7 @@ erDiagram
 | `lead_validation_results` | lead_id, check, result, reason, provider_ref |
 | `consent_text_versions` | id, body, sha256, effective_from, approved_by (counsel sign-off reference) |
 | `consent_records` (append-only) | lead_id, consent_text_version_id, rendered_text_sha256, named_company_ids[], selected_limit, ip, user_agent, page_url, form_version, checkbox_state, submitted_at, certificate_id |
-| `lead_eligibility` | group_id, company_id, matched_rule_id, named_in_consent (bool), matched_at |
+| `lead_eligibility` **(built)** | group_id, company_id, matched_rule_id, named_in_consent (bool), coverage_version at match time, matched_at |
 | `consumer_contact_preferences` | email_hash/phone_hash, do_not_contact, withdrawn_at, source |
 | `data_subject_requests` | type (access/delete/correct), status, verified_at, completed_at, legal_hold |
 | `attribution_touches` | lead_id, touch (`first`/`last`), landing_url, referrer, utm_*, click_ids (admin-only), device, source_category, evidence_level (`observed`/`referrer_inferred`/`unknown`) |
@@ -108,7 +108,7 @@ erDiagram
 | Table | Key fields / invariants |
 |---|---|
 | `sharing_policies` **(built)** | version, factors_bp[] (first = 10000, non-increasing) |
-| `company_prices` **(built)** | company_id, exclusive_cents, shared_cents, effective_from, set_by. Append-only history |
+| `company_prices` **(built)** | company_id, exclusive_cents, shared_cents, effective_from, set_by. Append-only history. **Pending decision (brief §11 Q6):** add `move_category` (`local`/`intrastate`/`interstate`) to the key if prices vary by category. Purchases already snapshot the exact price row used, so history is unaffected |
 | `purchase_attempts` **(built)** | unique (company_id, idempotency_key); **partial unique (group_id) where status = 'reserved'**; price snapshot; credit hold; card amount; payment_ref unique; expires_at |
 | `purchases` **(built)** | unique (group_id, company_id); unique (group_id, position); list price, charge, policy version, price row; refunded_at |
 | `disclosures` **(built)** | purchase_id, disclosed_at |
@@ -177,3 +177,4 @@ erDiagram
 7. Purchases keep their price snapshot and policy version. **Tested.**
 8. Brokers, unapproved companies, companies without required numbers, and companies with expired credentials cannot reserve. **Tested.**
 9. CRM rows are visible only to the owning company (RLS). **Tested for notes.**
+10. Only movers named in the consumer's consent can buy, and coverage edits after matching force a fresh match before purchase. **Tested.**

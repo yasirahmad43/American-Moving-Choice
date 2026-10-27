@@ -19,6 +19,8 @@ create table companies (
   -- Movers-only: any broker authority (including dual carrier/broker registration) makes a company ineligible.
   has_broker_authority boolean not null default false,
   credentials_valid_until date,
+  -- Incremented on every coverage/capability change so stale eligibility snapshots are detected at purchase.
+  coverage_version integer not null default 1,
   created_at timestamptz not null default now()
 );
 
@@ -93,6 +95,19 @@ create table leads (
   dest_zip text not null check (dest_zip ~ '^[0-9]{5}$'),
   is_primary boolean not null default true,
   created_at timestamptz not null default now()
+);
+
+-- Eligibility snapshot written by the matching engine (packages/core/src/matching.ts) when a lead is
+-- listed. named_in_consent records that the consumer saw this mover named at submission; only those
+-- movers may ever buy the lead. coverage_version detects coverage edits made after matching.
+create table lead_eligibility (
+  group_id uuid not null references lead_groups(id),
+  company_id uuid not null references companies(id),
+  matched_rule_id text,
+  named_in_consent boolean not null,
+  coverage_version integer not null,
+  matched_at timestamptz not null default now(),
+  primary key (group_id, company_id)
 );
 
 create function attach_duplicate(p_group uuid, p_selected_limit integer) returns void language plpgsql as $$
@@ -202,7 +217,7 @@ end $$;
 create function reserve_purchase(p_company uuid, p_group uuid, p_idem text, p_hold interval default interval '2 minutes')
 returns purchase_attempts language plpgsql as $$
 declare
-  g lead_groups; c companies; pr company_prices; a purchase_attempts;
+  g lead_groups; c companies; pr company_prices; a purchase_attempts; e lead_eligibility;
   n_sold integer; pos integer; price integer; charge integer; credit_avail integer; credit_use integer;
   factors integer[];
 begin
@@ -214,6 +229,11 @@ begin
 
   select * into g from lead_groups where id = p_group for update;       -- serializes this lead's inventory
   if not found then raise exception 'lead_not_found' using errcode = 'P0001'; end if;
+
+  select * into e from lead_eligibility where group_id = p_group and company_id = p_company;
+  if not found or not e.named_in_consent then raise exception 'not_eligible_for_lead' using errcode = 'P0001'; end if;
+  -- Coverage changed since matching: the caller re-runs the matcher, refreshes the snapshot, then retries.
+  if e.coverage_version <> c.coverage_version then raise exception 'eligibility_stale' using errcode = 'P0001'; end if;
 
   update purchase_attempts set status = 'expired' where group_id = p_group and status = 'reserved' and expires_at < now();
 

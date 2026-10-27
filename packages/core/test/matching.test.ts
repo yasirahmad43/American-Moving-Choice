@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matchCompany, type CompanyMatchProfile, type LeadFacts } from "../src/matching";
+import { eligibleCompanies, matchCompany, type CompanyMatchProfile, type LeadFacts } from "../src/matching";
 import { parseZip5, type ResolvedLocation } from "../src/geo";
 
 const loc = (zip: string, state: any, countyFips: string, city = "X"): ResolvedLocation => ({ zip: parseZip5(zip)!, state, countyFips, city });
@@ -65,5 +65,16 @@ describe("matching", () => {
     const c = company([{ id: "n", kind: "include" }], { capabilities: { moveTypes: ["local"], moveSizes: ["2br"], services: ["full_service"] } });
     expect(matchCompany(c, lead(MIAMI, ATL))).toEqual({ eligible: false, reason: "move_type_not_offered" });
     expect(matchCompany(company([{ id: "n", kind: "include" }], { eligibleToPurchase: false }), lead(MIAMI, ATL)).eligible).toBe(false);
+  });
+
+  it("builds the eligibility snapshot from all companies", () => {
+    const route = company([{ id: "fl-ga", kind: "include", origin: { states: ["FL"] }, destination: { states: ["GA"] } }], { companyId: "route" });
+    const nation = company([{ id: "all", kind: "include" }], { companyId: "nation" });
+    const broker = company([{ id: "all", kind: "include" }], { companyId: "broker", eligibleToPurchase: false });
+    expect(eligibleCompanies([route, nation, broker], lead(MIAMI, ATL))).toEqual([
+      { companyId: "route", ruleId: "fl-ga" },
+      { companyId: "nation", ruleId: "all" },
+    ]);
+    expect(eligibleCompanies([route, nation, broker], lead(ATL, MIAMI))).toEqual([{ companyId: "nation", ruleId: "all" }]);
   });
 });

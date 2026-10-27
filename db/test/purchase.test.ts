@@ -35,8 +35,17 @@ async function lead(limit: number) {
   return g;
 }
 
+/** Record that the matcher found this company eligible and the consumer saw it named at consent. */
+async function offer(groupId: string, companyId: string, namedInConsent = true) {
+  await pool.query(
+    `insert into lead_eligibility(group_id, company_id, matched_rule_id, named_in_consent, coverage_version)
+     select $1, $2, 'rule-1', $3, coverage_version from companies where id = $2
+     on conflict (group_id, company_id) do nothing`, [groupId, companyId, namedInConsent]);
+}
+
 /** Reserve then complete (simulating a successful payment), as the API would. */
-async function buy(companyId: string, groupId: string, key = `k-${companyId}-${groupId}`) {
+async function buy(companyId: string, groupId: string, key = `k-${companyId}-${groupId}`, opts = { offer: true }) {
+  if (opts.offer) await offer(groupId, companyId);
   const r = await pool.query("select * from reserve_purchase($1,$2,$3)", [companyId, groupId, key]);
   const attempt = r.rows[0];
   const p = await pool.query("select * from complete_purchase($1,$2)", [attempt.id, `pi_${attempt.id}`]);
@@ -112,6 +121,7 @@ describe("shared leads", () => {
     const g1 = await lead(2); await buy(a, g1); await buy(b, g1); // A gets 800 credit
     expect(await balance(a)).toBe(800);
     const g2 = await lead(2); const g3 = await lead(2);
+    await offer(g2, a); await offer(g3, a);
     const r1 = (await pool.query("select * from reserve_purchase($1,$2,'x1')", [a, g2])).rows[0];
     const r2 = (await pool.query("select * from reserve_purchase($1,$2,'x2')", [a, g3])).rows[0];
     expect([r1.credit_applied_cents, r1.card_amount_cents]).toEqual([800, 3200]);
@@ -125,6 +135,7 @@ describe("payments and idempotency", () => {
   it("failed payment releases the slot and reveals nothing", async () => {
     const a = await company("A", { excl: 9000, shared: 4000 });
     const g = await lead(1);
+    await offer(g, a);
     const r = (await pool.query("select * from reserve_purchase($1,$2,'k')", [a, g])).rows[0];
     await pool.query("select fail_purchase($1)", [r.id]);
     const contact = await pool.query("select * from lead_contact_for_company($1,$2)", [g, a]);
@@ -138,6 +149,7 @@ describe("payments and idempotency", () => {
     const b = await company("B", { excl: 9000, shared: 4000 });
     const g = await lead(3);
     await buy(a, g);
+    await offer(g, b);
     const r1 = (await pool.query("select * from reserve_purchase($1,$2,'same-key')", [b, g])).rows[0];
     const r2 = (await pool.query("select * from reserve_purchase($1,$2,'same-key')", [b, g])).rows[0];
     expect(r2.id).toBe(r1.id);
@@ -155,6 +167,7 @@ describe("payments and idempotency", () => {
     const a = await company("A", { excl: 9000, shared: 4000 });
     const b = await company("B", { excl: 9000, shared: 4000 });
     const g = await lead(1);
+    await offer(g, a);
     const r = (await pool.query("select * from reserve_purchase($1,$2,'k',interval '1 millisecond')", [a, g])).rows[0];
     await new Promise((res) => setTimeout(res, 10));
     await buy(b, g); // B takes the slot after A's hold expired
@@ -217,6 +230,24 @@ describe("eligibility and isolation", () => {
     const noMc = await company("NoMC", { excl: 9000, shared: 4000 }, { mc_number: null });
     for (const c of [broker, pending, expired, noMc]) await expect(buy(c, g)).rejects.toThrow(/company_not_eligible/);
     for (const c of [broker, pending]) expect((await pool.query("select * from lead_contact_for_company($1,$2)", [g, c])).rows).toHaveLength(0);
+  });
+
+  it("only movers named to the consumer at submission can buy, and coverage edits force a fresh match", async () => {
+    const a = await company("A", { excl: 9000, shared: 4000 });
+    const late = await company("Late joiner", { excl: 9000, shared: 4000 });
+    const g = await lead(3);
+    await offer(g, late, false); // matched later, never named in the consent
+    await expect(buy(late, g, "k1", { offer: false })).rejects.toThrow(/not_eligible_for_lead/);
+    const stranger = await company("Not matched", { excl: 9000, shared: 4000 });
+    await expect(buy(stranger, g, "k2", { offer: false })).rejects.toThrow(/not_eligible_for_lead/);
+
+    await offer(g, a);
+    await pool.query("update companies set coverage_version = coverage_version + 1 where id = $1", [a]);
+    await expect(buy(a, g, "k3", { offer: false })).rejects.toThrow(/eligibility_stale/);
+    // App re-runs the matcher; the company still covers the lead, so the snapshot is refreshed.
+    await pool.query(`update lead_eligibility e set coverage_version = c.coverage_version
+                      from companies c where c.id = e.company_id and e.group_id = $1 and e.company_id = $2`, [g, a]);
+    await expect(buy(a, g, "k3", { offer: false })).resolves.toBeTruthy();
   });
 
   it("the MC-number requirement is a platform setting (default on)", async () => {

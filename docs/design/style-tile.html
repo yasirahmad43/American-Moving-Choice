@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<title>Route Ledger Style Tile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* ---------- Tokens: light (default) ---------- */
+:root{
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F6F8FB; --surface-3:#EEF2F7;
+  --text:#111C2E; --text-2:#3B4A61; --text-3:#55657D;
+  --border:#DFE5EE; --border-strong:#74839A;
+  --brand-navy:#063167; --brand-red:#E0141C; --display-red:#E0141C; --wordmark:#063167;
+  --primary:#063167; --primary-hover:#04254F; --on-primary:#FFFFFF;
+  --cta:#C21018; --cta-hover:#A10D14; --on-cta:#FFFFFF;
+  --link:#1F4C8C; --focus:#1F4C8C;
+  --info-bg:#EEF3FA; --info-text:#063167;
+  --success:#146C35; --success-bg:#E7F4EC; --warning:#7A4A00; --warning-bg:#FFF3DC; --error:#B3261E; --error-bg:#FDECEA;
+  --band:#063167; --on-band:#FFFFFF; --on-band-2:#DCE6F4; --focus-on-band:#9DC4FF;
+  --sh-1:0 1px 2px rgba(6,49,103,.06),0 2px 6px -2px rgba(6,49,103,.08);
+  --sh-2:0 12px 28px -14px rgba(6,49,103,.22),0 2px 6px rgba(6,49,103,.06);
+  --sh-3:0 28px 56px -20px rgba(6,49,103,.32);
+  --r-xs:4px; --r-s:8px; --r-m:12px; --r-l:16px; --r-xl:24px; --r-pill:999px;
+  --f-display:"Archivo","Arial Narrow","Helvetica Neue",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-std:cubic-bezier(.32,.72,0,1);
+  --d1:120ms; --d2:200ms; --d3:280ms;
+  --gutter:16px;
+  color-scheme:light;
+}
+/* ---------- Tokens: dark ---------- */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1222; --surface:#111B2E; --surface-2:#172338; --surface-3:#1D2A42;
+    --text:#E9EEF6; --text-2:#B4BFD0; --text-3:#8F9BB0;
+    --border:#2A3852; --border-strong:#5B6B86;
+    --display-red:#FF5A5F; --wordmark:#E9EEF6;
+    --primary:#BFD3F2; --primary-hover:#D6E3F7; --on-primary:#04254F;
+    --cta:#E0141C; --cta-hover:#C21018; --on-cta:#FFFFFF;
+    --link:#9DBDF0; --focus:#8EC5FF;
+    --info-bg:#14284A; --info-text:#BFD3F2;
+    --success:#6FD394; --success-bg:#0F2A1B; --warning:#F5B95A; --warning-bg:#2E2108; --error:#FF8A80; --error-bg:#33140F;
+    --band:#04254F;
+    --sh-1:0 1px 2px rgba(0,0,0,.3); --sh-2:0 12px 28px -14px rgba(0,0,0,.6); --sh-3:0 28px 56px -20px rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1222; --surface:#111B2E; --surface-2:#172338; --surface-3:#1D2A42;
+  --text:#E9EEF6; --text-2:#B4BFD0; --text-3:#8F9BB0;
+  --border:#2A3852; --border-strong:#5B6B86;
+  --display-red:#FF5A5F; --wordmark:#E9EEF6;
+  --primary:#BFD3F2; --primary-hover:#D6E3F7; --on-primary:#04254F;
+  --cta:#E0141C; --cta-hover:#C21018; --on-cta:#FFFFFF;
+  --link:#9DBDF0; --focus:#8EC5FF;
+  --info-bg:#14284A; --info-text:#BFD3F2;
+  --success:#6FD394; --success-bg:#0F2A1B; --warning:#F5B95A; --warning-bg:#2E2108; --error:#FF8A80; --error-bg:#33140F;
+  --band:#04254F;
+  --sh-1:0 1px 2px rgba(0,0,0,.3); --sh-2:0 12px 28px -14px rgba(0,0,0,.6); --sh-3:0 28px 56px -20px rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+@media (min-width:768px){:root{--gutter:24px}}
+@media (min-width:1280px){:root{--gutter:32px}}
+
+/* ---------- Base ---------- */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 1.0625rem/1.6 var(--f-body);font-synthesis:none}
+img,svg{display:block;max-width:100%}
+a{color:var(--link);text-underline-offset:.18em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+button,input,select{font:inherit;color:inherit}
+p{margin:0 0 .75em}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:8px;top:-64px;z-index:20;background:var(--primary);color:var(--on-primary);padding:12px 16px;border-radius:var(--r-m)}
+.skip:focus{top:8px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 var(--gutter)}
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ic-s{width:16px;height:16px;stroke-width:2}
+.tnum{font-variant-numeric:tabular-nums}
+.sample{display:inline-block;font:700 .75rem/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);border:1px dashed var(--border-strong);border-radius:var(--r-xs);padding:4px 6px}
+
+/* ---------- Type ---------- */
+h1,h2,h3{font-family:var(--f-display);color:var(--text);margin:0 0 .4em;text-wrap:balance}
+.d-xl{font-weight:800;font-stretch:75%;font-size:clamp(2.25rem,1.35rem + 3.6vw,4rem);line-height:1.02;letter-spacing:-.01em;max-width:18ch}
+.d-l{font-weight:800;font-stretch:78%;font-size:clamp(1.75rem,1.3rem + 1.8vw,2.5rem);line-height:1.08}
+.h3{font-weight:700;font-stretch:100%;font-size:1.375rem;line-height:1.25}
+.h4{font:700 1.125rem/1.3 var(--f-body);margin:0 0 .35em}
+.overline{font:700 .8125rem/1.2 var(--f-display);font-stretch:100%;letter-spacing:.12em;text-transform:uppercase;color:var(--text-2);margin:0 0 12px}
+.lede{font-size:clamp(1.125rem,1rem + .4vw,1.25rem);line-height:1.55;color:var(--text-2);max-width:56ch}
+.small{font-size:.875rem;line-height:1.45;color:var(--text-3)}
+
+/* ---------- Header ---------- */
+.site{border-bottom:1px solid var(--border);background:var(--surface)}
+.site .wrap{display:flex;align-items:center;gap:16px;min-height:64px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+.lockup{display:inline-flex;flex-direction:column;line-height:.92;text-decoration:none;color:var(--wordmark);font-family:var(--f-display);margin-right:auto}
+.lk-a{font-weight:800;font-size:.625rem;letter-spacing:.44em;font-stretch:100%}
+.lk-m{font-weight:900;font-size:1.375rem;font-stretch:70%;text-transform:uppercase}
+.lk-m b{color:var(--display-red)}
+.nav{display:none;gap:24px}
+.nav a{color:var(--text);text-decoration:none;font-weight:600;padding:10px 0}
+.nav a:hover{color:var(--link)}
+@media (min-width:1024px){.nav{display:flex}}
+.theme{display:flex;border:1px solid var(--border-strong);border-radius:var(--r-pill);padding:2px;margin:0}
+.theme legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.theme label{position:relative;display:inline-flex;align-items:center;min-height:36px;padding:0 10px;border-radius:var(--r-pill);font-size:.875rem;font-weight:600;cursor:pointer;color:var(--text-2)}
+.theme input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.theme label:has(input:checked){background:var(--primary);color:var(--on-primary)}
+.theme label:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 20px;border-radius:var(--r-m);border:1.5px solid transparent;font:600 1.0625rem/1 var(--f-body);text-decoration:none;cursor:pointer;transition:background-color var(--d1) var(--ease-std),border-color var(--d1) var(--ease-std),transform var(--d1) var(--ease-std)}
+.btn:active,.btn.is-active{transform:translateY(1px)}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-primary:hover,.btn-primary.is-hover{background:var(--primary-hover)}
+.btn-cta{background:var(--cta);color:var(--on-cta);padding-right:10px}
+.btn-cta:hover,.btn-cta.is-hover{background:var(--cta-hover)}
+.btn-cta .bub{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.18);transition:transform var(--d2) var(--ease-out)}
+.btn-cta:hover .bub,.btn-cta.is-hover .bub{transform:translateX(2px)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border-strong)}
+.btn-secondary:hover,.btn-secondary.is-hover{background:var(--surface-2)}
+.btn-ghost{background:transparent;color:var(--link);padding:0 12px;text-decoration:underline;text-underline-offset:.2em}
+.btn[disabled],.btn[aria-disabled="true"]{background:var(--surface-3);color:var(--text-3);border-color:var(--border);cursor:not-allowed;transform:none}
+.btn.is-focus{outline:3px solid var(--focus);outline-offset:2px}
+.btn-block{width:100%}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* ---------- Forms ---------- */
+.field{display:grid;gap:6px;min-width:0}
+.field label,.legend{font-weight:600;font-size:.9375rem;color:var(--text)}
+.input,select.input{width:100%;min-height:48px;padding:10px 14px;border:1.5px solid var(--border-strong);border-radius:var(--r-m);background:var(--surface);font-size:1.0625rem;transition:border-color var(--d1) var(--ease-std)}
+.input:focus-visible,.input.is-focus{outline:3px solid var(--focus);outline-offset:1px;border-color:var(--primary)}
+.input[aria-invalid="true"]{border-color:var(--error);border-width:2px}
+.input[disabled]{background:var(--surface-3);color:var(--text-3)}
+.hint{font-size:.875rem;color:var(--text-3);display:flex;gap:6px;align-items:center;min-height:1.3em}
+.hint.ok{color:var(--success)}
+.err{font-size:.875rem;color:var(--error);display:flex;gap:6px;align-items:flex-start;font-weight:600;margin:0}
+.err[hidden]{display:none}
+.grid2{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.grid-auto{display:grid;gap:14px}
+@media (min-width:480px){.grid-auto{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.check{display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:10px 0;cursor:pointer}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--primary);flex:none}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.choices{display:grid;gap:10px}
+.choice{position:relative;display:flex;gap:12px;align-items:flex-start;padding:14px 14px 14px 46px;min-height:56px;border:1.5px solid var(--border-strong);border-radius:var(--r-m);background:var(--surface);cursor:pointer}
+.choice input{position:absolute;left:14px;top:16px;width:20px;height:20px;margin:0;accent-color:var(--primary)}
+.choice:has(input:checked){border:2px solid var(--primary);background:var(--info-bg);padding:13px 13px 13px 45px}
+.choice:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.choice b{display:block}
+.choice span{color:var(--text-2);font-size:.9375rem}
+
+/* ---------- Hero + survey ---------- */
+.hero{padding:clamp(24px,4vw,64px) 0 clamp(32px,5vw,72px);background:linear-gradient(180deg,var(--surface-2),var(--bg) 70%)}
+.hero-grid{display:grid;gap:24px}
+.hero-copy .lede{margin-top:4px}
+@media (min-width:1024px){
+  .hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);grid-template-areas:"copy survey" "media survey";column-gap:56px;row-gap:28px;align-items:start}
+  .hero-copy{grid-area:copy}.survey-shell{grid-area:survey}.hero-media{grid-area:media}
+  .survey-shell{padding:6px;border-radius:var(--r-xl);background:var(--surface-3);border:1px solid var(--border);box-shadow:var(--sh-2)}
+  .survey-shell .survey{border-radius:18px}
+}
+.survey{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);padding:clamp(16px,2.5vw,28px)}
+.survey-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
+.progress{height:4px;border-radius:var(--r-pill);background:var(--surface-3);overflow:hidden;margin:10px 0 18px}
+.progress span{display:block;height:100%;background:var(--primary);transform-origin:left;transform:scaleX(.25);transition:transform var(--d3) var(--ease-out)}
+.step{display:grid;gap:14px}
+.step[hidden]{display:none}
+.step h3{outline:none}
+.step.enter{animation:stepIn var(--d3) var(--ease-out)}
+@keyframes stepIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.why{display:flex;gap:10px;background:var(--info-bg);color:var(--info-text);border-radius:var(--r-m);padding:12px 14px;font-size:.9375rem}
+.why .ic{margin-top:2px}
+.survey-nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:18px;flex-wrap:wrap}
+.survey-nav .btn-primary,.survey-nav .btn-cta{margin-left:auto}
+.summary{display:grid;gap:8px;margin:0;background:var(--surface-2);border-radius:var(--r-m);padding:14px}
+.summary div{display:grid;grid-template-columns:minmax(0,7.5rem) minmax(0,1fr);gap:8px}
+.summary dt{color:var(--text-3);font-size:.9375rem}
+.summary dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.consent{font-size:.9375rem;color:var(--text-2)}
+.done{display:grid;gap:12px}
+.trust{display:grid;gap:12px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-top:28px}
+@media (min-width:1024px){.trust{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}}
+.trust div{border-top:2px solid var(--brand-navy);padding-top:10px}
+.trust b{display:block;font-family:var(--f-display);font-stretch:85%;font-size:1.0625rem}
+.trust p{font-size:.9375rem;color:var(--text-2);margin:2px 0 0}
+
+/* ---------- Media placeholders ---------- */
+.ph{position:relative;display:grid;place-items:end start;aspect-ratio:16/9;border-radius:var(--r-l);overflow:hidden;color:var(--text-2);background:repeating-linear-gradient(135deg,var(--surface-3) 0 12px,var(--surface-2) 12px 24px);border:1px solid var(--border)}
+.ph-label{margin:12px;background:var(--surface);border-radius:var(--r-s);padding:6px 10px;font-size:.8125rem;line-height:1.35;max-width:calc(100% - 24px);box-shadow:var(--sh-1)}
+.video{margin:0;max-width:440px}
+.video-poster{width:100%;padding:0;border:0;background:none;cursor:pointer;text-align:left;border-radius:var(--r-l)}
+.play{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--on-primary);box-shadow:var(--sh-2);transition:transform var(--d2) var(--ease-out)}
+.video-poster:hover .play{transform:scale(1.06)}
+.play .ic{width:26px;height:26px;margin-left:3px}
+.video figcaption{font-size:.9375rem;color:var(--text-2);margin-top:10px}
+
+/* ---------- Sections ---------- */
+.sec{padding:clamp(48px,2rem + 5vw,112px) 0;border-top:1px solid var(--border)}
+.sec-alt{background:var(--surface-2)}
+.sec-head{max-width:68ch;margin-bottom:28px}
+.swatches{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:768px){.swatches{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.sw{border:1px solid var(--border);border-radius:var(--r-m);overflow:hidden;background:var(--surface)}
+.sw i{display:block;height:64px}
+.sw div{padding:10px 12px;font-size:.875rem;line-height:1.4}
+.sw b{display:block;font-size:.9375rem}
+.sw code{font-family:var(--f-mono);font-size:.8125rem;color:var(--text-2)}
+.specimen{display:grid;gap:18px}
+.specimen>div{display:grid;gap:4px;border-top:1px solid var(--border);padding-top:14px}
+.scale{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.scale span{display:grid;justify-items:center;gap:6px;font-size:.75rem;color:var(--text-3)}
+.scale i{display:block;background:var(--brand-navy);border-radius:2px}
+.radii,.elev{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:768px){.radii{grid-template-columns:repeat(5,minmax(0,1fr))}.elev{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.radii div,.elev div{display:grid;place-items:center;min-height:88px;background:var(--surface);border:1px solid var(--border);font-size:.875rem;color:var(--text-2);text-align:center;padding:8px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-l);padding:clamp(16px,2.5vw,24px);box-shadow:var(--sh-1);min-width:0}
+.cols{display:grid;gap:20px}
+@media (min-width:1024px){.cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+
+/* ---------- Chips & badges ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:2px 10px;border-radius:var(--r-pill);font-size:.8125rem;font-weight:700;line-height:1.2}
+.chip-excl{background:var(--primary);color:var(--on-primary)}
+.chip-shared{background:var(--surface);color:var(--text);box-shadow:inset 0 0 0 1.5px var(--border-strong)}
+.chip-info{background:var(--info-bg);color:var(--info-text)}
+.chip-muted{background:var(--surface-3);color:var(--text-2)}
+.chip-ok{background:var(--success-bg);color:var(--success)}
+.chip-warn{background:var(--warning-bg);color:var(--warning)}
+.chip-err{background:var(--error-bg);color:var(--error)}
+.pref{display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:4px 12px 4px 8px;border-radius:var(--r-s);background:var(--primary);color:var(--on-primary);font:700 .875rem/1.2 var(--f-body)}
+.pref .ic{stroke:currentColor}
+.explain summary{display:inline-flex;align-items:center;gap:6px;min-height:44px;cursor:pointer;color:var(--link);font-weight:600;font-size:.9375rem;list-style:none}
+.explain summary::-webkit-details-marker{display:none}
+.explain[open] summary{margin-bottom:4px}
+.explain p{background:var(--info-bg);color:var(--text);border-radius:var(--r-m);padding:12px 14px;font-size:.9375rem;max-width:62ch}
+.checked{display:inline-flex;align-items:center;gap:6px;font-size:.9375rem;color:var(--text-2)}
+
+/* ---------- Profile ---------- */
+.profile{display:grid;gap:16px}
+@media (min-width:768px){.profile{grid-template-columns:auto minmax(0,1fr)}}
+.logo-ph{display:grid;place-items:center;width:72px;height:72px;border-radius:var(--r-l);background:var(--surface-3);border:1px solid var(--border);font:800 1.25rem/1 var(--f-display);color:var(--text-2)}
+.cred{display:grid;gap:10px 20px;grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 0}
+@media (min-width:768px){.cred{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.cred dt{font-size:.8125rem;color:var(--text-3)}
+.cred dd{margin:0;font-weight:600}
+.noreviews{border:1px dashed var(--border-strong);border-radius:var(--r-m);padding:12px 14px;margin:14px 0}
+.noreviews p{margin:4px 0 0;font-size:.9375rem;color:var(--text-2)}
+
+/* ---------- Lead card ---------- */
+.lead{position:relative;display:grid;gap:12px;transition:opacity var(--d2) var(--ease-std)}
+.lead-top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.meter{display:inline-flex;gap:3px}
+.meter i{width:18px;height:8px;border-radius:2px;box-shadow:inset 0 0 0 1.5px var(--border-strong)}
+.meter i.on{background:var(--primary);box-shadow:none}
+.lead time{margin-left:auto;font-size:.875rem;color:var(--text-3)}
+.route{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-weight:600}
+.route .ic{color:var(--text-2)}
+.facts{display:grid;gap:8px 16px;grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
+.facts dt{font-size:.8125rem;color:var(--text-3)}
+.facts dd{margin:0;font-weight:600}
+.locked{display:flex;gap:8px;align-items:center;font-size:.9375rem;color:var(--text-2);background:var(--surface-2);border-radius:var(--r-s);padding:8px 10px;margin:0}
+.price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;border-top:1px solid var(--border);padding-top:12px}
+.amt{font:700 1.75rem/1 var(--f-body);font-variant-numeric:tabular-nums}
+.lead.is-sold{opacity:.62}
+.lead .status{font-weight:700}
+.flash{animation:flash 1.2s var(--ease-out) 1}
+@keyframes flash{from{background:var(--info-bg)}to{background:var(--surface)}}
+
+/* ---------- CRM ---------- */
+.crm{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-l);padding:12px;min-width:0}
+.crm header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;padding:4px 4px 10px}
+.crm ol{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);padding:12px;box-shadow:var(--sh-1);display:grid;gap:6px}
+.card-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.av{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--info-bg);color:var(--info-text);font-size:.75rem;font-weight:700;flex:none}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.875rem;color:var(--text-2)}
+
+/* ---------- States ---------- */
+.toast{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--success);border-radius:var(--r-m);padding:12px 14px;box-shadow:var(--sh-3);max-width:420px}
+.toast .x{margin-left:auto;min-width:44px;min-height:44px;margin-top:-10px;margin-right:-10px;border:0;background:none;cursor:pointer;color:var(--text-2);display:grid;place-items:center;border-radius:var(--r-s)}
+.empty{text-align:left;border:1px dashed var(--border-strong);border-radius:var(--r-l);padding:24px}
+.alert{display:flex;gap:10px;background:var(--error-bg);color:var(--text);border-radius:var(--r-m);padding:12px 14px;border-left:4px solid var(--error)}
+.alert .ic{color:var(--error);margin-top:2px}
+.skel{display:grid;gap:8px}
+.skel i{display:block;height:14px;border-radius:var(--r-xs);background:linear-gradient(90deg,var(--surface-3) 0 40%,var(--surface-2) 50%,var(--surface-3) 60% 100%);background-size:300% 100%;animation:shimmer 1.4s linear infinite}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:0 0}}
+.motion-note{display:none}
+.band{background:var(--band);color:var(--on-band);border-radius:var(--r-l);padding:clamp(20px,3vw,32px);display:grid;gap:12px}
+.band h3{color:var(--on-band)}
+.band p{color:var(--on-band-2);margin:0}
+.band .btn{background:#FFFFFF;color:#063167;justify-self:start}
+.band .btn:focus-visible{outline-color:var(--focus-on-band)}
+footer.site-foot{padding:32px 0 48px;border-top:1px solid var(--border);font-size:.875rem;color:var(--text-3)}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .skel i{animation:none;background:var(--surface-3)}
+  .motion-note{display:block}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.75v.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V13M12 16.25v.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="5" cy="17.5" r="2.5"/><path d="M7.4 16c3.2-1 2.6-6.4 6.2-7.3 1.6-.4 2.6-.6 3.1-.7" stroke-dasharray="2 2.6"/><circle cx="19" cy="7" r="2.75" fill="#E0141C" stroke="none"/></symbol>
+  <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.75 15.5c.6-1.4 1.6-2 2.75-2s2.15.6 2.75 2M14 10h4M14 13.5h3"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 9.5h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="wrap">
+    <a class="lockup" href="#main" aria-label="American Moving Choice, style tile home">
+      <span class="lk-a">AMERICAN</span><span class="lk-m">Moving <b>Choice</b></span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#portal">Find movers</a><a href="#tokens">Moving costs</a><a href="#components">Guides</a><a href="#trust">How we verify</a>
+    </nav>
+    <fieldset class="theme">
+      <legend>Color theme</legend>
+      <label><input type="radio" name="theme" value="auto" checked>Auto</label>
+      <label><input type="radio" name="theme" value="light">Light</label>
+      <label><input type="radio" name="theme" value="dark">Dark</label>
+    </fieldset>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ===== Hero with survey entry ===== -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <p class="small" style="margin-bottom:16px"><span class="sample">Style tile</span> Route Ledger direction · type-only lockup stands in for the official logo · design demo, nothing is sent</p>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="overline">Verified movers only · No brokers</p>
+          <h1 id="hero-title" class="d-xl">Compare verified movers for your move</h1>
+          <p class="lede">Tell us about your move once. You choose how many movers can contact you, and every one is a carrier we checked, not a broker.</p>
+        </div>
+
+        <div class="survey-shell">
+          <form class="survey" id="survey" novalidate aria-labelledby="survey-title">
+            <div class="survey-head">
+              <h2 id="survey-title" class="h4" style="font-family:var(--f-body)">Get quotes from verified movers</h2>
+              <span class="small" id="step-label">Step 1 of 4</span>
+            </div>
+            <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+            <p class="vh" id="survey-live" aria-live="polite"></p>
+
+            <fieldset class="step" data-step="1" data-title="Your move">
+              <legend class="vh">Your move</legend>
+              <h3 class="h4" tabindex="-1">Where and when are you moving?</h3>
+              <div class="grid2">
+                <div class="field">
+                  <label for="from">Moving from (ZIP)</label>
+                  <input class="input tnum" id="from" name="from" inputmode="numeric" autocomplete="postal-code" required aria-describedby="from-hint from-err">
+                  <span class="hint" id="from-hint">5-digit ZIP</span>
+                  <p class="err" id="from-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter a 5-digit ZIP code.</span></p>
+                </div>
+                <div class="field">
+                  <label for="to">Moving to (ZIP)</label>
+                  <input class="input tnum" id="to" name="to" inputmode="numeric" autocomplete="off" required aria-describedby="to-hint to-err">
+                  <span class="hint" id="to-hint">5-digit ZIP</span>
+                  <p class="err" id="to-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter a 5-digit ZIP code.</span></p>
+                </div>
+              </div>
+              <div class="grid-auto">
+                <div class="field">
+                  <label for="date">Move date</label>
+                  <input class="input" type="date" id="date" name="date" aria-describedby="date-err">
+                  <p class="err" id="date-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Choose a date, or tick "My dates are flexible".</span></p>
+                </div>
+                <div class="field">
+                  <label for="size">Move size</label>
+                  <select class="input" id="size" name="size" aria-describedby="size-err">
+                    <option value="">Choose a size</option>
+                    <option>Studio</option><option>1 bedroom</option><option>2 bedrooms</option><option>3 bedrooms</option><option>4+ bedrooms</option><option>Office</option><option>A few items</option>
+                  </select>
+                  <p class="err" id="size-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Choose a move size.</span></p>
+                </div>
+              </div>
+              <label class="check"><input type="checkbox" id="flex" name="flex"> <span>My dates are flexible</span></label>
+            </fieldset>
+
+            <fieldset class="step" data-step="2" data-title="Your contact details" hidden>
+              <legend class="vh">Your contact details</legend>
+              <h3 class="h4" tabindex="-1">Where should movers send quotes?</h3>
+              <p class="why"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span>Movers that receive your request use your name, email and phone to send quotes. Nothing is shared until you choose how many companies and agree on the last step.</span></p>
+              <div class="grid2">
+                <div class="field"><label for="first">First name</label><input class="input" id="first" name="first" autocomplete="given-name" aria-describedby="first-err"><p class="err" id="first-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter your first name.</span></p></div>
+                <div class="field"><label for="last">Last name</label><input class="input" id="last" name="last" autocomplete="family-name" aria-describedby="last-err"><p class="err" id="last-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter your last name.</span></p></div>
+              </div>
+              <div class="field"><label for="email">Email</label><input class="input" type="email" id="email" name="email" autocomplete="email" inputmode="email" aria-describedby="email-err"><p class="err" id="email-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter an email like name@example.com.</span></p></div>
+              <div class="field"><label for="phone">Mobile or home phone</label><input class="input tnum" type="tel" id="phone" name="phone" autocomplete="tel" inputmode="tel" aria-describedby="phone-hint phone-err"><span class="hint" id="phone-hint">US numbers only</span><p class="err" id="phone-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter a 10-digit US phone number.</span></p></div>
+            </fieldset>
+
+            <fieldset class="step" data-step="3" data-title="How many companies" hidden aria-describedby="limit-help">
+              <legend class="vh">How many moving companies would you like to hear from?</legend>
+              <h3 class="h4" tabindex="-1">How many moving companies would you like to hear from?</h3>
+              <p id="limit-help" class="small" style="color:var(--text-2)">This is the most companies that can receive your name, email and phone. It doesn't guarantee that each one will send a quote, because movers decide whether to respond. Only approved movers can receive requests. Brokers can't.</p>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="limit" value="1"><span><b>1 company</b>Only one mover gets your details</span></label>
+                <label class="choice"><input type="radio" name="limit" value="2"><span><b>Up to 2 companies</b>Fewer calls, a couple of quotes to compare</span></label>
+                <label class="choice"><input type="radio" name="limit" value="3"><span><b>Up to 3 companies</b>A balance of choice and calls</span></label>
+                <label class="choice"><input type="radio" name="limit" value="4"><span><b>Up to 4 companies</b>Most quotes to compare, more calls</span></label>
+              </div>
+              <p class="err" id="limit-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Choose how many companies can contact you.</span></p>
+              <p class="small">Demo: the maximum (4) is set by an admin. Nothing is preselected.</p>
+            </fieldset>
+
+            <fieldset class="step" data-step="4" data-title="Review and send" hidden>
+              <legend class="vh">Review and send</legend>
+              <h3 class="h4" tabindex="-1">Review and send your request</h3>
+              <dl class="summary" id="summary"></dl>
+              <label class="check consent"><input type="checkbox" id="consent" aria-describedby="consent-err"><span>I agree that up to <strong data-n>3</strong> approved movers that receive my request may contact me about my move at the phone number and email I gave. <em>[Placeholder: final consent wording, recipient list and disclosures require legal review.]</em> <a href="#trust">Terms</a> · <a href="#trust">Privacy</a></span></label>
+              <p class="err" id="consent-err" hidden><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Tick the box to send your request.</span></p>
+            </fieldset>
+
+            <div class="done" id="survey-done" hidden>
+              <h3 class="h4" tabindex="-1">Demo only: nothing was sent</h3>
+              <p class="small" style="color:var(--text-2)">In production this opens the confirmation page: who can receive your request, what happens next, and your reference number.</p>
+              <button type="button" class="btn btn-secondary" id="btn-reset">Start over</button>
+            </div>
+
+            <div class="survey-nav" id="survey-nav">
+              <button type="button" class="btn btn-ghost" id="btn-back" hidden><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>Back</button>
+              <button type="submit" class="btn btn-cta" id="btn-next"><span id="next-label">See available movers</span><span class="bub" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span></button>
+            </div>
+          </form>
+        </div>
+
+        <div class="hero-media">
+          <figure class="video">
+            <button type="button" class="video-poster" id="video-btn" aria-describedby="video-meta">
+              <span class="ph"><span class="ph-label">Poster frame: two-person crew loading a wrapped sofa into a truck on a residential street, real crew with signed releases</span><span class="play" aria-hidden="true"><svg class="ic"><use href="#i-play"/></svg></span></span>
+              <span class="vh">Play video: How American Moving Choice works</span>
+            </button>
+            <figcaption id="video-meta"><strong>How American Moving Choice works</strong> · 1:12 (sample) · Captions · <a href="#states">Transcript</a></figcaption>
+            <p class="small" id="video-note" hidden>The player loads here only after you press play (facade pattern). No autoplay, and no sound until you choose.</p>
+          </figure>
+        </div>
+      </div>
+
+      <div class="trust" role="list">
+        <div role="listitem"><b>Movers only</b><p>Brokers can't join or buy requests.</p></div>
+        <div role="listitem"><b>Checked credentials</b><p>USDOT and MC numbers matched to FMCSA records, with dates shown.</p></div>
+        <div role="listitem"><b>Your number, your call</b><p>You choose how many companies can contact you.</p></div>
+        <div role="listitem"><b>Free to request</b><p>Movers pay us to receive requests. That's how we make money.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tokens ===== -->
+  <section class="sec" id="tokens" aria-labelledby="tokens-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="overline">Tokens</p>
+        <h2 id="tokens-title" class="d-l">Color, type and space</h2>
+        <p class="lede">Navy carries structure and trust. Red is the single accent: the logo, display accents and the one conversion action in view. Ratios below were computed against white.</p>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:#063167"></i><div><b>Brand navy</b><code>#063167</code><br>Primary actions, headings · 12.78:1</div></div>
+        <div class="sw"><i style="background:#E0141C"></i><div><b>Brand red</b><code>#E0141C</code><br>Logo, display ≥24px bold · 4.90:1</div></div>
+        <div class="sw"><i style="background:#C21018"></i><div><b>CTA red</b><code>#C21018</code><br>Conversion button fill · white text 6.21:1</div></div>
+        <div class="sw"><i style="background:#111C2E"></i><div><b>Ink</b><code>#111C2E</code><br>Body text · 17.08:1</div></div>
+        <div class="sw"><i style="background:#3B4A61"></i><div><b>Text 2</b><code>#3B4A61</code><br>Secondary text · 8.98:1</div></div>
+        <div class="sw"><i style="background:#55657D"></i><div><b>Text 3</b><code>#55657D</code><br>Meta text · 5.93:1</div></div>
+        <div class="sw"><i style="background:#74839A"></i><div><b>Control border</b><code>#74839A</code><br>Inputs, radio cards · 3.85:1</div></div>
+        <div class="sw"><i style="background:#1F4C8C"></i><div><b>Link · focus</b><code>#1F4C8C</code><br>Links, focus ring · 8.50:1</div></div>
+        <div class="sw"><i style="background:#F6F8FB"></i><div><b>Surface 2</b><code>#F6F8FB</code><br>Alternate sections</div></div>
+        <div class="sw"><i style="background:#146C35"></i><div><b>Success</b><code>#146C35</code><br>On #E7F4EC · 5.75:1</div></div>
+        <div class="sw"><i style="background:#7A4A00"></i><div><b>Warning</b><code>#7A4A00</code><br>On #FFF3DC · 6.81:1</div></div>
+        <div class="sw"><i style="background:#B3261E"></i><div><b>Error</b><code>#B3261E</code><br>On #FDECEA · 5.72:1</div></div>
+      </div>
+
+      <div class="specimen" style="margin-top:40px">
+        <div><span class="small">Display XL · Archivo 800 · 75% width</span><p class="d-xl" style="margin:0;font-family:var(--f-display)">Moving from Miami to Atlanta</p></div>
+        <div><span class="small">Display L / H2 · Archivo 800 · 78% width</span><p class="d-l" style="margin:0;font-family:var(--f-display)">How we verify movers</p></div>
+        <div><span class="small">H3 · Archivo 700 · 100% width</span><p class="h3" style="margin:0;font-family:var(--f-display)">Credentials we check</p></div>
+        <div><span class="small">Body · Source Sans 3 400 · 17–18px / 1.6 · max 68ch</span><p style="margin:0;max-width:68ch">Interstate movers must hold operating authority from the Federal Motor Carrier Safety Administration. We show the date we last checked each record and link to the official lookup so you can confirm it yourself.</p></div>
+        <div><span class="small">Overline · Archivo 700 · tracked 0.12em</span><p class="overline" style="margin:0">Verified movers only</p></div>
+        <div><span class="small">Tabular figures for money, counts and dates</span><p class="tnum" style="margin:0;font-weight:600">$26.00 · $1,248.50 · 2 of 3 buyers · Oct 27, 2026</p></div>
+      </div>
+
+      <h3 class="h3" style="margin-top:40px">Spacing (4px base)</h3>
+      <div class="scale" aria-hidden="true">
+        <span><i style="width:4px;height:4px"></i>4</span><span><i style="width:8px;height:8px"></i>8</span><span><i style="width:12px;height:12px"></i>12</span><span><i style="width:16px;height:16px"></i>16</span><span><i style="width:24px;height:24px"></i>24</span><span><i style="width:32px;height:32px"></i>32</span><span><i style="width:48px;height:48px"></i>48</span><span><i style="width:64px;height:64px"></i>64</span><span><i style="width:96px;height:96px"></i>96</span>
+      </div>
+      <h3 class="h3" style="margin-top:32px">Radii and elevation</h3>
+      <div class="radii">
+        <div style="border-radius:4px">4 · tags</div><div style="border-radius:8px">8 · badges</div><div style="border-radius:12px">12 · buttons, inputs</div><div style="border-radius:16px">16 · cards</div><div style="border-radius:24px">24 · survey shell</div>
+      </div>
+      <div class="elev" style="margin-top:12px">
+        <div style="border-radius:16px;box-shadow:var(--sh-1)">e1 · cards at rest</div><div style="border-radius:16px;box-shadow:var(--sh-2)">e2 · survey, popovers</div><div style="border-radius:16px;box-shadow:var(--sh-3)">e3 · toasts, dialogs</div>
+      </div>
+
+      <h3 class="h3" style="margin-top:32px">Photography direction</h3>
+      <div class="cols">
+        <div class="ph"><span class="ph-label">Documentary: crew carrying a blanket-wrapped dresser down porch steps, natural light, licensed or original, signed releases</span></div>
+        <div class="ph"><span class="ph-label">Local: licensed photo of a residential street in the city the page covers. No landmarks that imply a partnership, no generated people.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Components ===== -->
+  <section class="sec sec-alt" id="components" aria-labelledby="comp-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="overline">Components</p>
+        <h2 id="comp-title" class="d-l">Buttons, inputs and labels</h2>
+        <p class="lede">States are shown side by side. Hover, focus and pressed use simulated classes so they can be reviewed without a mouse.</p>
+      </div>
+      <div class="cols">
+        <div class="panel">
+          <h3 class="h4">Buttons</h3>
+          <div class="row" style="margin-bottom:12px">
+            <button class="btn btn-cta" type="button">Get quotes<span class="bub" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span></button>
+            <button class="btn btn-primary" type="button">Continue</button>
+            <button class="btn btn-secondary" type="button">Save view</button>
+            <button class="btn btn-ghost" type="button">Learn how credits work</button>
+          </div>
+          <p class="small">Hover · focus · pressed · disabled</p>
+          <div class="row">
+            <button class="btn btn-primary is-hover" type="button" tabindex="-1">Hover</button>
+            <button class="btn btn-primary is-focus" type="button" tabindex="-1">Focus</button>
+            <button class="btn btn-primary is-active" type="button" tabindex="-1">Pressed</button>
+            <button class="btn btn-primary" type="button" disabled>Disabled</button>
+          </div>
+          <p class="small" style="margin-top:12px">Red marks the one conversion action in view (start or send a request). Everything else uses navy or neutral styles.</p>
+        </div>
+        <div class="panel">
+          <h3 class="h4">Inputs</h3>
+          <div class="grid-auto">
+            <div class="field"><label for="d1">Default</label><input class="input" id="d1" value="Atlanta, GA"><span class="hint">Helper text sits below</span></div>
+            <div class="field"><label for="d2">Focus (simulated)</label><input class="input is-focus" id="d2" value="30303" tabindex="-1"></div>
+            <div class="field"><label for="d3">Error</label><input class="input" id="d3" value="3030" aria-invalid="true" aria-describedby="d3e"><p class="err" id="d3e"><svg class="ic ic-s" aria-hidden="true"><use href="#i-warn"/></svg><span>Enter a 5-digit ZIP code.</span></p></div>
+            <div class="field"><label for="d4">Disabled</label><input class="input" id="d4" value="Locked after purchase" disabled></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 class="h4">Chips and labels</h3>
+          <div class="row">
+            <span class="chip chip-excl">Exclusive</span><span class="chip chip-shared">Shared</span><span class="chip chip-muted">Sponsored</span><span class="chip chip-info">New to our network</span>
+          </div>
+          <p class="small" style="margin:14px 0 6px">Review evidence labels: the text says what was verified</p>
+          <div class="row">
+            <span class="chip chip-muted">Verified platform inquiry</span><span class="chip chip-info">Verified customer</span><span class="chip chip-ok"><svg class="ic ic-s" aria-hidden="true"><use href="#i-check"/></svg>Verified completed move</span>
+          </div>
+          <p class="small" style="margin:14px 0 6px">Admin status</p>
+          <div class="row">
+            <span class="chip chip-ok">Approved</span><span class="chip chip-info">In review</span><span class="chip chip-warn">Document expiring</span><span class="chip chip-err">Suspended</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 class="h4">Choice and consent controls</h3>
+          <div class="choices">
+            <label class="choice"><input type="radio" name="demo-size" checked><span><b>2 bedrooms</b>Selected: 2px border, tint and native check</span></label>
+            <label class="choice"><input type="radio" name="demo-size"><span><b>3 bedrooms</b>Unselected: 1.5px border at 3.85:1</span></label>
+          </div>
+          <label class="check"><input type="checkbox"><span>Unchecked by default. Never bundled with the submit button.</span></label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Trust: profile ===== -->
+  <section class="sec" id="trust" aria-labelledby="trust-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="overline">Trust patterns</p>
+        <h2 id="trust-title" class="d-l">Company profile header</h2>
+        <p class="lede">The badge always sits next to what it means. Verification shows a date and a link to the official record. New companies say so plainly.</p>
+      </div>
+      <article class="panel profile" aria-labelledby="co-name">
+        <div class="logo-ph" aria-hidden="true">SC</div>
+        <div style="min-width:0">
+          <p style="margin:0 0 6px"><span class="sample">Fictional sample profile, not a real company</span></p>
+          <h3 id="co-name" class="d-l" style="margin-bottom:10px">Sample Carrier Co.</h3>
+          <div class="row" style="gap:8px 14px">
+            <span class="pref"><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg>Preferred Mover · American Moving Choice</span>
+            <span class="chip chip-info"><svg class="ic ic-s" aria-hidden="true"><use href="#i-cal"/></svg>New to our network · Joined Oct 2026</span>
+          </div>
+          <details class="explain">
+            <summary><svg class="ic ic-s" aria-hidden="true"><use href="#i-info"/></svg>What "Preferred Mover" means</summary>
+            <p>This company is a member of American Moving Choice's screened network. Before approval we matched its USDOT and MC numbers to official FMCSA records, confirmed active household-goods carrier authority, checked that required insurance filings are on record, and confirmed it is not a broker. It is not a government endorsement, a rating or a guarantee of performance. <a href="#trust">How we verify movers</a></p>
+          </details>
+          <dl class="cred">
+            <div><dt>USDOT</dt><dd class="tnum">0000000 <span class="small">(sample)</span></dd></div>
+            <div><dt>MC</dt><dd class="tnum">000000 <span class="small">(sample)</span></dd></div>
+            <div><dt>Carrier authority</dt><dd>Household goods, active <span class="small">(sample)</span></dd></div>
+            <div><dt>Last checked</dt><dd><time datetime="2026-10-27">Oct 27, 2026</time></dd></div>
+          </dl>
+          <p class="checked"><svg class="ic ic-s" aria-hidden="true"><use href="#i-id"/></svg><a href="https://safer.fmcsa.dot.gov/CompanySnapshot.aspx" target="_blank" rel="noopener">Look up this carrier on FMCSA SAFER <span class="vh">(opens the official site in a new tab)</span></a></p>
+          <div class="noreviews">
+            <strong>No customer reviews yet</strong>
+            <p>Reviews appear after verified customers share feedback. No rating is shown until then. <a href="#trust">How reviews work</a></p>
+          </div>
+          <div class="row">
+            <a class="btn btn-cta" href="#survey">Request a quote<span class="bub" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+            <span class="small">Uses our standard request form. You choose how many movers can contact you.</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== Portal: marketplace + CRM ===== -->
+  <section class="sec sec-alt" id="portal" aria-labelledby="portal-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="overline">Company portal</p>
+        <h2 id="portal-title" class="d-l">Marketplace lead and CRM column</h2>
+        <p class="lede">Portal screens are quiet tools: no entrance animations, tabular numbers, every state stated in words.</p>
+      </div>
+      <div class="cols">
+        <article class="panel lead" id="lead" aria-labelledby="lead-name">
+          <div class="lead-top">
+            <span class="chip chip-shared">Shared</span>
+            <span class="meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>
+            <span class="tnum" id="lead-buyers"><strong>2 of 3</strong> buyers</span>
+            <time datetime="2026-10-27T14:32:00-04:00" title="Oct 27, 2026, 2:32 PM ET">14 min ago</time>
+          </div>
+          <div>
+            <p style="margin:0"><span class="sample">Sample data</span></p>
+            <h3 id="lead-name" class="h3" style="margin:6px 0 2px">Imani</h3>
+            <p class="route"><span>Orlando, FL <span class="tnum">32801</span></span><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg><span class="vh">to</span><span>Raleigh, NC <span class="tnum">27601</span></span></p>
+          </div>
+          <dl class="facts">
+            <div><dt>Move date</dt><dd>Nov 14, 2026</dd></div>
+            <div><dt>Move size</dt><dd>2 bedrooms</dd></div>
+            <div><dt>Move type</dt><dd>Interstate</dd></div>
+            <div><dt>Lead source</dt><dd>Organic Search</dd></div>
+          </dl>
+          <p class="locked"><svg class="ic ic-s" aria-hidden="true"><use href="#i-lock"/></svg>Phone, email and last name unlock after purchase.</p>
+          <div class="price">
+            <span class="amt" id="lead-price">$26.00</span>
+            <span class="small">Your shared price $40.00 × 65% (3 buyers)</span>
+          </div>
+          <p class="small" style="margin:0" id="lead-hint">Final slot, so no further sharing credits on this lead. Proposed credit policy, pending approval. <a href="#states">How credits work</a></p>
+          <p class="status" id="lead-status" role="status"></p>
+          <div class="row">
+            <button class="btn btn-primary" type="button" id="buy">Buy lead · $26.00</button>
+            <button class="btn btn-ghost" type="button" id="sim">Simulate: another company buys first</button>
+          </div>
+        </article>
+
+        <section class="crm" aria-labelledby="crm-title">
+          <header><h3 id="crm-title" class="h4" style="margin:0">Contacted</h3><span class="small tnum">3 leads · $11,940 est.</span></header>
+          <ol>
+            <li class="card">
+              <div class="card-top"><strong>Marisol Okafor</strong><span class="av" aria-label="Assigned to Jordan Reyes">JR</span></div>
+              <span class="meta">Austin, TX → Denver, CO · Dec 2, 2026</span>
+              <span class="meta"><span class="chip chip-warn">Due today 3:30 PM</span><span class="tnum">$4,850 est.</span><span class="chip chip-excl">Exclusive</span></span>
+            </li>
+            <li class="card">
+              <div class="card-top"><strong>Bennett Hale</strong><span class="av" aria-label="Assigned to Ana Kim">AK</span></div>
+              <span class="meta">Boston, MA → Nashville, TN · Nov 21, 2026</span>
+              <span class="meta"><span class="chip chip-err">Overdue · Oct 25</span><span class="tnum">$3,240 est.</span><span class="chip chip-shared">Shared</span></span>
+            </li>
+            <li class="card">
+              <div class="card-top"><strong>Priya Raman</strong><span class="av" aria-label="Assigned to Mo Lewis">ML</span></div>
+              <span class="meta">Dallas, TX → Charlotte, NC · Jan 9, 2027</span>
+              <span class="meta"><span class="chip chip-muted">Follow up Oct 29</span><span class="tnum">$3,850 est.</span><span class="chip chip-shared">Shared</span></span>
+            </li>
+          </ol>
+          <p class="small" style="margin:12px 4px 0">Notes and activity are private to your company, even on shared leads. Cards move with drag or a keyboard "Move to" menu. <span class="sample">Sample data</span></p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== States ===== -->
+  <section class="sec" id="states" aria-labelledby="states-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="overline">States</p>
+        <h2 id="states-title" class="d-l">Feedback, empty and error</h2>
+      </div>
+      <div class="cols">
+        <div class="toast"><svg class="ic" aria-hidden="true" style="color:var(--success)"><use href="#i-check"/></svg><div><strong>View saved</strong><p class="small" style="margin:0">"Florida origin, 2+ bedrooms" is in your saved views.</p></div><button class="x" type="button" aria-label="Dismiss"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+        <div class="alert" role="note"><svg class="ic" aria-hidden="true"><use href="#i-warn"/></svg><div><strong>Your card was declined</strong><p style="margin:2px 0 0;font-size:.9375rem">No charge was made and the lead's contact details weren't shared. Update your payment method or try another card.</p></div></div>
+        <div class="empty"><h3 class="h4">No leads match your coverage right now</h3><p class="small" style="color:var(--text-2)">New leads appear here as soon as they arrive. Widening your coverage or move sizes can surface more.</p><button class="btn btn-secondary" type="button">Edit coverage</button></div>
+        <div class="panel"><h3 class="h4">Loading (skeleton)</h3><div class="skel" aria-hidden="true"><i style="width:60%"></i><i></i><i style="width:80%"></i></div><p class="small motion-note" style="margin-top:10px">Reduced motion is on: the shimmer is static.</p></div>
+        <div class="band"><h3 class="h3" style="margin:0">Are you a licensed mover?</h3><p>Join the network after we verify your USDOT and MC registration and household-goods authority.</p><a class="btn" href="#portal">Apply to join</a></div>
+        <div class="panel" id="transcript"><h3 class="h4">Transcript (pattern)</h3><p class="small" style="color:var(--text-2);margin:0">Every video has human-reviewed captions and a crawlable transcript on the page, expandable below the player.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>Route Ledger style tile for design review. Every company, person, number and duration here is a fictional sample. Fonts: Archivo and Source Sans 3 (SIL Open Font License). Icons are simplified inline SVGs in the Phosphor Regular style. Production uses Phosphor Icons (MIT). Movers pay American Moving Choice to receive requests. American Moving Choice is not a moving company or a broker.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  var store={get:function(k,s){try{return (s||localStorage).getItem(k)}catch(e){return null}},set:function(k,v,s){try{(s||localStorage).setItem(k,v)}catch(e){}}};
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* Theme */
+  var saved=store.get('rl-theme');
+  if(saved==='light'||saved==='dark')root.setAttribute('data-theme',saved);
+  document.querySelectorAll('input[name=theme]').forEach(function(r){
+    r.checked=(saved||'auto')===r.value;
+    r.addEventListener('change',function(){
+      if(r.value==='auto')root.removeAttribute('data-theme');else root.setAttribute('data-theme',r.value);
+      store.set('rl-theme',r.value);
+    });
+  });
+
+  /* Survey */
+  var form=document.getElementById('survey');
+  var steps=[].slice.call(form.querySelectorAll('[data-step]'));
+  var total=steps.length, cur=0;
+  var $=function(id){return document.getElementById(id)};
+  var ZIPS={'02108':'Boston, MA','10001':'New York, NY','27601':'Raleigh, NC','30303':'Atlanta, GA','32801':'Orlando, FL','33101':'Miami, FL','37203':'Nashville, TN','75201':'Dallas, TX','78701':'Austin, TX','80202':'Denver, CO'};
+  var LABELS=['See available movers','Continue','Continue','Send my request'];
+  var ss;try{ss=sessionStorage}catch(e){ss=null}
+
+  function setErr(input,errId,bad){
+    var e=$(errId);
+    if(bad){e.hidden=false;if(input)input.setAttribute('aria-invalid','true')}
+    else{e.hidden=true;if(input)input.removeAttribute('aria-invalid')}
+    return bad;
+  }
+  function zipHint(id){
+    var v=$(id).value, h=$(id+'-hint');
+    if(/^\d{5}$/.test(v)){
+      h.className='hint ok';
+      h.textContent=ZIPS[v]?ZIPS[v]:'We’ll confirm the city for '+v+' (demo covers a few ZIPs)';
+    }else{h.className='hint';h.textContent='5-digit ZIP';}
+  }
+  ['from','to'].forEach(function(id){
+    var el=$(id);
+    el.addEventListener('input',function(){el.value=el.value.replace(/\D/g,'').slice(0,5);zipHint(id);saveMove();});
+  });
+  ['date','size','flex'].forEach(function(id){$(id).addEventListener('change',saveMove)});
+
+  /* Only non-contact move details persist (sessionStorage). Contact fields are never stored client-side. */
+  function saveMove(){
+    if(!ss)return;
+    store.set('rl-move',JSON.stringify({from:$('from').value,to:$('to').value,date:$('date').value,size:$('size').value,flex:$('flex').checked}),ss);
+  }
+  (function restore(){
+    var raw=ss&&store.get('rl-move',ss);if(!raw)return;
+    try{var m=JSON.parse(raw);$('from').value=m.from||'';$('to').value=m.to||'';$('date').value=m.date||'';$('size').value=m.size||'';$('flex').checked=!!m.flex;zipHint('from');zipHint('to');}catch(e){}
+  })();
+
+  function digits(s){return s.replace(/\D/g,'')}
+  function validPhone(s){var d=digits(s);if(d.length===11&&d[0]==='1')d=d.slice(1);return d.length===10&&/[2-9]/.test(d[0])&&/[2-9]/.test(d[3])}
+  function validate(i){
+    var bad=[];
+    if(i===0){
+      if(setErr($('from'),'from-err',!/^\d{5}$/.test($('from').value)))bad.push($('from'));
+      if(setErr($('to'),'to-err',!/^\d{5}$/.test($('to').value)))bad.push($('to'));
+      if(setErr($('date'),'date-err',!$('date').value&&!$('flex').checked))bad.push($('date'));
+      if(setErr($('size'),'size-err',!$('size').value))bad.push($('size'));
+    }else if(i===1){
+      if(setErr($('first'),'first-err',!$('first').value.trim()))bad.push($('first'));
+      if(setErr($('last'),'last-err',!$('last').value.trim()))bad.push($('last'));
+      if(setErr($('email'),'email-err',!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('email').value.trim())))bad.push($('email'));
+      if(setErr($('phone'),'phone-err',!validPhone($('phone').value)))bad.push($('phone'));
+    }else if(i===2){
+      var picked=form.querySelector('input[name=limit]:checked');
+      if(setErr(null,'limit-err',!picked))bad.push(form.querySelector('input[name=limit]'));
+    }else if(i===3){
+      if(setErr($('consent'),'consent-err',!$('consent').checked))bad.push($('consent'));
+    }
+    if(bad.length){bad[0].focus();$('survey-live').textContent=bad.length===1?'1 field needs attention.':bad.length+' fields need attention.';}
+    return !bad.length;
+  }
+  function fillSummary(){
+    var n=form.querySelector('input[name=limit]:checked').value;
+    var place=function(id){var v=$(id).value;return (ZIPS[v]?ZIPS[v]+' ':'ZIP ')+v};
+    var rows=[['Route',place('from')+' → '+place('to')],['Date',$('flex').checked&&!$('date').value?'Flexible':($('date').value||'')+($('flex').checked?' (flexible)':'')],['Size',$('size').value],['Contact',$('first').value.trim()+' '+$('last').value.trim()+', '+$('email').value.trim()],['Companies',n==='1'?'1 company (only one mover)':'Up to '+n+' companies']];
+    var dl=$('summary');dl.innerHTML='';
+    rows.forEach(function(r){var d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=r[0];dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+    form.querySelector('[data-n]').textContent=n;
+  }
+  function show(i){
+    steps[cur].hidden=true;cur=i;
+    var s=steps[cur];s.hidden=false;
+    if(!reduce.matches){s.classList.remove('enter');void s.offsetWidth;s.classList.add('enter');}
+    $('step-label').textContent='Step '+(cur+1)+' of '+total;
+    $('progress-bar').style.transform='scaleX('+((cur+1)/total)+')';
+    $('btn-back').hidden=cur===0;
+    var next=$('btn-next');$('next-label').textContent=LABELS[cur];
+    next.className='btn '+(cur===0||cur===total-1?'btn-cta':'btn-primary');
+    next.querySelector('.bub').style.display=(cur===0||cur===total-1)?'':'none';
+    $('survey-live').textContent='Step '+(cur+1)+' of '+total+': '+s.getAttribute('data-title');
+    s.querySelector('h3').focus();
+  }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(!validate(cur))return;
+    if(cur===2)fillSummary();
+    if(cur<total-1){show(cur+1);return;}
+    steps[cur].hidden=true;$('survey-nav').hidden=true;$('survey-done').hidden=false;
+    $('survey-live').textContent='Demo only. Nothing was sent.';
+    $('survey-done').querySelector('h3').focus();
+  });
+  $('btn-back').addEventListener('click',function(){if(cur>0)show(cur-1)});
+  $('btn-reset').addEventListener('click',function(){
+    form.reset();zipHint('from');zipHint('to');
+    if(ss){try{ss.removeItem('rl-move')}catch(e){}}
+    $('survey-done').hidden=true;$('survey-nav').hidden=false;steps[cur].hidden=true;cur=0;steps[0].hidden=false;show(0);
+  });
+
+  /* Video facade */
+  $('video-btn').addEventListener('click',function(){$('video-note').hidden=false;});
+
+  /* Lead card states */
+  var buy=$('buy'), sim=$('sim'), status=$('lead-status'), lead=$('lead');
+  buy.addEventListener('click',function(){
+    buy.disabled=true;buy.textContent='Processing…';buy.setAttribute('aria-busy','true');
+    setTimeout(function(){
+      buy.removeAttribute('aria-busy');buy.textContent='Purchased';
+      status.textContent='Purchased (demo). Contact details are now in your CRM.';
+      sim.hidden=true;
+    },900);
+  });
+  sim.addEventListener('click',function(){
+    lead.classList.add('is-sold');if(!reduce.matches){lead.classList.remove('flash');void lead.offsetWidth;lead.classList.add('flash');}
+    $('lead-buyers').innerHTML='<strong>3 of 3</strong> buyers';
+    lead.querySelectorAll('.meter i').forEach(function(i){i.className='on'});
+    buy.disabled=true;buy.textContent='No longer available';
+    status.textContent='No longer available: another company bought the final slot. You were not charged.';
+    sim.hidden=true;
+  });
+})();
+</script>
+</body>
+</html>

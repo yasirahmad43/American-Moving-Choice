@@ -18,6 +18,17 @@ This brief is the entry point. Each section summarizes a decision or finding and
 | [`research/keyword-research.md`](research/keyword-research.md) | Semrush competitor traffic, page families, keyword opportunities, priority markets |
 | [`research/compliance-and-platform-facts.md`](research/compliance-and-platform-facts.md) | Sourced FMCSA / TCPA / FTC / Google / AI-crawler / Stripe / Core Web Vitals facts and questions for counsel |
 | [`skills-log.md`](skills-log.md) | Skills and integrations used, their outputs, and what was unavailable |
+| [`business-rules/consent-and-disclosure-copy-draft.md`](business-rules/consent-and-disclosure-copy-draft.md) | Draft consumer consent, disclosures, badge explainer and mover payment authorization, for counsel |
+
+### Phase 1 report
+
+| | |
+|---|---|
+| **What works** | Research and business rules are complete and ready for review. The marketplace's hardest guarantees (no overselling, no double charges, no contact data before payment, credits that match the formula, refunds that never reopen slots, consent-scoped buyers, company isolation) run as tested code in test mode. |
+| **Evidence** | 23 unit tests + 15 PostgreSQL integration tests passing locally and in GitHub Actions; the race suite passed 10/10 repeated runs. Semrush exports in `research/raw/semrush/`. Every regulatory claim is cited with an access date. |
+| **Not done / not production-ready** | No public site, portals, payments integration, verification client, CMS or analytics yet. The financial policy and consent wording await your and counsel's approval. Competitor flows were not observed in a live browser (network policy). |
+| **Outstanding dependencies** | Answers to §11 (especially pricing, refunds, sharing limit, counsel, markets); integration access (Stripe, FMCSA WebKey, Supabase/Vercel approval, Search Console/GA4, Twilio 10DLC); a base branch for pull requests. |
+| **Next deliverable** | Phase 2 sign-off pack: the final product spec (merging these documents and your answers), migrations for the full data model, app scaffolding with preview deployments, and a clickable quote-survey prototype. |
 
 ---
 
@@ -81,8 +92,8 @@ Summary below; the full prioritization is in `product/mvp-scope.md`.
 Next.js on Vercel (public site + separate authenticated portal app), PostgreSQL on Supabase (Auth with MFA, Realtime, Storage, RLS as defence in depth), Payload CMS, Stripe, a transactional outbox with Inngest jobs, Postmark/Twilio, Turnstile, Sentry, GA4/Search Console/Bing/PostHog. Rough fixed platform cost is **$250–$600/month** before usage-based fees, people and ads. Details, tradeoffs and alternatives are in `architecture/stack-and-architecture.md`, and the full data model is in `architecture/data-model.md`.
 
 **Already built and tested in this branch** (useful independent work while answers are pending, all in test mode with no live money):
-- `packages/core`: matching engine (nationwide, origin-only, destination-only, directional routes, any-within-group, all-groups-required, exclusions override, paused rules, capability ceiling), shared-lead calculator, allow-list preview redaction, ZIP/phone normalization, duplicate-group limit. **22 unit tests passing.**
-- `db/migrations/001_marketplace_core.sql`: transactional purchase core in PostgreSQL. **14 integration tests passing** against Postgres 16, including:
+- `packages/core`: matching engine (nationwide, origin-only, destination-only, directional routes, any-within-group, all-groups-required, exclusions override, paused rules, capability ceiling), eligibility snapshots, shared-lead calculator, allow-list preview redaction, ZIP/phone normalization, duplicate-group limit. **23 unit tests passing.**
+- `db/migrations/001_marketplace_core.sql`: transactional purchase core in PostgreSQL. **15 integration tests passing** against Postgres 16, including:
   - exactly one winner when two companies race for an exclusive lead
   - eight companies racing for three shared slots never exceed the cap
   - failed payments reveal nothing and release the slot
@@ -95,6 +106,7 @@ Next.js on Vercel (public site + separate authenticated portal app), PostgreSQL 
   - price history is preserved
   - brokers, unapproved companies and expired credentials are blocked
   - the MC requirement is a setting
+  - only movers named in the consent can buy, and coverage edits force a fresh match
   - one company can't read another's CRM notes (RLS)
   
   The race suite passed 10 of 10 repeated runs.
@@ -140,4 +152,26 @@ A naive "price ÷ buyers" split keeps platform revenue stuck near one shared pri
 
 ## 11. Consolidated questions for the owner
 
-*(See below; to be finalized.)*
+Each question has a recommended default. Answering "accept defaults" on any item is enough to proceed. Items 4, 6 and 7 block live billing; items 2 and 10 block launch.
+
+| # | Topic | Question | Recommended default |
+|---|---|---|---|
+| 1 | **Production domain & identity** | Which domain is ours, and can you grant DNS access? What legal entity name, business address and support email/phone should appear in disclosures? | americanmovingchoice.com (if registered), with DNS on Cloudflare |
+| 2 | **Business classification & counsel** | Who is counsel, and by when can they review: (a) our lead-marketplace vs broker position, especially for exclusive leads; (b) the consent draft (`business-rules/consent-and-disclosure-copy-draft.md`); (c) privacy policy, consumer terms and mover terms; (d) retention rules; (e) state moving-broker definitions (e.g. Florida)? | Engage counsel during Phase 2. No live leads until sign-off |
+| 3 | **Launch markets** | Approve the proposed Wave 1 markets (§8), or name markets where you already have mover relationships? | Wave 1 as proposed, adjusted to where pilot movers actually operate |
+| 4 | **Provider coverage & eligibility** | How many movers can you bring to a pilot, and where? Do they all hold USDOT + MC + household-goods carrier authority? Keep MC mandatory? That excludes intrastate-only local movers, and FMCSA has announced plans to stop issuing MC numbers. | Keep MC mandatory (the setting exists). Aim for at least 3 approved movers per Wave 1 market before indexing its pages |
+| 5 | **Sharing limit** | What is the most companies a consumer may choose? Should any option be preselected? | Maximum 5; nothing preselected |
+| 6 | **Pricing policy** | Approve the equalizing step-down (100/80/65/55/50%) or pick another option or schedule? Should a company's prices also vary by move category (local / in-state / interstate), not only exclusive vs shared? What are the starting price bands? | Approve step-down. **Yes to per-category prices:** interstate leads are worth far more (Semrush CPCs for long-distance terms run ~$38–$51 vs ~$17–$26 for city "movers" terms). Price bands set from pilot data |
+| 7 | **Refunds & credits** | Valid quality-claim reasons, claim window, credit vs cash, credit expiry, closure treatment, dispute fees? | Account credit by default; 72-hour window with evidence; credits don't expire; disputes per mover terms |
+| 8 | **Payments & tax** | Do you have a verified Stripe account? Card-only purchases at launch? Who is the accountant for sales tax on lead sales (e.g. Washington, Texas) and for credit-liability accounting? | Card-only purchases; ACH prepaid top-ups later; accountant review in Phase 5 |
+| 9 | **Budget, team & timeline** | What are the build team and budget (the estimates assume the team in `product/backlog.md`), the monthly operating and content budget, the photo/video budget and the target launch date? Who are the named authors and reviewers with real credentials? Is there a paid-ads budget at launch? | Organic-first launch with a small paid-search test once tracking is verified |
+| 10 | **Integration access** | Approve creating Supabase and Vercel projects (billable). Provide: Stripe test keys; an FMCSA QCMobile WebKey (via Login.gov); Search Console, GA4 and Bing Webmaster access; Twilio (A2P 10DLC registration takes weeks and needs your EIN); Postmark; Cloudflare. Reconnect Similarweb and Figma. Widen this environment's network allowlist (reference sites, fmcsa.dot.gov, federalregister.gov, ecfr.gov, census.gov, huduser.gov). | Start A2P 10DLC and the FMCSA WebKey now; they have the longest lead times |
+| 11 | **Car shipping & truck rental** | Is it OK that standalone vehicle shipping and truck rental are information-only at MVP (no lead sales), with a vehicle add-on for household moves? | Yes. Revisit a separately verified auto-transport *carrier* network later |
+| 12 | **AI crawler access** | Allow AI **search** crawlers? Separately, allow AI **training** crawlers? | Allow search crawlers (OAI-SearchBot, Claude-SearchBot, PerplexityBot, plus Googlebot/Bingbot). Training crawlers are your call; we suggest allowing them at launch and reviewing quarterly |
+| 13 | **Repository** | The repo had no commits, so this branch is its only branch and there is nothing to open a pull request against. May I create a `main` branch (an empty initial commit) so the work can go through a reviewed draft PR? | Yes: create `main`, then open the draft PR from this branch |
+
+**While you decide**, independent work continues in this order:
+1. Monorepo app scaffolding and CI preview deployments (no billable resources without approval).
+2. Geography import pipeline (Census + HUD crosswalk) once the network allowlist permits.
+3. Quote-survey UI built against the consent draft, with copy behind feature flags until counsel approves.
+4. The FMCSA verification client against recorded fixtures.

@@ -58,11 +58,11 @@ A company is eligible for a lead only if **all** of the following hold:
    - **Origin-only** = origin set only; the destination is ignored. Destination-only works the same way.
    - **Directional route** = origin set + destination set. FL→GA and GA→FL are separate rules.
    - **Exclusions override inclusions.** Paused rules are ignored.
-4. **Consent scope (counsel):** the company was among the participating movers named to the consumer at submission (§6).
+4. **Consent scope:** the company was among the participating movers named to the consumer at submission (§6). Movers that join or start covering the area later can't buy that request **(enforced: `lead_eligibility.named_in_consent`; tested)**. Counsel to confirm this is the right scope.
 
 Move type: `interstate` if the states differ; otherwise `local` up to an admin-configured distance (default 50 miles), else `intrastate`. Distances come from geocoded ZIP centroids. "Long-distance" in marketing copy means intrastate beyond the local radius plus interstate.
 
-Coverage changes apply only to **future** availability. Purchased leads, CRM records and invoices are never removed when coverage changes. Eligibility is checked again when a purchase is attempted **(enforced)**.
+Coverage changes apply only to **future** availability. Purchased leads, CRM records and invoices are never removed when coverage changes. At every purchase attempt the database rechecks company eligibility (status, broker flag, numbers, credential expiry) and consent scope. If the company's coverage changed since the lead was matched (its `coverage_version` moved on), the reservation fails with `eligibility_stale`. The app then re-runs the matcher, refreshes or withdraws the eligibility snapshot, and retries **(enforced; tested)**.
 
 ### Geography data rules
 - ZIP codes are 5-character strings, always **(enforced: `parseZip5`, SQL `check (zip ~ '^[0-9]{5}$')`)**.

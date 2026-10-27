@@ -1,0 +1,82 @@
+# Semrush phrase_questions, db=us, pulled 2026-10-27 by SEO fork, top 40 by volume for seeds "movers" (api_units=3200) and "moving company" (api_units=1600). Intent: 0=commercial,1=informational,2=navigational,3=transactional. Irrelevant/navigational rows kept as returned (e.g. "de movers theorem", brand names).
+seed;Keyword;Search Volume;CPC;Intent;Keyword Difficulty Index
+movers;how much to tip movers;12100;0.25;1;35
+movers;how much do movers cost;9900;5.68;1;32
+movers;do you tip movers;4400;0.31;1;32
+movers;how much do you tip movers;4400;0.17;1;17
+movers;how much are movers;3600;5.68;1;23
+movers;how much does it cost for movers to move;2400;4.27;1;38
+movers;how much does it cost to hire movers;1900;5.1;1;21
+movers;how much should you tip movers;1900;0.29;1;23
+movers;do i tip movers;1600;0.31;1;34
+movers;do you tip movers moving company;1300;0.31;1;27
+movers;do you tip moving company movers;1300;0.31;1;21
+movers;how much should i tip movers;1300;0.21;1;31
+movers;how much to hire movers;1300;5.72;1;32
+movers;are you supposed to tip movers;1000;0.3;1;24
+movers;de movers theorem;1000;0;1;39
+movers;do you tip movers from a moving company;1000;0.31;1;32
+movers;how much do i tip movers;1000;0.21;1;23
+movers;how much for movers;1000;5.85;1;23
+movers;how much to tip packers and movers;1000;0.5;1;15
+movers;are you supposed to tip movers from a moving company;880;0.3;1;20
+movers;how much do piano movers cost;880;2.24;1;22
+movers;how much movers cost;880;5.68;1;22
+movers;how much tip movers;880;0.22;1;16
+movers;how to hire movers;880;10.13;1;52
+movers;should you tip movers;880;0.25;1;26
+movers;am movers;720;10.97;0;53
+movers;how much do movers charge;720;5.03;1;20
+movers;how much does movers cost;720;5.85;1;26
+movers;how much to movers cost;720;5.68;1;12
+movers;should i tip movers;720;0.23;1;28
+movers;how much do movers cost for local move;590;5.32;1;16
+movers;how to choose furniture movers;590;0;1;10
+movers;is it customary to tip movers;590;0.28;1;26
+movers;a better way movers;480;5.67;2;40
+movers;do movers pack for you;480;6.68;1;11
+movers;how much do movers charge per hour;480;3.83;1;15
+movers;how much do movers cost for a 1 bedroom apartment;480;5.74;1;9
+movers;how much do u tip movers;480;0.26;1;27
+movers;how much is it to hire movers;480;6.07;1;17
+movers;how much is movers;480;5.85;1;26
+moving company;how much does a moving company cost;3600;5.23;1;26
+moving company;how much is a moving company;2400;5.23;1;34
+moving company;how do moving companies charge;1900;4.63;1;19
+moving company;am moving company;1300;10.97;1,3;39
+moving company;do you tip movers moving company;1300;0.31;1;27
+moving company;do you tip moving company movers;1300;0.31;1;21
+moving company;am moving company dallas;1000;11.15;1,3;44
+moving company;do you tip movers from a moving company;1000;0.31;1;32
+moving company;how much do moving companies charge;1000;5.03;1;25
+moving company;how much to tip moving company;1000;0.22;1;28
+moving company;are you supposed to tip movers from a moving company;880;0.3;1;20
+moving company;do you tip moving companies;720;0.31;1;29
+moving company;how much do moving companies cost;720;5.85;1;32
+moving company;how much does it cost to hire a moving company;720;5.42;1;25
+moving company;how much would a moving company cost;590;5.85;1;33
+moving company;how to hire a moving company;590;10.13;1;44
+moving company;how to start a moving company;590;2.72;1;8
+moving company;do moving companies pack for you;480;6.32;1;8
+moving company;how much a moving company cost;480;5.85;1;29
+moving company;how much does moving company charge;480;5.03;1;27
+moving company;am moving company dallas tx;390;10.97;1,3;39
+moving company;how much are moving companies;390;5.68;1;21
+moving company;how much does it cost for a moving company;390;5.85;1;40
+moving company;how much moving company cost;390;5.85;1;29
+moving company;how to choose a moving company;390;12.19;1;25
+moving company;what is a dependable local moving company in indianapolis;390;0;1;30
+moving company;don farr moving company;320;4.14;2;39
+moving company;how much a moving company charge;320;5.03;1;29
+moving company;how much do you tip a moving company;320;0.21;1;19
+moving company;how much is a moving company cost;320;5.85;1;26
+moving company;how much is moving company;320;5.85;1;16
+moving company;how much to hire a moving company;320;5.72;1;19
+moving company;should you tip movers from a moving company;320;0.2;1;28
+moving company;a 1 moving company;260;8.65;0;48
+moving company;how long does a moving company have to deliver legally;260;5.05;1;10
+moving company;how much does moving company cost;260;5.85;1;26
+moving company;how much is it to hire a moving company;260;6.07;1;31
+moving company;how to open a moving company;260;2.72;1;22
+moving company;should you tip a moving company;260;0.2;1;23
+moving company;what are the top rated moving companies in nashville;260;0;0;42
