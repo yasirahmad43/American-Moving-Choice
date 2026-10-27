@@ -2,15 +2,15 @@
 
 A solar and home-energy marketplace where homeowners compare installer quotes, listed as inspiration for marketplace clarity, not as a moving competitor [capture: /; v1 §2.9].
 
-**Reviewed:** 2026-10-27. **Evidence:** captured 10 of 10 pages (9 unique); an automated walk of four onboarding screens, stopped before any contact step; Semrush US, October 2026; earlier search excerpts, many not rechecked; v1 §2.9. **Confidence:** medium: the pages were fully captured, but the contact step, the installer side and the payment model were not observed.
+**Reviewed:** 2026-10-27. **Evidence:** captured 10 of 10 pages (9 unique); an automated walk of four onboarding screens, stopped before any contact step; Semrush US, October 2026; earlier search excerpts, many not rechecked; v1 §2.9. **Confidence:** medium, because the pages were fully captured but the contact step, the installer side and the payment model were not observed.
 
 ## At a glance
 - "Free" and "unbiased" lead the copy, but no captured excerpt says who pays [capture: /, /solar/how-to-pay-for-solar/].
 - One ZIP field, then one question per screen; after four screens no contact details had been requested [walk].
-- The cost page (#1, 18,689 estimated visits) and the calculator (#3, 8,780) lead money-adjacent traffic of 238,617 a month [semrush: top_pages_more, domain_rank].
+- Of about 238,617 estimated monthly visits, the cost page (#1, 18,689) and the calculator (#3, 8,780) lead the money-adjacent share [semrush: top_pages_more, domain_rank].
 - A dated editorial policy with an AI-use section, named writers and editors, and published ranking criteria [capture: /editorial-guidelines/, articles].
 - Customer counts, founding year and cost figures drift across pages and between meta and body [capture].
-- Vetting words and superlatives are never defined or sourced [capture].
+- Vetting words and superlatives are not defined or sourced on captured pages [capture].
 - The privacy policy uses browse-to-consent wording [capture: /privacy-policy/].
 
 ## Consumer journey
@@ -21,30 +21,30 @@ A solar and home-energy marketplace where homeowners compare installer quotes, l
 | 2. OwnsProperty | Own or rent | Nothing recorded | [walk] |
 | 3. ElectricityBill | Monthly bill (custom widget); advanced with no input | Nothing recorded | [walk; inference: preset or optional] |
 | 4. EnergyInterest | Appliance plans (custom widget) | Did not advance; the walk stopped | [walk] |
-| After | Not observed | v1: about 3 quotes within a week, up to 7 | [v1 §2.9] |
+| After | Not observed | Not observed; v1 reports about 3 quotes within a week, up to 7 | [v1 §2.9] |
 | Side: /solar/calculator/ | Address, property type, monthly bill | Not run; whether an estimate precedes contact is unknown | [capture] |
 
 - Each step has its own URL (`/onboarding/start/{Step}/?zip_code=20147&product=solar-pv`); robots and canonical tags were not recorded [walk].
-- 20147 is Ashburn VA, where the capture sandbox runs, so the test ZIP was never typed and no screen confirmed the location [walk; inference: an IP-based lookup].
-- The hero promises "multiple quotes" with no number, and no installer count appeared [capture: /; walk]. v1 says shoppers choose whether installers may phone them [v1 §2.9].
+- The ZIP field arrived filled with 20147 (Ashburn VA, where the capture sandbox runs), so the test ZIP was never typed; no screen asked to confirm the location [walk; inference: an IP-based lookup].
+- The hero promises "multiple quotes" with no number, and no installer count appeared on screens 1 to 4 [capture: /; walk]. v1 says shoppers choose whether installers may phone them [v1 §2.9].
 - Buttons promise prices ("See solar prices", "Check battery prices"), but the walked homepage entry showed only questions [capture: articles, /; walk].
 
 ## Mover side
-No installer-facing page was captured, so fees, lead rules, exclusivity and caps are unknown [capture]. v1 says installers pay and consumers use it free [v1 §2.9]. A help-center excerpt says installers "pay a small fee to join our marketplace, but only after we vet them" [search: help.energysage.com, own page, not rechecked]. Excerpts from 2018 and 2022 describe in-platform messaging, with the shopper's number shared only after they pick an installer [search: info.energysage.com, own; solarpowerworldonline.com, electrek.co, third party; not rechecked]. Corporate partners may "link to or embed" content, guides and calculators [capture: /partners/corporations/].
+No installer-facing page was captured, so fees, lead rules, exclusivity and caps are unknown [capture]. v1 says installers pay and consumers use it free [v1 §2.9]. A help-center excerpt says installers "pay a small fee to join our marketplace, but only after we vet them" [search: help.energysage.com, own page, not rechecked]. A help page and articles from 2018 and 2022 describe in-platform messaging, with the shopper's number shared only after they pick an installer [search: info.energysage.com, own; solarpowerworldonline.com, electrek.co, third party; not rechecked]. Corporate partners may "link to or embed" content, guides and calculators [capture: /partners/corporations/].
 
 ## Trust, verification and reviews
 - **Advisor.** The homepage leads with "Choose with an expert" and "a free, unbiased Energy Advisor", but no captured page says how advisors are paid [capture: /]. That is more prominence than v1 recorded, though help stays optional ("as much help as you want") [capture: /about-us/; v1 §2.9].
-- **Vetting.** "Pre-screened, certified installers" (/) and "vetted installers" (/about-us/) are never defined, and no guarantee goes beyond "we have your back" [capture]. Published criteria are search-only [search: help.energysage.com, own page, not rechecked].
+- **Vetting.** "Pre-screened, certified installers" (/) and "vetted installers" (/about-us/) are not defined on captured pages, and no guarantee goes beyond "we have your back" [capture]. Published criteria are search-only [search: help.energysage.com, own page, not rechecked].
 - **Claims.** The / meta says "over 50,000 homeowners" while H2s say 60,000, and /editorial-guidelines/ says "since our founding in 2009" while /about-us/ says "Twelve years ago" [capture; inference: about 2014]. "Most trusted", "largest" and "Save 20 to 30%" claims show no basis [capture: /, /about-us/, /partners/corporations/].
 - **Backers.** Schneider Electric backing, DOE funding and the founder are named; whether logos link anywhere was not recorded [capture: /partners/corporations/, /, /about-us/]. The 2022 controlling-stake purchase is search-only [search: pv-magazine.com, third party, not rechecked].
-- **Testimonials.** Nine reviews.io "Verified Customer" quotes review the platform, all positive; the five with dates read "1 year ago" [capture: /, /partners/corporations/]. One praises "a neutral, knowledgeable advisor" [capture: /]. Negatives, replies, review markup and the installer reviews two quotes mention were not captured [capture].
+- **Testimonials.** Nine reviews.io "Verified Customer" quotes review the platform, all positive; the five with dates read "1 year ago" [capture: /, /partners/corporations/]. One praises "a neutral, knowledgeable advisor" [capture: /]. The label is unexplained, and no negatives, replies or review markup were captured, nor the installer reviews that two quotes mention [capture].
 - **Ranking.** The best-panels page publishes criteria and says EnergySage "is not paid to review brands or products", with an affiliate clause limited to "this article" [capture: /solar/best-solar-panels-complete-ranking/]. It is silent on installer payments, though "Popularity reflects how often installers quote this equipment", and whether equipment makers pay is unknown [capture; v1 §2.9; semrush].
 
 ## Disclosure and consent
 - **Who pays.** "Unbiased advice · Completely free" (/solar/how-to-pay-for-solar/) sits with no pay statement, and the /about-us/ section "Good for shoppers. Good for installers." has no captured body [capture].
-- **Partner.** "EnergySage partners with Qmerit to connect you with certified installers" sits above "Check battery prices" [capture: /].
-- **Consent.** The only contact or sharing text captured at entry points is "Your information is safe with us." [capture: /, /solar/calculator/]. The policy says "By visiting energysage.com … you are consenting to the practices described in this Privacy Policy" [capture: /privacy-policy/]. Screens 1 to 4 showed no consent wording [walk], and no consent-certificate script was detected on captured pages [capture].
-- **Sharing.** The policy shares with "corporate affiliates that are subject to this policy" and ad partners, promises not to share text opt-ins, and claims no profiling [capture: /privacy-policy/]. A cookie center offers a "Share or sale" opt-out and honors Global Privacy Control; Facebook and Google Ads scripts were detected [capture].
+- **Partner.** "EnergySage partners with Qmerit to connect you with certified installers" sits just above "Check battery prices"; where the button leads was not captured [capture: /].
+- **Consent.** The only contact or sharing text captured at entry points is "Your information is safe with us." [capture: /, /solar/calculator/]. The policy says "By visiting energysage.com … you are consenting to the practices described in this Privacy Policy" [capture: /privacy-policy/]. Screens 1 to 4 showed no checkbox or consent wording, and the contact step was not reached [walk]. No consent-certificate script was detected on captured pages [capture].
+- **Sharing.** The policy shares with "corporate affiliates that are subject to this policy" and ad partners, promises not to share text opt-ins, and claims no profiling [capture: /privacy-policy/]. A cookie center offers a "Share or sale" opt-out and honors Global Privacy Control; Facebook and Google Ads scripts were detected across the capture [capture].
 - **Conflicts.** Marketing cookies "identify your interests" for outside ads, yet the policy says "We do not monitor or profile visitors", perhaps meaning sensitive data only [capture: /editorial-guidelines/, /privacy-policy/]. It also accepts others' data on the submitter's "authority" and calls the tool an "Instant Estimate" [capture: /privacy-policy/].
 
 ## SEO and content
