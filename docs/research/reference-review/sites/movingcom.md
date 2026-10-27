@@ -1,6 +1,6 @@
 # Moving.com: reference review
 
-A lead site in the Realtor.com network that sells moving requests to movers; it is on the list as the lead seller whose cost calculator ranks #1 for "moving cost calculator" [capture /leads/; semrush phrase_organic_top10].
+A Realtor.com-network site that sells moving leads to movers; it is on the list as the lead seller whose calculator ranks #1 for "moving cost calculator" [capture /leads/; semrush phrase_organic_top10].
 
 **Reviewed:** 2026-10-27. **Evidence:** partial capture, 6 of 13 pages (calculator, quote page, mover page, three guides); the homepage, About, privacy policy and four other pages showed a bot interstitial; no quote walk; Semrush US (October 2026); standard WebSearch, whose tool refuses moving.com pages. **Confidence:** low, because the homepage, legal pages and the contact and consent steps were not observed.
 
@@ -30,7 +30,7 @@ A lead site in the Realtor.com network that sells moving requests to movers; it 
 Movers create a profile (company, phone, services, certifications) and set campaigns by route, weight, size, lead type and daily and monthly budget [capture /leads/]. Moving.com says requests are verified "using third party email and phone verification services" and go to at most four movers [capture /leads/, its own claims]. Its "over 80 million unique users a month" network claim has no source or date [capture /leads/]. The 241-word page shows no prices, refund terms or exclusive option, yet ranks #9 for "buy moving leads" (720/mo, KD 18) [capture /leads/; semrush phrase_organic_top10].
 
 ## Trust, verification and reviews
-- **Licensing.** Both tool pages say "We require our movers to be licensed and insured" with no stated method [capture /movers/moving-cost-calculator.asp, /movers/moving-company-quotes.asp]. The captured text shows no FMCSA check, broker exclusion or USDOT or MC number; the quote page asks consumers to check USDOT numbers themselves [capture /movers/moving-company-quotes.asp].
+- **Licensing.** Both tool pages say "We require our movers to be licensed and insured," but the captured text gives no method, FMCSA check, USDOT or MC number, or broker exclusion [capture /movers/moving-cost-calculator.asp, /movers/moving-company-quotes.asp]. The quote page tells consumers to check USDOT numbers themselves [capture /movers/moving-company-quotes.asp].
 - **Advice.** The quote page covers three estimate types and getting at least three quotes, and the calculator advises a survey [capture]. Its non-binding definition breaks off at "may deviate slightly", so whether it states the 110% limit is unknown [capture /movers/moving-company-quotes.asp].
 - **Role wording.** A guide says "our network of reputable and reliable movers makes it easy to find and book" movers; the quote page title promises "Compare and Save" with no figure [capture /tips/cheap-ways-to-move-cross-country/, /movers/moving-company-quotes.asp].
 - **Reviews.** None observable: review and best-of pages were blocked, and no captured page lists a top-level Review or AggregateRating type [capture].
@@ -42,47 +42,46 @@ Movers create a profile (company, phone, services, certifications) and set campa
 - **Scripts.** 28 script hosts load across the captured pages, including Facebook, TikTok and Pinterest pixels, Criteo and RTB House retargeting, and Hotjar and Clarity session replay; per-page loading was not recorded [capture]. A Google publisher ad tag suggests display ads [inference].
 
 ## SEO and content
-- **Scale.** About 64,797 estimated visits a month, no paid keywords and Authority Score 48 [semrush domain_rank, backlinks_overview]. It has the most referring domains of the four measured (19,777) but about 3.3 visits per referring domain, against 10.7 for HireAHelper [semrush; ratio computed].
+- **Scale.** About 64,797 estimated visits a month, no paid keywords, Authority Score 48 and the most referring domains of the four measured (19,777), yet only about 3.3 visits per referring domain, against 10.7 for HireAHelper [semrush domain_rank, backlinks_overview; ratio computed].
 - **Calculator.** /movers/moving-cost-calculator.asp gets about 19,426 visits (29.97%) and ranks #1 for "moving cost calculator" (5,400/mo, KD 49) and #3 for "how much do movers cost" (9,900/mo) [semrush top_pages, phrase_organic_top10]. That one URL is the whole 1/10 overlap behind AMC's tool and cost-guide split [semrush; site-architecture §3.1]. A realtor.moving.com copy ranks #5; its canonical tag was not captured [semrush].
-- **Page mix.** The 15 kept pages hold 68.4% of traffic: tools 34.2%, relocation lists 16.5%, home 11.4%, best-of 4.2% [semrush top_pages, computed]. The quote page and the tipping and cheap-ways guides are not among them, and no geo or profile template was observed [semrush; capture].
-- **Best-of.** /best-long-distance-moving-companies/ ranks #6 for "best long distance moving companies" (49,500/mo, KD 36), where five of ten results are van-line or mover pages [semrush].
-- **Structure.** Legacy .asp tools sit beside a /tips/ blog, root best-of pages and the subdomain [capture; semrush]. BreadcrumbList is on 5 of 6 pages and FAQPage on 3, months after FAQ rich results ended; the quote page has two Organization nodes [capture].
-- **Quality.** Neither average cost has a source or date, and the tipping guide cites "the consensus" [capture /tips/tipping-movers/]. Only the car-trailer guide shows an author box and a method (three rental quotes on one route); no reviewer or editorial policy was seen [capture /tips/car-trailer-rental-cost-and-tips/]. Quotable formats include a question heading with a one-line answer, estimate-type definitions and a cost table [capture].
+- **Page mix.** The 15 kept pages hold 68.4% of traffic: tools 34.2%, relocation lists 16.5%, home 11.4%, best-of 4.2% [semrush top_pages, computed]. The quote page and the tipping and cheap-ways guides are absent, and no geo or profile template was observed [semrush; capture].
+- **Best-of.** The long-distance list ranks #6 for "best long distance moving companies" (49,500/mo, KD 36); half that top 10 is van-line or mover pages [semrush].
+- **Structure.** Legacy .asp tools sit beside a /tips/ blog and the subdomain [capture; semrush]. FAQPage is on 3 of 6 pages, months after FAQ rich results ended, and the quote page has two Organization nodes [capture].
+- **Quality.** Neither average cost has a source or date, and the tipping guide cites "the consensus" [capture /tips/tipping-movers/]. Only the car-trailer guide shows an author box and a method (three rental quotes on one route) [capture /tips/car-trailer-rental-cost-and-tips/]. Quotable formats include a question heading with a one-line answer, estimate-type definitions and a cost table [capture].
 - **AI crawlers.** Anthropic's web search refused moving.com as "not accessible to our user agent", in v1 and again now; other engines were not tested [search; v1 §1].
 
 ## Design and UX
-On mobile, the form follows the H1 on both tool pages, after two share links on the calculator [capture]. The origin ZIP field brings up a number pad, and a trust line sits with each form [capture]. Weak spots: share links before the first field, "Moving Distance: 0 miles" before input, and two submit buttons the captured text never explains [capture]. Cost sections and an FAQ follow the calculator, in a 4,977-word page whose "Recent Estimates" block has no date, source or sign that entries are real requests [capture /movers/moving-cost-calculator.asp].
+On mobile, the form follows the H1 on both tool pages, after two share links on the calculator [capture]. The origin ZIP field brings up a number pad, and a trust line sits with each form [capture]. Weak spots: share links before the first field, "Moving Distance: 0 miles" before input, and two submit buttons the captured text never explains [capture]. Cost sections and an FAQ follow the calculator in a 4,977-word page, whose "Recent Estimates" block has no date, source or sign that entries are real requests [capture /movers/moving-cost-calculator.asp].
 
 ## What AMC should adopt or adapt
 AMC cannot match this reach, so it should compete on what the captured pages lack: movers only, the consumer's choice of how many movers, and named-mover consent [inference].
-- **Details-first, form-first opening** [capture]. Add a labeled range from AMC's versioned cost model and the coverage pre-check before contact, and link the trust line to AMC's verification method and "how we make money". Serves value before contact (lead-lifecycle §2 steps 1 to 5).
+- **Details-first, form-first opening** [capture]. Add a labeled range from AMC's cost model and the coverage pre-check before contact, and link the trust line to AMC's verification method and "how we make money". Serves value before contact (lead-lifecycle §2 steps 1 to 5).
 - **One stated maximum** [capture]. Read the admin-set maximum at render time, let the consumer pick 1 to it, name the movers at consent, and say "we found N movers" only when the pre-check did. Serves the company-count question (lead-lifecycle §2 steps 5, 7, 8; shared-pricing-and-credits §1).
 - **Tool-first calculator** [capture; semrush]. Add a sourced method page and a link to /moving-costs/; call the result a cost range, not a quote, and state the 110% rule precisely after counsel review. Serves W1 SEO and estimate rules (site-architecture §1.2, §3.1, §6.3; compliance facts §2).
-- **Service-type notes** [capture /movers/moving-company-quotes.asp]. Say in AMC's words who does the work. Sell household moves (vehicle add-on only through movers that ship cars themselves) and labor-only requests; route standalone vehicle shipping and truck rental to information pages. Serves MVP scope (mvp-scope §6).
+- **Service-type notes** [capture /movers/moving-company-quotes.asp]. Say in AMC's words who does the work; sell household moves (vehicle add-on only via movers that ship cars themselves) and labor-only requests, and send truck rental and standalone car shipping to information pages. Serves MVP scope (mvp-scope §6).
 - **Consumer-protection topics** [capture]. Cover USDOT checks, estimate types and surveys in original words citing FMCSA's Rights and Responsibilities booklet, and explain fewer calls versus more comparison [inference]. Serves trust pages (compliance facts §1; consent draft §6).
-- **Quotable, sourced content** [capture]. Keep answer-first headings, definitions, tables and stated price methods, and add a source, collection date and recheck date beside each number, a named reviewer and 49 CFR Part 375 for estimate terms. Serves editorial rules and AI answers (site-architecture §6.3, §7.2, §7.4).
+- **Sourced, quotable content** [capture]. Keep answer-first headings, tables and stated price methods, but date and source every number and name a reviewer. Serves editorial rules and AI answers (site-architecture §6.3, §7.2, §7.4).
 - **Recent estimates** [capture]. Show a dated route and size mix from consented requests above the thresholds (n of 30 or more, cells under 10 suppressed), with prices only from the cost model. Serves data rules (site-architecture §6.3, §7.5).
-- **Guide entry points** [capture]. Every entry point should open the same survey and versioned consent component, with the rendered text hashed into the record. Serves consent evidence (lead-lifecycle §6).
 - **Mover terms in public** [capture /leads/]. Publish the price basis, shared-lead credits and quality-claim process on /for-movers/, and log budget controls as input to discovery question L4. Serves the company portal (shared-pricing-and-credits §3, §6; jtbd-and-journeys).
 
 ## What AMC should avoid
 - Tool pages that never say who pays; put "how we make money" by every quote button, at consent and in the header (site-architecture §7.1, §7.2; consent draft §1, §3, §7).
-- Consent tied to the submit button; use a separate unticked box naming the movers, covering calls and texts, with "not a condition of purchase" and no arbitration (consent draft §5; compliance facts §3, §8).
+- Consent tied to the submit button; use a separate unticked box naming the movers, covering calls and texts, with "not a condition of purchase" and no arbitration, and the same versioned component on every entry point, guide forms included (consent draft §5; compliance facts §3; lead-lifecycle §6).
 - A bare "licensed and insured"; state USDOT registration, carrier authority, no broker authority and insurance on file, with a check date. Tighten AMC's own "licensed" draft, since movers hold operating authority, not one license [inference] (mover-verification §3, §4; consent draft §1, §2).
 - "Our movers", "book" and "we'll send you quotes" wording that implies AMC arranges moves (compliance facts §2).
-- Unsourced reach, savings and cost claims; one versioned cost store should feed every page, checked by drift CI (site-architecture §6.3, §7.1, §9; reference-matrix §4 item 7).
+- Unsourced reach, savings and cost claims; one versioned cost store should feed every page (site-architecture §6.3, §7.1, §9; reference-matrix §4 item 7).
 - Overlapping or preselected size options, placeholder values and share links before the first field (lead-lifecycle §3; reference-matrix §3).
-- Display ads on money pages, and pixels or session replay on the survey, contact and consent steps; add wiretap-law (CIPA) exposure as a question for counsel (site-architecture §8.7; compliance facts §8).
-- Crawlable tool copies on other hosts, FAQPage markup and more than one Organization node (site-architecture §2.4, §8.5; compliance facts §5).
+- Display ads on money pages, and pixels or session replay on the survey, contact and consent steps; ask counsel about wiretap-law (CIPA) exposure (site-architecture §8.7; compliance facts §8).
+- Crawlable tool copies on other hosts, FAQPage markup and multiple Organization nodes (site-architecture §2.4, §8.5).
 - Bot settings that block answer engines; allowlist verified bots and test fetches monthly (site-architecture §7.6).
 
 ## Gaps and open questions
-- The contact step, consent text and follow-up calls; walk the form by hand to the contact step, entering no personal data.
+- The contact step, consent text and follow-up calls; walk the form by hand to that step, entering no personal data.
 - Whether movers are named, whether fewer than four can be chosen, and what "Compare Movers" does.
 - Homepage, About, privacy, terms and the "National Holding Company" footer block [capture]. A Move, Inc. privacy notice covering affiliates is on zenlist.com, not confirmed as Moving.com's [search: https://www.zenlist.com/privacy, third party].
 - Review pages, how "licensed and insured" is checked, whether brokers can buy, and mover prices and refund rules.
 - Lawsuits naming Move, Inc. (Faucett v. Move; Apaydin v. Move) surfaced in search but were not re-verified; check the dockets before citing them [search].
-- Sources behind the cost figures and "Recent Estimates"; JSON-LD properties; robots.txt; AI answer surfaces (add Moving.com to the §7.7 baseline).
+- Sources behind the cost figures and "Recent Estimates"; robots.txt; AI answer surfaces (add Moving.com to the §7.7 baseline).
 - v1 cited 2012 press saying "up to six licensed movers"; the capture shows "up to 4" [v1 §2.5; capture].
 
 ## Sources
