@@ -178,3 +178,4 @@ erDiagram
 8. Brokers, unapproved companies, companies without required numbers, and companies with expired credentials cannot reserve. **Tested.**
 9. CRM rows are visible only to the owning company (RLS). **Tested for notes.**
 10. Only movers named in the consumer's consent can buy, and coverage edits after matching force a fresh match before purchase. **Tested.**
+11. A consumer withdrawal or a lowered sharing limit during an in-flight payment prevents the purchase and any disclosure. **Tested.**

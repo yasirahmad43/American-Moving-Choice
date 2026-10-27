@@ -111,8 +111,19 @@ create table lead_eligibility (
 );
 
 create function attach_duplicate(p_group uuid, p_selected_limit integer) returns void language plpgsql as $$
+declare g lead_groups;
 begin
-  update lead_groups set sharing_limit = least(sharing_limit, p_selected_limit) where id = p_group;
+  select * into g from lead_groups where id = p_group for update;
+  update lead_groups set sharing_limit = least(sharing_limit, p_selected_limit) where id = p_group returning * into g;
+  if (select count(*) from purchases where group_id = p_group) >= g.sharing_limit and g.status = 'available' then
+    update lead_groups set status = 'sold_out' where id = p_group;
+  end if;
+end $$;
+
+-- Consumer withdraws consent: no further sales or disclosures, including payments already in flight.
+create function withdraw_lead_group(p_group uuid) returns void language plpgsql as $$
+begin
+  update lead_groups set status = 'withdrawn' where id = p_group;
 end $$;
 
 -- ---------------------------------------------------------------- purchases
@@ -296,6 +307,13 @@ begin
 
   select * into g from lead_groups where id = a.group_id for update;
   select * into a from purchase_attempts where id = p_attempt for update;
+
+  -- Re-check the lead itself: a withdrawal or a lowered sharing limit during the payment means the
+  -- purchase can't be honoured. Release the hold; the caller refunds the payment.
+  if g.status = 'withdrawn' or a.position > g.sharing_limit then
+    update purchase_attempts set status = 'failed' where id = p_attempt and status = 'reserved';
+    return null;
+  end if;
 
   if a.status <> 'reserved' then
     -- Late success after expiry/failure: honour only if the slot is still free and nobody else holds it.

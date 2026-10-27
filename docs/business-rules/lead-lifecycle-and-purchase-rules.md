@@ -28,7 +28,7 @@ survey_in_progress ──► submitted ──► validating ──┬─► reje
 | available / partially_sold | Listed to eligible companies until the sale window closes or the sharing limit is reached. | Yes (preview only) |
 | sold_out | Distinct buyers = sharing limit **(enforced)**. | No |
 | expired | Sale window ended (proposed 72 hours, admin-configurable). | No |
-| withdrawn | Consumer withdrew consent or asked for deletion. Removed from inventory immediately. Buyers who already purchased are notified to stop contact, per counsel's guidance. | No |
+| withdrawn | Consumer withdrew consent or asked for deletion. Removed from inventory immediately, and payments already in flight are refunded without disclosure **(enforced; tested)**. Buyers who already purchased are notified to stop contact, per counsel's guidance. | No |
 | invalidated | Proven fraudulent after sale. Bulk refunds go out under the credit policy. | No |
 
 ## 2. Survey order (consumer side)
@@ -38,6 +38,7 @@ survey_in_progress ──► submitted ──► validating ──┬─► reje
 3. Move date or flexible range
 4. Move size
 5. Services needed (packing, storage, specialty items, etc.)
+   - **Coverage pre-check:** before asking for any contact details, the server checks whether at least one participating mover serves the move. If none does, the consumer is told so on the spot, with useful next steps, and no contact details are requested.
 6. *Why we ask for contact details*, then first and last name, email, phone
 7. **"How many moving companies would you like to hear from?"** (1 … admin maximum), with the explanation: *"This is the maximum number of participating movers who can receive your details. It doesn't guarantee that every company will send a quote. Choose 1 if you'd like to hear from only one mover."*
 8. Review and consent (§6): names the participating movers eligible to receive the request, the movers-only statement and the disclosures. Unchecked consent box, separate from the submit button.
@@ -124,7 +125,7 @@ Recommended consent design (pending counsel): name each participating mover that
 2. **Charge:** the card remainder is charged off-session through Stripe with the attempt ID as the Stripe idempotency key. Zero card amount (fully credit-funded) skips Stripe.
 3. **Complete:** `complete_purchase(attempt, payment_ref)` runs after payment success (synchronous result or webhook, whichever arrives first). It's idempotent, so repeated notifications return the same purchase. In one transaction it creates the purchase with its price snapshot, the ledger entries, the sharing credits, the disclosure, and marks the lead sold out at the cap.
 4. **Fail/expire:** `fail_purchase` or the expiry sweeper releases the reservation. The production sweeper asks Stripe for the PaymentIntent status before expiring an attempt whose payment may still be processing.
-5. **Late success:** if payment succeeds after the hold expired and the slot was taken, `complete_purchase` returns no purchase and the system issues an automatic full refund.
+5. **Late success / changed lead:** `complete_purchase` returns no purchase, and the system issues an automatic full refund, when the payment succeeds after the hold expired and the slot was taken. It does the same if the consumer **withdrew** during the payment, or a duplicate submission **lowered the sharing limit** below this buyer's position. No contact details are disclosed in any of these cases **(enforced; tested)**.
 6. **Webhook dedupe:** every provider event ID is recorded once (`record_payment_event`).
 7. **Recovery:** if the app crashes after Stripe succeeds but before completion, the webhook or the reconciliation job (Stripe PaymentIntents vs `purchase_attempts`) completes or refunds it. A daily reconciliation report lists any mismatch.
 

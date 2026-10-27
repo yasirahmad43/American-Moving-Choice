@@ -25,7 +25,7 @@ This brief is the entry point. Each section summarizes a decision or finding and
 | | |
 |---|---|
 | **What works** | Research and business rules are complete and ready for review. The marketplace's hardest guarantees (no overselling, no double charges, no contact data before payment, credits that match the formula, refunds that never reopen slots, consent-scoped buyers, company isolation) run as tested code in test mode. |
-| **Evidence** | 23 unit tests + 15 PostgreSQL integration tests passing locally and in GitHub Actions; the race suite passed 10/10 repeated runs. Semrush exports in `research/raw/semrush/`. Every regulatory claim is cited with an access date. |
+| **Evidence** | 23 unit tests + 17 PostgreSQL integration tests passing locally and in GitHub Actions; the race suite passed 10/10 repeated runs. Semrush exports in `research/raw/semrush/`. Every regulatory claim is cited with an access date. |
 | **Not done / not production-ready** | No public site, portals, payments integration, verification client, CMS or analytics yet. The financial policy and consent wording await your and counsel's approval. Competitor flows were not observed in a live browser (network policy). |
 | **Outstanding dependencies** | Answers to §11 (especially pricing, refunds, sharing limit, counsel, markets); integration access (Stripe, FMCSA WebKey, Supabase/Vercel approval, Search Console/GA4, Twilio 10DLC); a base branch for pull requests. |
 | **Next deliverable** | Phase 2 sign-off pack: the final product spec (merging these documents and your answers), migrations for the full data model, app scaffolding with preview deployments, and a clickable quote-survey prototype. |
@@ -93,7 +93,7 @@ Next.js on Vercel (public site + separate authenticated portal app), PostgreSQL 
 
 **Already built and tested in this branch** (useful independent work while answers are pending, all in test mode with no live money):
 - `packages/core`: matching engine (nationwide, origin-only, destination-only, directional routes, any-within-group, all-groups-required, exclusions override, paused rules, capability ceiling), eligibility snapshots, shared-lead calculator, allow-list preview redaction, ZIP/phone normalization, duplicate-group limit. **23 unit tests passing.**
-- `db/migrations/001_marketplace_core.sql`: transactional purchase core in PostgreSQL. **15 integration tests passing** against Postgres 16, including:
+- `db/migrations/001_marketplace_core.sql`: transactional purchase core in PostgreSQL. **17 integration tests passing** against Postgres 16, including:
   - exactly one winner when two companies race for an exclusive lead
   - eight companies racing for three shared slots never exceed the cap
   - failed payments reveal nothing and release the slot
@@ -107,6 +107,7 @@ Next.js on Vercel (public site + separate authenticated portal app), PostgreSQL 
   - brokers, unapproved companies and expired credentials are blocked
   - the MC requirement is a setting
   - only movers named in the consent can buy, and coverage edits force a fresh match
+  - a withdrawal or lowered limit during an in-flight payment prevents disclosure
   - one company can't read another's CRM notes (RLS)
   
   The race suite passed 10 of 10 repeated runs.
@@ -140,15 +141,82 @@ A naive "price ÷ buyers" split keeps platform revenue stuck near one shared pri
 
 ## 8. SEO architecture and initial market selection
 
-*(Summary to be completed from `seo/site-architecture.md`.)*
+> **Provisional.** URL patterns, page families and the Wave 1 list will be revised after the full reference-site review that is now under way (see `research/reference-review/`). No content (page copy or content briefs) will be written until that review is complete.
+
+Full plan in `seo/site-architecture.md`. Every keyword-to-page mapping in `seo/keyword-to-page-map.csv` (298 keywords → 134 URLs) carries real Semrush numbers.
+
+- **Consumer vs business intent are separate trees.** Consumer: `/movers/{state}/`, `/movers/{state}/{city}/` (+ `long-distance/` children), `/moving-routes/{a}-to-{b}/` (each direction its own page), `/moving-to/`, `/moving-costs/`, `/moving-cost-calculator/`, `/verify-a-mover/`, `/compare/`, `/guides/`. Company profiles live at `/companies/{slug}/`, so they can never collide with a state. Business: `/for-movers/` ("buy moving leads"). Portals on `app.` are all noindex. No indexable ZIP pages in any wave.
+- **Publishing gate:** a programmatic page is published only when it passes every check:
+  - at least 3 Preferred Movers with genuine coverage (5 for state pages)
+  - at least 3 verified local facts
+  - a sourced, dated cost block
+  - at least 4 unique FAQs
+  - at least 40% unique content
+  - a "swap test" (the page wouldn't make sense with another city's name in it)
+  - a named human reviewer
+
+  Pages that fail aren't published, and pages that later slip below the gate are deindexed after a 30-day buffer. This is our safeguard against Google's doorway and scaled-content policies.
+- **Market selection:** a score built from Semrush demand, CPC (as a proxy for lead value), keyword difficulty and content feasibility, with **approved-mover coverage as a hard gate**.
+  - **Provisional Wave 1:** Texas (Dallas, Houston, Austin, San Antonio), Florida (Orlando, Miami, Tampa), Los Angeles, long-distance pages for TX/FL/CA, and 16 directional state routes led by NY→CA, CA→NY, CA→TX and NY→FL. That is about 36 programmatic pages.
+  - **Wave 2:** Denver, Atlanta, Chicago, Nashville, Charlotte, Raleigh, Phoenix, NYC.
+- **AI search visibility:**
+  - consistent entity data
+  - named authors and reviewers
+  - editorial, review and advertising policies
+  - dated citations
+  - original aggregated data only with consent and minimum sample sizes
+  - search crawlers allowed (training crawlers are your decision, §11 Q12)
+  - llms.txt treated as optional (Google says it has no effect)
+  - a documented monthly AI-query sample for measurement
+- **Note:** Google retired FAQ rich results in May 2026, so FAQs are written for people and AI answers, not for SERP features.
 
 ## 9. Proposed visual direction
 
-*(Summary to be completed from `design/visual-direction.md`.)*
+**"Route Ledger"** (full system in `design/visual-direction.md`; see `design/style-tile.html`). Each page is anchored on the visitor's actual route (origin → destination), and every trust claim sits next to dated, sourced evidence (verification date, official FMCSA link, review evidence label).
+
+- **Typography:** Archivo, heavy and slightly condensed, echoes the wordmark. Source Sans 3 is the body face. Both are open-licensed. Public Sans is deliberately avoided because it reads as US government.
+- **Color:** navy `#063167` is primary.
+  - Brand red `#E0141C` (4.90:1 on white) is reserved for the logo, large display text and small accents.
+  - Buttons use a deeper red `#C21018` (6.21:1 with white text). Red on navy fails contrast and is never used.
+  - Over 60 color pairs were computed for light and dark mode, and every recommended pair passes WCAG AA.
+- **Layout:**
+  - Desktop: a split hero, with the message and a captioned video on the left and the survey on the right.
+  - Mobile: the order is headline → survey → video.
+  - Mobile card grids follow the brief: 2 columns for short cards, 3–4 only for compact items, 1 where needed, with touch targets of at least 44px.
+- **Motion:** one trigger-once storytelling moment. No pinning, scroll scrubbing or continuous animation. Forms, purchases and dashboards stay instant, and `prefers-reduced-motion` is respected.
+- **Trust components:** the Preferred Mover badge always carries a "what this means" explainer and its verification date. Honest "New to our network" and "No customer reviews yet" states are built in. There are no seals, eagles or faux-official marks.
+- **Style tile checks:** axe-core found 0 accessibility violations at 360px and 1280px in light, dark and reduced-motion modes, with no horizontal scroll at 360px. The logo is a soft-edged raster, so a vector master and a trademark check are needed before launch.
 
 ## 10. Phased backlog
 
-*(Summary to be completed from `product/backlog.md`.)*
+Full backlog with user stories, Given/When/Then acceptance criteria, dependencies and a scenario traceability matrix in `product/backlog.md`. Team assumption: 2 full-stack engineers, 0.5 designer, 0.5 SEO/content strategist (plus freelance writers), 0.25 QA, with external counsel and an accountant.
+
+| Phase | Goal | Engineering | Calendar* | Exit gate |
+|---|---|---|---|---|
+| 1 Discovery | Validated rules, pricing and policy recommendation | 0–1 ew + research | W1–4 | Decisions logged; mover-interview readout |
+| 2 Spec & architecture | Buildable spec and production-shaped skeleton | 3–5 ew | W1–5 | CI green; staging deployed; RLS tests pass |
+| 3 Brand & designs | One coherent system plus representative screens | 2–3 ew + 4–6 design-weeks | W3–10 | Design sign-off; usability round 1 |
+| 4 Intake & validation | Valid, consented requests become sellable lead groups | 6–8 ew | W5–11 | End-to-end in staging; counsel copy sign-off |
+| 5 Matching, purchase, payments, credits | Safe purchases with correct money movement | 7–10 ew | W9–16 | Purchase/credit acceptance scenarios green in Stripe test mode |
+| 6 Portals, CRM, teams, verification, reviews | Movers self-serve; ops run without engineers | 12–16 ew | W12–22 | Onboarding end-to-end without engineering help |
+| 7 Content, SEO, rollout | Gated priority-market pages, trust content, measurement | 6–8 ew + 10–16 content-weeks | W8–24 | Batch 1 published; page-quality scenarios green |
+| 8 Launch validation & handover | Proven production readiness | 4–6 ew | W23–27 | Launch checklist complete (restore drill, reconciliation demo, audits) |
+| **Total** | | **40–57 ew (46–66 with 15% contingency)** | **≈ 26–30 weeks** | |
+
+\*Assumes 2 engineers in parallel, overlapping phases, and decisions arriving on time. A **one-market pilot is possible around weeks 15–18**, once Phases 4 and 5 and admin-assisted verification are done and counsel has signed off.
+
+**The critical path is mostly not engineering:**
+- counsel sign-off (before any real leads)
+- your approval of the credit policy, prices and refunds (before live billing)
+- the FMCSA WebKey and network access (an admin-assisted fallback keeps the pilot moving)
+- recruiting movers in each launch market (this gates indexable pages)
+- content throughput (0.5 FTE can't produce 10–16 content-weeks; add freelance writers or shrink batch 1)
+
+**Top risks:**
+- the MC requirement excluding local movers
+- the marketplace's legal classification and consent rules
+- slow ranking for a new domain
+- movers rejecting the shared-lead credit policy, to be tested in interviews and the pilot
 
 ## 11. Consolidated questions for the owner
 

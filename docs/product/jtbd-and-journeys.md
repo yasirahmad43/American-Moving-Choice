@@ -173,7 +173,7 @@ Each journey lists stages, the **moments of truth** (MoT) where trust is won or 
 | 6 | Why we need contact details | Plain-language explanation of who receives the details and when | [B] |
 | 7 | Contact details | First and last name, email, phone. Inline validation (format, line validity) | Helpful errors [B] |
 | 8 | How many companies | "How many moving companies would you like to hear from?" 1 = exclusive; maximum is admin-configurable. Explains this is a **maximum**, not a guarantee of quotes | Asked **after** personal info, per the brief [B] |
-| 9 | Consent and disclosures | Unchecked consent box, separate from submit. Names the eligible movers pool (pending counsel). Versioned wording | **MoT:** consent evidence stored (wording version, timestamp, selected limit, page, IP/UA, pool snapshot) [B] [R] |
+| 9 | Consent and disclosures | Unchecked consent box, separate from submit. Names the eligible movers (wording pending counsel). **Only movers named here can ever buy the lead**: enforced in the DB by `lead_eligibility.named_in_consent` and tested. Versioned wording | **MoT:** consent evidence stored (wording version, timestamp, selected limit, page, IP/UA, the named movers) [B] [R] |
 | 10 | Submit and confirmation | What happens next, the maximum number of companies, how they'll be told which movers received their details, how to withdraw or lower the limit, support contact | [B] |
 | 11 | Mover contact | Each purchase triggers an email to the consumer naming the mover, with a profile link | **MoT:** "which companies receive my request" [B, addendum §5] |
 | 12 | Decide and move | Consumer books (or doesn't) outside the platform | Out of platform [B] |

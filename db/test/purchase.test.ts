@@ -163,6 +163,32 @@ describe("payments and idempotency", () => {
     expect(rows).toEqual([{ kind: "purchase_charge", n: 2 }, { kind: "sharing_credit", n: 1 }]);
   });
 
+  it("a consumer withdrawal during an in-flight payment prevents disclosure", async () => {
+    const a = await company("A", { excl: 9000, shared: 4000 });
+    const g = await lead(2);
+    await offer(g, a);
+    const r = (await pool.query("select * from reserve_purchase($1,$2,'k')", [a, g])).rows[0];
+    await pool.query("select withdraw_lead_group($1)", [g]);
+    const done = await pool.query("select (complete_purchase($1,'pi_1')).id", [r.id]);
+    expect(done.rows[0].id).toBeNull(); // caller refunds
+    expect((await pool.query("select * from lead_contact_for_company($1,$2)", [g, a])).rows).toHaveLength(0);
+    expect((await pool.query("select count(*)::int n from ledger_entries")).rows[0].n).toBe(0);
+  });
+
+  it("a duplicate that lowers the limit during an in-flight payment cannot push buyers past the new limit", async () => {
+    const a = await company("A", { excl: 9000, shared: 4000 });
+    const b = await company("B", { excl: 9000, shared: 4000 });
+    const g = await lead(3);
+    await buy(a, g);
+    await offer(g, b);
+    const r = (await pool.query("select * from reserve_purchase($1,$2,'k')", [b, g])).rows[0];
+    await pool.query("select attach_duplicate($1, 1)", [g]); // consumer resubmits choosing 1
+    const done = await pool.query("select (complete_purchase($1,'pi_b')).id", [r.id]);
+    expect(done.rows[0].id).toBeNull();
+    expect((await pool.query("select count(*)::int n from purchases where group_id=$1", [g])).rows[0].n).toBe(1);
+    expect((await pool.query("select status from lead_groups where id=$1", [g])).rows[0].status).toBe("sold_out");
+  });
+
   it("success arriving after the reservation expired is honoured only if the slot is still free", async () => {
     const a = await company("A", { excl: 9000, shared: 4000 });
     const b = await company("B", { excl: 9000, shared: 4000 });

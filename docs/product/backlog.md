@@ -110,9 +110,9 @@ Counsel and an accountant review externally. AI agents assist, but every estimat
 |---|---|---|
 | Stack decision | **Made** | Next.js on Vercel, Supabase Postgres, Payload CMS, Stripe, background jobs and outbox |
 | Core domain package | **Done.** 22 unit tests passing (re-run 2026-10-27) | `packages/core/src` (matching, sharing/credit calculator, preview redaction, dedupe helpers, ZIP-as-string) |
-| Marketplace core schema and purchase functions | **Done.** 14 Postgres integration tests passing (re-run 2026-10-27) | `db/migrations/001_marketplace_core.sql`, `db/test/purchase.test.ts` |
+| Marketplace core schema and purchase functions | **Done.** 15 Postgres integration tests passing (re-run 2026-10-27) | `db/migrations/001_marketplace_core.sql`, `db/test/purchase.test.ts` |
 | MC requirement as a platform setting | **Done** | `platform_settings.require_mc_number`, tested |
-| Coverage and capability re-check inside `reserve_purchase` | **Gap** | The reservation re-checks eligibility, sale window, cap and duplicates, but **not coverage**. Story 5.1.2. |
+| Purchase-time eligibility re-check (DB side) | **Done** | `lead_eligibility` snapshot (matched rule, `named_in_consent`, `coverage_version`) plus `companies.coverage_version`. `reserve_purchase` raises `not_eligible_for_lead` unless the company was named in the consumer's consent, and `eligibility_stale` if coverage changed since matching. Tested. Remaining: matcher wiring (5.1.1–5.1.2). |
 | Group status and limit re-check inside `complete_purchase` for in-flight reservations | **Gap** | A withdrawal or a duplicate-lowered limit during a pending payment is not re-checked. Stories 5.3.7 and 5.3.8. |
 | Full data model (rest of the schema; see 2.4) | **Pending** | Task 2.4 |
 | Environments, CI, auth and tenancy skeleton, ADRs, roadmap with dates | **Pending** | Tasks 2.2–2.9 |
@@ -199,7 +199,7 @@ Counsel and an accountant review externally. AI agents assist, but every estimat
 - Background jobs and outbox.
 - Payload inside the Next app.
 - Realtime via broadcast with no personal data.
-- Matching in SQL vs a service.
+- Matching: record the decision already implemented. The TS matcher (`packages/core`) computes eligibility and the DB stores an authoritative `lead_eligibility` snapshot that the purchase functions enforce.
 
 **Estimate:** 3–5 ew.
 
@@ -308,6 +308,7 @@ Counsel and an accountant review externally. AI agents assist, but every estimat
 - **As a** consumer, **I want to** see exactly which movers may contact me before I agree, **so that** my consent is informed.
 - Given I am on the review step · When it renders · Then it shows: the eligible participating movers by name (the profile company first for profile-origin requests), my chosen maximum, the movers-only statement, how AMC makes money, and an **unchecked** consent box separate from the submit button.
 - Given I don't tick the consent box · When I press submit · Then nothing is shared and I'm offered the Preferred Movers directory instead.
+- Given a mover becomes eligible only after I submitted · When it views the marketplace · Then my lead isn't offered to it. Only movers named at my consent can ever buy (enforced by `lead_eligibility.named_in_consent`; DB-tested).
 
 **4.2.5 Record consent evidence** · P0 · M
 - **As an** AMC compliance owner, **I want** an immutable record of every consent, **so that** we and buying movers can prove what the consumer agreed to.
@@ -385,16 +386,19 @@ Counsel and an accountant review externally. AI agents assist, but every estimat
 
 ### Epic 5.1 Matching and inventory (M4, M5)
 
-**5.1.1 (task) Coverage storage and matching parity** · P0 · M
+**5.1.1 (task) Matcher writes eligibility snapshots** · P0 · M
 
 | Check | Acceptance |
 |---|---|
-| Parity | Coverage rules are stored relationally. SQL matching returns exactly the same eligible set as `packages/core` `matchCompany` across a shared fixture suite (parity test). |
-| Performance | Indexes keep matching under 200 ms P95 for 10k companies (load fixture). |
+| Snapshot on listing | Coverage rules are stored relationally. When a lead group is created, the TS matcher (`matchCompany`) writes one `lead_eligibility` row per matching company with the matched rule and the company's current `coverage_version`. |
+| Named movers | `named_in_consent` is true exactly for the movers shown to the consumer at the consent step; the consent evidence record (4.2.5) and the snapshot list the same companies (test). |
+| Version bump | Every coverage edit bumps `companies.coverage_version`. |
+| Performance | Matching a new lead stays under 200 ms P95 for 10k companies (load fixture). |
 
-**5.1.2 Re-check coverage at purchase** · P0 · S · AS-23
-- **As a** consumer, **I want** my lead sold only to movers that still serve my move at the moment of purchase, **so that** stale screens can't misroute it.
-- Given a company removed the lead's destination state from its coverage after the marketplace loaded · When it tries to reserve the lead · Then the reservation is refused with `not_matching` and nothing is charged.
+**5.1.2 Re-check coverage at purchase: app wiring** · P0 · S · AS-23
+- **As a** consumer, **I want** my lead sold only to movers I was shown and that still serve my move at the moment of purchase, **so that** stale screens can't misroute it.
+- Given a company named in my consent edited its coverage after matching · When it tries to buy and the DB raises `eligibility_stale` · Then the app re-runs the matcher. If the company still covers the lead, the snapshot is refreshed and the purchase retried once. If not, the purchase is refused with a clear "no longer matches your coverage" message and nothing is charged.
+- The DB-side refusal is already tested: "only movers named to the consumer at submission can buy, and coverage edits force a fresh match".
 
 **5.1.3 Coverage changes are forward-only** · P0 · S · AS-22
 - **As a** mover, **I want** coverage edits to change only future availability, **so that** leads I already bought stay mine.
@@ -794,16 +798,16 @@ Counsel and an accountant review externally. AI agents assist, but every estimat
 | AS-11 | Public pages work on small phones, with keyboard navigation and reduced motion | 3, 7 | **To build** | 3.2, 7.13, 8.6 |
 | AS-12 | Representative pages pass accessibility, rendering, metadata, schema, sitemap and performance checks | 7–8 | **To build** | 7.4, 8.6, 8.7 |
 | AS-13 | Backup restoration and payment reconciliation are demonstrated | 5, 8 | **To build** | 5.5.2, 8.4, 8.5 |
-| AS-14 | Brokers and unapproved companies cannot purchase leads or receive contact details | 5–6 | **Covered (DB)** | DB: "brokers, unapproved and expired-credential companies cannot purchase" (also asserts no contact details). To build: verification sets the flags from evidence (6.1.2–6.1.3); marketplace hides inventory |
+| AS-14 | Brokers and unapproved companies cannot purchase leads or receive contact details | 5–6 | **Covered (DB)** | DB: "brokers, unapproved and expired-credential companies cannot purchase" (also asserts no contact details); "only movers named to the consumer at submission can buy, and coverage edits force a fresh match" (unmatched or un-named companies are refused). To build: verification sets the flags from evidence (6.1.2–6.1.3); marketplace hides inventory |
 | AS-15 | Submitted numbers match the approved company and required carrier authority | 6 | **To build** | 6.1.2 with recorded FMCSA fixtures |
 | AS-16 | Credential failures suspend new purchases and Preferred status | 6 | **Partial** | DB purchase block for expired credentials (same test as AS-14). To build: weekly re-check job, Preferred suspension and notifications (6.1.6, 6.6.6) |
 | AS-17 | Newly approved companies receive accurate public listings | 6–7 | **To build** | 6.1.5, 7.5 |
 | AS-18 | Companies without reviews display no fabricated rating | 7 | **To build** | 7.5 (rendering + JSON-LD test) |
 | AS-19 | Companies cannot alter reviews or suppress valid criticism | 6 | **To build** | 6.5.6 (permission tests) |
 | AS-20 | Review badges reflect the actual evidence collected | 6 | **To build** | 6.5.4 |
-| AS-21 | Company-profile quote requests follow the sharing limits and purchase rules | 4, 7 | **Partial** | The core sharing-limit and purchase rules are tested (AS-02, AS-07). To build: profile entry point and E2E (7.5) |
-| AS-22 | Coverage changes affect future availability without removing purchased records (brief §5) | 5 | **To build** | 5.1.3 |
-| AS-23 | Eligibility and availability are re-checked at purchase (brief §5) | 5 | **Partial** | `reserve_purchase` re-checks eligibility, sale window, already-purchased, in-progress and cap (DB tests). **Coverage and capability re-check missing** (5.1.2) |
+| AS-21 | Company-profile quote requests follow the sharing limits and purchase rules | 4, 7 | **Partial** | The core sharing-limit and purchase rules are tested (AS-02, AS-07). Only consent-named movers can buy (DB: "only movers named to the consumer at submission can buy, and coverage edits force a fresh match"). To build: profile entry point naming the profile company first, plus E2E (7.5) |
+| AS-22 | Coverage changes affect future availability without removing purchased records (brief §5) | 5 | **Partial** | DB: "only movers named to the consumer at submission can buy, and coverage edits force a fresh match" (a coverage edit invalidates the snapshot for future purchases). To build: a test that purchased leads and CRM history are untouched by coverage edits (5.1.3) |
+| AS-23 | Eligibility and availability are re-checked at purchase (brief §5) | 5 | **Covered (DB)** | `reserve_purchase` re-checks: company eligibility, consent-named eligibility (`not_eligible_for_lead`), coverage freshness (`eligibility_stale`), sale window, already-purchased, in-progress and cap. DB tests: "only movers named to the consumer at submission can buy, and coverage edits force a fresh match", plus the AS-01, AS-02 and AS-14 tests. To build: matcher snapshot writes and retry wiring (5.1.1–5.1.2) |
 | AS-24 | Pre-purchase restrictions hold in server responses, exports, notifications and access controls (brief §6) | 5–6 | **Partial** | Core: "never contains contact details, surname, address or notes". `lead_contact_for_company` requires purchase plus disclosure (DB test). To build: API, notification and export snapshot tests (5.1.4, 5.1.6, 6.4.6) |
 | AS-25 | A disclosed shared lead never becomes exclusive; purchased exclusive leads are never resold (brief §7) | 5 | **Partial** | The AS-01 test proves the loser can't buy afterwards; the AS-06 test proves a refund doesn't reopen. To build: an explicit test that lowering a partly sold shared group's limit to 1 can't enable an exclusive sale |
 | AS-26 | Unpurchased leads expire at the end of the sale window | 5 | **To build** | `reserve_purchase` already refuses expired groups (untested). Add a test plus the expiry job (5.5.4) |
