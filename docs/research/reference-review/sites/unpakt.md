@@ -22,10 +22,10 @@ An online moving marketplace that prices moves from movers' unit rates, takes th
 
 - The walk sent the defaults and the site tried to create a move plan, so unchosen values get through [walk /].
 - The pitch is "No Phone Calls. Get Real Prices Now.", yet no captured page says how many movers get contact details [capture /].
-- The redirect suggests an account is needed; the failure may be sandbox-only [inference]. Both address inputs share one element id [walk /].
+- The redirect suggests an account is needed; the failure may be sandbox-only [inference].
 
 ## Mover side
-Partners, including real estate agents, earn a referral fee per booked move, paid monthly, and the pitch lets them offer clients "an exclusive discount for any moving company" (excerpt cut off) [capture /partnership/, footer]. A blog category page loads an affiliates.unpakt.com widget loader [capture blog /category/how-to-before-moving/], suggesting a partner widget; no embed was seen [inference]. "Get $20" offers appear without captured terms [capture]. The For Service Providers, Agreement and Terms pages were not captured [capture]. A 13% mover fee in 2012 press and help-center commission tiers were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own].
+Partners, including real estate agents, earn a referral fee per booked move, paid monthly, and the pitch lets them offer clients "an exclusive discount for any moving company" (excerpt cut off) [capture /partnership/, footer]. A blog category page loads an affiliates.unpakt.com widget loader [capture blog /category/how-to-before-moving/], suggesting a partner widget; no embed was seen [inference]. "Get $20" offers appear without captured terms [capture]. A 13% mover fee in 2012 press and help-center commission tiers were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own].
 
 ## Trust, verification and reviews
 - **Vetting.** No USDOT, DOT or MC text appears on the nine pages [capture]. v1 reported license, insurance, registration and BBB checks [v1 §2.7]; a help-center screening page was not re-verified [search: unpakt-faqs.groovehq.com, site's own].
