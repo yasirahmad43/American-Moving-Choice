@@ -42,14 +42,12 @@ Partners, including real estate agents, earn a referral fee per booked move, pai
 - **Privacy.** The policy of "Unpakt, LLC" calls "item or shipment values" non-personal, may draw data from "commercially available sources" and ad networks, and leaves cookies to browser settings; the excerpts do not say what movers receive [capture /privacy/].
 
 ## SEO and content
-- **Footprint.** 5,976 estimated visits from 8,387 keywords; the home page takes 65.72% and /moving-companies/NY/new-york/ 19.29% [semrush domain_rank, top_pages_more]. Unpakt is no search rival on AMC's Wave 1 terms [semrush phrase_organic_top10].
-- **Value.** About $22.94 per visit, twice hireahelper.com, the next highest [semrush domain_rank]; commercial landing pages may explain it [inference].
-- **City pages.** Only New York earns real traffic (1,153 visits); five other city pages earn 9 to 48, even at KD 37 (Miami) and KD 30 (Columbus) [semrush top_pages_more, phrase_these]. NYC has about 4 times Miami's demand but 24 times its visits, for reasons the evidence does not show [inference; site-architecture §5.2].
+- **Footprint.** 5,976 estimated visits from 8,387 keywords, valued at about $22.94 each, twice the next reference site; the home page takes 65.72% and /moving-companies/NY/new-york/ 19.29% [semrush domain_rank, top_pages_more]. Unpakt is no search rival on AMC's Wave 1 terms [semrush phrase_organic_top10].
+- **City pages.** Only New York earns real traffic (1,153 visits); five other city pages earn 9 to 48, even at KD 37 (Miami) and KD 30 (Columbus), and profiles and service pages 9 to 73 [semrush top_pages_more, phrase_these]. NYC has about 4 times Miami's demand but 24 times its visits, for reasons the evidence does not show [inference; site-architecture §5.2].
 - **URLs.** Uppercase state codes mix with lowercase cities (/moving-companies/FL/miami/), and profiles sit at /movers/{company}-{city}-{st}/ [semrush]. This corrects v1, which saw no geo URLs [v1 §2.7].
 - **Two hosts.** www (MovingCompany markup) and the blog (Organization) use different navigation [capture]. NYC intent overlaps: the www city page and a blog "Best Moving Companies in New York City" post [capture blog /; semrush].
 - **Blog.** Seven blog URLs earn 473 visits, about 330 on population, museum, restaurant and home-type lists [semrush]. Dates are relative ("2 years ago" to "4 years ago"), one title says "in 2023", and cost posts cite no source [capture blog].
-- **Profiles and service pages** earn 9 to 73 visits each [semrush].
-- **Markup.** /faq/ is 212 words of "READ MORE" links; no captured page has an author or FAQPage, BreadcrumbList, Article or Person markup [capture]. The best quotable shape is the /how-it-works/ price formula [capture].
+- **Markup.** /faq/ is 212 words of "READ MORE" links; no captured page has an author or FAQPage, BreadcrumbList, Article or Person markup [capture].
 - **Hygiene.** /sign-in/ reuses the home title and meta, the blog H1 is an image, four typos appear, and robots directives were not captured [capture].
 
 ## Design and UX
@@ -58,19 +56,17 @@ Partners, including real estate agents, earn a referral fee per booked move, pai
 - Explainer pages carry their own From and To form, and three benefit blocks lead with "Huge Savings" [capture /how-it-works/, /faq/; walk /].
 
 ## What AMC should adopt or adapt
-- **Move details first** [walk /]. Better: no presets, a required size pairing bedrooms with square feet, a flexible-date option, and stops and storage asked early. Serves lead-lifecycle §2, shared-pricing §6.
+- **Move details first, from any page** [walk /; capture /how-it-works/]. Better: route fields right after the H1 on mobile and every explainer, no presets, a required size pairing bedrooms with square feet, a flexible-date option, and stops and storage asked early. Serves lead-lifecycle §2, shared-pricing §6, visual-direction.md.
 - **Price explainer** [capture /how-it-works/]. Better: a plain formula of the estimator's inputs on a versioned method page, shown as a range, beside steps that state the exclusive and shared rule. Serves site-architecture §6.3 rule 5; "moving cost calculator" (5,400/mo, KD 49) [semrush].
 - **Control, not "no calls"** [capture /]. Better: the consumer picks how many movers and sees their names and verification dates first. Serves lead-lifecycle §2 steps 7-8.
 - **City cost content** [capture blog /category/moving-cost/]. Better: ranges only from mover rate cards or cited studies, on the page they describe. Serves site-architecture §6.3 rule 2, §7.5.
 - **Local rules as facts** [capture blog /]. Better: sourced, dated building rules such as certificates of insurance. Serves gate G3 (site-architecture §4.1).
-- **Quote start on every explainer** [capture]. Better: route fields right after the H1 on mobile, with benefits AMC can prove. Serves visual-direction.md.
 - **Joining rules for the owner** [inference]. Own trucks screen out brokers; a minimum operating history screens out new or reincarnated carriers. Serves mover-verification §1, §3.
 - **Partner channel, later** [capture /partnership/]. Better: the same survey, named-mover consent and sharing limit; disclosure is a counsel question. Serves lead-lifecycle §2; compliance facts §3-§4.
 - **Reassurance as education** [capture /]. Better: estimate types, the 110% rule, safe payment and FMCSA links. Serves compliance facts §1-§2.
 
 ## What AMC should avoid
-- Pricing, booking, taking payment or discounting movers' prices (discovery brief §1; compliance facts §2) [capture /, /partnership/]; flag the mvp-scope §5 payments add-on for counsel.
-- Guaranteeing movers' prices, "no hidden fees", or "not estimates" copy (compliance facts §2) [capture /].
+- Pricing, booking, taking payment, or discounting or guaranteeing movers' prices, plus "no hidden fees" and "not estimates" copy (discovery brief §1; compliance facts §2) [capture /, /partnership/]; flag the mvp-scope §5 payments add-on for counsel.
 - Mover-type markup on AMC, "our movers" and self-ratings; use one Organization @id and a CI schema lint (site-architecture §7.1, §8.5, §9; compliance facts §5) [capture].
 - Silence on how the platform is paid; say it in the footer, survey and confirmation (consent draft §1, §7) [capture].
 - Unsourced counts, savings and "only" or "biggest" claims; date and define every count (reference-matrix §4 item 7) [capture /].
