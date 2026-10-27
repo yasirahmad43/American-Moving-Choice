@@ -1,8 +1,12 @@
 // Guarded step runner for quote-flow deep dives in the reference review.
 // Usage: node runplan.js '<json array of actions>'   (run inside the capture sandbox)
-// Actions: {"goto":url} {"inspect":true} {"type":{"selector":s,"text":t}} {"select":{"selector":s,"label"|"value"|"index":x}}
+//        AMC_ATTACH=1 node runplan.js '<plan>'       (reuse the browser kept open by browserd.js, so one walk can
+//                                                     span several calls; the newest tab is used)
+// Actions: {"goto":url} {"inspect":true|"compact"} {"type":{"selector":s,"text":t}} {"select":{"selector":s,"label"|"value"|"index":x}}
 //          {"click":{"selector":s}|{"text":t}} {"check":{"selector":s}} {"press":key} {"wait":ms} {"scroll":px}
-//          {"text":{"selector"?:s,"max"?:n}} {"links":{"match":regex}} {"screenshot":name}
+//          {"text":{"selector"?:s,"max"?:n}} {"links":{"match":regex}} {"outer":{"selector":s,"max"?:n}}
+//          {"frames":true} {"frame":urlRegex|null} {"screenshot":name}
+// {"frame":re} makes the following actions run inside the first frame whose URL matches; {"frame":null} returns to the page.
 // Safety: refuses to type into contact fields, refuses non-test values, never ticks consent/terms boxes,
 // and refuses submit-like clicks once a contact step is on screen. Output lines are chunked so each
 // arrives as a separate log item (stream with wait:true, logs:true).
@@ -23,7 +27,7 @@ async function say(obj) {
   const s = JSON.stringify(obj);
   for (let i = 0; i < s.length; i += 1700) {
     process.stdout.write(s.slice(i, i + 1700) + (i + 1700 >= s.length ? '\n' : ''));
-    await sleep(400);
+    await sleep(250);
   }
 }
 
@@ -71,6 +75,16 @@ function inspectPage() {
   };
 }
 
+// Shorter inspect output for long walks: fewer fields and buttons, trimmed text.
+function compact(r) {
+  return {
+    url: r.url, title: r.title, headings: r.headings.slice(0, 6),
+    fields: r.fields.slice(0, 20).map((f) => ({ sel: f.sel, type: f.type, desc: f.desc.slice(0, 90), contact: f.contact || undefined, checked: f.checked || undefined, options: f.options })),
+    buttons: r.buttons.slice(0, 25).map((b) => ({ sel: b.sel, text: b.text.slice(0, 50) })),
+    consent: r.consent.slice(0, 4).map((c) => c.slice(0, 600)), contactRequested: r.contactRequested, stepText: r.stepText.slice(0, 500),
+  };
+}
+
 async function elementInfo(page, selector) {
   return page.$eval(selector, (el) => {
     const txt = (e) => (e.innerText || e.textContent || '').replace(/\s+/g, ' ').trim();
@@ -84,34 +98,51 @@ async function elementInfo(page, selector) {
 (async () => {
   let plan;
   try { plan = JSON.parse(process.argv[2]); } catch (e) { await say({ error: 'plan is not valid JSON: ' + e.message }); process.exit(1); }
-  const browser = await puppeteer.launch({ args: chromium.args, executablePath: await chromium.executablePath(), headless: true });
-  const page = await browser.newPage();
+  const attach = process.env.AMC_ATTACH === '1';
+  let browser;
+  let page;
+  if (attach) {
+    browser = await puppeteer.connect({ browserWSEndpoint: fs.readFileSync('/tmp/amc-browser.ws', 'utf8').trim(), defaultViewport: null });
+    const pages = await browser.pages();
+    page = pages[pages.length - 1];
+  } else {
+    browser = await puppeteer.launch({ args: chromium.args, executablePath: await chromium.executablePath(), headless: true });
+    page = await browser.newPage();
+    await page.setViewport({ width: 1366, height: 900 });
+  }
   await page.setUserAgent(UA);
-  await page.setViewport({ width: 1366, height: 900 });
-  let lastInspect = null;
+  let ctx = page; // the page, or a frame chosen with {"frame": re}
   for (const [i, a] of plan.entries()) {
     const k = Object.keys(a)[0];
     const v = a[k];
     try {
       if (k === 'goto') {
+        ctx = page;
         const r = await page.goto(v, { waitUntil: 'networkidle2', timeout: 60000 }).catch(() => null);
         await sleep(2000);
         await say({ i, goto: v, status: r ? r.status() : null, url: page.url(), title: await page.title() });
       } else if (k === 'inspect') {
-        lastInspect = await page.evaluate(inspectPage);
-        await say({ i, inspect: lastInspect });
+        const r = await ctx.evaluate(inspectPage);
+        await say({ i, inspect: v === 'compact' ? compact(r) : r });
+      } else if (k === 'frames') {
+        await say({ i, frames: page.frames().map((f) => f.url()).filter((u) => u && u !== 'about:blank').slice(0, 20) });
+      } else if (k === 'frame') {
+        const f = v ? page.frames().find((x) => new RegExp(v, 'i').test(x.url())) : null;
+        if (v && !f) { await say({ i, error: 'no frame matches ' + v }); continue; }
+        ctx = f || page;
+        await say({ i, frame: ctx === page ? 'page' : f.url() });
       } else if (k === 'type') {
-        const info = await elementInfo(page, v.selector);
+        const info = await elementInfo(ctx, v.selector);
         if (info.type === 'email' || info.type === 'tel' || info.type === 'password' || CONTACT.test(info.desc)) { await say({ i, refused: 'contact/personal field', field: info.desc }); continue; }
         if (!SAFE_TEXT.test(String(v.text))) { await say({ i, refused: 'only test ZIPs, dates, numbers or place names may be typed' }); continue; }
-        await page.click(v.selector, { clickCount: 3 }).catch(() => {});
-        await page.type(v.selector, String(v.text), { delay: 60 });
+        await ctx.click(v.selector, { clickCount: 3 }).catch(() => {});
+        await ctx.type(v.selector, String(v.text), { delay: 60 });
         await sleep(1200);
         await say({ i, typed: v.text, into: info.desc });
       } else if (k === 'select') {
-        const info = await elementInfo(page, v.selector);
+        const info = await elementInfo(ctx, v.selector);
         if (CONTACT.test(info.desc)) { await say({ i, refused: 'contact/personal field', field: info.desc }); continue; }
-        const chosen = await page.$eval(v.selector, (el, o) => {
+        const chosen = await ctx.$eval(v.selector, (el, o) => {
           let idx = -1;
           if (o.index !== undefined) idx = o.index;
           else if (o.value !== undefined) idx = [...el.options].findIndex((x) => x.value === o.value);
@@ -125,16 +156,16 @@ async function elementInfo(page, selector) {
         await sleep(800);
         await say({ i, selected: chosen, in: info.desc });
       } else if (k === 'check') {
-        const info = await elementInfo(page, v.selector);
+        const info = await elementInfo(ctx, v.selector);
         if (CONSENT.test(info.desc + ' ' + info.text)) { await say({ i, refused: 'consent/terms/marketing boxes are never ticked', field: info.desc }); continue; }
-        await page.click(v.selector);
+        await ctx.click(v.selector);
         await sleep(800);
         await say({ i, checked: info.desc || info.text });
       } else if (k === 'click') {
-        const current = await page.evaluate(inspectPage);
+        const current = await ctx.evaluate(inspectPage);
         let selector = v.selector;
         if (!selector && v.text) {
-          selector = await page.evaluate((t) => {
+          selector = await ctx.evaluate((t) => {
             const want = t.toLowerCase();
             const els = [...document.querySelectorAll('button,a,[role=button],[role=radio],[role=option],label,input[type=submit],input[type=button],div,span,li')]
               .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; })
@@ -146,12 +177,15 @@ async function elementInfo(page, selector) {
           }, v.text);
         }
         if (!selector) { await say({ i, error: 'no visible element with that text' }); continue; }
-        const info = await elementInfo(page, selector);
+        const info = await elementInfo(ctx, selector);
         if (current.contactRequested && SUBMIT_LIKE.test(info.text || info.desc)) { await say({ i, refused: 'contact details are requested on this screen; not clicking a submit-like control', control: info.text }); continue; }
-        await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {}), page.click(selector)]);
+        const tabs = (await browser.pages()).length;
+        await Promise.all([ctx.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {}), ctx.click(selector)]);
         await sleep(2500);
-        await page.evaluate(() => document.querySelectorAll('[data-amc-click]').forEach((e) => e.removeAttribute('data-amc-click')));
-        await say({ i, clicked: info.text || info.desc, url: page.url() });
+        await ctx.evaluate(() => document.querySelectorAll('[data-amc-click]').forEach((e) => e.removeAttribute('data-amc-click'))).catch(() => {});
+        const pages = await browser.pages();
+        if (pages.length > tabs) { page = pages[pages.length - 1]; ctx = page; await page.setUserAgent(UA); }
+        await say({ i, clicked: info.text || info.desc, url: page.url(), newTab: pages.length > tabs || undefined });
       } else if (k === 'press') {
         await page.keyboard.press(v);
         await sleep(1500);
@@ -160,15 +194,18 @@ async function elementInfo(page, selector) {
         await sleep(Math.min(+v, 15000));
         await say({ i, waited: v });
       } else if (k === 'scroll') {
-        await page.evaluate((y) => window.scrollBy(0, y), +v);
+        await ctx.evaluate((y) => window.scrollBy(0, y), +v);
         await sleep(800);
         await say({ i, scrolled: v });
       } else if (k === 'text') {
-        const out = await page.evaluate((o) => { const el = o.selector ? document.querySelector(o.selector) : document.querySelector('main') || document.body; return el ? (el.innerText || '').replace(/\s+/g, ' ').trim().slice(0, o.max || 1500) : null; }, v || {});
+        const out = await ctx.evaluate((o) => { const el = o.selector ? document.querySelector(o.selector) : document.querySelector('main') || document.body; return el ? (el.innerText || '').replace(/\s+/g, ' ').trim().slice(0, o.max || 1500) : null; }, v || {});
         await say({ i, text: out });
+      } else if (k === 'outer') {
+        const out = await ctx.evaluate((o) => { const el = document.querySelector(o.selector); return el ? el.outerHTML.replace(/\s+/g, ' ').slice(0, o.max || 1500) : null; }, v);
+        await say({ i, outer: out });
       } else if (k === 'links') {
         const re = v.match || '.';
-        const out = await page.evaluate((r) => [...new Set([...document.links].map((a) => a.href).filter((h) => new RegExp(r, 'i').test(h)))].slice(0, 60), re);
+        const out = await ctx.evaluate((r) => [...new Set([...document.links].map((a) => a.href).filter((h) => new RegExp(r, 'i').test(h)))].slice(0, 60), re);
         await say({ i, links: out });
       } else if (k === 'screenshot') {
         const dir = path.join(__dirname, 'agents');
@@ -182,6 +219,7 @@ async function elementInfo(page, selector) {
       await say({ i, action: k, error: e.message.slice(0, 300) });
     }
   }
-  await browser.close();
+  if (attach) await browser.disconnect();
+  else await browser.close();
   await say({ done: true });
 })();
