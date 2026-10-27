@@ -3,7 +3,7 @@
 //        AMC_ATTACH=1 node runplan.js '<plan>'       (reuse the browser kept open by browserd.js, so one walk can
 //                                                     span several calls; the newest tab is used)
 // Actions: {"goto":url} {"inspect":true|"compact"} {"type":{"selector":s,"text":t}} {"select":{"selector":s,"label"|"value"|"index":x}}
-//          {"click":{"selector":s}|{"text":t}} {"check":{"selector":s}} {"press":key} {"wait":ms} {"scroll":px}
+//          {"click":{"selector":s}|{"text":t},"nav"?:false} {"check":{"selector":s}} {"press":key} {"wait":ms} {"scroll":px}
 //          {"text":{"selector"?:s,"max"?:n}} {"links":{"match":regex}} {"outer":{"selector":s,"max"?:n}}
 //          {"frames":true} {"frame":urlRegex|null} {"screenshot":name}
 // {"frame":re} makes the following actions run inside the first frame whose URL matches; {"frame":null} returns to the page.
@@ -180,8 +180,10 @@ async function elementInfo(page, selector) {
         const info = await elementInfo(ctx, selector);
         if (current.contactRequested && SUBMIT_LIKE.test(info.text || info.desc)) { await say({ i, refused: 'contact details are requested on this screen; not clicking a submit-like control', control: info.text }); continue; }
         const tabs = (await browser.pages()).length;
-        await Promise.all([ctx.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {}), ctx.click(selector)]);
-        await sleep(2500);
+        // {"click":{..., "nav":false}} skips the navigation wait for single-page steps.
+        const nav = v.nav === false ? null : ctx.waitForNavigation({ waitUntil: 'networkidle2', timeout: 10000 }).catch(() => {});
+        await Promise.all([nav, ctx.click(selector)]);
+        await sleep(v.nav === false ? 1500 : 2500);
         await ctx.evaluate(() => document.querySelectorAll('[data-amc-click]').forEach((e) => e.removeAttribute('data-amc-click'))).catch(() => {});
         const pages = await browser.pages();
         if (pages.length > tabs) { page = pages[pages.length - 1]; ctx = page; await page.setUserAgent(UA); }
