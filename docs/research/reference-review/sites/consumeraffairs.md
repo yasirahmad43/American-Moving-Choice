@@ -1,6 +1,6 @@
 # ConsumerAffairs: Best Long-Distance Moving Companies: reference review
 
-A multi-industry review publisher with a paid partner program; the owner listed its long-distance ranking, which teaches AMC about disclosure, ranking method and consent more than moving SEO [search: /about/faq/; semrush].
+A multi-industry review publisher with a paid partner program, listed for its long-distance ranking; its lessons for AMC are disclosure, ranking method and consent more than moving SEO [search: /about/faq/; semrush].
 
 **Reviewed:** 2026-10-27. **Evidence:** capture blocked (bot protection, HTTP 403); no walks; Semrush US, October 2026; WebSearch; v1 §2.10. Paths are ConsumerAffairs' own pages seen in search summaries; "LD page" is the owner's URL; "BBB" is the Tulsa BBB profile (third party). **Confidence:** low, because no page or flow was observed and many search details were not re-run.
 
@@ -8,8 +8,8 @@ A multi-industry review publisher with a paid partner program; the owner listed 
 - Businesses pay to join its Authorized Partner program, and it may also earn on clicks, forms and calls [search: /about/faq/]. It does not present itself as a mover or broker; its FMCSA status was not checked [search].
 - Guides say partner pay does not affect picks; the FAQ says it may affect who is featured and in what order [search: /movers/tulsa.html, /about/faq/].
 - Call and text consent sits in the sitewide Terms; the form was never seen [search: /about/terms_of_use/; capture].
-- Nothing shows the consumer seeing, naming or limiting companies before submitting [search; capture].
-- "Verified" reviews rest on contact details, not bookings [search: /online/consumeraffairs.html].
+- No evidence shows the consumer seeing, naming or limiting companies before submitting [search; capture].
+- "Verified" reviews rest on contact details; no evidence ties them to a booking [search: /online/consumeraffairs.html].
 - /movers/ earns about 5.6% of the domain's 420,319 estimated monthly visits, and the LD page under 188 [semrush: domain_rank, top_pages_more].
 
 ## Consumer journey
@@ -19,31 +19,31 @@ A multi-industry review publisher with a paid partner program; the owner listed 
 | 2. ZIP entry | ZIP, "Enter details in under 3 minutes" | Not observed | [search: /movers/ pages, not re-run] |
 | 3. Referral questionnaire | Not observed | Not observed | [search: BBB] |
 | 4. Contact and consent | Contact details (inferred); consent in the Terms | Not observed | [search: /about/terms_of_use/; inference] |
-| 5. Follow-up | Nothing | Calls from ConsumerAffairs or the matched brand | [v1 §2.10; search: BBB] |
+| 5. Follow-up | Nothing | After contact: calls from ConsumerAffairs or the matched brand | [v1 §2.10; search: BBB] |
 
-- A BBB complaint describes calls from the two companies the questionnaire recommended, so at least one request reached two companies [search: BBB, unverified].
+- One BBB complaint describes calls from both companies the questionnaire recommended [search: BBB, unverified].
 - A brands page says leads enter the brand's CRM with name, email, phone and ZIP; its examples are not movers [search: brands.consumeraffairs.com; inference].
-- The FAQ reportedly allows calls to partners' customers, with the business's permission, which suggests review calls rather than a quote-flow phone step [search: /about/faq/, paraphrase; inference].
+- The FAQ reportedly allows calls to partners' customers, with permission, suggesting review calls, not a quote-flow phone step [search: /about/faq/, paraphrase; inference].
 
 ## Mover side
 Joining runs through sales: pricing starts with "Tell us about your business", and G2 says no pricing is published [search: brands page; G2, third party]. Brands can "share conversion results with us through API or email" [search: brands page]. No moving-specific eligibility checks, prices, caps or exclusivity terms were found [search].
 
 ## Trust, verification and reviews
-- **Paid marker.** v1's blue check for paid partners was not re-confirmed [v1 §2.10; search]. An industry self-regulatory program (ERSP) reportedly found paid ties under-disclosed, and a banner marking paying companies followed; source and date were not pinned [search: Wikipedia, truthinadvertising.org, third party].
+- **Paid marker.** v1's blue check for paid partners was not re-confirmed [v1 §2.10]. A self-regulatory program (ERSP) reportedly found paid ties under-disclosed, and a paying-company banner followed; source and date are unpinned [search: Wikipedia, truthinadvertising.org, third party].
 - **Authority type.** The top long-distance pick, International Van Lines, is labeled a "broker and carrier hybrid" and Condor a carrier, the site's labels rather than FMCSA records [search; inference]. A Safe Ship review page earns about 511 visits a month, and another reference calls Safe Ship a broker [semrush: top_pages_more; v1 §2.1].
 - **Deposits.** The LD page gives typical deposits per pick, and guides say brokers often take 20 to 50% upfront, carriers much less [search: LD page].
 - **Reviews.** Contact details confirm a real person, backed by software and moderators; nothing ties a review to a move [search: /online/consumeraffairs.html]. Pages credit a "ConsumerAffairs Research Team", and no named authors surfaced [search: /movers/].
 - **Method.** Three pillars, "verified feedback submitted to ConsumerAffairs between March 1, 2023, and Feb. 28, 2026", and one Chicago-to-Kansas City price scenario, under a 2026 title [search: LD page; v1 §2.10]. City guides weight local reviews 65% [v1 §2.10].
 - **Drift.** Dallas names Condor Moving Systems "best value" at 1.8 from 100 reviews, while other pages show other figures [search: /movers/texas/dallas/].
 - **Other.** The containers guide labels its "Customers Say" summaries AI-generated [search: /movers/moving-containers/]. Tulsa names PODS, a container service, best overall among 37 companies [search: /movers/tulsa.html].
-- **Record.** Nemet Chevrolet (4th Cir. 2009) dismissed review claims under Section 230, and Consumer Cellular (D. Or. 2016) denied the site's anti-SLAPP motion [search: blog.ericgoldman.org, third party]. Icon Health & Fitness alleged that paying companies get favorable treatment, and Law360 reports a HomeSafe pay-to-play suit; outcomes were not checked [search: blog.ericgoldman.org, law360.com, third party].
+- **Record.** Courts dismissed user-review claims under Section 230 in Nemet Chevrolet (4th Cir. 2009) and denied the site's anti-SLAPP motion in Consumer Cellular (D. Or. 2016) [search: blog.ericgoldman.org, third party]. Icon Health & Fitness and, per a Law360 headline, HomeSafe alleged pay-to-play; outcomes were not checked [search: blog.ericgoldman.org, law360.com, third party].
 
 ## Disclosure and consent
 - **Two statements.** Guides say picks "may be Authorized Partners that compensate us, but this does not affect our recommendations" [search: /movers/tulsa.html]. The FAQ says pay "may influence which partners we feature and the order in which they appear", but not editors' advice [search: /about/faq/]. On a ranked list, readers cannot tell which applies [inference].
 - **Consent.** The Terms' summary includes consent to direct mail, automated calls, texts and call recording [search: /about/terms_of_use/]. v1 found that submitting counts as consent to autodialed or prerecorded contact [v1 §2.10]. No "not a condition of purchase" wording surfaced [search].
 - **Disputes.** The Terms require binding JAMS arbitration, or small claims court in Douglas County, Nevada, after 60 days of negotiation; class actions are barred and claims expire after a year [search: /about/terms_of_use/].
-- **Complaints.** BBB shows an A+ rating, accreditation since 10/12/2016 and 7 complaints in 3 years, which describe unwanted calls after the questionnaire [search: BBB, as indexed]. The reply says details go only to "the specific partners you've given us permission to connect you with" [search: BBB].
-- **Operator.** Consumers Unified, LLC runs the site; Zac Carman bought it in 2010, and it is based in Tulsa [search: urlert.com, Wikipedia, third party]. BBB also lists a Stateline, Nevada address, in the Terms' venue county [search: bbb.org; inference].
+- **Complaints.** BBB shows an A+ rating, accreditation since 10/12/2016 and 7 complaints in 3 years [search: BBB, as indexed]. Complaints describe unwanted calls after the questionnaire, and one says details went to other companies without consent; the reply says details go only to "the specific partners you've given us permission to connect you with" [search: BBB, unverified].
+- **Operator.** Consumers Unified, LLC runs the site, which Zac Carman bought in 2010 and which is based in Tulsa; BBB also lists Stateline, Nevada, in the Terms' venue county [search: urlert.com, Wikipedia, bbb.org, third party; inference].
 
 ## SEO and content
 - **Scale.** /movers/ draws about 23.7k visits, less than whole-domain HireAHelper (125,334), Move.org (107,657), Moving.com (64,797), moveBuddha (38,335) or MyGoodMovers (25,778) [semrush: domain_rank, top_pages_more]. Some moving pages sit outside /movers/ [search: /homeowners/].
@@ -53,7 +53,7 @@ Joining runs through sales: pricing starts with "Tell us about your business", a
 - **URLs.** Geo folders sit beside .html, .htm, underscore and flat city paths, and profiles in /movers/ and /homeowners/ paginate with ?page= under rotating titles [semrush: top_pages_more; search: /movers/condor.html]. Best-of pages and /awards/ overlap and reward the same companies [search: /awards/2025/movers/, /movers/tulsa.html].
 - **Figures.** Long-distance costs vary by page, source and distance band without reconciliation, and state pages give one figure blending local and interstate quotes [search: /movers/how-much-do-movers-cost.html, /movers/connecticut/].
 - **AI search.** One unnamed engine listed the LD page second and quoted its picks and disclosure, despite the bot block [search: tool answer, single run; capture].
-- **Fit.** This supports AMC's provisional plan: full-name state slugs, one Wave 1 cost URL, /compare/ in Wave 2 with no early traffic forecast, the geo coverage gate and bot allowlisting [inference].
+- **Fit.** This supports AMC's state slugs, single Wave 1 cost URL, Wave 2 /compare/ with no traffic forecast, geo gate and bot allowlisting [inference].
 
 ## Design and UX
 A ZIP field with a time promise opens the funnel, and picks carry "best for" labels [search: /movers/ pages, LD page]. Layout, mobile view, form and JSON-LD were not seen [capture]. The evidence pack records an "Access to this page has been denied" page and HTTP 403, and the raw pack logs a script error; no bypass was tried [capture: LD page].
@@ -81,15 +81,15 @@ A ZIP field with a time promise opens the funnel, and picks carry "best for" lab
 - Mixed URL formats and ?page= pagination; use /movers/new-york/new-york-city/ (site-architecture §2.2, §2.4).
 - Storage and address-change families [inference], and containers in mover lists (mover-verification §1).
 - Pay-to-play exposure; publish the rating formula, log changes and ask counsel (compliance facts §4).
-- Sizing AMC from the domain total; fix discovery brief §3 and keyword-research §1.
+- Sizing AMC from the domain total; add the folder estimate to discovery brief §3 and keyword-research §1, and correct §5, which says these pages were not pulled.
 
 ## Gaps and open questions
-- The quote flow end to end: questions, value before contact, consent wording, confirmation and recipient count.
+- The quote flow: questions, value before contact, consent wording, confirmation and recipient count.
 - Layout, disclosure placement, bylines, dates and JSON-LD.
-- Which picks are paid; whether the blue check survives.
+- Which picks are paid, and whether the blue check survives.
 - Mover terms: eligibility, broker exclusion, prices, caps and refunds.
 - Lawsuit outcomes (Icon, Consumer Cellular's Ninth Circuit appeal No. 16-35514, HomeSafe); no FTC or attorney general search.
-- Semrush stops at 25 rows, and SERPs cover 13 keywords; search figures need a browser check.
+- Semrush stops at 25 rows and SERPs cover 13 keywords; search figures need a browser check.
 
 ## Sources
 - Evidence: `docs/research/reference-review/captures/consumeraffairs.md`, `_provenance.md`; private raw pack `packs/consumeraffairs.md`.
