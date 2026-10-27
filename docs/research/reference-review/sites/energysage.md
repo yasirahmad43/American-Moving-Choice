@@ -48,7 +48,7 @@ No installer-facing page was captured, so fees, lead rules, exclusivity and caps
 - **Conflicts.** Marketing cookies "identify your interests" for outside ads, yet the policy says "We do not monitor or profile visitors", perhaps meaning sensitive data only [capture: /editorial-guidelines/, /privacy-policy/]. It also accepts others' data on the submitter's "authority" and calls the tool an "Instant Estimate" [capture: /privacy-policy/].
 
 ## SEO and content
-- **Traffic.** The top 25 pages hold 42.3% of visits; cost pages plus the calculator take 33,520 (14% of the site) and 14 informational pages 46,116 (19.3%) [semrush: top_pages_more]. No backlink data was pulled [semrush].
+- **Traffic.** The top 25 pages hold 42.3% of visits; cost and incentive pages plus the calculator take 33,520 (14% of the site) and 14 informational pages 46,116 (19.3%) [semrush: top_pages_more]. No backlink data was pulled [semrush].
 - **Geo.** /local-data/solar-panel-cost/va/ is #6 (4,305 visits, 55 keywords), the only state cost page in the top 25; none was captured [semrush; capture].
 - **IA and best-of.** A product-led menu and a /local-data/ geo namespace [capture; semrush]. The ranking is not in the top 25, one supplier profile is (1,899), and family totals were not pulled [semrush].
 - **Templates.** All three articles (2,618 to 3,320 words) carry writer, editor, "Updated" date, contents list, question H2s, related links and BreadcrumbList, without credentials; years sit in titles, not URLs [capture].
@@ -59,18 +59,18 @@ No installer-facing page was captured, so fees, lead rules, exclusivity and caps
 ## Design and UX
 - The mobile first screen holds the H1, value line, ZIP field, "Get started" and a Privacy Policy link [capture: /].
 - Each captured article has two "See solar prices" ZIP boxes [capture].
-- The calculator uses a focused shell with no menu, a loading checklist of factors and an accessiBe overlay [capture: /solar/calculator/].
+- The calculator uses a focused shell with no menu, states its basis ("your roof, electricity bill, and actual offers in your area"), shows a loading checklist of factors and loads an accessiBe overlay [capture: /solar/calculator/].
 
 ## What AMC should adopt or adapt
 - **"Free" beside the pay model** [capture: /]. Better: wherever AMC says free, the same component says movers pay for requests, in one counsel-approved statement. Serves consent draft §1, §7; visual-direction §13.7.
-- **Short start, one question per screen** [capture: /; walk]. Better: from and to in the first mobile screen, a coverage pre-check before contact, step events instead of URLs, and no presets on matching, sharing limit or consent. Serves lead-lifecycle §2; site-architecture §9; consent draft §4, §5.
+- **Short start, one question per screen** [capture: /; walk]. Better: from and to in the first mobile screen, a coverage pre-check before contact, step events instead of URLs, and no presets on questions that change matching or price, the sharing limit or consent. Serves lead-lifecycle §2; site-architecture §9; consent draft §4, §5.
 - **A calculator with a stated basis** [capture: /solar/calculator/]. Better: ungated, with an H1, named inputs and sources, a "data as of" date, a range that is not a quote and no "actual offers" claim; inputs carry into step 1. Serves value before contact; site-architecture §6.3; compliance facts §2.
 - **Cost data as a product** [semrush; capture]. Better: dated ranges with source and sample, from member rate cards or cited data; one dataset for meta, body and schema; a credentialed "Reviewed by" line; a "costs by state" module once demand is measured. Serves site-architecture §3.2, §6.3, §7.2, G4.
 - **Ranking criteria** [capture]. Better: disclose that movers may pay AMC without changing order, or rank no paying movers; never score on leads bought. Serves site-architecture §4.6; compliance facts §4.
-- **Named owner and one facts record** [capture]. Better: name AMC's owner and any tie to a mover or lead buyer, link every logo to its item, and date every count. Serves site-architecture §7.1; discovery brief §11 Q1.
+- **Named owner and one facts record** [capture]. Better: name AMC's owner and any tie to a mover, broker or lead buyer, link every logo to its item, and date every count. Serves site-architecture §7.1; compliance facts §4; discovery brief §11 Q1.
 - **Privacy controls** [capture]. Better: GPC, a share-or-sale opt-out, a text-opt-in non-sharing clause and named affiliates. Serves compliance facts §3.
-- **Partner named at the hand-off** [capture: /]. Better: name referral partners there and in consent; car shipping must first clear the movers-only rule. Serves consent draft §5; site-architecture §0; mvp-scope.
-- **Contact preference** [v1 §2.9; search]. Better: capture it, send it with each lead, bind movers to it, and promise only "up to {N} movers". Serves consent draft §6, §11; compliance facts §3.
+- **Partner named at the hand-off** [capture: /]. Better: name referral partners there and in consent; car shipping must first clear the movers-only rule. Serves consent draft §5; site-architecture §0 decision 7; mvp-scope.
+- **Contact preference** [v1 §2.9; search]. Better: with no in-platform messaging at MVP, capture a preference, send it with each lead, bind movers to it, and promise only "up to {N} movers". Serves consent draft §6, §11; compliance facts §3.
 - **Partner embeds** [capture: /partners/corporations/]. Better: a verify-a-mover or cost widget for realtors and HR teams that links to canonical pages. Serves link earning (keyword-research §1); site-architecture §1.1.
 
 ## What AMC should avoid
@@ -80,7 +80,7 @@ No installer-facing page was captured, so fees, lead rules, exclusivity and caps
 - Price-promising buttons and "instant estimate" names (compliance facts §2) [capture].
 - A blanket "no profiling" line, since AMC risk-scores leads (lead-lifecycle §4) [capture].
 - Undated counters, relative dates, unsourced superlatives, government-approval hints and drifting meta figures (site-architecture §1.2, §6.3, §7.1) [capture].
-- Automatic IP-based origins (site-architecture §2.5) [walk].
+- Automatic IP-based origin guesses; location use stays user-initiated and confirmed (site-architecture §2.5; visual-direction §9.2) [walk].
 - Consent for someone else's phone on a submitter's "authority" (compliance facts §3) [capture; inference].
 - Accessibility overlays (visual-direction §14) [capture].
 - All-positive, relative-dated testimonials (mover-verification §6) [capture].
