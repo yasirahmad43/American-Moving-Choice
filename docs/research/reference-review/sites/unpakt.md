@@ -25,7 +25,7 @@ An online moving marketplace that prices moves from movers' unit rates, takes th
 - The redirect suggests an account is needed; the failure may be sandbox-only [inference].
 
 ## Mover side
-Partners, including real estate agents, earn a referral fee per booked move, paid monthly, and the pitch lets them offer clients "an exclusive discount for any moving company" (excerpt cut off) [capture /partnership/, footer]. A blog category page loads an affiliates.unpakt.com widget loader [capture blog /category/how-to-before-moving/], suggesting a partner widget; no embed was seen [inference]. "Get $20" offers appear without captured terms [capture]. A 13% mover fee in 2012 press and help-center commission tiers were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own].
+Partners, including real estate agents, earn a fee per booked move, paid monthly, and may offer clients "an exclusive discount for any moving company" (excerpt cut off) [capture /partnership/, footer]. A blog page loads an affiliates.unpakt.com widget loader, suggesting a partner widget, though no embed was seen [capture blog /category/how-to-before-moving/; inference]. A 13% mover fee (2012 press) and help-center commission tiers were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own].
 
 ## Trust, verification and reviews
 - **Vetting.** No USDOT, DOT or MC text appears on the nine pages [capture]. v1 reported license, insurance, registration and BBB checks [v1 §2.7]; a help-center screening page was not re-verified [search: unpakt-faqs.groovehq.com, site's own].
@@ -36,10 +36,10 @@ Partners, including real estate agents, earn a referral fee per booked move, pai
 
 ## Disclosure and consent
 - **Role.** The home page says "our movers" yet presents a booking platform; no captured page says whether Unpakt is a mover, broker or neither [capture /]. Holding payments sits uneasily with v1's report that the Agreement disclaims "involvement or control over the actual transaction" [inference; v1 §2.7].
-- **Payment.** "You don't pay the movers directly" [capture /]. AMC's mvp-scope §5 lists booking deposits and payments as an add-on candidate, which would put AMC in the money flow that 2023 FMCSA guidance weighs (compliance facts §2) [inference].
+- **Payment.** "You don't pay the movers directly" [capture /]. AMC's mvp-scope §5 payments add-on would put AMC in the money flow that 2023 FMCSA guidance weighs (compliance facts §2) [inference].
 - **Consent.** None was seen, because the walk never reached contact; for the same reason, the lack of a consent-certificate script proves little [walk; capture]. An "I want to connect utilities" option sits by the main button, its type and default unrecorded [capture /].
 - **Tags.** Google Tag Manager, Google Ads, Facebook, Zoho PageSense and Cloudflare Insights load; no cookie-consent host appears [capture].
-- **Privacy.** The policy of "Unpakt, LLC" calls "item or shipment values" non-personal, may draw data from "commercially available sources" and ad networks, and leaves cookies to browser settings; the excerpts do not say what movers receive [capture /privacy/].
+- **Privacy.** The policy of "Unpakt, LLC" calls "item or shipment values" non-personal, and may draw data from "commercially available sources" and ad networks; the excerpts do not say what movers receive [capture /privacy/].
 
 ## SEO and content
 - **Footprint.** 5,976 estimated visits from 8,387 keywords, valued at about $22.94 each, twice the next reference site; the home page takes 65.72% and /moving-companies/NY/new-york/ 19.29% [semrush domain_rank, top_pages_more]. Unpakt is no search rival on AMC's Wave 1 terms [semrush phrase_organic_top10].
@@ -48,19 +48,18 @@ Partners, including real estate agents, earn a referral fee per booked move, pai
 - **Two hosts.** www (MovingCompany markup) and the blog (Organization) use different navigation [capture]. NYC intent overlaps: the www city page and a blog "Best Moving Companies in New York City" post [capture blog /; semrush].
 - **Blog.** Seven blog URLs earn 473 visits, about 330 on population, museum, restaurant and home-type lists [semrush]. Dates are relative ("2 years ago" to "4 years ago"), one title says "in 2023", and cost posts cite no source [capture blog].
 - **Markup.** /faq/ is 212 words of "READ MORE" links; no captured page has an author or FAQPage, BreadcrumbList, Article or Person markup [capture].
-- **Hygiene.** /sign-in/ reuses the home title and meta, the blog H1 is an image, four typos appear, and robots directives were not captured [capture].
+- **Hygiene.** /sign-in/ reuses the home title and meta, the blog H1 is an image, and four typos appear [capture].
 
 ## Design and UX
 - On mobile, "The Moving App" link comes before the H1 on four www pages; the home "Moving From" field and a support link sit above the fold [capture /, /partnership/, /how-it-works/, /sign-in/].
 - On desktop, promo, provider and login links precede the H1; the form's position was not recorded [capture /].
-- Explainer pages carry their own From and To form, and three benefit blocks lead with "Huge Savings" [capture /how-it-works/, /faq/; walk /].
 
 ## What AMC should adopt or adapt
 - **Move details first, from any page** [walk /; capture /how-it-works/]. Better: route fields right after the H1 on mobile and every explainer, no presets, a required size pairing bedrooms with square feet, a flexible-date option, and stops and storage asked early. Serves lead-lifecycle §2, shared-pricing §6, visual-direction.md.
-- **Price explainer** [capture /how-it-works/]. Better: a plain formula of the estimator's inputs on a versioned method page, shown as a range, beside steps that state the exclusive and shared rule. Serves site-architecture §6.3 rule 5; "moving cost calculator" (5,400/mo, KD 49) [semrush].
+- **Price explainer** [capture /how-it-works/]. Better: a plain formula of the estimator's inputs on a versioned method page, shown as a range, beside steps that state the exclusive and shared rule. Serves site-architecture §6.3 rule 5.
 - **Control, not "no calls"** [capture /]. Better: the consumer picks how many movers and sees their names and verification dates first. Serves lead-lifecycle §2 steps 7-8.
 - **City cost content** [capture blog /category/moving-cost/]. Better: ranges only from mover rate cards or cited studies, on the page they describe. Serves site-architecture §6.3 rule 2, §7.5.
-- **Local rules as facts** [capture blog /]. Better: sourced, dated building rules such as certificates of insurance. Serves gate G3 (site-architecture §4.1).
+- **A "real reviews" promise** [capture / meta]. Better: label each review's evidence (inquiry, customer, completed move), never pass off imported reviews as AMC's, and publish a review methodology. Serves mover-verification §6; compliance facts §4.
 - **Joining rules for the owner** [inference]. Own trucks screen out brokers; a minimum operating history screens out new or reincarnated carriers. Serves mover-verification §1, §3.
 - **Partner channel, later** [capture /partnership/]. Better: the same survey, named-mover consent and sharing limit; disclosure is a counsel question. Serves lead-lifecycle §2; compliance facts §3-§4.
 - **Reassurance as education** [capture /]. Better: estimate types, the 110% rule, safe payment and FMCSA links. Serves compliance facts §1-§2.
@@ -82,8 +81,7 @@ Partners, including real estate agents, earn a referral fee per booked move, pai
 - Everything after the first screen, including contact, consent and named sellers [walk].
 - Footer pages not captured: Agreement, Terms, For Service Providers [capture].
 - Registration: one search found no FMCSA record, which proves nothing; BBB history is unchecked [search].
-- Profile and city templates, the rating's source, the 45% study, the full privacy policy, and whether tags receive form values [capture; semrush].
-- Robots, sitemaps, keyword lists, backlinks and AI answer engines [capture; semrush].
+- Profile and city templates, the rating's source, the 45% study, the full privacy policy, whether tags receive form values, robots, sitemaps, keyword lists, backlinks and AI answer engines [capture; semrush].
 - Plan questions: merge "best movers in {city}" into the city page, against site-architecture §2.4 rule 6? Set a guide review interval (§4.4, §7.3) [inference].
 
 ## Sources
