@@ -49,7 +49,7 @@ Carriers join an "affiliate program" and report their unfilled trucks [capture /
 - **URLs.** The http and https home URLs both rank, and `/Moving_Pods` and `/landing_page1` mix case and underscores [semrush]. Semrush's small paid estimate covers Google ads only, so v1's paid landing variants are neither confirmed nor refuted [semrush; v1 §2.3].
 - **Thin pages.** The home page has 106 words and the other marketing pages 251 to 380, all built around one ZIP form [capture].
 - **Answer shape.** /pricing gives one heading per cost factor, without numbers or sources, and draws about 1 visit a month [capture /pricing; semrush]. No captured page names an author or has JSON-LD [capture].
-- **AI search** (one tool). Brand searches did not list budgetvanlines.com, though the domain is indexed; answers cited CB Insights and review sites and still called BVL a broker [search, third party]. Review answers relied on Trustpilot and MoveAdvisor, including reviews from 2011 to 2014 [search, third party].
+- **AI search** (one tool). Brand searches did not list budgetvanlines.com, though the domain is indexed; answers cited CB Insights and review sites and still called BVL a broker [search, third party]. Review answers relied on Trustpilot and MoveAdvisor, some reviews dating from 2011 to 2014 [search, third party].
 
 ## Design and UX
 - On desktop, "Any Questions?" and a phone icon come before the H1 [capture /]. The pack lists ten elements, so the desktop ZIP position is unknown; on mobile the field is above the fold [capture /].
