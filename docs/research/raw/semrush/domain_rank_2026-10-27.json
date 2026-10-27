@@ -1,0 +1,107 @@
+{
+ "source": "Semrush MCP execute_report",
+ "database": "us",
+ "research_date": "2026-10-27",
+ "report": "domain_rank",
+ "rows": [
+  {
+   "domain": "movebuddha.com",
+   "rank": 49680,
+   "organic_keywords": 55677,
+   "organic_traffic": 38335,
+   "organic_traffic_cost": 301872,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "consumermovingreviews.com",
+   "rank": 2869596,
+   "organic_keywords": 879,
+   "organic_traffic": 191,
+   "organic_traffic_cost": 187,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "moving.com",
+   "rank": 30390,
+   "organic_keywords": 58017,
+   "organic_traffic": 64797,
+   "organic_traffic_cost": 404282,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "homeguide.com",
+   "rank": 6538,
+   "organic_keywords": 512002,
+   "organic_traffic": 326101,
+   "organic_traffic_cost": 2491971,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "consumeraffairs.com",
+   "rank": 5170,
+   "organic_keywords": 511597,
+   "organic_traffic": 420319,
+   "organic_traffic_cost": 2001047,
+   "paid_keywords": 5,
+   "paid_traffic": 1336
+  },
+  {
+   "domain": "move.org",
+   "rank": 18747,
+   "organic_keywords": 42652,
+   "organic_traffic": 107657,
+   "organic_traffic_cost": 602738,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "unpakt.com",
+   "rank": 272903,
+   "organic_keywords": 8387,
+   "organic_traffic": 5976,
+   "organic_traffic_cost": 137111,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "hireahelper.com",
+   "rank": 16132,
+   "organic_keywords": 80203,
+   "organic_traffic": 125334,
+   "organic_traffic_cost": 1309125,
+   "paid_keywords": 23,
+   "paid_traffic": 958
+  },
+  {
+   "domain": "budgetvanlines.com",
+   "rank": 685657,
+   "organic_keywords": 178,
+   "organic_traffic": 1934,
+   "organic_traffic_cost": 19344,
+   "paid_keywords": 3,
+   "paid_traffic": 5
+  },
+  {
+   "domain": "mygoodmovers.com",
+   "rank": 72368,
+   "organic_keywords": 23986,
+   "organic_traffic": 25778,
+   "organic_traffic_cost": 190722,
+   "paid_keywords": 0,
+   "paid_traffic": 0
+  },
+  {
+   "domain": "energysage.com",
+   "rank": 8801,
+   "organic_keywords": 140569,
+   "organic_traffic": 238617,
+   "organic_traffic_cost": 808601,
+   "paid_keywords": 2,
+   "paid_traffic": 26
+  }
+ ]
+}

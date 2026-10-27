@@ -1,0 +1,180 @@
+# Semrush resource_organic_unique (top pages by estimated US organic traffic), db=us, pulled 2026-10-27. One block per target.
+# target=www.consumeraffairs.com/movers/ limit=25
+Url;Number of Keywords;Traffic;Traffic (%)
+https://www.consumeraffairs.com/movers/best-states-for-public-education.html;1703;3019;12.72
+https://www.consumeraffairs.com/movers/how-much-do-movers-cost.html;577;2429;10.23
+https://www.consumeraffairs.com/movers/;1034;2307;9.72
+https://www.consumeraffairs.com/movers/extra-space-self-storage.html;56;795;3.35
+https://www.consumeraffairs.com/movers/how-to-get-a-po-box.html;1218;787;3.31
+https://www.consumeraffairs.com/movers/storage-units-albuquerque.html;296;771;3.24
+https://www.consumeraffairs.com/movers/best-places-to-move-to-start-over.html;142;591;2.49
+https://www.consumeraffairs.com/movers/safe-ship-moving.html;122;511;2.15
+https://www.consumeraffairs.com/movers/largest-cities-in-the-us.html;1747;410;1.72
+https://www.consumeraffairs.com/movers/storage-units-los-angeles.html;123;401;1.68
+https://www.consumeraffairs.com/movers/tipping-your-movers.html;206;331;1.39
+https://www.consumeraffairs.com/movers/public_storage.html;44;315;1.32
+https://www.consumeraffairs.com/movers/new-jersey-change-of-address.html;218;311;1.31
+https://www.consumeraffairs.com/movers/how-to-change-your-address.html;509;309;1.30
+https://www.consumeraffairs.com/movers/cubesmart.html;21;298;1.25
+https://www.consumeraffairs.com/movers/pennsylvania-change-of-address.html;230;282;1.18
+https://www.consumeraffairs.com/movers/michigan-change-of-address.html;232;265;1.11
+https://www.consumeraffairs.com/movers/what-is-a-linear-foot.html;183;246;1.03
+https://www.consumeraffairs.com/movers/storage-units-chicago.html;75;243;1.02
+https://www.consumeraffairs.com/movers/usps-temporary-change-of-address.html;163;228;0.96
+https://www.consumeraffairs.com/movers/cheapest-cities-to-live;498;222;0.93
+https://www.consumeraffairs.com/movers/1-800-pack-rat.html;99;208;0.87
+https://www.consumeraffairs.com/movers/tennessee-change-of-address.html;219;202;0.85
+https://www.consumeraffairs.com/movers/united.htm;45;197;0.83
+https://www.consumeraffairs.com/movers/where-to-buy-wardrobe-boxes.html;20;188;0.79
+# target=homeguide.com filter=url contains "movers" limit=25
+Url;Number of Keywords;Traffic;Traffic (%)
+https://homeguide.com/ca/rancho-cucamonga/local-movers/;37;464;0.14
+https://homeguide.com/interstate-movers;37;103;0.03
+https://homeguide.com/local-movers;166;75;0.02
+https://homeguide.com/short-distance-movers;26;51;0.01
+https://homeguide.com/piano-movers;21;42;0.01
+https://homeguide.com/ca/san-diego/local-movers/packing-bees-movers;4;40;0.01
+https://homeguide.com/tx/dallas/local-movers/;131;36;0.01
+https://homeguide.com/tx/san-antonio/furniture-movers/;23;33;0.01
+https://homeguide.com/ky/louisville/local-movers/;36;30;0.00
+https://homeguide.com/pool-table-movers;17;30;0.00
+https://homeguide.com/or/portland/local-movers/;67;20;0.00
+https://homeguide.com/ny/new-york/office-movers/;58;14;0.00
+https://homeguide.com/ny/new-york/long-distance-movers/;6;10;0.00
+https://homeguide.com/mn/minneapolis/furniture-movers/;8;9;0.00
+https://homeguide.com/ca/los-angeles/long-distance-movers/;35;9;0.00
+https://homeguide.com/nv/las-vegas/furniture-movers/;21;8;0.00
+https://homeguide.com/co/lakewood/local-movers/;15;8;0.00
+https://homeguide.com/apartment-movers;48;8;0.00
+https://homeguide.com/mn/minneapolis/local-movers/;113;7;0.00
+https://homeguide.com/tx/houston/office-movers/;30;5;0.00
+https://homeguide.com/same-day-movers;3;5;0.00
+https://homeguide.com/full-service-movers;87;5;0.00
+https://homeguide.com/nc/charlotte/pool-table-movers/;3;5;0.00
+https://homeguide.com/fitness-equipment-movers;43;4;0.00
+https://homeguide.com/nj/union-city/local-movers/;12;4;0.00
+# target=homeguide.com filter=url contains "moving" limit=25
+Url;Number of Keywords;Traffic;Traffic (%)
+https://homeguide.com/earth-moving-companies;43;153;0.04
+https://homeguide.com/moving-companies;2056;129;0.03
+https://homeguide.com/costs/pods-moving-cost;679;60;0.01
+https://homeguide.com/house-building-moving;78;41;0.01
+https://homeguide.com/costs/tree-moving-and-transplanting-cost;85;35;0.01
+https://homeguide.com/hot-tub-moving;28;20;0.00
+https://homeguide.com/shed-moving;83;19;0.00
+https://homeguide.com/costs/moving-truck-rental-cost;42;12;0.00
+https://homeguide.com/costs/moving-company-costs;358;10;0.00
+https://homeguide.com/costs/piano-moving-cost;87;2;0.00
+https://homeguide.com/out-of-state-moving;52;1;0.00
+https://homeguide.com/small-moving-companies;9;0;0.00
+https://homeguide.com/articles/how-to-start-a-moving-company;32;0;0.00
+# target=energysage.com limit=25
+Url;Number of Keywords;Traffic;Traffic (%)
+https://www.energysage.com/local-data/solar-panel-cost/;2951;18689;7.83
+https://www.energysage.com/electricity/house-watts/how-many-watts-does-a-refrigerator-use/;2972;9454;3.96
+https://www.energysage.com/solar/calculator/;1160;8780;3.67
+https://www.energysage.com/;1287;7000;2.93
+https://www.energysage.com/about-clean-energy/wind/small-wind-turbines-overview/;1385;5783;2.42
+https://www.energysage.com/local-data/solar-panel-cost/va/;55;4305;1.80
+https://www.energysage.com/solar/advantages-and-disadvantages-of-solar-energy/;1186;3716;1.55
+https://www.energysage.com/solar/;1394;3570;1.49
+https://www.energysage.com/about-clean-energy/biomass/pros-and-cons-biomass/;777;3437;1.44
+https://www.energysage.com/solar/solar-panel-output/;660;3163;1.32
+https://www.energysage.com/solar/solar-panels-work/;811;3016;1.26
+https://www.energysage.com/solar/u-s-solar-panel-manufacturers-list-american-made-solar-panels/;649;2845;1.19
+https://www.energysage.com/ev-charging/ev-charging-stations/;466;2577;1.07
+https://www.energysage.com/about-clean-energy/wind/pros-cons-wind-energy/;674;2412;1.01
+https://www.energysage.com/electricity/house-watts/;559;2380;0.99
+https://www.energysage.com/solar/what-are-the-most-efficient-solar-panels-on-the-market/;344;2295;0.96
+https://www.energysage.com/about-clean-energy/hydropower/pros-cons-hydropower/;976;2247;0.94
+https://www.energysage.com/about-clean-energy/advantages-and-disadvantages-of-renewable-energy/;633;2090;0.87
+https://www.energysage.com/solar/how-long-do-solar-panels-last/;259;2011;0.84
+https://www.energysage.com/solar/average-solar-panel-size-weight/;245;1987;0.83
+https://www.energysage.com/heat-pumps/costs-and-benefits-air-source-heat-pumps/;739;1953;0.81
+https://www.energysage.com/supplier/150/enphase-energy/;65;1899;0.79
+https://www.energysage.com/electricity/house-watts/how-many-watts-does-a-space-heater-use/;557;1843;0.77
+https://www.energysage.com/local-data/solar-rebates-incentives/ca/;636;1746;0.73
+https://www.energysage.com/solar/are-solar-panels-worth-it/;636;1742;0.73
+# target=mygoodmovers.com limit=25
+Url;Number of Keywords;Traffic;Traffic (%)
+https://mygoodmovers.com/city-guide/where-should-i-move-in-the-usa;449;9524;36.94
+https://mygoodmovers.com/movers;1483;4496;17.44
+https://mygoodmovers.com/moving-guide/how-much-does-a-refrigerator-weigh;82;1650;6.40
+https://mygoodmovers.com/;181;979;3.79
+https://mygoodmovers.com/moving-cost/california;309;673;2.61
+https://mygoodmovers.com/moving-cost/pennsylvania;238;543;2.10
+https://mygoodmovers.com/storage-guide/vehicle-storage-everything;52;444;1.72
+https://mygoodmovers.com/movers/la;384;378;1.46
+https://mygoodmovers.com/moving-resources/cheapest-states-to-live;331;348;1.34
+https://mygoodmovers.com/moving-guide/how-much-does-1-800-got-junk-cost;317;290;1.12
+https://mygoodmovers.com/moving-guide/average-cost-of-a-moving-company;170;259;1.00
+https://mygoodmovers.com/storage-guide/10x15-storage-unit;47;252;0.97
+https://mygoodmovers.com/storage-guide/economical-storage-units;74;251;0.97
+https://mygoodmovers.com/moving-guide/new-home-essentials-checklist;300;174;0.67
+https://mygoodmovers.com/moving-guide/how-much-does-pods-moving-cost;622;172;0.66
+https://mygoodmovers.com/moving-cost/louisiana;246;156;0.60
+https://mygoodmovers.com/movers/in;59;140;0.54
+https://mygoodmovers.com/movers/safe-ship-moving-services;90;139;0.53
+https://mygoodmovers.com/movers/pa;156;132;0.51
+https://mygoodmovers.com/movers/ok;127;132;0.51
+https://mygoodmovers.com/moving-guide/how-do-long-distance-movers-work;18;127;0.49
+https://mygoodmovers.com/moving-guide/how-much-does-it-cost-to-move-a-mobile-home;117;123;0.47
+https://mygoodmovers.com/moving-guide/how-much-does-it-cost-to-move-a-house;50;122;0.47
+https://mygoodmovers.com/moving-cost/oregon;155;117;0.45
+https://mygoodmovers.com/moving-guide/how-to-move-out-with-no-money;51;115;0.44
+# target=unpakt.com limit=20
+Url;Number of Keywords;Traffic;Traffic (%)
+https://www.unpakt.com/;310;3928;65.72
+https://www.unpakt.com/moving-companies/NY/new-york/;299;1153;19.29
+https://blog.unpakt.com/the-top-10-largest-u-s-cities-by-population/;529;179;2.99
+https://blog.unpakt.com/how-to-set-up-a-po-box-address-when-moving/;4;119;1.99
+https://www.unpakt.com/professional-movers/;8;73;1.22
+https://blog.unpakt.com/top-10-u-s-states-by-population-part-1/;137;66;1.10
+https://blog.unpakt.com/5-best-art-museums-milwaukee/;2;57;0.95
+https://www.unpakt.com/moving-companies/FL/miami/;65;48;0.80
+https://blog.unpakt.com/top-7-places-to-find-free-moving-boxes/;193;25;0.41
+https://www.unpakt.com/moving-truck-rental/;141;24;0.40
+https://www.unpakt.com/moving-companies/CA/oakland/;38;20;0.33
+https://blog.unpakt.com/best-places-eat-baton-rouge-la/;1;17;0.28
+https://www.unpakt.com/moving-companies/NJ/jersey-city/;29;17;0.28
+https://www.unpakt.com/movers/move-4-less-las-vegas-nv/;7;16;0.26
+https://www.unpakt.com/movers/moving-company-los-angeles-llc-los-angeles-ca/;7;11;0.18
+https://www.unpakt.com/moving-companies/CA/san-diego/;65;10;0.16
+https://blog.unpakt.com/8-home-types-a-comprehensive-list-of-home-type-definitions/;39;10;0.16
+https://www.unpakt.com/moving-long/;60;9;0.15
+https://www.unpakt.com/moving-companies/OH/columbus/;48;9;0.15
+https://www.unpakt.com/storage-services/;35;9;0.15
+# target=budgetvanlines.com limit=15
+Url;Number of Keywords;Traffic;Traffic (%)
+https://www.budgetvanlines.com/;52;1771;91.57
+http://budgetvanlines.com/;16;157;8.11
+https://www.budgetvanlines.com/999moving;25;3;0.15
+https://www.budgetvanlines.com/budget-van-lines-reviews;11;2;0.10
+https://www.budgetvanlines.com/pricing;11;1;0.05
+https://www.budgetvanlines.com/contact-us;6;0;0.00
+https://www.budgetvanlines.com/review;6;0;0.00
+https://www.budgetvanlines.com/your-rights;1;0;0.00
+https://www.budgetvanlines.com/corporate-relocation;1;0;0.00
+https://www.budgetvanlines.com/requesting-a-quote;9;0;0.00
+https://www.budgetvanlines.com/Moving_Pods;1;0;0.00
+https://www.budgetvanlines.com/self-service-vs-full-service;2;0;0.00
+https://www.budgetvanlines.com/how-it-works;6;0;0.00
+https://www.budgetvanlines.com/careers;2;0;0.00
+https://www.budgetvanlines.com/landing_page1;1;0;0.00
+# target=consumermovingreviews.com limit=15
+Url;Number of Keywords;Traffic;Traffic (%)
+https://www.consumermovingreviews.com/companies/jason-jasons-relocations/;2;162;84.81
+https://www.consumermovingreviews.com/companies/all-my-sons-moving-and-storage/;3;9;4.71
+https://www.consumermovingreviews.com/how-we-rank-movers/;2;6;3.14
+https://www.consumermovingreviews.com/companies/best-usa-movers-orlando/;2;3;1.57
+https://www.consumermovingreviews.com/routes/movers-from-atlanta-ga-30305-to-charleston-sc-29492/;1;3;1.57
+https://www.consumermovingreviews.com/routes/movers-from-new-york-ny-10035-to-cambridge-ma-02138/;1;2;1.04
+https://www.consumermovingreviews.com/companies/hire-a-helper/;4;2;1.04
+https://www.consumermovingreviews.com/companies/two-men-and-a-truck-3/;7;1;0.52
+https://www.consumermovingreviews.com/routes/movers-from-ocala-fl-34471-to-philadelphia-pa-19101/;1;1;0.52
+https://www.consumermovingreviews.com/routes/movers-from-philadelphia-pa-19147-to-houston-tx-77007/;1;1;0.52
+https://www.consumermovingreviews.com/specialty-shipping/car-shipping/sherpa-auto-transport/;1;1;0.52
+https://www.consumermovingreviews.com/specialty-shipping/car-shipping/nexus-auto-transport/;1;0;0.00
+https://www.consumermovingreviews.com/companies/bekins-northwest/;1;0;0.00
+https://www.consumermovingreviews.com/companies/adams-van-lines/;2;0;0.00
+https://www.consumermovingreviews.com/companies/hawaiian-moving-pros/;1;0;0.00

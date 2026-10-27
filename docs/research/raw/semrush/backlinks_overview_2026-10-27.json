@@ -1,0 +1,44 @@
+{
+ "source": "Semrush MCP execute_report",
+ "database": "us",
+ "research_date": "2026-10-27",
+ "report": "backlinks_overview",
+ "target_type": "root_domain",
+ "columns": [
+  "authority_score",
+  "total_backlinks",
+  "referring_domains",
+  "follow",
+  "nofollow"
+ ],
+ "rows": {
+  "move.org": [
+   48,
+   41505,
+   9320,
+   30836,
+   10661
+  ],
+  "moving.com": [
+   48,
+   702256,
+   19777,
+   414069,
+   240514
+  ],
+  "movebuddha.com": [
+   44,
+   101638,
+   9427,
+   52011,
+   17491
+  ],
+  "hireahelper.com": [
+   48,
+   1983198,
+   11736,
+   73736,
+   1904959
+  ]
+ }
+}
