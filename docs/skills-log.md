@@ -67,8 +67,8 @@ Status key: **Used** (instructions loaded and applied) · **Evaluated** (loaded 
 | GitHub | Working | Branch pushed and CI green. No base branch exists yet for a pull request (see the brief, §11) |
 | Semrush | Working | See above |
 | Supabase | Available, not used | Creating projects creates billable resources, so it waits for your approval |
-| Vercel | Available, not used | Same as Supabase |
+| Vercel | **Used (Sandbox only)** | At your direction, project `amc-reference-research` and one Vercel Sandbox (iad1, 4 vCPU) host headless-Chromium captures of the reference sites. Raw captures stay in the sandbox and a 7-day snapshot; only structured evidence with short quotes is committed |
 | Canva, Higgsfield, Google Drive, Hugging Face, Claude Docs | Available, not used | Possible later use for brand assets/video (with honest labelling) and document sharing |
 | Similarweb, Figma, Amplitude, Notion, Linear, Asana, Atlassian, ClickUp, Monday, Intercom, Pendo, Fireflies, Slack, BigQuery | **Failed to connect** | Connection refused at session start; reconnect if needed |
 | Stripe, FMCSA QCMobile (WebKey), Twilio, Postmark, Google Search Console / GA4, Bing Webmaster | **Not connected** | Access needed per the backlog's dependency list |
-| Web access from the container | **Restricted** | Network policy refused the reference sites, fmcsa.dot.gov and federalregister.gov. WebSearch worked; WebFetch did not |
+| Web access from the container | **Restricted** | Network policy refused the reference sites, fmcsa.dot.gov and federalregister.gov. WebSearch worked; WebFetch did not. Reference sites were observed through the Vercel Sandbox instead |
