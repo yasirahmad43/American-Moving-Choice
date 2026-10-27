@@ -28,12 +28,12 @@ A pay-per-lead directory for many home-service trades whose moving hub the owner
 Profiles are free, with no subscription; lead prices vary with competition and job size and are unpublished [search: /pro, help/306]. Exact matches are billed automatically within a weekly budget, other leads on acceptance, and Opportunities-page messages only on a reply [search: help/306, help/486]. A lead whose customer first says a clear no can be reported for a refund [search: help/306]. Pro software is marketed as "#1 FREE" (/for-business), yet its terms include a paid "Messages Plus" texting tier [search: /terms-of-service/terms-pos].
 
 ## Trust, verification and reviews
-- **Vetting and badges.** /safety explains its badges but not the blanket review claim: license (found in a public database), background check (may not cover your worker) and Best of (top 10% yearly, on positive reviews); the excerpts do not say whether badges are paid [search: /safety]. "Reviewed" also blurs vetting with customer reviews [inference].
+- **Vetting and badges.** /safety explains its badges but not the blanket review claim: license (found in a public database), background check (may not cover your worker) and Best of (top 10% yearly, on positive reviews); whether badges are paid is not stated [search: /safety]. "Reviewed" also blurs vetting with customer reviews [inference].
 - **Credentials.** No profile was seen, and no structured USDOT or MC field, check date or carrier-or-broker label appeared [capture; search].
 - **Reviews.** Pros are coached to ask their own customers, and no explanation of reviewer checks was found [search: help center; /reviews]. With Best of built on positive reviews, that rewards asking only happy customers [inference].
 - **Lists.** Many listings rest on 0 to 5 reviews or one 5.0, beside mover-written claims such as a guaranteed quote [v1 §2.6; search: /co/denver/local-movers/, /fl/miami/local-movers/, not re-run]. No ranking method was found [search].
 - **Placement.** Pros out of weekly budget drop from search results until Monday, so budget partly shapes what consumers see [search: help/486; inference].
-- **Record.** Searches found no FTC, attorney general, BBB or court record for HomeGuide, which proves nothing [search]. The FTC's 2022 complaint against HomeAdvisor, another pay-per-lead platform (Docket No. 9407), alleged misrepresented leads, unsupported conversion claims and a falsely free add-on month; the consent order (up to $7.2 million) became final in April 2023 [search: ftc.gov, regulator].
+- **Record.** Searches found no regulator, BBB or court record for HomeGuide, which proves nothing [search]. The FTC's 2022 complaint against HomeAdvisor, another pay-per-lead platform (Docket No. 9407), alleged misrepresented leads, unsupported conversion claims and a falsely free add-on month; the consent order (up to $7.2 million) became final in April 2023 [search: ftc.gov, regulator].
 
 ## Disclosure and consent
 - **Operator.** /terms-of-service and the software terms name Liaison, and identical terms appear on lessons.com, tutors.com, vety.com and trustedcare.com, suggesting one multi-brand operator [search: own and sibling sites; inference].
@@ -47,7 +47,7 @@ Profiles are free, with no subscription; lead prices vary with competition and j
 - **Templates.** At least five services repeat by city; apart from Rancho Cucamonga (464 visits), measured city × service pages earn 36 or fewer, and modifier hubs sharing one title template earn little (/apartment-movers 8) [semrush; search].
 - **SERPs.** HomeGuide is absent from all 14 saved top-10 SERPs [semrush: phrase_organic_top10]. For "how much do movers cost" (9,900/mo, KD 32), four of the top 10 are cost pages for one place, yet national guides from extraspace.com and consumeraffairs.com also rank [semrush].
 - **Cost guides.** Titles are questions with a year, and ranges give a unit, a minimum and a season [search: /costs/moving-company-costs; v1 §2.6]. That page earns 10 visits, against v1's "strongest pattern" (§2.6) [semrush]. One non-moving guide credits editor and fact-checker to "Editorial staff" and cites an in-house cost database with no sample, period or method [search: /costs/electrical-work-pricing-guide].
-- **Numbers and dates.** One long-distance range spans about 13 times, and city titles such as /fl/deerfield-beach/local-movers/ carry "(2026)"; whether that reflects an update could not be checked [search].
+- **Numbers and dates.** One long-distance range spans about 13 times, and city titles such as /fl/deerfield-beach/local-movers/ carry "(2026)"; whether it reflects an update is unknown [search].
 
 ## Design and UX
 The browser got a 37-word challenge page, "Just a moment..." (HTTP 403), so layout, calls to action, form and JSON-LD are unknown [capture: /moving-companies]. v1 reported a profile stat row (rating, reviews, hires, employees, years in business); 2026 search summaries re-show years in business, with no stated source [v1 §2.6; search]. Google evidently crawls the site; AI crawlers are unknown [semrush; inference].
@@ -65,7 +65,7 @@ The browser got a 37-word challenge page, "Just a moment..." (HTTP 403), so layo
 
 ## What AMC should avoid
 - Saying who pays only on pro pages; say it at quote buttons, in the survey and at consent (consent draft §1, §7).
-- Terms-buried consent for a parent brand and unnamed partners; AMC's unticked box names each mover, is versioned and hashed, and uses the same entity name as the SMS sender; PEWC fit is for counsel (consent draft §5; compliance facts §3).
+- Terms-buried consent for a parent brand and unnamed partners; AMC's unticked box names each mover, is versioned and hashed, and shares the SMS sender's entity name; PEWC fit is for counsel (consent draft §5; compliance facts §3).
 - Unexplained vetting and free-text credentials; publish each check and source, key on USDOT, require MC while require_mc_number is on, and exclude brokers (mover-verification §1, §3, §7; compliance facts §1).
 - Pro-chosen review invitations; AMC sends every invitation and monitors those movers request (mover-verification §6; compliance facts §4).
 - Best, near-me, fixed-count or unrefreshed year-stamped list titles, and one-review ratings that outrank; publish the ordering rule and moderate mover-written price promises (site-architecture §4.6, §7.3, §8.2; compliance facts §2).
@@ -76,7 +76,7 @@ The browser got a 37-word challenge page, "Just a moment..." (HTTP 403), so layo
 - Sizing moving demand from HomeGuide's domain totals; benchmark against HireAHelper, move.org, moving.com and moveBuddha [semrush].
 
 ## Gaps and open questions
-- The live request flow, contact step and any preview before contact.
+- The live request flow, contact step and any pre-contact preview.
 - Form consent wording, certificate scripts and opt-out handling.
 - Whether the five-pro cap is current; whether Direct Leads are exclusive.
 - List ordering, reviewer checks and what HomeGuide's review of pros involves.
