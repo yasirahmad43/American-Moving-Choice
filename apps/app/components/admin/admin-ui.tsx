@@ -37,7 +37,7 @@ export function LinkTabs({ items, current, label }: { items: { id: string; label
 /** A GET form for list filters; every control needs a label. */
 export function FilterBar({ children, resetHref }: { children: ReactNode; resetHref: string }) {
   return (
-    <form method="get" className="flex flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4" role="search" aria-label="Filters">
+    <form method="get" className="flex min-w-0 flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4" role="search" aria-label="Filters">
       {children}
       <div className="flex gap-2">
         <button type="submit" className="inline-flex min-h-12 items-center rounded-control bg-primary px-4 font-semibold text-on-primary">
@@ -53,11 +53,11 @@ export function FilterBar({ children, resetHref }: { children: ReactNode; resetH
 
 export function FilterSelect({ id, name, label, value, options }: { id: string; name: string; label: string; value: string; options: { value: string; label: string }[] }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid min-w-0 max-w-full gap-1.5">
       <label htmlFor={id} className="text-[0.9375rem] font-semibold text-text">
         {label}
       </label>
-      <select id={id} name={name} defaultValue={value} className="min-h-12 rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-[1.0625rem] text-text">
+      <select id={id} name={name} defaultValue={value} className="min-h-12 w-full max-w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-[1.0625rem] text-text">
         <option value="">Any</option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>

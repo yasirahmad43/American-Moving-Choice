@@ -5,7 +5,7 @@ import { PageHeader, Table } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { after } from "next/server";
-import { FilterBar, FilterInput, FilterSelect, Mono, Pager, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
+import { FilterBar, LinkTabs, FilterInput, FilterSelect, Mono, Pager, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 
 const item = adminNavItem("/admin/leads");
@@ -26,6 +26,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     to: DATE.test(param(sp.to)) ? param(sp.to) : "",
   };
   const page = pageNumber(sp.page);
+  const held = (await listLeads({ status: "needs_review", limit: 1 })).total;
   const { rows, total } = await listLeads({ status: filters.status || null, groupStatus: filters.group || null, q: filters.q || null, from: filters.from || null, to: filters.to || null, limit: PER_PAGE, offset: (page - 1) * PER_PAGE });
   after(async () => {
     try {
@@ -37,6 +38,19 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
   return (
     <div className="grid gap-6">
       <PageHeader size="portal" title={item.label} description="Consumer requests. The list shows no contact details; opening a request records the view in the audit log." />
+      <LinkTabs
+        label="Request views"
+        current={filters.status === "needs_review" ? "review" : "all"}
+        items={[
+          { id: "all", label: "All requests", href: "/admin/leads" },
+          { id: "review", label: `Waiting for review (${held})`, href: "/admin/leads?status=needs_review" },
+        ]}
+      />
+      {filters.status === "needs_review" ? (
+        <p className="type-small text-text-2">
+          Requests held for review can't be bought. Open one to qualify it (the movers named in the consent are then told it's available) or reject it.
+        </p>
+      ) : null}
       <FilterBar resetHref="/admin/leads">
         <FilterInput id="q" name="q" label="Reference code" value={filters.q} placeholder="AMC-" />
         <FilterSelect id="status" name="status" label="Request status" value={filters.status} options={LEAD_STATUSES.map((s) => ({ value: s, label: humanize(s) }))} />

@@ -21,7 +21,7 @@ export interface DashboardStats {
     cardCollectedCents: number;
   }[];
   sellThrough: { days: 30; groups: number; slotsOffered: number; slotsSold: number; groupsWithBuyer: number };
-  queues: { pendingVerifications: number; recheckIssues: number; openCases: number; overdueCases: number; pendingReviews: number; openReports: number; openClaims: number; queuedMessages: number; failedMessages: number; openDisputes: number };
+  queues: { heldRequests: number; pendingVerifications: number; recheckIssues: number; openCases: number; overdueCases: number; pendingReviews: number; openReports: number; openClaims: number; queuedMessages: number; failedMessages: number; openDisputes: number };
   lastJobs: { job_name: string; status: string; started_at: Date; finished_at: Date | null }[];
 }
 
@@ -52,6 +52,7 @@ export async function dashboardStats(db: Queryable = getPool()): Promise<Dashboa
     ),
     db.query<DashboardStats["queues"]>(
       `select
+         (select count(*)::int from leads where status = 'needs_review') as "heldRequests",
          (select count(*)::int from companies where status in ('applied', 'verifying', 'in_review')) as "pendingVerifications",
          (select count(*)::int from companies c where c.status = 'approved' and exists (
             select 1 from (select distinct on (check_type) result from verification_checks v where v.company_id = c.id

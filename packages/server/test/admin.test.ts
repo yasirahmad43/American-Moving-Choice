@@ -330,14 +330,22 @@ describe("leads", () => {
   it("approves a request waiting for review, and expires and withdraws others", async () => {
     await pool().query("update leads set status = 'needs_review' where id = $1", [lead(2)]);
     await expectAdminError(decideLead(admin, lead(3), "approve", "ok then"), "bad_status");
+    const countNotices = async () => (await pool().query("select count(*)::int as n from messages where template = 'lead_available' and related_id = (select group_id from leads where id = $1)", [lead(2)])).rows[0].n as number;
+    const noticesBefore = await countNotices();
     await decideLead(admin, lead(2), "approve", "Risk signals reviewed: genuine request.");
     expect((await pool().query("select status from leads where id = $1", [lead(2)])).rows[0].status).toBe("qualified");
+    const approval = (await pool().query("select after from audit_log where action = 'lead.approve' and entity_id = $1", [lead(2)])).rows[0];
+    expect(approval.after.movers_notified).toBe((await countNotices()) - noticesBefore);
     await decideLead(admin, lead(3), "expire", "Consumer called to say the move is cancelled.");
     expect((await pool().query("select g.status from leads l join lead_groups g on g.id = l.group_id where l.id = $1", [lead(3)])).rows[0].status).toBe("expired");
     await decideLead(admin, lead(1), "withdraw", "Consumer asked by phone to withdraw consent.");
     expect((await pool().query("select g.status from leads l join lead_groups g on g.id = l.group_id where l.id = $1", [lead(1)])).rows[0].status).toBe("withdrawn");
-    const notice = await pool().query("select count(*)::int as n from messages where template = 'lead_withdrawn'");
+    const notice = await pool().query("select count(*)::int as n from messages where template = 'lead_withdrawn' and related_id = (select group_id from leads where id = $1)", [lead(1)]);
     expect(notice.rows[0].n).toBe(1);
+    const flagged = await pool().query("select after from audit_log where action = 'lead.withdraw_notice'");
+    expect(flagged.rows).toEqual([{ after: { crm_flagged: true } }]);
+    const dnc = await pool().query("select do_not_contact, source from consumer_contact_preferences where lead_id = $1", [lead(1)]);
+    expect(dnc.rows).toEqual([{ do_not_contact: true, source: "support" }]);
   });
 });
 

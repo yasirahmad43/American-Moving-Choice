@@ -39,6 +39,7 @@ export default async function AdminDashboard() {
           <StatTile label="Open cases" value={q.openCases} href="/admin/cases" note={q.overdueCases ? `${q.overdueCases} past their SLA` : "None past their SLA"} />
           <StatTile label="Pending reviews" value={q.pendingReviews} href="/admin/reviews" note={`${q.openReports} open reports`} />
           <StatTile label="Queued messages" value={q.queuedMessages} href="/admin/mailbox" note={`${q.failedMessages} failed`} />
+          <StatTile label="Requests held for review" value={q.heldRequests} href="/admin/leads?status=needs_review" />
           <StatTile label="Open quality claims" value={q.openClaims} href="/admin/billing?tab=claims" />
           <StatTile label="Open disputes" value={q.openDisputes} href="/admin/billing?tab=disputes" />
         </div>

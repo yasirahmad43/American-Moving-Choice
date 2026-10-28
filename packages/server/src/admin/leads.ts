@@ -6,6 +6,8 @@
  */
 import { audit } from "../audit/audit";
 import { getPool, tx, type Queryable } from "../db/pool";
+import { longDate, requestAvailableEmail, requestWithdrawnBuyerEmail } from "../leads/messages";
+import { env } from "../env/env";
 import { enqueueEmail } from "../outbox/outbox";
 import { AdminError, companyContactEmails, requireText, type AdminActor } from "./common";
 
@@ -229,7 +231,8 @@ export async function decideLead(actor: AdminActor, leadId: string, decision: Le
         if (lead.status !== "needs_review") throw new AdminError("Only a request waiting for review can be approved.", "bad_status");
         await client.query("update leads set status = 'qualified' where id = $1", [leadId]);
         await client.query("insert into lead_validation_results (lead_id, check_type, result, reason) values ($1, 'admin_review', 'pass', $2)", [leadId, reason]);
-        after = { status: "qualified" };
+        const notified = await announceQualifiedLead(client, leadId);
+        after = { status: "qualified", movers_notified: notified };
         break;
       }
       case "reject": {
@@ -251,32 +254,39 @@ export async function decideLead(actor: AdminActor, leadId: string, decision: Le
         if (lead.group_status === "withdrawn") throw new AdminError("This request is already withdrawn.", "bad_status");
         await client.query("select withdraw_lead_group($1)", [lead.group_id]);
         await client.query("update leads set withdrawn_at = coalesce(withdrawn_at, now()) where group_id = $1", [lead.group_id]);
-        // Buyers are told to stop contacting the consumer (lead lifecycle §1). No contact data in the email.
-        const buyers = await client.query<{ id: string; company_id: string; reference_code: string }>(
-          `select p.id, p.company_id, (select reference_code from leads where group_id = p.group_id and is_primary order by created_at limit 1) as reference_code
-           from purchases p where p.group_id = $1`,
-          [lead.group_id],
-        );
+        // Buyers are told to stop contacting the consumer (lead lifecycle §1), with slice S2's template.
+        const facts = (await client.query<{ reference_code: string; origin_city: string | null; origin_state: string | null; dest_city: string | null; dest_state: string | null; email_hash: string | null; phone_hash: string | null }>(
+          "select reference_code, origin_city, origin_state, dest_city, dest_state, email_hash, phone_hash from leads where id = $1",
+          [leadId],
+        )).rows[0]!;
+        if (facts.email_hash || facts.phone_hash) {
+          await client.query(
+            `insert into consumer_contact_preferences (email_hash, phone_hash, lead_id, do_not_contact, withdrawn_at, source)
+             values ($1, $2, $3, true, now(), 'support')`,
+            [facts.email_hash, facts.phone_hash, leadId],
+          );
+        }
+        const mail = requestWithdrawnBuyerEmail({
+          route: { originCity: facts.origin_city ?? "", originState: facts.origin_state ?? "", destCity: facts.dest_city ?? "", destState: facts.dest_state ?? "" },
+          referenceCode: facts.reference_code,
+          withdrawnOn: longDate(new Date().toISOString().slice(0, 10)),
+        });
+        const buyers = await client.query<{ id: string; company_id: string }>("select id, company_id from purchases where group_id = $1", [lead.group_id]);
         for (const buyer of buyers.rows) {
           for (const to of await companyContactEmails(client, buyer.company_id)) {
-            await enqueueEmail(
-              {
-                to,
-                template: "lead_withdrawn",
-                subject: `Request ${buyer.reference_code}: the consumer withdrew consent`,
-                bodyText: [
-                  `The consumer behind request ${buyer.reference_code} withdrew their consent to be contacted.`,
-                  "",
-                  "Stop calling, texting and emailing them about this move, and remove them from any follow-up lists.",
-                  "",
-                  "American Moving Choice",
-                ].join("\n"),
-                relatedType: "purchase",
-                relatedId: buyer.id,
-              },
-              client,
+            await enqueueEmail({ to, template: "lead_withdrawn", ...mail, relatedType: "lead_group", relatedId: lead.group_id }, client);
+          }
+          // Flag the buyer's CRM record (forced RLS: act as that company for the insert).
+          await client.query("select set_config('app.company_id', $1, true)", [buyer.company_id]);
+          const record = await client.query<{ id: string }>("select id from crm_records where purchase_id = $1", [buyer.id]);
+          if (record.rows[0]) {
+            await client.query(
+              "insert into crm_activities (record_id, company_id, type, body, actor_user_id) values ($1, $2, 'do_not_contact', $3, null)",
+              [record.rows[0].id, buyer.company_id, "The consumer withdrew consent. Do not contact them about this move."],
             );
           }
+          await client.query("select set_config('app.company_id', '', true)");
+          await audit({ actorType: "admin", actorId: actor.userId, companyId: buyer.company_id, action: "lead.withdraw_notice", entity: "purchase", entityId: buyer.id, after: { crm_flagged: Boolean(record.rows[0]) }, ip: actor.ip ?? null }, client);
         }
         after = { group_status: "withdrawn", buyers_notified: buyers.rowCount };
         break;
@@ -295,4 +305,37 @@ export async function decideLead(actor: AdminActor, leadId: string, decision: Le
       client,
     );
   });
+}
+
+/**
+ * After an admin qualifies a held request, the movers named in the consumer's consent get slice
+ * S2's "new request available" notice (members who can buy). Duplicates and requests no longer on
+ * sale announce nothing. Returns the number of notices queued.
+ */
+async function announceQualifiedLead(db: Queryable, leadId: string): Promise<number> {
+  const lead = (await db.query<{ group_id: string; is_primary: boolean; origin_city: string | null; origin_state: string | null; dest_city: string | null; dest_state: string | null; move_size: string | null; move_date: string | null; sharing_limit: number; group_status: string }>(
+    `select l.group_id, l.is_primary, l.origin_city, l.origin_state, l.dest_city, l.dest_state, l.move_size, to_char(l.move_date, 'YYYY-MM-DD') as move_date,
+            g.sharing_limit, g.status as group_status
+     from leads l join lead_groups g on g.id = l.group_id where l.id = $1`,
+    [leadId],
+  )).rows[0];
+  if (!lead || !lead.is_primary || lead.group_status !== "available" || !lead.move_size || !lead.move_date) return 0;
+  const recipients = await db.query<{ email: string }>(
+    `select u.email from lead_eligibility e
+     join company_memberships m on m.company_id = e.company_id and m.status = 'active' and m.can_purchase
+     join users u on u.id = m.user_id
+     where e.group_id = $1 and e.named_in_consent order by e.company_id, u.email`,
+    [lead.group_id],
+  );
+  const notice = requestAvailableEmail({
+    route: { originCity: lead.origin_city ?? "", originState: lead.origin_state ?? "", destCity: lead.dest_city ?? "", destState: lead.dest_state ?? "" },
+    moveSize: lead.move_size as Parameters<typeof requestAvailableEmail>[0]["moveSize"],
+    moveDate: lead.move_date,
+    limit: lead.sharing_limit,
+    appUrl: env().APP_URL,
+  });
+  for (const { email } of recipients.rows) {
+    await enqueueEmail({ to: email, template: "lead_available", ...notice, relatedType: "lead_group", relatedId: lead.group_id }, db);
+  }
+  return recipients.rowCount ?? 0;
 }
