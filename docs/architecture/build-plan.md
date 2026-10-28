@@ -138,9 +138,20 @@ Rules for all server code:
 - Notices: each eligible company gets a "new request available" email (outbox). Each purchase sends the consumer one email naming the mover, its USDOT number and profile, and saying it paid AMC.
 
 ### 7.3 Cost calculator
-- Model per the method page (`content/pages/costs/calculator-method.md` once drafted). Local: crew hours by home size × the mover's hourly rate for that crew size + travel fee. Long distance: weight by home size × the mover's rate per hundred pounds for the distance band + packing if selected. Range = 25th to 75th percentile across contributing movers' rate cards, rounded outward (local to $50, long distance to $100). Shown only when at least 5 distinct movers' active rate cards cover the origin state (and the band). Otherwise "not enough data", with the coverage check still offered.
-- `rate_cards.local`: `{ "crew_hourly_cents": {"2": n, "3": n, "4": n}, "travel_fee_cents": n, "hours_by_size": {"studio": n, "1br": n, "2br": n, "3br": n, "4br_plus": n}, "crew_by_size": {"studio": 2, …} }`. `rate_cards.long_distance`: `{ "cwt_cents_by_band": {"0_250": n, "250_500": n, "500_1000": n, "1000_1500": n, "1500_plus": n}, "weight_lbs_by_size": {…}, "packing_cents_by_size": {…} }`.
-- One model version (`cost-model-v1`) in `@amc/core` feeds the widget, the results view and the survey prefill. A test sends the same inputs through each path and compares.
+The model follows `content/pages/costs/calculator-method.md`. The v1 defaults below fill in the choices that page leaves to the data owner; they are proposals, and the method page shows them as defaults.
+
+- **Typical job.** For the origin state, move type and home size, the typical crew size, crew hours and shipment weight are the medians of what contributing movers state on their rate cards, taken across every mover whose card covers that state, move type and home size, whatever services are picked.
+- **Per-mover result.** Each contributing mover is priced on the typical job with its own rates:
+  - Local moves (same state, up to `local_max_miles`): typical hours × that mover's hourly rate for the typical crew size + its travel fee + its prices for the picked services.
+  - Long-distance moves (in-state beyond the radius, and every interstate move): typical weight ÷ 100 × that mover's rate per hundred pounds for the distance band + its prices for the picked services.
+- **Services.** Packing (priced by home size), storage (priced per month by home size; v1 assumes one month) and specialty items (a flat price for one item such as a piano). A mover counts only if it prices every picked service.
+- **Contributing movers.** Approved and not suspended; an active rate card covering the origin state, dated within the last 12 months, with rates for the move type, band, home size and every picked service. At least 5 distinct movers, otherwise no range (with the cause named and the coverage check still offered). Corporate-family counting waits for family data (implications §9.5).
+- **Range.** 25th to 75th percentile of the per-mover results (linear interpolation), rounded outward to $50 for local and $100 for long-distance moves. "Data as of" is the date of the oldest contributing rate card.
+- **Bands.** 0–250, 250–500, 500–1,000, 1,000–1,500 and 1,500+ miles (haversine distance between ZIP centroids).
+- **Sizes.** Studio, 1, 2, 3 and 4+ bedrooms. Office moves and moves of a few items get no range in v1.
+- **No seasonal rates** in v1.
+- `rate_cards.local`: `{ "crew_hourly_cents": {"2": n, "3": n, "4": n, "5": n}, "travel_fee_cents": n, "hours_by_size": {"studio": n, "1br": n, "2br": n, "3br": n, "4br_plus": n}, "crew_by_size": {"studio": 2, …} }`. `rate_cards.long_distance`: `{ "cwt_cents_by_band": {"0_250": n, "250_500": n, "500_1000": n, "1000_1500": n, "1500_plus": n}, "weight_lbs_by_size": {…} }`. Slice S3 adds `rate_cards.services`: `{ "packing_cents_by_size": {…} | null, "storage_cents_per_month_by_size": {…} | null, "specialty_item_cents": n | null }` in its own migration, and extends the seed's rate cards with service prices.
+- One model version (`cost-model-v1`) in `@amc/core` feeds the widget, the results view and the survey prefill. A test sends the same inputs through each path and compares. The cost model reads no billing, purchase or plan data.
 
 ### 7.4 Marketplace and purchase
 - Previews follow lead lifecycle §5 exactly (allow-list; never contact data before purchase).
