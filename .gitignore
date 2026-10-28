@@ -3,7 +3,8 @@ dist/
 .env
 .env.*
 !.env.example
-coverage/
+/coverage/
+**/node_modules/.cache/coverage/
 db/seed/out/
 db/out/
 # Next.js and TypeScript build output
