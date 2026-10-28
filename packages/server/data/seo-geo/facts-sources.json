@@ -1,0 +1,24 @@
+{
+  "builtOn": "2026-10-28",
+  "files": {
+    "counties.csv": {
+      "sha256": "b36b6b7233eb4cf26ed4a9f3f8f1b84be448776fe346de2f11054b459ceefa0b",
+      "rows": 3235
+    },
+    "places.csv": {
+      "sha256": "62557f4e918be6f071b4b82896200fd5eaa8cb87b1fe43af2a1f7dbc80364220",
+      "rows": 116125
+    },
+    "zctas.csv": {
+      "sha256": "99ee07640b38f8a7bd87c8f23325bbec8af4bee4bd988fb1fd64d553df13f690",
+      "rows": 33791
+    }
+  },
+  "output": {
+    "places": 28266,
+    "counties": 3144,
+    "zctas": 33642,
+    "citiesWithoutPlace": 1373,
+    "placesMatchedButTaken": 0
+  }
+}

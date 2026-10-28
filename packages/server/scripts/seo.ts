@@ -4,7 +4,7 @@
  *
  *   tsx scripts/seo.ts import-geo
  *   tsx scripts/seo.ts import-research <csv> [<csv>...]
- *   tsx scripts/seo.ts generate <family> [--limit N] [--only slug,slug]
+ *   tsx scripts/seo.ts generate <family> [--limit N] [--only slug,slug] [--reasons metro_pair,state_pair] [--min-population N] [--chunk N]
  *   tsx scripts/seo.ts publish [--status ready] [--family x] [--limit N]
  *   tsx scripts/seo.ts review --reviewer "Name" [--family x]   (marks ready pages as reviewed)
  *   tsx scripts/seo.ts report
@@ -68,7 +68,15 @@ async function main(): Promise<void> {
       case "generate": {
         const family = positional[0] ?? "";
         if (!isSeoFamily(family)) throw new Error(`unknown family "${family}"`);
-        const summary = await generateFamily(pool, family, { limit: options.limit ? Number(options.limit) : undefined, only: options.only ? options.only.split(",") : undefined, media: loadMedia(), log });
+        const summary = await generateFamily(pool, family, {
+          limit: options.limit ? Number(options.limit) : undefined,
+          only: options.only ? options.only.split(",") : undefined,
+          reasons: options.reasons ? options.reasons.split(",") : undefined,
+          minPopulation: options["min-population"] ? Number(options["min-population"]) : undefined,
+          chunkSize: options.chunk ? Number(options.chunk) : undefined,
+          media: loadMedia(),
+          log,
+        });
         console.log(JSON.stringify(summary));
         break;
       }
