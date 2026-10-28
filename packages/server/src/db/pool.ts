@@ -224,3 +224,8 @@ export function isUniqueViolation(error: unknown, constraint?: string): boolean 
 export function raisedMessage(error: unknown): string | null {
   return isPgError(error) && error.code === "P0001" ? error.message : null;
 }
+
+/** Deadlock, serialization failure or lock timeout: safe to retry the whole statement. */
+export function isTransientPgError(error: unknown): boolean {
+  return isPgError(error) && (error.code === "40P01" || error.code === "40001" || error.code === "55P03");
+}
