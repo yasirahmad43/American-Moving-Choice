@@ -1,11 +1,12 @@
 import { requireMembership } from "@amc/server/auth";
-import { listAvailable, parseMarketplaceFilters, type MarketplaceFilters } from "@amc/server/marketplace";
+import { ZIP_RADIUS_OPTIONS, listAvailable, parseMarketplaceFilters, type MarketplaceFilters } from "@amc/server/marketplace";
 import { Alert, Button, Card, EmptyState, Field, Input, LinkButton, Money, PageHeader, Select } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { blockedReason, dialogProps, loadBuyer } from "@/components/portal/marketplace/buyer";
 import { MOVE_SIZE_LABELS, SOURCE_LABELS, STATE_CODES } from "@/components/portal/marketplace/labels";
 import { LeadCard } from "@/components/portal/marketplace/lead-card";
+import { LiveAvailability } from "@/components/portal/marketplace/live-availability";
 import { PurchaseDialog } from "@/components/portal/marketplace/purchase-dialog";
 import { portalNavItem } from "@/lib/nav/portal";
 
@@ -23,6 +24,30 @@ function Filters({ filters }: { filters: MarketplaceFilters }) {
   return (
     <form method="get" action="/portal/marketplace" className="grid gap-4" aria-label="Filter requests">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Field id="scope" label="Area" help="Nationwide lists every request that names your company; state and ZIP filters narrow the route.">
+          <Select name="scope" defaultValue={filters.scope ?? ""}>
+            <option value="">Use the filters below</option>
+            <option value="nationwide">Nationwide (any route)</option>
+            <option value="state">By state</option>
+            <option value="zip">By ZIP code</option>
+          </Select>
+        </Field>
+        <Field id="originZip" label="Moving from (ZIP)">
+          <Input name="originZip" inputMode="numeric" pattern="[0-9]{5}" maxLength={5} placeholder="78704" defaultValue={filters.originZip ?? ""} />
+        </Field>
+        <Field id="destZip" label="Moving to (ZIP)">
+          <Input name="destZip" inputMode="numeric" pattern="[0-9]{5}" maxLength={5} placeholder="77006" defaultValue={filters.destZip ?? ""} />
+        </Field>
+        <Field id="radiusMiles" label="ZIP radius">
+          <Select name="radiusMiles" defaultValue={filters.radiusMiles ?? ""}>
+            <option value="">Exact ZIP</option>
+            {ZIP_RADIUS_OPTIONS.map((miles) => (
+              <option key={miles} value={miles}>
+                Within {miles} miles
+              </option>
+            ))}
+          </Select>
+        </Field>
         <Field id="originState" label="Moving from (state)">
           <Select name="originState" defaultValue={filters.originState ?? ""}>
             <option value="">Any state</option>
@@ -133,7 +158,9 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           </div>
           <div>
             <dt className="type-small text-text-3">Updates</dt>
-            <dd className="type-small text-text-2">This list updates when you load or refresh the page. Buying always re-checks availability.</dd>
+            <dd>
+              <LiveAvailability groupIds={listings.map((l) => l.groupId)} />
+            </dd>
           </div>
         </dl>
       </Card>

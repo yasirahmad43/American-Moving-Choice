@@ -291,7 +291,9 @@ export async function getRecord(input: { userId: string; companyId: string; ip?:
         sharing_credits: number;
       }>(
         `select p.group_id, p.lead_type, p.position, p.list_price_cents, p.charged_cents, a.credit_applied_cents, p.created_at, p.refunded_at,
-                g.sharing_limit, (select count(*) from purchases x where x.group_id = p.group_id)::int as buyer_count,
+                -- Other buyers' purchase rows are hidden inside this company's transaction (180 RLS), so
+                -- count the succeeded attempts: complete_purchase writes one per purchase, atomically.
+                g.sharing_limit, (select count(*) from purchase_attempts x where x.group_id = p.group_id and x.status = 'succeeded')::int as buyer_count,
                 coalesce((select sum(amount_cents) from ledger_entries le where le.purchase_id = p.id and le.kind = 'sharing_credit'), 0)::int as sharing_credits
          from purchases p join purchase_attempts a on a.id = p.attempt_id join lead_groups g on g.id = p.group_id
          where p.id = $1 and p.company_id = $2`,

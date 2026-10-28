@@ -3,6 +3,10 @@
 /** Company decisions (verification, approval, suspension, prices, profile description). */
 import {
   AdminError,
+  adminDeleteCoverageRule,
+  adminSaveCoverageRule,
+  adminSetRulesPaused,
+  adminUpdateCapabilities,
   approveCompany,
   parseDollarsToCents,
   recordCallback,
@@ -120,4 +124,69 @@ export async function descriptionAction(previous: FormState, formData: FormData)
     const status = await reviewProfileDescription(actor, idField(formData, "companyId"), { approve: decision === "approve", reason: field(formData, "reason", 1000) });
     return decision === "approve" ? `Description approved. The profile is ${status}.` : "Description rejected. The owner was emailed the reason.";
   }, [...paths(companyId), "/admin/reviews"]);
+}
+
+// ------------------------------------------------------------------ coverage (admin fix F4)
+
+/** Comma, space or newline separated tokens from a text field. */
+const list = (formData: FormData, name: string): string[] =>
+  field(formData, name, 20_000)
+    .split(/[\s,;]+/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+/** Every value of a repeated checkbox field. */
+const checked = (formData: FormData, name: string): string[] => formData.getAll(name).filter((v): v is string => typeof v === "string");
+
+export async function coverageRuleAction(previous: FormState, formData: FormData): Promise<FormState> {
+  const companyId = field(formData, "companyId", 64);
+  return adminAction(previous, ROLES.coverage, async ({ actor }) => {
+    const kind = field(formData, "kind", 10);
+    if (kind !== "include" && kind !== "exclude") throw new AdminError("Choose whether the rule includes or excludes.");
+    const result = await adminSaveCoverageRule(actor, idField(formData, "companyId"), null, {
+      kind,
+      label: field(formData, "label", 80) || null,
+      origin: { states: list(formData, "originStates"), counties: [], zips: list(formData, "originZips") },
+      destination: { states: list(formData, "destStates"), counties: [], zips: list(formData, "destZips") },
+      moveTypes: checked(formData, "moveTypes"),
+      moveSizes: [],
+      services: [],
+      paused: false,
+    });
+    if (!result.ok) throw new AdminError(result.errors.join(" "));
+    return `Coverage rule added (coverage version ${result.coverageVersion}). It applies to future requests; the audit log records it as an admin change.`;
+  }, paths(companyId));
+}
+
+export async function coveragePauseAction(previous: FormState, formData: FormData): Promise<FormState> {
+  const companyId = field(formData, "companyId", 64);
+  return adminAction(previous, ROLES.coverage, async ({ actor }) => {
+    const ruleId = field(formData, "ruleId", 64);
+    const paused = field(formData, "paused", 5) === "true";
+    const changed = await adminSetRulesPaused(actor, idField(formData, "companyId"), ruleId ? idField(formData, "ruleId") : null, paused);
+    if (!changed) return "Nothing to change.";
+    return `${changed} rule${changed === 1 ? "" : "s"} ${paused ? "paused" : "resumed"}.`;
+  }, paths(companyId));
+}
+
+export async function coverageDeleteAction(previous: FormState, formData: FormData): Promise<FormState> {
+  const companyId = field(formData, "companyId", 64);
+  return adminAction(previous, ROLES.coverage, async ({ actor }) => {
+    const deleted = await adminDeleteCoverageRule(actor, idField(formData, "companyId"), idField(formData, "ruleId"));
+    if (!deleted) throw new AdminError("That rule doesn't exist.");
+    return "Coverage rule deleted.";
+  }, paths(companyId));
+}
+
+export async function capabilitiesAction(previous: FormState, formData: FormData): Promise<FormState> {
+  const companyId = field(formData, "companyId", 64);
+  return adminAction(previous, ROLES.coverage, async ({ actor }) => {
+    const result = await adminUpdateCapabilities(actor, idField(formData, "companyId"), {
+      moveTypes: checked(formData, "moveTypes"),
+      moveSizes: checked(formData, "moveSizes"),
+      services: checked(formData, "services"),
+    });
+    if (!result.ok) throw new AdminError(Object.values(result.fieldErrors).join(" "));
+    return `Capabilities saved (coverage version ${result.coverageVersion}).`;
+  }, paths(companyId));
 }

@@ -71,6 +71,8 @@ export interface StripeClientLike {
       },
       options: { idempotencyKey: string },
     ): Promise<StripePaymentIntentLike>;
+    /** Used by the reservation sweeper to ask whether a card payment is still processing. */
+    retrieve(id: string): Promise<StripePaymentIntentLike>;
   };
   refunds: {
     create(

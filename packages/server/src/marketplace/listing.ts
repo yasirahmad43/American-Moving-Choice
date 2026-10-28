@@ -11,6 +11,7 @@
 import { matchCompany, toPreview, type LeadPreview, type LeadRecord, type MoveSize, type MoveType, type Service } from "@amc/core";
 import { z } from "zod";
 import { getPool, isUuid, type Queryable } from "../db/pool";
+import { ZIP_RADIUS_MILES, zipsWithinMiles } from "../geo/geo";
 import { getShowZipInPreview } from "../settings/settings";
 import { leadFactsForGroup, loadMatchProfile } from "./eligibility";
 import { assertCan, can, resolveActor, type CompanyActor } from "./permissions";
@@ -19,12 +20,29 @@ import { nextPrice, splitCharge, type NextPrice } from "./pricing";
 export const SOURCE_CATEGORIES = ["organic_search", "paid_search", "paid_social", "referral", "direct", "other"] as const;
 export const MOVE_SIZES = ["studio", "1br", "2br", "3br", "4br_plus", "office", "partial"] as const;
 
+/**
+ * Where a request may be from or to (lead lifecycle §5 "nationwide / state / ZIP / directional"):
+ *   nationwide  every request naming the company, whatever its route (location filters ignored);
+ *   state       origin and/or destination state (directional when both are set);
+ *   zip         origin and/or destination ZIP, exact or within a radius.
+ * Without a scope the location filters given are applied as they are.
+ */
+export const MARKETPLACE_SCOPES = ["nationwide", "state", "zip"] as const;
+/** The radius choices as form values; must list ZIP_RADIUS_MILES (geo) in order. */
+export const ZIP_RADIUS_OPTIONS = ["25", "50", "100"] as const satisfies readonly `${(typeof ZIP_RADIUS_MILES)[number]}`[];
+
 const stateCode = z.string().regex(/^[A-Z]{2}$/);
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+const zip5 = z.string().regex(/^\d{5}$/);
 
 export const marketplaceFiltersSchema = z.object({
+  scope: z.enum(MARKETPLACE_SCOPES).optional(),
   originState: stateCode.optional(),
   destState: stateCode.optional(),
+  originZip: zip5.optional(),
+  destZip: zip5.optional(),
+  /** Radius around originZip / destZip in miles; absent means the exact ZIP. */
+  radiusMiles: z.enum(ZIP_RADIUS_OPTIONS).optional(),
   moveDateFrom: isoDate.optional(),
   moveDateTo: isoDate.optional(),
   moveSize: z.enum(MOVE_SIZES).optional(),
@@ -33,6 +51,22 @@ export const marketplaceFiltersSchema = z.object({
 });
 
 export type MarketplaceFilters = z.output<typeof marketplaceFiltersSchema>;
+
+const STATE_KEYS = ["originState", "destState"] as const;
+const ZIP_KEYS = ["originZip", "destZip", "radiusMiles"] as const;
+
+/** Drops the location filters the chosen scope does not use, so "Nationwide" really means everything. */
+export function applyScope(filters: MarketplaceFilters): MarketplaceFilters {
+  const out: MarketplaceFilters = { ...filters };
+  const drop = (keys: readonly (keyof MarketplaceFilters)[]) => {
+    for (const key of keys) delete out[key];
+  };
+  if (filters.scope === "nationwide") drop([...STATE_KEYS, ...ZIP_KEYS]);
+  else if (filters.scope === "state") drop(ZIP_KEYS);
+  else if (filters.scope === "zip") drop(STATE_KEYS);
+  if (!out.originZip && !out.destZip) delete out.radiusMiles;
+  return out;
+}
 
 /** Filters from URL search params; invalid values are dropped rather than failing the page. */
 export function parseMarketplaceFilters(params: Record<string, string | string[] | undefined>): MarketplaceFilters {
@@ -44,7 +78,7 @@ export function parseMarketplaceFilters(params: Record<string, string | string[]
     const single = marketplaceFiltersSchema.shape[key as keyof typeof marketplaceFiltersSchema.shape].safeParse(key.endsWith("State") ? value.toUpperCase() : value);
     if (single.success && single.data !== undefined) out[key] = single.data as string;
   }
-  return out as MarketplaceFilters;
+  return applyScope(out as MarketplaceFilters);
 }
 
 export interface MarketplaceListing {
@@ -116,10 +150,19 @@ async function queryListings(db: Queryable, companyId: string, options: { groupI
     values.push(value);
     where.push(sql.replace("?", `$${values.length}`));
   };
-  const f = options.filters ?? {};
+  const f = applyScope(options.filters ?? {});
   if (options.groupId) add("g.id = ?", options.groupId);
   if (f.originState) add("l.origin_state = ?", f.originState);
   if (f.destState) add("l.dest_state = ?", f.destState);
+  // ZIP filters: exact, or every ZIP within the radius (haversine over the bundled centroids). An
+  // unknown ZIP matches nothing rather than everything.
+  const radius = f.radiusMiles ? Number(f.radiusMiles) : null;
+  for (const [key, column] of [["originZip", "l.origin_zip"], ["destZip", "l.dest_zip"]] as const) {
+    const zip = f[key];
+    if (!zip) continue;
+    if (radius) add(`${column} = any(?::text[])`, zipsWithinMiles(zip, radius) ?? []);
+    else add(`${column} = ?`, zip);
+  }
   if (f.moveDateFrom) add("l.move_date >= ?::date", f.moveDateFrom);
   if (f.moveDateTo) add("l.move_date <= ?::date", f.moveDateTo);
   if (f.moveSize) add("l.move_size = ?", f.moveSize);
@@ -254,6 +297,57 @@ export async function getListing(input: { userId: string; companyId: string }, g
   if (bought.rows[0]) return { state: "purchased", purchaseId: bought.rows[0].id };
   const [listing] = await queryListings(db, actor.companyId, { groupId, limit: 1 });
   return listing ? { state: "available", listing } : { state: "unavailable" };
+}
+
+export type AvailabilityStatus = "available" | "sold_out" | "expired" | "withdrawn" | "purchased" | "unavailable";
+
+/** Real-time availability (lead lifecycle §5): only the request ID, status and buyer count. */
+export interface AvailabilityRow {
+  groupId: string;
+  status: AvailabilityStatus;
+  buyerCount: number;
+  sharingLimit: number;
+  /** Another company holds the in-flight reservation. */
+  inProgress: boolean;
+}
+
+export const AVAILABILITY_MAX_IDS = 100;
+
+/**
+ * Status, sold count and positions for up to AVAILABILITY_MAX_IDS request groups, for the polling
+ * client. Gated to the groups the company is named in (lead_eligibility.named_in_consent): any
+ * other ID, and any malformed one, answers "unavailable", so the endpoint reveals nothing about
+ * requests the company cannot see. The server stays authoritative on Buy.
+ */
+export async function availabilityFor(input: { userId: string; companyId: string }, groupIds: readonly string[], db: Queryable = getPool()): Promise<AvailabilityRow[]> {
+  const actor = await resolveActor(db, input);
+  assertCan(actor, "marketplace.view");
+  const ids = [...new Set(groupIds.filter(isUuid))].slice(0, AVAILABILITY_MAX_IDS);
+  const found = ids.length
+    ? await db.query<{ id: string; status: string; expired: boolean; sharing_limit: number; buyer_count: number; purchased: boolean; in_progress: boolean; withdrawn: boolean }>(
+        `select g.id, g.status, g.expires_at <= now() as expired, g.sharing_limit,
+                (select count(*) from purchases p where p.group_id = g.id)::int as buyer_count,
+                exists (select 1 from purchases p where p.group_id = g.id and p.company_id = $1) as purchased,
+                exists (select 1 from purchase_attempts a where a.group_id = g.id and a.company_id <> $1 and a.status = 'reserved' and a.expires_at > now()) as in_progress,
+                exists (select 1 from leads l where l.group_id = g.id and l.is_primary and l.withdrawn_at is not null) as withdrawn
+         from lead_groups g
+         join lead_eligibility e on e.group_id = g.id and e.company_id = $1 and e.named_in_consent
+         where g.id = any($2::uuid[])`,
+        [actor.companyId, ids],
+      )
+    : { rows: [] };
+  const byId = new Map(found.rows.map((r) => [r.id, r]));
+  return groupIds.map((groupId) => {
+    const r = byId.get(groupId);
+    if (!r) return { groupId, status: "unavailable", buyerCount: 0, sharingLimit: 0, inProgress: false };
+    let status: AvailabilityStatus = "available";
+    if (r.purchased) status = "purchased";
+    else if (r.status === "withdrawn" || r.withdrawn) status = "withdrawn";
+    else if (r.status === "expired" || r.expired) status = "expired";
+    else if (r.status === "sold_out" || r.buyer_count >= r.sharing_limit) status = "sold_out";
+    else if (r.status !== "available") status = "unavailable";
+    return { groupId, status, buyerCount: r.buyer_count, sharingLimit: r.sharing_limit, inProgress: r.in_progress };
+  });
 }
 
 /** Purchase dialog numbers: credit applied first, then the card (estimate; the database decides). */
