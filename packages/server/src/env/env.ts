@@ -22,18 +22,20 @@ function required(name: string): never {
   throw new EnvError([`${name}: is required in production`]);
 }
 
-/** DATABASE_URL (with DATABASE_HOST applied), or the local development database outside production. */
+/** DATABASE_URL (with DATABASE_HOST, _PORT and _USER applied), or the local development database outside production. */
 export function databaseUrl(): string {
   const e = env();
-  if (e.DATABASE_URL) return withHost(e.DATABASE_URL, e.DATABASE_HOST);
+  if (e.DATABASE_URL) return withOverrides(e.DATABASE_URL, e);
   if (e.NODE_ENV === "production") required("DATABASE_URL");
   return DEV_DATABASE_URL;
 }
 
-function withHost(url: string, host: string | undefined): string {
-  if (!host) return url;
+function withOverrides(url: string, e: Pick<Env, "DATABASE_HOST" | "DATABASE_PORT" | "DATABASE_USER">): string {
+  if (!e.DATABASE_HOST && !e.DATABASE_PORT && !e.DATABASE_USER) return url;
   const parsed = new URL(url);
-  parsed.hostname = host;
+  if (e.DATABASE_HOST) parsed.hostname = e.DATABASE_HOST;
+  if (e.DATABASE_PORT) parsed.port = e.DATABASE_PORT;
+  if (e.DATABASE_USER) parsed.username = e.DATABASE_USER;
   return parsed.toString();
 }
 

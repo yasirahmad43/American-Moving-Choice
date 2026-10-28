@@ -16,10 +16,14 @@ import { migrate } from "./migrate";
 async function main(): Promise<void> {
   let url = process.env.DATABASE_URL;
   const host = process.env.DATABASE_HOST?.trim();
-  if (url && host) {
-    // Same override as @amc/server's databaseUrl(): the host can change without re-entering the secret URL.
+  const port = process.env.DATABASE_PORT?.trim();
+  const user = process.env.DATABASE_USER?.trim();
+  if (url && (host || port || user)) {
+    // Same overrides as @amc/server's databaseUrl(): they change without re-entering the secret URL.
     const parsed = new URL(url);
-    parsed.hostname = host;
+    if (host) parsed.hostname = host;
+    if (port) parsed.port = port;
+    if (user) parsed.username = user;
     url = parsed.toString();
   }
   if (process.env.VERCEL_ENV !== "production" || !url) {
