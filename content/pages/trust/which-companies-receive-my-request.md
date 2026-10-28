@@ -38,8 +38,10 @@ depends_on:
   - "Owner: which movers a repeat request names, and whether a mover named only on the repeat can buy (lead lifecycle §4; data model §5; brief open item 3)"
   - "Owner: per-mover and per-channel stops, where consumers ask for them, and whether a STOP alone still withdraws the request (implications §2.6; lead lifecycle §1; backlog 4.4.2, 4.4.3)"
   - "Owner: target time {{setting.stop_propagation_target}} for an opt-out or withdrawal to reach every buyer (implications §2.6)"
+  - "Counsel: what buyers are told after a withdrawal or opt-out (lead lifecycle §1, 'per counsel's guidance')"
   - "Counsel: mover terms on channels, opt-outs, deletion, resale and handing a move to another company (consent draft §11 items 2 and 6; mover verification §1 item 5; compliance facts §3 implication 4)"
   - "Build and owner: manage-my-request page timing (MVP scope S2, a Should; backlog 4.4.2)"
+  - "Build and owner: review-invitation timing (MVP scope S11, a Should; mover verification §6)"
   - "Owner: 'only this company' on profile-started requests, with a notice if that mover doesn't buy (implications §11 Q3, §2.3 item 3, §3.3)"
   - "Owner: what an unsold 'only this company' request means for a new request within {{setting.duplicate_window_days}} days (implications §11 Q3; lead lifecycle §4; shared pricing §1; brief open item 2)"
   - "Owner: AMC never phones consumers (implications §2.6, D5); no business rule sets this yet"
@@ -136,7 +138,7 @@ Before you send, the Review and send screen shows a summary of your request, the
 
 **When a mover buys your request,** it gets your contact details, and we email you its name, its USDOT number and a link to its profile, and tell you it paid us for your request. You get one email for each mover that buys. [Owner: whether choosing email only keeps your phone number from buyers (implications §3.1, §11 Q5; lead lifecycle §5). Once decided, say exactly which contact details a buyer gets] [Owner and Counsel: a mover can pay for a request wholly with account credit, including promotional or goodwill credit (shared pricing §2 kind 4; lead lifecycle §7 step 2). Confirm that "paid us" holds, and keep the wording the same as on How AMC makes money] [Build: one notice per purchase, naming the mover with its USDOT number and profile link and saying it paid American Moving Choice (implications §2.6; MVP scope M12; backlog 4.4.1)]
 
-**Review invitations.** About {{setting.quote_invite_delay_days}} days after a mover buys your request, we invite you to review that mover, if your contact preferences allow it. Our [review methodology](/review-methodology/) explains how review invitations work.
+**Review invitations.** About {{setting.quote_invite_delay_days}} days after a mover buys your request, we invite you to review that mover, if your contact preferences allow it. Our [review methodology](/review-methodology/) explains how review invitations work. [Build: review invitations are MVP scope S11, a Should; hold this paragraph until they're sent (mover verification §6)]
 
 **Movers that buy your request may contact you directly,** only in the ways you allowed.
 
