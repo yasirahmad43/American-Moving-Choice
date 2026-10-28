@@ -2,15 +2,14 @@
 
 A moving research and review site that also runs lead paths [capture /moving-cost-calculator/; walk], on the list as a model for a no-contact calculator and data-led city pages [inference].
 
-**Reviewed:** 2026-10-27. **Evidence:** 14 of 14 pages captured; guided walks of the calculator, its results page, the "Mover Marketplace" first screen and one partner form up to its email step; Semrush US, October 2026; single-run WebSearch, not re-checked and used sparingly. **Confidence:** medium, because no consent wording, privacy policy or mover-facing page was seen.
+**Reviewed:** 2026-10-27. **Evidence:** 14 of 14 pages captured; guided walks of the calculator, its results page, the "Mover Marketplace" first screen and one partner form up to its email step; Semrush US, October 2026; single-run web searches, not re-checked. **Confidence:** medium, because no consent wording, privacy policy or mover-facing page was seen.
 
 ## At a glance
 - It calls itself "a moving research and review platform" but runs partner forms, a "Mover Marketplace" and a bid path [capture /moving-cost-calculator/; walk].
-- It "may receive compensation" for clicks, webform submissions or calls, naming no payer or pricing model [capture /advertising-disclosure/].
+- Its disclosure says it "may receive compensation" for clicks, webform submissions or calls, naming no payer; no walked path reached consent wording [capture /advertising-disclosure/; walk].
 - Its calculator shows prices before any contact field and is its top organic page, at about 4,399 visits a month (11.47%) [walk; semrush top_pages].
 - The widget and results page priced one move differently, and other figures drift between pages [walk; capture].
 - Partner cards with superlatives and phone numbers recur across templates, unlabeled in the captured text [capture].
-- No walked path reached consent wording [walk].
 - About 38,335 US organic visits a month, Authority Score 44 and 9,427 referring domains [semrush domain_rank, backlinks_overview].
 
 ## Consumer journey
@@ -22,38 +21,38 @@ A moving research and review site that also runs lead paths [capture /moving-cos
 | Mover Marketplace | "Full pickup address" and "Full destination address" | Nothing further seen | [walk /marketplace/] |
 | Safeway partner form | Nine move-detail screens, then email | No price | [walk my.bestinterstatemoving.com/movebuddha/safeway-moving/quote] |
 
-- Good: move details come first, with an option for people without an exact date and three labeled stages [walk, partner form].
-- Unclear: under the header "Safeway Moving | powered by moveBuddha", the line "Or call us directly at (855) 650-0657" could mean either firm, and the persona ("Hey! I'm Ryan.") never says whom it works for [walk, partner form].
-- Count unknown: the cut-off bid text names no number of movers [walk /moving-cost-calculator-tool/], though /about-us/ criticizes sites that "sold customer info to dozens of movers" [capture]. [inference] The two sit uneasily.
+- Good: move details come first, with an option for people without an exact date and three labeled stages [walk, same form].
+- Unclear: under "Safeway Moving | powered by moveBuddha", the line "Or call us directly at (855) 650-0657" could mean either firm, and the persona ("Hey! I'm Ryan.") never says whom it works for [walk my.bestinterstatemoving.com/movebuddha/safeway-moving/quote].
+- Count unknown: the cut-off bid text gives no number of movers or choice [walk /moving-cost-calculator-tool/], though /about-us/ criticizes sites that "sold customer info to dozens of movers" [capture]. [inference] The two sit uneasily.
 - Inconsistent: for Atlanta 30303 to Miami 33101, freight topped out at $7,814 in the widget and $1,761 on the results page [walk /moving-cost-calculator/, /moving-cost-calculator-tool/].
 
 ## Mover side
 No captured page addresses movers, and the footer has no mover sign-up link, so joining, fees, caps and lead checks are unseen [capture]. Partner cards show toll-free numbers, unlike local movers' cards, and Safeway's doubles as the form's "call us" line [capture /movers/ri/; walk]. [inference] These are probably tracked lines; who answers is unknown.
 
 ## Trust, verification and reviews
-- **Partner cards.** Safeway, American Van Lines and North American Van Lines appear on every captured city, state and route page with superlatives such as "best overall value", and Safeway leads the LA and Orlando interstate picks [capture /movers/ca/los-angeles/long-distance/, /movers/fl/orlando/long-distance/]. /about-us/ says partner content is labeled, but the captured card text shows no label, and affiliate ties "may influence … why they're placed on our site" [capture /about-us/, /advertising-disclosure/]. v1's no-pay-for-ranking claim was not re-confirmed [v1 §2.2].
+- **Partner cards.** Safeway, American Van Lines and North American Van Lines appear on every captured city, state and route page under superlatives such as "best overall value", and Safeway tops the LA and Orlando interstate picks [capture /movers/ca/los-angeles/long-distance/, /movers/fl/orlando/long-distance/]. /about-us/ says partner content is labeled, but the text-only capture shows no label on the cards, and affiliate ties "may influence … why they're placed on our site" [capture /about-us/, /advertising-disclosure/]. v1's no-pay-for-ranking claim was not re-confirmed [v1 §2.2].
 - **Non-movers and claims.** /movers/ca/ carries PODS and portable-storage cards, and cards make unsourced claims such as "Same-day estimates" [capture /movers/ca/, /movers/fl/orlando/long-distance/].
 - **Licensing.** USDOT numbers appear for the three national picks, unchecked against FMCSA here [capture /movers/ca/long-distance/]. Cards say only "licensed insured", though the method claims to confirm "broker vs. carrier status" [capture /blog/binding-vs-non-binding-estimates/].
-- **Badges and protection.** "moveBuddha Certified" and "Our Verified program" overlap, with no stated recheck cadence or fee [capture /, /about-us/]. Certified movers add "an extra $1,000 in move coverage", booked "through moveBuddha" [capture /movers/ri/, /]. [inference] That suggests a role beyond passing on leads; it is not a legal conclusion.
-- **Scores.** Published weights such as "Moving services (35%)" read differently by list type [capture /blog/binding-vs-non-binding-estimates/, /movers/ri/]. Geo stars blend in "moveBuddha's own score", yet the disclosure calls editorial reviews "personal opinions" [capture /movers/ca/, /advertising-disclosure/]. [inference] "Verified reviews" counts appear to be aggregated third-party reviews. Low scorers stay visible, such as a BBB "F" row [capture /movers/ca/].
+- **Badges and protection.** "moveBuddha Certified" and "Our Verified program" overlap, and the evidence shows no recheck cadence or whether movers pay [capture /, /about-us/]. Choosing a Certified mover brings "an extra $1,000 in move coverage", framed as booking "through moveBuddha" [capture /movers/ri/, /]. [inference] That suggests a role beyond passing on leads; it is not a legal conclusion.
+- **Scores.** The method publishes weights such as "Moving services (35%)" but reads differently by list type [capture /blog/binding-vs-non-binding-estimates/, /movers/ri/]. Geo star ratings are a composite moveBuddha score, not a customer rating, and blend in "moveBuddha's own score" [capture /movers/ri/, /movers/ca/]. The disclosure calls editorial reviews "personal opinions", while geo pages cite an "analysis" [capture /advertising-disclosure/, /movers/ca/los-angeles/long-distance/]. [inference] The counts it labels as verified reviews appear to be aggregated third-party reviews. Low scorers stay visible, such as a BBB "F" row [capture /movers/ca/].
 - **Guidance.** Guides teach an FMCSA check, and state pages explain consumer rights and released-value coverage [capture /blog/usdot-lookup/, /movers/ri/].
-- **Scale.** The 400,000 figure means trusting people, connected people or tool users on different pages, and reviews read "1,000,000+" on the home page but "4,000+" in state boilerplate, all unsourced [capture /movers/ri/, /popular-routes/, /, /movers/ca/long-distance/]. Semrush visits, about 460,000 a year, are not people [semrush keyword-research §1].
+- **Scale.** The 400,000 figure means trusting people, connected people or tool users on different pages, and reviews read "1,000,000+" on the home page but "4,000+" in state boilerplate, all unsourced [capture /movers/ca/los-angeles/long-distance/, /movers/ri/, /popular-routes/, /, /movers/ca/long-distance/].
 
 ## Disclosure and consent
-- The "Advertising Disclosure" link opens every page's text and leads the fold on the 6 pages where fold order was recorded [capture]. Its 294-word page is hedged and names no payer [capture /advertising-disclosure/]. [inference] Payers are probably featured movers or intermediaries.
+- The "Advertising Disclosure" link opens every page's text and leads the fold, on desktop and mobile, on the 6 pages where fold order was recorded [capture]. Its 294-word page is hedged and names no payer [capture /advertising-disclosure/]. [inference] Payers are probably featured movers or intermediaries.
 - The walk notes show no compensation statement on the results screen or partner form [walk].
 - A footer "Do Not Sell or Share" link appears; the privacy policy and terms were not captured [capture].
 - The partner form runs on a separately named host, my.bestinterstatemoving.com, whose owner is not shown [walk].
-- Clarity and Hotjar (which offer session recording), ad tags and an OpenAI pixel host load across the pooled scan, with no consent-certificate script [capture].
-- Guides embed a "Free Instant Quote" widget, /movers/ca/ offers "Get my best rate →", and "Save up to 30% on your move" and "rates typically drop 15–20%" state no method [capture /blog/usdot-lookup/, /movers/ca/, /movers/ca/los-angeles/long-distance/; walk /moving-cost-calculator-tool/]. v1 recorded the savings claim as 30% or more [v1 §4].
+- Clarity and Hotjar (which offer session recording), ad tags and an OpenAI pixel host load across the pooled scan, with no consent-certificate script; whether recording was on is unknown [capture].
+- Guides embed a "Free Instant Quote" widget while the calculator promises "estimates", and /movers/ca/ offers "Get my best rate →" [capture /blog/usdot-lookup/, /moving-cost-calculator/, /movers/ca/]. "Save up to 30% on your move" and "rates typically drop 15–20%" state no method [walk /moving-cost-calculator-tool/; capture /movers/ca/los-angeles/long-distance/]. v1 recorded the savings claim as 30% or more [v1 §4].
 
 ## SEO and content
 - **Drivers.** The two calculators bring 5,147 visits (about 13.4%), the largest top-15 family, and the moving cost calculator ranks #4 for its head term (5,400 searches a month, keyword difficulty 49) [semrush top_pages, phrase_these, phrase_organic_top10]. City long-distance pages earn 460–956 visits, /movers/ri/ 222 and two state routes 133–156; 64.5% of traffic sits outside the top 15 [semrush top_pages].
-- **Weak fit.** Brand-cost, countries-that-pay and car-shipping pages bring 3,664 visits, more than three city long-distance pages (2,241) [semrush top_pages]. The USDOT guide gets 509 visits against 4,400 searches for "usdot number lookup", a query freight tools led in one search run [semrush top_pages, phrase_these; search: https://www.dat.com/solutions/usdot-number-lookup, third party]. [inference] Freight users may drive much of that demand.
+- **Weak fit.** Brand-cost guides, a pay-you-to-move post and the car shipping calculator bring 3,664 visits, more than three city long-distance pages (2,241) [semrush top_pages]. The USDOT guide gets 509 visits against 4,400 searches for "usdot number lookup", a query freight tools led in one search run [semrush top_pages, phrase_these; search: https://www.dat.com/solutions/usdot-number-lookup, third party]. [inference] Freight users may drive much of that demand.
 - **URLs and templates.** Geo pages use /movers/{st}/ with 2-letter codes, routes /popular-routes/{st}/{st}/, and many tools /blog/ [capture; semrush top_pages]. LA and Orlando share 10 of 12 heading patterns and RI and CA 12 of 12, with repeated or lightly reworded paragraphs [capture]. v1 also saw a city-to-city route and /movers/tx/buda/long-distance/ [v1 §2.2].
 - **Numbers.** California interstate costs read "$613 for a 1-bedroom to $2,622 for a 4-bedroom home" on the LA page but "between $990 and $4,033" on /movers/ca/long-distance/ [capture]. The route's title and meta ranges differ, though its average cites "847 real-time quotes" over 90 days [capture /popular-routes/ca/fl/].
 - **Freshness.** /movers/ca/ shows the capture date as "Last Updated", and the templated LA page claims "a decade" of personal experience [capture /movers/ca/, /movers/ca/los-angeles/long-distance/].
-- **Shapes and markup.** Guides open with a quick answer, and the route page adds a "Who regulates interstate moves?" box [capture /blog/usdot-lookup/, /popular-routes/ca/fl/]. One search tool's summaries quoted moveBuddha figures that differ from the live pages; that is not an AI-engine test [search: own pages, e.g. https://www.movebuddha.com/popular-routes/ca/fl/ca-to-orlando/]. Geo pages are typed Article, and the calculator has a block that reads as FAQ [capture].
+- **Shapes and markup.** Guides open with a quick answer, and the route page adds a "Who regulates interstate moves?" box [capture /blog/usdot-lookup/, /popular-routes/ca/fl/]. One search tool's summaries repeated moveBuddha figures that differ from the live pages (not an AI-engine test) [search: own pages, e.g. https://www.movebuddha.com/popular-routes/ca/fl/ca-to-orlando/]. Geo pages are typed Article, and the calculator has a block that reads as FAQ [capture].
 
 ## Design and UX
 Every page's text starts with the header; where fold order was recorded (6 pages), desktop shows the disclosure link, "Get My Quote", logo, then topic buttons [capture]. The home hero pairs a four-field form with "As Seen On", long pages embed a one-field widget, and city pages open with a one-sentence answer [capture /, /blog/usdot-lookup/, /movers/ca/los-angeles/long-distance/]. Where the hero form lands on a phone is unknown [capture].
@@ -78,7 +77,7 @@ Every page's text starts with the header; where fold order was recorded (6 pages
 - **Template filler** [capture; v1]: swap-test failures, small-place and city-pair pages, auto-bumped dates and FAQPage markup (site-architecture §4.1, §7.3, §8.5).
 
 ## Gaps and open questions
-- Consent wording; the partner form after email; the marketplace, bid path and exit-intent box.
+- Consent wording, the partner form after email, and the marketplace, bid path and exit-intent box.
 - How many movers a request reaches, who sets that number, and who employs the specialist.
 - The privacy policy, terms, the form host's operator and tags inside the widget.
 - Mover side: joining, fees, pricing model, caps and refunds.
