@@ -1,14 +1,126 @@
-import { requireAdmin } from "@amc/server/auth";
+import { listCompanies, listPurchases, orphanAttempts, reconciliation } from "@amc/server/admin";
+import { hasAdminRole, requireAdmin } from "@amc/server/auth";
+import { Alert, Money, PageHeader, Table } from "@amc/ui";
 import type { Metadata } from "next";
-import { SectionPlaceholder } from "@/components/section-placeholder";
+import Link from "next/link";
+import { FilterBar, Scroll, FilterInput, FilterSelect, LinkTabs, Mono, Pager, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
+import { ROLES } from "../_lib/roles";
 
 const item = adminNavItem("/admin/purchases");
 
 export const metadata: Metadata = { title: `${item.label} · Admin` };
 
-/** Placeholder: the admin and operations slice (S7) builds this page. */
-export default async function PurchasesPage() {
-  await requireAdmin({ roles: item.roles });
-  return <SectionPlaceholder title={item.label} description={item.description} />;
+const PER_PAGE = 50;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export default async function PurchasesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const { adminRole } = await requireAdmin({ roles: item.roles });
+  const sp = await searchParams;
+  const tab = param(sp.tab) === "reconciliation" ? "reconciliation" : "purchases";
+  const filters = { company: param(sp.company), from: DATE.test(param(sp.from)) ? param(sp.from) : "", to: DATE.test(param(sp.to)) ? param(sp.to) : "" };
+  const canRefund = hasAdminRole(adminRole, ROLES.finance);
+  const companies = (await listCompanies({ limit: 500 })).rows.map((c) => ({ value: c.id, label: c.legal_name }));
+  return (
+    <div className="grid gap-6">
+      <PageHeader size="portal" title={item.label} description={item.description} />
+      <LinkTabs
+        label="Purchase views"
+        current={tab}
+        items={[
+          { id: "purchases", label: "Purchases", href: "/admin/purchases" },
+          { id: "reconciliation", label: "Reconciliation", href: "/admin/purchases?tab=reconciliation" },
+        ]}
+      />
+      <FilterBar resetHref={`/admin/purchases${tab === "reconciliation" ? "?tab=reconciliation" : ""}`}>
+        {tab === "reconciliation" ? <input type="hidden" name="tab" value="reconciliation" /> : <FilterSelect id="company" name="company" label="Company" value={filters.company} options={companies} />}
+        <FilterInput id="from" name="from" label="From" type="date" value={filters.from} />
+        <FilterInput id="to" name="to" label="To" type="date" value={filters.to} />
+      </FilterBar>
+      {tab === "purchases" ? <PurchaseList sp={sp} filters={filters} canRefund={canRefund} /> : <Reconciliation filters={filters} />}
+    </div>
+  );
+}
+
+async function PurchaseList({ sp, filters, canRefund }: { sp: Record<string, string | string[] | undefined>; filters: { company: string; from: string; to: string }; canRefund: boolean }) {
+  const page = pageNumber(sp.page);
+  const { rows, total } = await listPurchases({ companyId: filters.company || null, from: filters.from || null, to: filters.to || null, limit: PER_PAGE, offset: (page - 1) * PER_PAGE });
+  return (
+    <>
+      <Scroll label="Purchases table">
+      <Table
+        caption={`Purchases (${total})`}
+        compact
+        rowKey={(r) => r.id}
+        rows={rows}
+        empty={<p className="text-text-2">No purchases match these filters.</p>}
+        columns={[
+          { key: "at", header: "Bought", cell: (r) => <When value={r.created_at} /> },
+          { key: "company", header: "Buyer", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.company_id}?tab=purchases`}>{r.legal_name}</Link> },
+          { key: "lead", header: "Request", cell: (r) => (r.lead_id ? <Link className="text-link underline" href={`/admin/leads/${r.lead_id}`}><Mono>{r.reference_code}</Mono></Link> : "Unknown") },
+          { key: "type", header: "Type", cell: (r) => `${humanize(r.lead_type)} #${r.position}` },
+          { key: "charged", header: "Charged", numeric: true, cell: (r) => <Money cents={r.charged_cents} /> },
+          { key: "credit", header: "From credit", numeric: true, cell: (r) => <Money cents={r.credit_applied_cents} /> },
+          { key: "card", header: "Card", numeric: true, cell: (r) => <Money cents={r.card_amount_cents} /> },
+          { key: "shared", header: "Sharing credits", numeric: true, cell: (r) => <Money cents={r.sharing_credits} /> },
+          { key: "ref", header: "Payment ref", cell: (r) => (r.payment_ref ? <Mono>{r.payment_ref}</Mono> : "None") },
+          { key: "disclosed", header: "Disclosed", cell: (r) => (r.disclosed_at ? <When value={r.disclosed_at} /> : <Status value="failed" label="No" />) },
+          {
+            key: "refund",
+            header: "Refund",
+            cell: (r) => (r.refunded_at ? <When value={r.refunded_at} /> : canRefund ? <Link className="text-link underline" href={`/admin/billing?tab=refunds&purchase=${r.id}`}>Refund</Link> : "No"),
+          },
+        ]}
+      />
+      </Scroll>
+      <Pager page={page} total={total} perPage={PER_PAGE} hrefFor={(p) => `/admin/purchases${qs({ ...filters, page: p })}`} />
+    </>
+  );
+}
+
+async function Reconciliation({ filters }: { filters: { from: string; to: string } }) {
+  const [rows, orphans] = await Promise.all([reconciliation({ from: filters.from || null, to: filters.to || null }), orphanAttempts()]);
+  const issues = rows.filter((r) => r.issues.length);
+  return (
+    <div className="grid gap-6">
+      {issues.length ? <Alert tone="warning">{issues.length} purchase{issues.length === 1 ? "" : "s"} need attention.</Alert> : <Alert tone="success">Every purchase matches its payment reference, ledger entries and disclosure.</Alert>}
+      {orphans.length ? (
+        <Table
+          caption="Payments without a purchase (each needs a refund)"
+          compact
+          rowKey={(r) => r.id}
+          rows={orphans}
+          columns={[
+            { key: "at", header: "Attempted", cell: (r) => <When value={r.created_at} /> },
+            { key: "company", header: "Company", cell: (r) => r.legal_name },
+            { key: "amount", header: "Card amount", numeric: true, cell: (r) => <Money cents={r.card_amount_cents} /> },
+            { key: "ref", header: "Payment ref", cell: (r) => <Mono>{r.payment_ref}</Mono> },
+            { key: "status", header: "Attempt", cell: (r) => <Status value={r.status} /> },
+          ]}
+        />
+      ) : null}
+      <Scroll label="Reconciliation table">
+      <Table
+        caption={`Purchases and payment references (${rows.length})`}
+        compact
+        rowKey={(r) => r.purchase_id}
+        rows={rows}
+        empty={<p className="text-text-2">No purchases in this period.</p>}
+        columns={[
+          { key: "at", header: "Bought", cell: (r) => <When value={r.created_at} /> },
+          { key: "company", header: "Buyer", cell: (r) => r.legal_name },
+          { key: "ref", header: "Request", cell: (r) => <Mono>{r.reference_code ?? "unknown"}</Mono> },
+          { key: "charged", header: "Charged", numeric: true, cell: (r) => <Money cents={r.charged_cents} /> },
+          { key: "ledger", header: "Charge entry", numeric: true, cell: (r) => <Money cents={r.charge_ledger_cents} /> },
+          { key: "credit", header: "Credit applied", numeric: true, cell: (r) => <Money cents={r.credit_applied_cents} /> },
+          { key: "spend", header: "Spend entry", numeric: true, cell: (r) => <Money cents={r.spend_ledger_cents} /> },
+          { key: "card", header: "Card", numeric: true, cell: (r) => <Money cents={r.card_amount_cents} /> },
+          { key: "payref", header: "Payment ref", cell: (r) => (r.payment_ref ? <Mono>{r.payment_ref}</Mono> : "None") },
+          { key: "refund", header: "Refund entry", numeric: true, cell: (r) => <Money cents={r.refund_ledger_cents} /> },
+          { key: "issues", header: "Issues", cell: (r) => (r.issues.length ? r.issues.join("; ") : <Status value="pass" label="Matches" />) },
+        ]}
+      />
+      </Scroll>
+    </div>
+  );
 }
