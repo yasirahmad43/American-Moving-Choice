@@ -1,6 +1,6 @@
 # What the reference review means for AMC
 
-**Status:** proposals for the owner, 2026-10-28. Nothing in this document has been applied to any other document yet. §10 lists every proposed change.
+**Status:** proposals for the owner, 2026-10-28. SA-1 to SA-20 (site architecture), B-1 to B-8 (brief §3) and the brief §8 note were applied on 2026-10-28 in this PR, with a few related edits that §10 marks applied. Every other change is proposed. §10 lists every change and its status.
 
 This document turns the 11 reference-site reviews into decisions and document changes for American Moving Choice (AMC). Read §1 for the decisions, §2 to §9 for the detail, §10 for the change list and §11 for the owner's open questions. The evidence is in the site reviews ([sites/](sites/)), the method in the [README](README.md) and the requirement view in the [v2 matrix](../reference-matrix.md). Recommendations describe patterns for AMC to build in its own words. Legal points are questions for counsel, not conclusions.
 
@@ -22,15 +22,15 @@ This document turns the 11 reference-site reviews into decisions and document ch
 
 **D2. Ask the count question after contact details, bounded by real coverage.** Offer 1 up to the smaller of the admin maximum and the live eligible count, with nothing preselected. *Evidence:* no reference was seen asking it. Three state a fixed number, and four let the consumer pick one company [capture; walk; search; §2.3]. *Confidence:* medium. Test it in usability rounds 1 and 2 (JTBD §6.3), which answer L6 (JTBD §6.1). *Changes:* lead lifecycle §2; consent draft §4, §5; shared pricing §1; VD §13.7.
 
-**D3. Name every eligible mover at consent, allow removal, and keep the box for contact consent only.** *Evidence:* MGM's box bundles Terms with unnamed "moving companies" (/moving-cost-calculator), and CMR relies on "By submitting" (/request-a-quote/). No consent seen in a walk names a mover. Only Move.org's single-brand quote pages, in possibly stale search copies, name one [walk; search; §3.1]. Consent draft §5 also bundles the Terms. *Confidence:* high; counsel owns the wording. *Changes:* consent draft §4 to §6; lead lifecycle §2, §6; VD §13.7, §13.8; data model §5.
+**D3. Name every eligible mover at consent, allow removal, and keep the box for contact consent only.** *Evidence:* MGM's box bundles Terms with unnamed "moving companies" (/moving-cost-calculator), and CMR relies on "By submitting" (/request-a-quote/). No consent seen in a walk names a mover [walk; §3.1]. Consent draft §5 also bundles the Terms. *Confidence:* high; counsel owns the wording. *Changes:* consent draft §4 to §6; lead lifecycle §2, §6; VD §13.7, §13.8; data model §5.
 
 **D4. Show one role-and-money statement at every quote entry, inside consent and on confirmation.** *Evidence:* none of the seven walked flows showed how the site is paid [walk; cross-site analysis]. Move.org's disclosure covers clicks and calls, not requests (/disclosure/). moveBuddha's covers webform submissions but names no payer (/advertising-disclosure/) [capture; sites/moveorg.md; sites/movebuddha.md; §3.4]. AMC has three role wordings (consent draft §1, site architecture §7.1, brief §1). *Confidence:* high. *Changes:* consent draft §1, §5 to §7; site architecture §7.1; VD §12, §13.
 
-**D5. Stay a lead marketplace in features and words.** That means no booking, pricing, guarantees or move money, and no calls to qualify or transfer consumers. *Evidence:* Unpakt holds payments, HireAHelper runs a checkout, and CMR and moveBuddha promise specialist calls [capture; walk; §2.6]. How FMCSA's 2023 guidance on money handling and involvement applies to AMC is for counsel (compliance facts §2). *Confidence:* high. *Changes:* MVP scope §5; lead lifecycle §2; consent draft §1, §3, §6.
+**D5. Stay a lead marketplace in features and words.** That means no booking, pricing, guarantees or move money, and no calls to qualify or transfer consumers. The review recommends removing the "Booking deposits and payments" add-on from MVP scope §5, with any reintroduction needing owner and counsel sign-off (compliance facts §2). *Evidence:* Unpakt holds payments, HireAHelper runs a checkout, and CMR and moveBuddha promise specialist calls [capture; walk; §2.6]. How FMCSA's 2023 guidance on money handling and involvement applies to AMC is for counsel (compliance facts §2). *Confidence:* high. *Changes:* MVP scope §5; brief §4; lead lifecycle §2; consent draft §1, §3, §6.
 
 **D6. Show credentials as dated, sourced fields, and issue one badge only from verification checks.** *Evidence:* only CMR dated its FMCSA check in what was captured. Move.org's "no brokers" list contradicts its own review. HireAHelper's badge needs reviews, and CMR and moveBuddha stack badges [capture; §4.1 to §4.3]. *Confidence:* high. *Changes:* mover verification §1, §4, §5; consent draft §2, §8; VD §9.4, §9.5; data model §3.
 
-**D7. Clear or replace the "Preferred Movers" name before Phase 3 designs.** *Evidence:* Move.org's sponsored slots include "Preferred Partner" (/disclosure/), and CMR's owner is Preferred Movers Network Inc. Several movers use the name, and six searches surfaced no federal registration [capture; search; §5]. *Confidence:* medium; a web search is not a clearance. *Changes:* §5.3.
+**D7. Clear or replace the "Preferred Movers" name before Phase 3 design sign-off, after counsel clearance and usability round 1.** *Evidence:* Move.org's sponsored slots include "Preferred Partner" (/disclosure/), and CMR's owner is Preferred Movers Network Inc. Several movers use the name, and six searches surfaced no federal registration [capture; search; §5]. *Confidence:* medium; a web search is not a clearance. *Changes:* §5.3.
 
 **D8. Keep one record per public number, with no savings, booked-move or "people helped" claims.** *Evidence:* figures drift at eight of 11 sites, and rating or review-count drift appears at four of nine captured sites. moveBuddha priced one move two ways [capture; walk; search; cross-site analysis; §4.5]. *Confidence:* high. *Changes:* site architecture §6.3, §9; mover verification §5; VD §3.
 
@@ -38,9 +38,9 @@ This document turns the 11 reference-site reviews into decisions and document ch
 
 **D10. Gate geo and route pages on real coverage, with the local answer first.** *Evidence:* captured geo templates repeat most headings. Move.org's Houston page opens with a widget and a national partner card. No reference showed a coverage gate, and HireAHelper's lists count movers based outside the city [capture; cross-site analysis; §6.2]. *Confidence:* high. *Changes:* site architecture §3.3, §4.1, §7.4.
 
-**D11. Build in this order: tools and cost pages; national pillars, long-distance pages, routes and moving-to guides; trust and B2B pages; then the hub, directory and profiles.** Publish state hubs and city pages as each passes G1 (§6.1). *Evidence:* calculators top Moving.com and moveBuddha, and moveBuddha's city long-distance pages earn 460 to 956 visits each [semrush top_pages_2026-10-27.csv]. Forums and social sites hold four of the NY→FL top 10, and van lines and big publishers hold the head terms [semrush phrase_organic_top10_2026-10-27.csv; seo/raw/semrush_phrase_organic_top10_2026-10-27.csv]. *Confidence:* medium (estimates; top pages only). *Changes:* site architecture §5; keyword research §1, §2, §5.
+**D11. Build in this order: tools and cost pages; national pillars, long-distance pages, routes and moving-to guides; trust and B2B pages; then the hub, directory and profiles.** Publish state hubs and city pages as each passes G1 (§6.1). This is the build and KPI order; trust pages are written first because badges, consent and lists link to them (§7.1). *Evidence:* calculators top Moving.com and moveBuddha, and moveBuddha's city long-distance pages earn 460 to 956 visits each [semrush top_pages_2026-10-27.csv]. Forums and social sites hold four of the NY→FL top 10, and van lines and big publishers hold the head terms [semrush phrase_organic_top10_2026-10-27.csv; seo/raw/semrush_phrase_organic_top10_2026-10-27.csv]. *Confidence:* medium (estimates; top pages only). *Changes:* site architecture §5; keyword research §1, §2, §5.
 
-**D12. Adopt a tag policy for survey, contact, consent and confirmation pages.** *Evidence:* at least seven of nine captured sites load replay-capable tools, all nine load ad tags, and two put move details in URLs [capture; walk; cross-site analysis; §3.5]. *Confidence:* high for presence; whether tools run on forms is unknown. *Changes:* a proposed new site architecture §8.8; stack and architecture §1; a proposed new compliance facts §9.
+**D12. Adopt a tag policy for survey, contact, consent and confirmation pages.** *Evidence:* at least seven of nine captured sites load replay-capable tools, all nine load ad tags, and two put move details in URLs [capture; walk; cross-site analysis; §3.5]. *Confidence:* high for presence; whether tools run on forms is unknown. *Changes:* site architecture §8.8, added by SA-18; stack and architecture §1; a proposed new compliance facts §9.
 
 **D13. Publish the mover-side buying rules, and keep payment out of order and editorial outcomes.** *Evidence:* no captured provider page shows prices, caps and refunds together. MGM's Terms let plans affect listing order. Move.org's partner page lists rankings and awards under "Editorial opportunities" (/partnership/) [capture; search; §9]. *Confidence:* high for the gap; mover interviews have not started. *Changes:* shared pricing §9; site architecture §1.1; mover verification §4, §9.
 
@@ -118,13 +118,13 @@ Confirmation shows the reference number, the maximum and the movers named at con
 - Each mover has a remove control (compliance facts §3 implication 1), and removed movers can never buy.
 - The channel choice (calls, texts, email) sits on the contact screen. It scopes the consent text, travels with the lead and binds movers (consent draft §11 item 2). Choosing email only removes the call and text wording.
 - A consumer who declines consent follows the path in §2.4.
-- Counsel: is naming several movers enough, and how many is too many (compliance facts §3)? Move.org's brand quote pages named one brand plus Clearlink, Move.org's operator [search: move.org/quote-allied/, /quote-mayzlin/, site's own pages, indexed copies possibly about 400 days old; v1 §2.11].
+- Counsel: is naming several movers enough, and how many is too many (compliance facts §3)? Unverified search copies of Move.org's brand quote pages, outside the verified record (sites/moveorg.md), named one brand plus Clearlink, Move.org's operator [search: move.org/quote-allied/, /quote-mayzlin/, site's own pages, indexed copies possibly about 400 days old; v1 §2.11].
 
 ### 3.2 A separate box for contact consent only
 - The box covers contact by the listed movers in the chosen channels. It also covers automated technology, if counsel keeps it. It says consent is not a condition of purchase, and it gives frequency, rates, HELP and STOP.
 - Terms acceptance and the privacy acknowledgment move to a separate control. Consent draft §5 bundles them; compliance facts §3 implication 1 separates them.
-- No arbitration or class waiver goes in the box, the button or the confirmation. An indexed, possibly stale copy of Move.org's /quote-mayzlin/ tied mandatory arbitration to "Get My Quotes" [search: https://www.move.org/quote-mayzlin/, site's own page]. v1 saw similar wording on /quote-allied/ [v1 §2.11]. Neither was re-confirmed, and sites/moveorg.md records the same for a test-page excerpt.
-- No Do-Not-Call override wording, unless counsel asks for it. Move.org's test-page consent (/generic-form-test/, site's own page, via search), and possibly stale brand-page copies, cover numbers on Do-Not-Call lists. The live tool's consent was not seen [search; v1 §2.11; sites/moveorg.md].
+- No arbitration or class waiver goes in the box, the button or the confirmation. An unverified search copy of Move.org's /quote-mayzlin/, outside the verified record, tied mandatory arbitration to "Get My Quotes" [search: https://www.move.org/quote-mayzlin/, site's own page, possibly stale]. v1 saw similar wording on /quote-allied/ [v1 §2.11]. Neither was re-confirmed, and sites/moveorg.md records the same for a test-page excerpt.
+- No Do-Not-Call override wording, unless counsel asks for it. Move.org's test-page consent (/generic-form-test/, site's own page, via search) covers numbers on Do-Not-Call lists, and per v1 only, so did /quote-allied/ (not re-confirmed; brand-page search copies are outside the verified record). The live tool's consent was not seen [search; v1 §2.11; sites/moveorg.md].
 - Test: a copy check fails on Terms or arbitration text in the box, the box is unticked on load, and both states are stored.
 
 ### 3.3 Exclusive and shared, explained
@@ -153,7 +153,7 @@ Confirmation shows the reference number, the maximum and the movers named at con
 - Test: a build check matches body, meta, JSON-LD and consent text to the record.
 
 ### 3.5 Tag policy
-A proposed new site architecture §8.8 (SA-18) would cover the `/get-quotes/` steps, contact, consent and confirmation:
+The new site architecture §8.8 (SA-18) covers the `/get-quotes/` steps, contact, consent and confirmation:
 - no ad, retargeting or social pixels, and no chat widgets;
 - no session replay or heatmaps (PostHog recordings off), unless counsel approves full masking;
 - first-party analytics only, with no field values before submit, and no ZIPs, dates, sizes or contact details in URLs, event names or payloads;
@@ -283,7 +283,7 @@ One order serves D11, this section and SA-13:
    - Forums or social sites hold four of the NY→FL top 10 [semrush seo/raw/semrush_phrase_organic_top10_2026-10-27.csv]. Reddit, Facebook and Quora rank for "moving to florida" (2,400/mo, KD 27) [semrush phrase_organic_top10_2026-10-27.csv, phrase_these_2026-10-27.csv].
 3. **Trust and B2B pages.** Moving.com's 241-word `/leads/` ranks #9 for "buy moving leads" (720/mo, KD 18) [semrush phrase_these_2026-10-27.csv, phrase_organic_top10_2026-10-27.csv; sites/movingcom.md]. "movers vs brokers" has 110/mo at KD 6 [semrush seo/keyword-to-page-map.csv; sites/moveorg.md].
 4. **The `/movers/` hub, the directory and profiles.** Move.org's `/movers/` hub is its #4 page [semrush top_pages_2026-10-27.csv; sites/moveorg.md]. One CMR profile brings 162 of the site's 191 visits [semrush top_pages_more_2026-10-27.csv; sites/consumermovingreviews.md].
-5. **State hubs and city pages, each when it passes G1.** They stay in the confirmed Wave 1: three state hubs and nine city pages, one of them a reserve (site architecture §5.3). Ten of HireAHelper's top 15 pages are city pages (24.6% of visits), but city pages lead at no other reference [semrush top_pages_2026-10-27.csv; sites/hireahelper.md; cross-site analysis].
+5. **State hubs and city pages, each when it passes G1.** They stay in the proposed Wave 1 (site-architecture §5.3), pending brief §11 Q3: three state hubs and nine city pages, one of them a reserve. Ten of HireAHelper's top 15 pages are city pages (24.6% of visits), but city pages lead at no other reference [semrush top_pages_2026-10-27.csv; sites/hireahelper.md; cross-site analysis].
 6. **Not first:** "moving companies" (KD 62), "long distance moving companies" (KD 63) and best-of terms. They wait for Wave 2 and the comparison gate [semrush phrase_these_2026-10-27.csv].
 
 ### 6.2 Gating rules
@@ -333,8 +333,8 @@ Put a 40–60-word answer under a question heading in the first screen (site arc
 - §5.2 and §5.3, including New York entering through routes; "movers nyc" is KD 72 [semrush phrase_these_2026-10-27.csv; sites/unpakt.md].
 - §6.1 to §6.3; §7.1 to §7.5; §8.1, §8.3, §8.4, §8.6 and §8.7; §10.
 
-**Changes (proposed; none applied yet):**
-- **SA-1** (header; §0 to §2 headings): drop "provisional", link this document, and keep decision-dependent items marked pending. Make this change together with the brief §8 note (§10).
+**Changes (SA-1 to SA-20, applied on 2026-10-28 in this PR):**
+- **SA-1** (header; §0 to §2 headings): drop "provisional", link this document, and keep decision-dependent items marked pending. Applied together with the brief §8 note (§10).
 - **SA-2** (§0): item 4, no mover phone numbers on cards, lists or geo pages, with profiles per §11 Q7 and a note on the profile if contact details are hidden. Item 5, sponsored slots stay out of ranked lists, consent lists, awards and comparisons, and never use "Preferred", "Featured" or "Partner". New item 9, the badge name awaits counsel (§5).
 - **SA-3** (§1.1): self-serve "Apply" comes first. `/for-movers/` publishes price basis, cap, credits and claim reasons, and offers no rankings, awards, placement or editorial coverage.
 - **SA-4** (§1.2 Quote survey, Geo index): one survey on `www` under AMC's name, with no third-party form hosts, and a confirmation naming the consent-list movers. `/movers/` adds dated per-state counts, a matching explanation and method links.
@@ -384,7 +384,7 @@ None at launch. Later, build one comparison page per measured intent, behind the
 Publish the TX, FL and CA hubs when G1 (5 movers) passes. Each has the regulator section (TxDMV, FDACS, BHGS), flows, cities, routes and, once data exists, a cost block. MGM's state cost pages earn about twice its state mover pages (1,489 against 782 visits) [semrush top_pages_more_2026-10-27.csv, computed; sites/mygoodmovers.md]. So pull state cost keywords (SA-20) before choosing between a hub section and a `/moving-costs/{state}/` spoke. Moving-to guides stay separate (site architecture §3.1).
 
 ### 7.6 What not to write
-- Lifestyle and relocation lists, storage, change-of-address and how-to pages. Together they hold about 44% of ConsumerAffairs' /movers/ folder (about 10,400 of 23,800 visits) [semrush top_pages_more_2026-10-27.csv, computed; sites/consumeraffairs.md]. MGM's top page is a where-to-move guide, and lifestyle lists earn most of Unpakt's blog visits [semrush top_pages_more_2026-10-27.csv; sites/mygoodmovers.md; sites/unpakt.md].
+- Lifestyle and relocation lists, storage, change-of-address and how-to pages. Together they hold about 44% of ConsumerAffairs' /movers/ folder (about 10.4k of about 23.8k visits) [semrush top_pages_more_2026-10-27.csv, computed; sites/consumeraffairs.md]. MGM's top page is a where-to-move guide, and lifestyle lists earn most of Unpakt's blog visits [semrush top_pages_more_2026-10-27.csv; sites/mygoodmovers.md; sites/unpakt.md].
 - Container rankings, and car-shipping pages beyond the information path.
 - ZIP lanes and city × service grids. CMR's lanes earn 1 to 3 visits each, and HomeGuide's grid pages 36 or fewer, with one exception [semrush top_pages_more_2026-10-27.csv; sites/consumermovingreviews.md; sites/homeguide.md].
 - "Best movers in {city}" posts beside city pages.
@@ -421,7 +421,7 @@ The money line follows §3.4's placements, starting under the first screen's CTA
 
 ### 8.6 Changes to visual-direction.md and the style tile
 - **§3:** ban undated press strips, rating widgets in the hero or survey, neutrality claims while movers pay, booking words ("our movers", "a specialist will call") and bare "licensed", "vetted", "verified" or "certified".
-- **§5.3, §13.1:** keep "See available movers" only if the named preview ships. It echoes HireAHelper's "See Movers" step [walk /checkoutv2/moveitems/; captures/hireahelper.md].
+- **§5.3, §13.1:** reword "See available movers" in AMC's own words, tied to the coverage result, whether or not the named preview ships. It echoes HireAHelper's "See Movers" step [walk /checkoutv2/moveitems/; captures/hireahelper.md; sites/hireahelper.md].
 - **§9.2 to §9.5:**
   - no location ZIP or default answers;
   - the stepper counts every screen shown, "What we found" included (§2.1);
@@ -450,7 +450,7 @@ The money line follows §3.4's placements, starting under the first screen's CTA
   - the consent demo lists sample movers (USDOT 000000) with remove controls, separate Terms and the money line;
   - options above sample coverage are disabled;
   - add a credential row and a review card;
-  - set the CTA label per the §5.3 and §13.1 decision above.
+  - reword the "See available movers" CTA in AMC's own words, tied to the coverage result (the §5.3 and §13.1 item above).
 
 ## 9. Mover side: portal, pricing and admin
 
@@ -490,7 +490,7 @@ The owner still sets minimums beyond federal filings (mover verification §9 dec
 - Report a problem adds "contact from a company I was not told about", and confirmed resale suspends the company (data model §8).
 - Spend caps per company and per agent (daily, weekly, monthly), enforced by `reserve_purchase`, move from Could (MVP scope C2; backlog 6.2.4) to Should, pending JTBD L4. Moving.com and HomeGuide offer budgets [capture /leads/; search: help.homeguide.com articles 306 and 486, own pages; sites/movingcom.md; sites/homeguide.md]. Any later auto-buy is mover-set, first-come and capped, after counsel review (compliance facts §2).
 - CRM outcomes feed quality reports and company-requested invitations, never matching, order, price or badges (consent draft §11).
-- Any paid CRM add-on is priced on `/for-movers/pricing/` before it bills. The FTC's HomeAdvisor complaint alleged a falsely free add-on [search: ftc.gov, regulator; sites/homeguide.md]. Remove or block the "Booking deposits and payments" add-on (MVP scope §5).
+- Any paid CRM add-on is priced on `/for-movers/pricing/` before it bills. The FTC's HomeAdvisor complaint alleged a falsely free add-on [search: ftc.gov, regulator; sites/homeguide.md]. The review recommends removing the "Booking deposits and payments" add-on from MVP scope §5, with any reintroduction needing owner and counsel sign-off (compliance facts §2; D5).
 
 ### 9.8 Partner page
 `/for-movers/` is self-serve. A USDOT entry says, before an account exists, whether the record looks eligible and why not, with "talk to us" second. Moving.com and HireAHelper run self-serve sign-up, and Move.org appears to sell through its partner team [capture /leads/, /partnership/; sites/movingcom.md; sites/hireahelper.md; sites/moveorg.md]. FMCSA's API terms must allow the check (MVP scope S7).
@@ -505,13 +505,13 @@ Counsel also reviews the partner disclosure.
 
 ## 10. Changes to existing documents
 
-Nothing below has been applied yet. Every item is a proposal for the owner and the document owners. Apply SA-1 and the brief §8 note in one change, so the two documents never disagree. In the table, "see §x" points to this document; every other section number belongs to the file in that row.
+SA-1 to SA-20, B-1 to B-8 and the brief §8 note were applied on 2026-10-28 in this PR, with SA-1 and the brief §8 note in one change so the two documents never disagree. The Status column marks these and a few related edits from the same PR as applied. Every other item is a proposal for the owner and the document owners. In the table, "see §x" points to this document; every other section number belongs to the file in that row.
 
-**Brief §3 corrections (proposed):**
-- **B-1** (opening line): add ConsumerAffairs' `/movers/` folder (about 23.7k visits, 5.6% of the domain) and HomeGuide's measured moving URLs (at least 1,239 visits, about 0.4%) beside their domain totals, which are no benchmark [semrush top_pages_more_2026-10-27.csv, domain_rank_2026-10-27.json; sites/consumeraffairs.md; sites/homeguide.md]. Link this document.
+**Brief §3 corrections (applied on 2026-10-28 in this PR; item numbers refer to the earlier seven-item §3, before the rewrite):**
+- **B-1** (opening line): add ConsumerAffairs' `/movers/` folder (about 23.8k visits, about 5.6% of the domain) and HomeGuide's measured moving URLs (at least 1,239 visits, about 0.4%) beside their domain totals, which are no benchmark [semrush top_pages_more_2026-10-27.csv, domain_rank_2026-10-27.json; sites/consumeraffairs.md; sites/homeguide.md]. Link this document.
 - **B-2** (item 1): contact-first flows were seen at CMR and MGM. BVL's contact step was never reached. HireAHelper's walk recorded names and a price sort, not prices.
 - **B-3** (item 2): three references state a fixed number (Moving.com 4; MGM 3, FAQ only; HomeGuide 5, phone only, 2023). None seen lets the consumer choose; four let them pick one company.
-- **B-4** (item 3): the weaknesses seen are consent by submit or site use, Terms in the box, unnamed recipients, and missing automated-call and not-a-condition wording. Arbitration tied to submit appears only in an indexed, possibly stale copy of Move.org's /quote-mayzlin/, and v1 saw similar wording on /quote-allied/. Neither was re-confirmed [search: https://www.move.org/quote-mayzlin/, site's own page; v1 §2.11]. ConsumerAffairs' sitewide Terms hold both call consent and binding arbitration [search; sites/consumeraffairs.md]. Claim a separate box only after consent draft §5 is split.
+- **B-4** (item 3): the weaknesses seen are consent by submit or site use, Terms in the box, unnamed recipients, and missing automated-call and not-a-condition wording. Arbitration tied to submit appears in an unverified search copy of Move.org's /quote-mayzlin/, outside the verified record, and in an earlier, unconfirmed test-page excerpt (sites/moveorg.md); v1 saw similar wording on /quote-allied/. None was re-confirmed [search: https://www.move.org/quote-mayzlin/, site's own page, possibly stale; v1 §2.11]. ConsumerAffairs' sitewide Terms hold both call consent and binding arbitration [search; sites/consumeraffairs.md]. Claim a separate box only after consent draft §5 is split.
 - **B-5** (item 4): HireAHelper is a model only for fields that do not depend on booking and payment.
 - **B-6** (item 5): four of nine captured sites show rating or review-count drift, and eight of 11 show figure drift.
 - **B-7** (item 6): city pages lead only at HireAHelper (10 of its top 15, 24.6% of visits; 57% of its traffic sits outside the top 15). State cost pages earn at MGM, so "state hubs are a gap" holds for directories only. CMR also runs ZIP-lane route pages earning 1–3 visits [semrush top_pages_2026-10-27.csv, top_pages_more_2026-10-27.csv].
@@ -519,9 +519,12 @@ Nothing below has been applied yet. Every item is a proposal for the owner and t
 
 | File | Section | Change | Priority | Status |
 |---|---|---|---|---|
-| seo/site-architecture.md | Header; §0 to §8 | SA-1, SA-2, SA-4 to SA-12, SA-14, SA-15, SA-17, SA-18 (see §6.9) | must | proposed |
-| seo/site-architecture.md | §1.1, §4.5, §5, §7.6, §7.7, §9, §11 | SA-3, SA-13, SA-16, SA-19, SA-20 | should | proposed |
-| 00-discovery-brief.md | §3; §8 | B-1 to B-8; drop the §8 "provisional" note in the same change as SA-1 | must | proposed |
+| seo/site-architecture.md | Header; §0 to §8 | SA-1, SA-2, SA-4 to SA-12, SA-14, SA-15, SA-17, SA-18 (see §6.9) | must | applied |
+| seo/site-architecture.md | §1.1, §4.5, §5, §7.6, §7.7, §9, §11 | SA-3, SA-13, SA-16, SA-19, SA-20 | should | applied |
+| 00-discovery-brief.md | §3; §8; §11 Q4; date line | B-1 to B-8; §3 item 6 naming timing per D7; the §8 "provisional" note replaced in the same change as SA-1; the §8 gate list aligned with SA-12 G1, §4.1 G4, G6 and G9; the §11 Q4 default aligned with G1 (3 per city or route page, 5 per state page); the date line | must | applied |
+| 00-discovery-brief.md | Phase 1 report; §2 | The "Not done" row says reference quote flows were seen only up to the contact step; §2 says walks stopped at or before the contact step, that the review of all 11 sites is complete, and that the ConsumerAffairs and HomeGuide reviews have low confidence | should | applied |
+| 00-discovery-brief.md | §4 | MVP trust-page list aligned with site architecture §1.2, including "How AMC makes money" and "Which companies receive my request" (SA-10); the directory called "the mover directory (name pending)" (see §5) | should | applied |
+| 00-discovery-brief.md | §4 | Booking and deposits stay out of scope; a short note says the review recommends a standing exclusion. The note is applied; the exclusion itself is the owner's decision (see D5) | should | note applied; decision pending |
 | 00-discovery-brief.md | §1, §9 | One role wording without bare "licensed"; badge name per §5 | should | proposed |
 | business-rules/consent-and-disclosure-copy-draft.md | §1 to §8, §11 | Role-and-money statement; no-sale line out until counsel decides; capped, neutral options; contact-only box with separate Terms; named movers with removal; in §5, the 360px rule and a labeled "show all" (see §2.4); in §4 and §5, the count asked again after removals (see §2.3); an "only this company" variant (see §2.3, §3.3); in §6, `{typical_window}` out until measured (see §2.5); confirmation names; badge money relation (see §3, §4.3); in §3 and §5, a separate box for any partner data-sharing (see §9.8) | must | proposed |
 | business-rules/lead-lifecycle-and-purchase-rules.md | §1 to §3, §5, §6 | Canonical steps (see §2.1); no presets; no AMC calls; declined-consent path (see §2.4); in §2 step 8 and §3 item 4, "only this company" (see §2.3); consent-list order; preview flags; evidence fields (see §2, §3.6) | must | proposed |
@@ -529,13 +532,14 @@ Nothing below has been applied yet. Every item is a proposal for the owner and t
 | business-rules/mover-verification-and-reviews.md | §1 to §7, §9 | Dual registration stays out; agent and badge-name decisions; ownership fields; related-party check; badge from checks only; credential display; in §5, "only this company", a rule change made only after the JTBD J2 sell-through check (see §2.3); in §6 Collection, a second, post-move invitation, also a rule change (see §4.4); other review rules (see §4, §9.5) | must | proposed |
 | research/compliance-and-platform-facts.md | §1 to §4; new §9 | Dual-registration wording; in §2, the recent-request-mix block as a counsel question (see SA-14); certificate as backup; label name; privacy and tracking questions | must | proposed |
 | design/visual-direction.md; design/style-tile.html | §3 to §15; hero, survey, trust row | See §8.6, including §9.10's header link, §13.4's route URL and the step numbers (see §2.1) | must | proposed |
-| product/mvp-scope.md | §3, §5, §6 | Block booking deposits; tie S6 to M1; S7 forecast; spend caps to Should; remove or park C5 (ZIP pages), since site architecture §0 plans none; §6 survey entry (see §2.1) | must | proposed |
+| product/mvp-scope.md | §3, §5, §6 | Remove the "Booking deposits and payments" add-on from §5, with any reintroduction needing owner and counsel sign-off (see D5); tie S6 to M1; S7 forecast; spend caps to Should; remove or park C5 (ZIP pages), since site architecture §0 plans none; §6 survey entry (see §2.1) | must | proposed |
 | product/jtbd-and-journeys.md | §3.1 pain 3; §4 J1 (stage 5, stage 13, failure modes), J2, J6 (1a, 1b); §6.1 L6; §6.3 | BVL claim unverified; names-before-contact decision; "only this company" and its sell-through check; declined-consent path; post-move invitation; label comprehension and list length in the usability rounds; new tests | should | proposed |
 | product/backlog.md | 1.6; 4.1.1 to 4.2.6; 4.4.2; 4.4.3; 4.5.1; 6.1.1; 6.1.2; 6.2.4; 6.5.1; 6.5.2; 6.6.7; 7.3; 7.6; §13 | Matching criteria for §2 to §4 and §9; 4.1.1 skipped on household-move entry points; 4.1.6 confirmed P0; 4.2.4's declined-consent path offers the named movers' profiles (see §2.4); per-mover and per-channel stops in 4.4.2 and 4.4.3 (see §2.6); a post-move invitation in 6.5.1 and 6.5.2 (see §4.4); case thresholds in 6.6.7 (see §9.7); 7.3 keeps below-gate pages unpublished, per site architecture §4.2 | should | proposed |
 | architecture/data-model.md; architecture/stack-and-architecture.md | §2, §3, §5, §6, §8, §11 invariant 1; §1 | Family key, with invariant 1 counting families (see §9.5); badge evidence; consent and channel fields; `move_category`; case type; GPC-aware consent tool; no survey recordings | should | proposed |
-| research/reference-matrix.md | §1, §3.6, §3.7, §4, §6, §8, §9 | Keep v2's corrections to v1 ("Preferred (paid)"; Move.org "one-to-one"); update the naming gap after §5's decision; drop "provisional" from §1 and §6 when SA-1 lands; label §4's Move.org brand-page source a possibly stale search copy; correct §3.6's ConsumerAffairs share to about 44% of the folder (about 66% of its top 25) [semrush top_pages_more_2026-10-27.csv, computed]; add §3.7's MGM "See Your Price Instantly" to the evidence pack or drop it | should | proposed |
+| research/reference-matrix.md | §1, §3.6, §3.7, §6 | "Provisional" dropped from §1 and §6, now that SA-1 is applied; §3.6's ConsumerAffairs share corrected to about 44% of the folder (about 66% of its top 25) [semrush top_pages_more_2026-10-27.csv, computed]; §3.7's MGM "See Your Price Instantly" cell replaced with captured wording; §3.7's call-to-action bullet reworded per the HireAHelper review; §5 item 6 (booking recommendation) and item 15 (page paths) | should | applied |
+| research/reference-matrix.md | §8, §9 | Keep v2's corrections to v1 ("Preferred (paid)"; Move.org "one-to-one"); update the naming gap after §5's decision | should | proposed |
 | research/keyword-research.md; seo/keyword-to-page-map.csv | §1, §2, §5; USDOT and brand rows | §1: "city pages drive most traffic" is unproven (see B-7). §2: "smaller metros are achievable" is unproven until the Tallahassee, Beckley and Oshkosh queries are checked; HireAHelper's /services/moving-companies/ is a service pillar, not a best-of guide; state pages do earn at MGM. §5: ConsumerAffairs' and HomeGuide's pages were pulled. Add a mixed-intent note to the USDOT rows, and read brand rows as profile demand | should | proposed |
-| research/reference-review/sites/ (five reviews) | Section pointers | Repoint "compliance facts §8" and "site architecture §8.6" or "§8.7" to the proposed tag policy (see §3.5) | could | proposed |
+| research/reference-review/sites/ (five reviews) | Section pointers | Repoint "compliance facts §8" and "site architecture §8.6" or "§8.7" to the tag policy in site architecture §8.8 (SA-18; see §3.5) | could | proposed |
 
 ## 11. Open questions for the owner
 
@@ -545,7 +549,7 @@ Each question gives the recommended default and any overlap with brief §11; the
 3. Offer "only this company" on profile requests? Yes, with a notice if that mover does not buy. It changes mover verification §5, so first measure how often a different mover buys profile-origin requests (JTBD §4 J2).
 4. Cap count options at live coverage? Yes, with a maximum of 5. Overlaps Q5.
 5. Ask for a contact channel, and price email-only requests differently? Ask; set prices after L1 and L7. Overlaps Q6.
-6. Keep "Preferred Mover"? Decide before Phase 3, after counsel and round 1 (§5).
+6. Keep "Preferred Mover"? Decide before Phase 3 design sign-off, after counsel clearance and usability round 1 (§5).
 7. Mover phone numbers and websites? Never on cards, lists or geo pages. On profiles, your call (site architecture §0 item 4), with a note if hidden. Show at least the website, so a consumer who declines consent can still reach a mover (§2.4).
 8. What should "How AMC makes money" say about sharing? A precise line: AMC's revenue rises with each mover that buys a shared request. With the sample prices, an exclusive request earns more than a shared one unless four or five movers buy it (shared pricing §5). The real ratio is set from pilot data. Owner and counsel approve the wording.
 9. Third-party grades such as BBB on profiles? Not at launch. BVL's A+ grade sits beside a 1.68/5 BBB review average [search; sites/budgetvanlines.md].

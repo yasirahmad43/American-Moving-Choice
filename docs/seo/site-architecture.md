@@ -1,11 +1,11 @@
 # SEO site architecture, page families and rollout plan
 
-> **Revised after the reference-site review.** This plan was revised after the reference-site review completed on 2026-10-27 ([review README](../research/reference-review/README.md)). The page families (§1) and URL patterns (§2) are confirmed, with the changes listed in "Changes after the reference review" below. Items that wait on an owner or counsel decision are marked **pending**. No content briefs or page copy are included in this version.
+> **Revised after the reference-site review.** This plan was revised after the reference-site review ([review README](../research/reference-review/README.md)), completed on 2026-10-28 (captures and site reviews 2026-10-27). The page families (§1) and URL patterns (§2) are confirmed, with the changes listed in "Changes after the reference review" below. Items that wait on an owner or counsel decision are marked **pending**. No content briefs or page copy are included in this version.
 
 **Status:** proposal for review, revised after the reference-site review · **Date:** 2026-10-28 (first version 2026-10-27) · **Workstream:** SEO / content
 **Companion files:** `docs/seo/keyword-to-page-map.csv` (298 keywords → 134 URLs), `docs/seo/raw/` (new Semrush pulls), `docs/research/keyword-research.md`, `docs/research/reference-matrix.md` (v2, "matrix"), `docs/research/compliance-and-platform-facts.md` ("compliance facts"), `docs/research/reference-review/` (the 11 site reviews in `sites/` and `implications-for-content-seo-design.md`, cited as "implications"), and the business rules in `docs/business-rules/` ("lead lifecycle", "mover verification", "consent draft", "shared pricing").
 
-**Data rules used here.** All volumes, KD and CPC values are Semrush US-database figures pulled 2026-10-27. They are models, not first-party analytics. Nothing has been estimated or invented. Anything not yet measured is marked **[missing]**, and facts that still need a primary-source check are marked **[verify]**. This container cannot fetch most external sites (proxy 403). The reference review has since captured competitor pages as text in a headless browser (2026-10-27; no screenshots reviewed). Live SERP features and People Also Ask boxes are still not observed. Claims from the review keep its evidence labels ([capture], [walk], [semrush], [search], [v1], [inference], [cross-site analysis]; defined in the review README). `sites/x.md` means `docs/research/reference-review/sites/x.md`, the verified review of that site.
+**Data rules used here.** All volumes, KD and CPC values are Semrush US-database figures pulled 2026-10-27. They are models, not first-party analytics. Nothing has been estimated or invented. Anything not yet measured is marked **[missing]**, and facts that still need a primary-source check are marked **[verify]**. This container cannot fetch most external sites (proxy 403). The reference review has since captured competitor pages as text in a headless browser (2026-10-27; no screenshots reviewed). Live SERP features and People Also Ask boxes are still not observed. Claims from the review keep its evidence labels ([capture], [walk], [semrush], [search], [v1], [inference], [cross-site analysis]; defined in the review README). `sites/x.md` means `docs/research/reference-review/sites/x.md`, the verified review of that site, and `captures/x.md` means `docs/research/reference-review/captures/x.md`. Semrush files are in `docs/research/raw/semrush/` unless the path starts with `seo/`, which means `docs/seo/`.
 
 ---
 
@@ -43,7 +43,7 @@ This revision applies every change the review proposes for this file: SA-1 to SA
 
 **Confirmed** (the approach is kept, and SA items refine some sections), per [implications §6.9][impl-69]: the §0 geo, profile, route and ZIP decisions, gate first, no FAQ or HowTo rich results, and answer agents allowed; §1.1 and §1.2; §2.1 to §2.5, where EnergySage's location-filled ZIP shows why §2.5 bans IP-based content swapping [walk; sites/energysage.md]; §3.1 to §3.3; §4.1 to §4.4, §4.6 and §4.7, which are stricter than any reference, since none showed a coverage gate [cross-site analysis]; §5.2 and §5.3, including New York entering through routes ("movers nyc" is KD 72) [semrush phrase_these_2026-10-27.csv; sites/unpakt.md]; §6.1 to §6.3; §7.1 to §7.5; §8.1, §8.3, §8.4, §8.6 and §8.7; and §10.
 
-**Companion changes in other documents** (owned there, not made in this file): the discovery brief §8 drops its "provisional" note in the same change set as SA-1 ([implications §10][impl-10]); [matrix][matrix] §1 and §6 stop calling this plan provisional; visual direction §13.4 uses the `/moving-routes/{origin}-to-{destination}/` pattern from §2.1 (matrix §6); the keyword map's two directory rows, which point to `/preferred-movers/`, follow the §0 item 9 decision; and the "smaller metros are achievable" fix belongs to keyword research §2 (SA-13).
+**Companion changes in other documents** (owned there, not made in this file). Applied in the same PR: the discovery brief §8 dropped its "provisional" note together with SA-1 ([implications §10][impl-10]), and [matrix][matrix] §1 and §6 no longer call this plan provisional. Still proposed (implications §10): visual direction §13.4 should use the `/moving-routes/{origin}-to-{destination}/` pattern from §2.1 (matrix §6); the keyword map's two directory rows, which point to `/preferred-movers/`, should follow the §0 item 9 decision; and the "smaller metros are achievable" fix belongs to keyword research §2 (SA-13).
 
 [readme]: ../research/reference-review/README.md
 [matrix]: ../research/reference-matrix.md
@@ -91,8 +91,8 @@ This revision applies every change the review proposes for this file: SA-1 to SA
 | Routes | Directional state routes at `/moving-routes/{origin}-to-{destination}/`. A→B and B→A are separate pages, each with its own gate, and are never canonicalized to each other. City-to-city routes stay unindexed until they pass a stricter gate. Wave 1 indexes none. |
 | ZIP pages | No indexable ZIP pages in any planned wave. ZIPs are used only for matching and to prefill the quote form. |
 | Indexation | A programmatic page gets no public URL until it passes its gate (§4). Pages that later fall below the gate switch to `noindex` (with hysteresis), then are consolidated. |
-| Wave 1 markets | **Texas** (Dallas, Houston, Austin, San Antonio), **Florida** (Orlando, Miami, Tampa, plus Jacksonville as a reserve) and **California** (Los Angeles metro only), plus 16 directional state routes (§5). |
-| Gate thresholds | Each of these must be met, not averaged: ≥3 approved movers with explicit coverage (≥5 for state pages), ≥3 verified local facts, a sourced and dated cost block, ≥4 unique FAQs, ≥40% unique content (hard fail below 30%), and a named human reviewer. Full table in §4. |
+| Wave 1 markets (proposed; pending brief §11 Q3 and G1 coverage) | **Texas** (Dallas, Houston, Austin, San Antonio), **Florida** (Orlando, Miami, Tampa, plus Jacksonville as a reserve) and **California** (Los Angeles metro only), plus 16 directional state routes (§5). |
+| Gate thresholds | Each of these must be met, not averaged: ≥3 approved movers with explicit coverage (≥5 for state pages), ≥3 verified local facts, a sourced and dated cost block, ≥3 or ≥4 unique FAQs by family (§4.1 G6), ≥40% unique content (hard fail below 30%), and a named human reviewer. Full table in §4. |
 | Rich results | No FAQ or HowTo rich results in the plan. Google retired FAQ rich results for all sites on 2026-05-07, and HowTo was removed in 2023 (compliance facts §5). FAQ sections exist for users and AI answers only. |
 | AI crawlers | Allow search and answer agents. Training crawlers and OAI-AdsBot are separate business decisions; the recommendation and options are in §7.6. |
 
@@ -350,7 +350,7 @@ All of these are required:
 
 At the references, CMR feeds third-party feedback into an editorial 1-to-10 score. Two movers its own page calls "related companies" (the sentence is cut off in the capture) lead its captured lists, and its disclosure sits in a separate block that a quote can drop [capture /best-interstate-moving-companies/, /how-we-rank-movers/; inference; sites/consumermovingreviews.md]. MyGoodMovers labels a mover with two reviews "BEST LOCAL MOVER" (/movers/al) [capture; sites/mygoodmovers.md]. Move.org lists rankings and awards under partner "Editorial opportunities" (/partnership/) [capture; sites/moveorg.md].
 
-H1s and titles must be scoped and supportable ("...compared on FMCSA authority, complaint history and verified reviews"), never a bare "the best".
+H1s and titles must be scoped and supportable ("...compared on FMCSA authority, complaint history and evidence-labeled reviews"), never a bare "the best".
 
 ### 4.7 Batch rollout
 
@@ -660,10 +660,10 @@ Keep the primary phrase first. Add " | American Moving Choice" only when the tit
 
 | Family | Title template | H1 template |
 |---|---|---|
-| State hub | Moving Companies in {State} \| Verified {State} Movers & Costs | Moving companies in {State} |
+| State hub | Moving Companies in {State} \| Screened {State} Movers & Costs | Moving companies in {State} |
 | State LD | Long-Distance Movers in {State} \| Out-of-State Moving Quotes | Long-distance movers in {State} |
-| City | Movers in {City}, {ST} \| Compare Verified Moving Companies | Movers in {City}, {ST}: compare screened moving companies |
-| City LD | Long-Distance Movers in {City}, {ST} \| Verified Interstate Carriers | Long-distance movers in {City} |
+| City | Movers in {City}, {ST} \| Compare Screened Moving Companies | Movers in {City}, {ST}: compare screened moving companies |
+| City LD | Long-Distance Movers in {City}, {ST} \| Screened Interstate Carriers | Long-distance movers in {City} |
 | Route | Moving from {A} to {B}: Costs, Movers & Planning Guide | Moving from {A} to {B} |
 | Moving-to | Moving to {Place}: Costs, Requirements & Moving Tips | Moving to {Place} |
 | Profile | {Company}: Reviews, USDOT {DOT} & Service Areas | {Company} |
