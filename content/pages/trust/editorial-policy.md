@@ -70,7 +70,7 @@ This policy covers what we write and publish. Customer reviews follow our [Revie
 
 No. American Moving Choice is paid by movers in our network for the move requests they buy, not by you; [How AMC makes money](/advertising-disclosure/) explains how that works.
 
-A mover's payment buys it move requests, nothing more. Our location pages and their mover counts include only movers with active accounts, and paying what it owes is part of keeping an account active. Beyond that, how much a mover buys or spends never affects whether or where it appears. Buying more requests can also bring a mover more review invitations, because only people whose request a mover bought can review it. How AMC makes money explains both under [Which movers are listed?](/advertising-disclosure/#which-movers-are-listed)
+A mover's payment buys it move requests, nothing more. Our location pages and their mover counts include only movers with active accounts, and paying what it owes is part of keeping an account active. Beyond that, how much a mover buys or spends never affects whether or where it appears. Buying more requests can also bring a mover more review invitations, because only people whose request a mover bought can review it. How AMC makes money explains both, in its section on [which movers are listed](/advertising-disclosure/#which-movers-are-listed).
 
 No mover can pay for:
 
