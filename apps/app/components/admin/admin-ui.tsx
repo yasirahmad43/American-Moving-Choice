@@ -3,7 +3,7 @@
  * definition lists, status pills and JSON disclosure. Dense by design (VD §13.11): hairline
  * dividers, tabular figures, monospace IDs.
  */
-import { AbsoluteDate, StatusPill, cx, type StatusTone } from "@amc/ui";
+import { AbsoluteDate, Field, Input, Select, StatusPill, cx, type StatusTone } from "@amc/ui";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -37,10 +37,10 @@ export function LinkTabs({ items, current, label }: { items: { id: string; label
 /** A GET form for list filters; every control needs a label. */
 export function FilterBar({ children, resetHref }: { children: ReactNode; resetHref: string }) {
   return (
-    <form method="get" className="flex min-w-0 flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4" role="search" aria-label="Filters">
+    <form method="get" className="flex min-w-0 flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4 depth-1" role="search" aria-label="Filters">
       {children}
       <div className="flex gap-2">
-        <button type="submit" className="inline-flex min-h-12 items-center rounded-control bg-primary px-4 font-semibold text-on-primary">
+        <button type="submit" className="btn-depth inline-flex min-h-12 items-center rounded-control bg-primary px-4 font-semibold text-on-primary">
           Apply filters
         </button>
         <Link href={resetHref} className="inline-flex min-h-12 items-center px-3 font-semibold text-link underline">
@@ -53,37 +53,24 @@ export function FilterBar({ children, resetHref }: { children: ReactNode; resetH
 
 export function FilterSelect({ id, name, label, value, options }: { id: string; name: string; label: string; value: string; options: { value: string; label: string }[] }) {
   return (
-    <div className="grid min-w-0 max-w-full gap-1.5">
-      <label htmlFor={id} className="text-[0.9375rem] font-semibold text-text">
-        {label}
-      </label>
-      <select id={id} name={name} defaultValue={value} className="min-h-12 w-full max-w-full rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-[1.0625rem] text-text">
+    <Field id={id} label={label} className="min-w-[11rem] max-w-full">
+      <Select name={name} defaultValue={value}>
         <option value="">Any</option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
         ))}
-      </select>
-    </div>
+      </Select>
+    </Field>
   );
 }
 
 export function FilterInput({ id, name, label, value, type = "text", placeholder }: { id: string; name: string; label: string; value: string; type?: string; placeholder?: string }) {
   return (
-    <div className="grid gap-1.5">
-      <label htmlFor={id} className="text-[0.9375rem] font-semibold text-text">
-        {label}
-      </label>
-      <input
-        id={id}
-        name={name}
-        type={type}
-        defaultValue={value}
-        placeholder={placeholder}
-        className="min-h-12 rounded-control border-[1.5px] border-border-strong bg-surface px-3 text-[1.0625rem] text-text"
-      />
-    </div>
+    <Field id={id} label={label} floating className="min-w-[14rem]">
+      <Input name={name} type={type} defaultValue={value} placeholder={placeholder} />
+    </Field>
   );
 }
 
@@ -198,7 +185,7 @@ export function StatTile({ label, value, href, note }: { label: string; value: R
       {note ? <p className="mt-2 type-small text-text-3">{note}</p> : null}
     </>
   );
-  const frame = "block rounded-card border border-border border-t-[3px] border-t-brand-navy bg-surface p-4 shadow-e1";
+  const frame = "block rounded-card border border-border border-t-[3px] border-t-brand-navy bg-surface p-4 depth-1";
   return href ? (
     <Link href={href} className={`${frame} lift no-underline`}>
       {body}

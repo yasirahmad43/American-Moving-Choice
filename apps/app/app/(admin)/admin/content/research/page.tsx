@@ -64,7 +64,7 @@ export default async function ResearchPage({ searchParams }: { searchParams: Pro
           <FilterSelect id="assigned" name="assigned" label="Assigned page exists" value={filters.assigned ?? ""} options={[{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]} />
         ) : null}
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`${view === "unassigned" ? "Unassigned questions" : "Research rows"} (${total})`}
         rowKey={(r) => String(r.id)}
         rows={rows}

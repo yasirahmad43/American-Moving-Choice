@@ -107,7 +107,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </Card>
       </div>
 
-      <Table
+      <Table sortable
         caption="Validation results"
         compact
         rowKey={(r) => r.id}
@@ -141,7 +141,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 { label: "Submitted", value: <When value={consent.submitted_at} /> },
               ]}
             />
-            <Table
+            <Table sortable
               caption="Movers in the consent text"
               compact
               rowKey={(r) => r.id}
@@ -158,7 +158,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         )}
       </Card>
 
-      <Table
+      <Table sortable
         caption="Eligibility snapshot"
         compact
         rowKey={(r) => r.company_id}
@@ -181,7 +181,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </Card>
       ) : null}
 
-      <Table
+      <Table sortable
         caption="Purchases and buyers"
         compact
         rowKey={(r) => r.id}
@@ -199,7 +199,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Table
+        <Table sortable
           caption="Messages"
           compact
           rowKey={(r) => r.id}
@@ -212,7 +212,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             { key: "at", header: "Queued", cell: (r) => <When value={r.created_at} /> },
           ]}
         />
-        <Table
+        <Table sortable
           caption="Quality claims"
           compact
           rowKey={(r) => r.id}

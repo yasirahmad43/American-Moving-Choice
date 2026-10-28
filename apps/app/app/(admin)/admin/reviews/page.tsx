@@ -74,7 +74,7 @@ async function InvitationAudit() {
         moves it asks about are worth 1.5× or more the ones it does not, or when its requests lean on repeat customers. Companies with fewer than{" "}
         {INVITATION_AUDIT_MIN_ELIGIBLE} such moves are listed but not scored.
       </p>
-      <Table
+      <Table sortable
         caption="Latest invitation audit per company"
         compact
         rowKey={(r) => r.company_id}
@@ -246,7 +246,7 @@ async function Reports({ canModerate }: { canModerate: boolean }) {
 async function Responses({ canModerate }: { canModerate: boolean }) {
   const responses = await listResponses();
   return (
-    <Table
+    <Table sortable
       caption="Company responses"
       rowKey={(r) => r.id}
       rows={responses}

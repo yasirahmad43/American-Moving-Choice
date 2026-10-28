@@ -95,7 +95,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         </div>
       </form>
 
-      <Table<CrmListItem>
+      <Table<CrmListItem> sortable
         caption={`${records.length} purchased ${records.length === 1 ? "request" : "requests"}`}
         rows={records}
         rowKey={(r) => r.recordId}

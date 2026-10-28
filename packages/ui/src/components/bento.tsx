@@ -6,8 +6,12 @@
 import type { ReactNode } from "react";
 import { cx } from "../cx";
 
-export function Bento({ children, className, as: Tag = "div" }: { children: ReactNode; className?: string; as?: "div" | "ul" | "ol" }) {
-  return <Tag className={cx("grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-12 md:gap-5", className)}>{children}</Tag>;
+export function Bento({ children, className, as: Tag = "div", ...rest }: { children: ReactNode; className?: string; as?: "div" | "ul" | "ol"; [key: `data-${string}`]: string | undefined }) {
+  return (
+    <Tag className={cx("grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-12 md:gap-5", className)} {...rest}>
+      {children}
+    </Tag>
+  );
 }
 
 export type BentoSpan = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 12;

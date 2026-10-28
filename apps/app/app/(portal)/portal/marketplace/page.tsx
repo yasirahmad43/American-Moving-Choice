@@ -1,6 +1,6 @@
 import { requireMembership } from "@amc/server/auth";
 import { ZIP_RADIUS_OPTIONS, listAvailable, parseMarketplaceFilters, type MarketplaceFilters } from "@amc/server/marketplace";
-import { Alert, Button, Card, ChevronDownIcon, EmptyState, Field, Input, LinkButton, Money, PageHeader, Select } from "@amc/ui";
+import { AbsoluteDate, Alert, Button, Card, ChevronDownIcon, Chip, EmptyState, Field, Input, LineIcon, LinkButton, Money, PageHeader, Select, Table, cx } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { blockedReason, dialogProps, loadBuyer } from "@/components/portal/marketplace/buyer";
@@ -120,6 +120,10 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   const [listings, buyer] = await Promise.all([listAvailable({ userId: user.id, companyId: membership.companyId }, filters), loadBuyer(membership)]);
   const blocked = blockedReason(buyer);
   const hasFilters = Object.keys(filters).length > 0;
+  const sp = await searchParams;
+  const view = (Array.isArray(sp.view) ? sp.view[0] : sp.view) === "list" ? "list" : "cards";
+  const query = filterQuery(filters);
+  const viewHref = (v: "cards" | "list") => `/portal/marketplace${query}${v === "list" ? (query ? "&" : "?") + "view=list" : ""}`;
 
   return (
     <div className="grid gap-6">
@@ -128,9 +132,27 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
         description="Move requests that name your company, with the price you would pay to buy each one. Contact details unlock after purchase."
         size="portal"
         actions={
-          <LinkButton href={`/portal/marketplace${filterQuery(filters)}`} variant="secondary">
-            Refresh
-          </LinkButton>
+          <>
+            <nav aria-label="View" className="inline-flex rounded-pill border border-border bg-surface p-0.5 shadow-[var(--edge-light)]">
+              {(["cards", "list"] as const).map((v) => (
+                <Link
+                  key={v}
+                  href={viewHref(v)}
+                  aria-current={view === v ? "page" : undefined}
+                  className={cx(
+                    "inline-flex min-h-10 items-center gap-1.5 rounded-pill px-3.5 text-[0.9375rem] font-semibold no-underline transition-colors duration-[var(--d1)]",
+                    view === v ? "bg-primary text-on-primary" : "text-text-2 hover:bg-surface-2 hover:text-text",
+                  )}
+                >
+                  <LineIcon name={v === "cards" ? "grid" : "list"} size={16} />
+                  {v === "cards" ? "Cards" : "List"}
+                </Link>
+              ))}
+            </nav>
+            <LinkButton href={viewHref(view)} variant="secondary">
+              Refresh
+            </LinkButton>
+          </>
         }
       />
 
@@ -192,6 +214,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
               ? "Clear the filters to see every request that names your company."
               : "New requests appear here when customers moving in your coverage area choose your company. Check your coverage to reach more moves."
           }
+          icon="megaphone"
           action={
             hasFilters ? (
               <LinkButton href="/portal/marketplace" variant="secondary">
@@ -203,6 +226,38 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
               </LinkButton>
             )
           }
+        />
+      ) : view === "list" ? (
+        <Table
+          caption={`${listings.length} available ${listings.length === 1 ? "request" : "requests"}`}
+          rows={listings}
+          rowKey={(l) => l.groupId}
+          sortable
+          defaultSort={{ key: "received", dir: "descending" }}
+          columns={[
+            {
+              key: "customer",
+              header: "Customer",
+              cell: (l) => (
+                <Link href={`/portal/marketplace/${l.groupId}`} className="link font-semibold">
+                  {l.preview.firstName}
+                </Link>
+              ),
+            },
+            { key: "route", header: "Route", cell: (l) => `${l.preview.origin.city}, ${l.preview.origin.state} → ${l.preview.destination.city}, ${l.preview.destination.state}` },
+            { key: "date", header: "Move date", nowrap: true, cell: (l) => (l.preview.moveDate ? <AbsoluteDate value={l.preview.moveDate} /> : "Not given") },
+            { key: "size", header: "Size", cell: (l) => (l.preview.moveSize ? MOVE_SIZE_LABELS[l.preview.moveSize] ?? l.preview.moveSize : "Not given") },
+            { key: "type", header: "Type", cell: (l) => <Chip tone={l.preview.leadType === "exclusive" ? "exclusive" : "shared"}>{l.preview.leadType === "exclusive" ? "Exclusive" : "Shared"}</Chip> },
+            { key: "buyers", header: "Buyers", numeric: true, sortValue: (l) => l.preview.buyerCount, bar: (l) => l.preview.buyerCount / Math.max(1, l.preview.maxBuyers), cell: (l) => `${l.preview.buyerCount} of ${l.preview.maxBuyers}` },
+            { key: "price", header: "Your price", numeric: true, sortValue: (l) => l.price.chargeCents, cell: (l) => <Money cents={l.price.chargeCents} /> },
+            { key: "received", header: "Received", nowrap: true, sortValue: (l) => String(l.preview.createdAt), cell: (l) => <AbsoluteDate value={l.preview.createdAt} withTime /> },
+            { key: "until", header: "Available until", nowrap: true, sortValue: (l) => l.expiresAt.toISOString(), cell: (l) => <AbsoluteDate value={l.expiresAt} withTime /> },
+          ]}
+          actions={(l) => (
+            <LinkButton href={`/portal/marketplace/${l.groupId}`} variant="secondary" size="sm">
+              Preview and buy
+            </LinkButton>
+          )}
         />
       ) : (
         <ul className="grid gap-4" aria-label="Available requests">

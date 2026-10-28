@@ -31,7 +31,7 @@ export default async function CasesPage({ searchParams }: { searchParams: Promis
         <FilterSelect id="type" name="type" label="Type" value={filters.type} options={CASE_TYPES.map((t) => ({ value: t, label: CASE_TYPE_LABELS[t] }))} />
         <FilterSelect id="assignee" name="assignee" label="Assignee" value={filters.assignee} options={assignees.map((a) => ({ value: a.user_id, label: a.email }))} />
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`Cases (${cases.length})`}
         compact
         rowKey={(r) => r.id}

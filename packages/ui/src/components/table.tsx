@@ -57,6 +57,8 @@ export interface TableProps<Row> {
   toolbar?: ReactNode;
   /** Initial client-side sort for static lists. */
   defaultSort?: { key: string; dir: "ascending" | "descending" };
+  /** Makes every column sortable client-side (static lists, or one page of a server-paged list). */
+  sortable?: boolean;
   /** Stable id for the density preference and the enhancer; derived from the caption otherwise. */
   id?: string;
   /** Vertical scrolling with the sticky header past this height, e.g. "32rem". */
@@ -123,6 +125,7 @@ export function Table<Row>({
   densityToggle,
   toolbar,
   defaultSort,
+  sortable: allSortable,
   id,
   maxHeight,
   className,
@@ -130,6 +133,7 @@ export function Table<Row>({
   if (!loading && rows.length === 0 && empty) return <>{empty}</>;
   const tableId = id ?? `dt-${slug(caption)}`;
   const density = compact ? "compact" : "comfortable";
+  columns = columns.map((c, i) => ({ ...c, sortable: c.sortable ?? (allSortable && rows.length > 1), primary: c.primary ?? i === 0 }));
   const sortable = columns.filter((c) => c.sortable).map((c) => c.key);
   const showToggle = densityToggle ?? rows.length >= 6;
   const cellPad = "px-3.5";

@@ -49,7 +49,7 @@ export default async function AdminDashboard() {
         <SectionTitle id="money" description="Gross charges are what purchases cost (card plus credit). Credits issued are sharing credits, quality-refund credits and positive adjustments. Net revenue is gross charges minus credits issued minus cash refunds.">
           Purchases and revenue
         </SectionTitle>
-        <Table
+        <Table sortable
           caption="Purchases and revenue"
           hideCaption
           rowKey={(r) => String(r.days)}
@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Requests by status" titleAs="h2" description="Consumer requests submitted today and in the last 7 days.">
-          <Table
+          <Table sortable
             caption="Requests by status"
             hideCaption
             compact
@@ -82,7 +82,7 @@ export default async function AdminDashboard() {
             ]}
           />
           <h3 className="mt-6 mb-2 type-h4 text-text">Request groups by sale status</h3>
-          <Table
+          <Table sortable
             caption="Request groups by sale status"
             hideCaption
             compact
@@ -118,7 +118,7 @@ export default async function AdminDashboard() {
             </div>
           </dl>
           <h3 className="mt-6 mb-2 type-h4 text-text">Latest job runs</h3>
-          <Table
+          <Table sortable
             caption="Latest job runs"
             hideCaption
             compact

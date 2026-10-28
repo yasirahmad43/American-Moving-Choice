@@ -27,7 +27,7 @@ export default async function PreferredMoversPage() {
         <SectionTitle id="criteria" description="Each criterion is read from the verification records the admin already keeps; this page adds no rule of its own (docs/business-rules/mover-verification-and-reviews.md).">
           The criteria
         </SectionTitle>
-        <Table
+        <Table sortable
           caption="Preferred-mover criteria"
           hideCaption
           compact
@@ -51,7 +51,7 @@ export default async function PreferredMoversPage() {
         <SectionTitle id="companies" description="Evidence per company: the latest result of each automated check, the insurance certificate on file, the terms acceptance and the purchase eligibility function.">
           Companies and their evidence
         </SectionTitle>
-        <Table
+        <Table sortable
           caption="Companies against the criteria"
           hideCaption
           compact

@@ -40,7 +40,7 @@ export default async function PublicationPage() {
         <SectionTitle id="families" description="The pipeline report (pnpm seo:report): planned is the candidate pool in the geo tables and catalog; researched counts pages whose primary keyword has a measured Semrush row.">
           By family and status
         </SectionTitle>
-        <Table
+        <Table sortable
           caption="Counts by family"
           hideCaption
           compact
@@ -64,7 +64,7 @@ export default async function PublicationPage() {
           <SectionTitle id="blocked" description="Why pages are held as draft and noindex (blocked_reason), across families.">
             Blocked reasons
           </SectionTitle>
-          <Table
+          <Table sortable
             caption="Blocked reasons"
             hideCaption
             compact
@@ -82,7 +82,7 @@ export default async function PublicationPage() {
           <SectionTitle id="sitemaps" description={`Segmented sitemaps (apps/web/lib/sitemaps.ts): core.xml and companies.xml always exist; a family segment appears once it has indexable pages, in files of 1,000 URLs. Last build (latest lastmod): ${d.sitemap.lastBuild ? d.sitemap.lastBuild.toISOString() : "no indexable page yet"}.`}>
             Sitemap status: {d.sitemap.files} files, {d.sitemap.urls.toLocaleString("en-US")} programmatic URLs
           </SectionTitle>
-          <Table
+          <Table sortable
             caption="Sitemap segments"
             hideCaption
             compact
@@ -103,7 +103,7 @@ export default async function PublicationPage() {
         </SectionTitle>
         {d.crawl ? (
           <div className="grid gap-6 lg:grid-cols-[1fr_minmax(16rem,20rem)]">
-            <Table
+            <Table sortable
               caption="Crawl checks"
               hideCaption
               compact
@@ -213,7 +213,7 @@ export default async function PublicationPage() {
       ) : null}
       <section aria-labelledby="runs">
         <SectionTitle id="runs">Pipeline runs</SectionTitle>
-        <Table
+        <Table sortable
           caption="Pipeline runs"
           hideCaption
           compact

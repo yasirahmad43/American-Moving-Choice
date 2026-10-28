@@ -123,16 +123,20 @@
     margin-block: 2rem;
   }
 
-  /* Tables: a focusable scroll region so keyboard users can scroll wide tables (WCAG 2.1.1). */
+  /* Tables (pass 2): the data-table skin (sticky header, zebra rows, hover highlight) inside a
+   * focusable scroll region so keyboard users can scroll wide tables (WCAG 2.1.1). */
   .prose .table-wrap {
     overflow-x: auto;
     border: 1px solid var(--border);
-    border-radius: var(--r-control);
+    border-radius: var(--r-card);
     max-width: 100%;
+    background: var(--surface);
+    box-shadow: var(--sh-depth-1);
   }
   .prose table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 0.9688rem;
     line-height: 1.45;
     font-variant-numeric: tabular-nums;
@@ -141,17 +145,38 @@
   .prose td {
     text-align: left;
     vertical-align: top;
-    padding: 0.625rem 0.875rem;
+    padding: 0.7rem 0.9rem;
     border-bottom: 1px solid var(--border);
     min-width: 7rem;
   }
   .prose thead th {
-    background: var(--surface-2);
+    position: sticky;
+    top: 0;
+    background: color-mix(in srgb, var(--surface-2) 92%, var(--surface));
+    font-size: 0.75rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-2);
     border-bottom: 1.5px solid var(--border-strong);
+    white-space: nowrap;
   }
-  .prose tbody tr:last-child td {
+  .prose tbody th {
+    font-weight: 600;
+  }
+  .prose tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--surface-2) 55%, var(--surface));
+  }
+  .prose tbody tr:hover {
+    background: color-mix(in srgb, var(--info-bg) 70%, var(--surface));
+  }
+  .prose tbody tr:last-child td,
+  .prose tbody tr:last-child th {
     border-bottom: 0;
+  }
+  .prose td:is([data-numeric], .numeric) {
+    text-align: right;
+    white-space: nowrap;
   }
 
   /*

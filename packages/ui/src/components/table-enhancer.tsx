@@ -64,8 +64,9 @@ export function TableEnhancer({ tableId, sortable, defaultSort, density, density
       const rows = [...original];
       const value = (row: HTMLTableRowElement) => {
         const cell = row.querySelector<HTMLElement>(`[data-col="${key}"]`);
-        const raw = cell?.dataset.sort ?? cell?.textContent?.trim() ?? "";
-        const num = Number(raw);
+        const time = cell?.querySelector<HTMLTimeElement>("time[datetime]")?.dateTime;
+        const raw = cell?.dataset.sort ?? time ?? cell?.textContent?.trim() ?? "";
+        const num = Number(raw.replace(/^[$€£]|[,%\s]/g, ""));
         return raw !== "" && Number.isFinite(num) ? num : raw.toLowerCase();
       };
       rows.sort((a, b) => {

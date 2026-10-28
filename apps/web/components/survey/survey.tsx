@@ -867,14 +867,14 @@ function SurveyFlow({
               {errors.channels ? <FieldError id={errorId("channels")}>{errors.channels}</FieldError> : null}
             </fieldset>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Field id="first-name" label="First name" error={errors.firstName} required>
+              <Field floating id="first-name" label="First name" error={errors.firstName} required>
                 <Input name="firstName" autoComplete="given-name" value={contact.firstName} onChange={(e) => setContact((c) => ({ ...c, firstName: e.target.value }))} />
               </Field>
-              <Field id="last-name" label="Last name" error={errors.lastName} required>
+              <Field floating id="last-name" label="Last name" error={errors.lastName} required>
                 <Input name="lastName" autoComplete="family-name" value={contact.lastName} onChange={(e) => setContact((c) => ({ ...c, lastName: e.target.value }))} />
               </Field>
             </div>
-            <Field id="email" label="Email" error={errors.email} required>
+            <Field floating id="email" label="Email" error={errors.email} required>
               <Input type="email" name="email" autoComplete="email" inputMode="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} />
             </Field>
             <Field id="phone" label="Phone number" help="A US number. We send it only to movers that buy your request." error={errors.phone} required>

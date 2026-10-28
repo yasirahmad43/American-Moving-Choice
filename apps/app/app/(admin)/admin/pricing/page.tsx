@@ -33,7 +33,7 @@ export default async function PricingPage() {
         <SectionTitle id="policies" description={<>Factor n applies once a shared request has n buyers. The maximum movers per request is {settings.max_sharing_limit} (<Link className="text-link underline" href="/admin/settings">settings</Link>); the active policy must cover at least that many buyers.</>}>
           Sharing policies
         </SectionTitle>
-        <Table
+        <Table sortable
           caption="Sharing policy versions"
           hideCaption
           rowKey={(r) => r.version}
@@ -79,7 +79,7 @@ export default async function PricingPage() {
 
       <section aria-labelledby="prices">
         <SectionTitle id="prices" description="Change a company's prices from its Prices tab.">Current company prices</SectionTitle>
-        <Table
+        <Table sortable
           caption="Current company prices"
           hideCaption
           compact

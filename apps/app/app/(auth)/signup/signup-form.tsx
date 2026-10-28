@@ -16,22 +16,22 @@ export function SignupForm({ requireMc }: { requireMc: boolean }) {
       <FormMessage state={state} />
       <fieldset className="grid gap-5">
         <legend className="mb-1 type-h4 text-text">About you</legend>
-        <Field id="fullName" label="Your full name" error={error("fullName")}>
+        <Field floating id="fullName" label="Your full name" error={error("fullName")}>
           <Input name="fullName" autoComplete="name" defaultValue={value("fullName")} required />
         </Field>
-        <Field id="email" label="Work email" help="You'll sign in with this email." error={error("email")}>
+        <Field floating id="email" label="Work email" help="You'll sign in with this email." error={error("email")}>
           <Input type="email" name="email" autoComplete="email" inputMode="email" defaultValue={value("email")} required />
         </Field>
-        <Field id="password" label="Password" help="At least 12 characters. A short sentence works well." error={error("password")}>
+        <Field floating id="password" label="Password" help="At least 12 characters. A short sentence works well." error={error("password")}>
           <Input type="password" name="password" autoComplete="new-password" required />
         </Field>
       </fieldset>
       <fieldset className="grid gap-5">
         <legend className="mb-1 type-h4 text-text">Your company</legend>
-        <Field id="legalName" label="Legal company name" help="As registered with FMCSA." error={error("legalName")}>
+        <Field floating id="legalName" label="Legal company name" help="As registered with FMCSA." error={error("legalName")}>
           <Input name="legalName" autoComplete="organization" defaultValue={value("legalName")} required />
         </Field>
-        <Field id="usdot" label="USDOT number" help="Digits only. We check it against the FMCSA record." error={error("usdot")}>
+        <Field floating id="usdot" label="USDOT number" help="Digits only. We check it against the FMCSA record." error={error("usdot")}>
           <Input name="usdot" inputMode="numeric" autoComplete="off" defaultValue={value("usdot")} required />
         </Field>
         <Field
@@ -43,7 +43,7 @@ export function SignupForm({ requireMc }: { requireMc: boolean }) {
         >
           <Input name="mc" autoComplete="off" defaultValue={value("mc")} required={requireMc} />
         </Field>
-        <Field id="phone" label="Company phone" help="A US number. Reviewers also call the number on your FMCSA record." error={error("phone")}>
+        <Field floating id="phone" label="Company phone" help="A US number. Reviewers also call the number on your FMCSA record." error={error("phone")}>
           <Input type="tel" name="phone" autoComplete="tel" inputMode="tel" defaultValue={value("phone")} required />
         </Field>
       </fieldset>

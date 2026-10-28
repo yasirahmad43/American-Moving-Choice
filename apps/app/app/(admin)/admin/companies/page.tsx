@@ -26,7 +26,7 @@ export default async function CompaniesPage({ searchParams }: { searchParams: Pr
         <FilterInput id="q" name="q" label="Name, USDOT or MC" value={q} />
         <FilterSelect id="status" name="status" label="Status" value={status} options={Object.entries(COMPANY_STATUS_LABELS).map(([value, label]) => ({ value, label }))} />
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`Companies (${total})`}
         rowKey={(r) => r.id}
         rows={rows}

@@ -28,7 +28,7 @@ export default async function JobsPage() {
       />
       <section aria-labelledby="jobs">
         <SectionTitle id="jobs">Jobs</SectionTitle>
-        <Table
+        <Table sortable
           caption="Jobs"
           hideCaption
           rowKey={(j) => j.slug}
@@ -53,7 +53,7 @@ export default async function JobsPage() {
       </section>
       <section aria-labelledby="runs">
         <SectionTitle id="runs">Recent runs</SectionTitle>
-        <Table
+        <Table sortable
           caption="Recent runs"
           hideCaption
           compact

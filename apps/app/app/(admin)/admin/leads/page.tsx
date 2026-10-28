@@ -58,7 +58,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         <FilterInput id="from" name="from" label="From" type="date" value={filters.from} />
         <FilterInput id="to" name="to" label="To" type="date" value={filters.to} />
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`Requests (${total})`}
         compact
         rowKey={(r) => r.id}

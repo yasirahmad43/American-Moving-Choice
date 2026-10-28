@@ -14,7 +14,7 @@ export function MfaCodeForm({ mode, next, setupToken }: { mode: "setup" | "verif
       <FormMessage state={state} />
       <input type="hidden" name="next" value={next} />
       {setupToken ? <input type="hidden" name="setupToken" value={setupToken} /> : null}
-      <Field id="code" label="6-digit code" help="From your authenticator app. Codes change every 30 seconds." error={state.fieldErrors?.code}>
+      <Field floating id="code" label="6-digit code" help="From your authenticator app. Codes change every 30 seconds." error={state.fieldErrors?.code}>
         <Input
           name="code"
           inputMode="numeric"

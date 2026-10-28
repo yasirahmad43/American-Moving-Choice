@@ -34,7 +34,7 @@ export default async function VerificationQueuePage({ searchParams }: { searchPa
         <FilterSelect id="stage" name="stage" label="Stage" value={stage} options={Object.entries(QUEUE_STAGE_LABELS).map(([value, label]) => ({ value, label }))} />
         <FilterSelect id="flag" name="flag" label="Flag" value={flag} options={Object.entries(QUEUE_FLAG_LABELS).map(([value, label]) => ({ value, label }))} />
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`Waiting for review (${rows.length})`}
         compact
         rowKey={(r) => r.id}
