@@ -1,7 +1,8 @@
 /**
  * Health check. Anonymous callers get only {status, migrations}; with
  * `Authorization: Bearer $CRON_SECRET` the response adds database latency, the latest migration,
- * demo mode and which integrations hold live credentials. Never returns secrets, connection
+ * demo mode, which integrations hold live credentials and each job's latest run (status and time).
+ * Never returns secrets, connection
  * details or error text (driver errors can name hosts). The database probe is cached for a few
  * seconds per instance, so repeated calls can't tie up the small connection pool.
  */
@@ -76,6 +77,17 @@ export async function GET(request: Request): Promise<Response> {
   if (!isOperator(request, cronSecret)) {
     return Response.json({ status, migrations: database.migrations }, { status: code, headers });
   }
+  let jobs: Record<string, { status: string; startedAt: string }> | null = null;
+  if (database.reachable) {
+    try {
+      const runs = await getPool().query<{ job_name: string; status: string; started_at: Date }>(
+        "select distinct on (job_name) job_name, status, started_at from job_runs order by job_name, started_at desc",
+      );
+      jobs = Object.fromEntries(runs.rows.map((r) => [r.job_name, { status: r.status, startedAt: r.started_at.toISOString() }]));
+    } catch {
+      jobs = null;
+    }
+  }
   return Response.json(
     {
       status,
@@ -83,6 +95,7 @@ export async function GET(request: Request): Promise<Response> {
       database: { reachable: database.reachable, latencyMs: database.latencyMs, migrations: database.migrations, latestMigration: database.latestMigration },
       demoMode: summary.demoMode,
       integrations: summary.integrations,
+      jobs,
     },
     { status: code, headers },
   );

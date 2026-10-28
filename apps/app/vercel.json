@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "crons": [
+    { "path": "/api/cron/expire-lead-groups", "schedule": "5 5 * * *" },
+    { "path": "/api/cron/release-expired-attempts", "schedule": "15 5 * * *" },
+    { "path": "/api/cron/recheck-credentials", "schedule": "5 6 * * *" },
+    { "path": "/api/cron/credential-expiry-alerts", "schedule": "35 6 * * *" },
+    { "path": "/api/cron/suspend-on-failed-recheck", "schedule": "5 7 * * *" },
+    { "path": "/api/cron/prune-rate-limits", "schedule": "5 9 * * *" },
+    { "path": "/api/cron/schedule-review-invitations", "schedule": "5 15 * * *" },
+    { "path": "/api/cron/send-due-invitations", "schedule": "5 16 * * *" },
+    { "path": "/api/cron/deliver-outbox", "schedule": "5 17 * * *" }
+  ]
+}
