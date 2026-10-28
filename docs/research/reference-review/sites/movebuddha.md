@@ -2,14 +2,14 @@
 
 A moving research and review site that also runs lead paths [capture /moving-cost-calculator/; walk], on the list as a model for a no-contact calculator and data-led city pages [inference].
 
-**Reviewed:** 2026-10-27. **Evidence:** 14 of 14 pages captured; guided walks of the calculator, its results page, the "Mover Marketplace" first screen and one partner form up to its email step; Semrush US, October 2026; single-run web searches, not re-checked. **Confidence:** medium, because no consent wording, privacy policy or mover-facing page was seen.
+**Reviewed:** 2026-10-27. **Evidence:** 14 of 14 pages captured; guided walks of the calculator, its results page, the Mover Marketplace first screen and one partner form up to its email step; Semrush US, October 2026; single-run web searches, not re-checked. **Confidence:** medium, because no consent wording, privacy policy or mover-facing page was seen.
 
 ## At a glance
-- It calls itself "a moving research and review platform" but runs partner forms, a "Mover Marketplace" and a bid path [capture /moving-cost-calculator/; walk].
+- It calls itself "a moving research and review platform" but runs partner forms, a "Mover Marketplace" and a bid path [capture /moving-cost-calculator/; walk /marketplace/].
 - Its disclosure says it "may receive compensation" for clicks, webform submissions or calls, naming no payer; no walked path reached consent wording [capture /advertising-disclosure/; walk].
 - Its calculator shows prices before any contact field and is its top organic page, at about 4,399 visits a month (11.47%) [walk; semrush top_pages].
 - The widget and results page priced one move differently, and other figures drift between pages [walk; capture].
-- Partner cards with superlatives and phone numbers recur across templates, unlabeled in the captured text [capture].
+- Partner cards with superlatives and phone numbers recur across templates, unlabeled in the captured text [capture /movers/ri/, /popular-routes/ca/fl/, /blog/binding-vs-non-binding-estimates/].
 - About 38,335 US organic visits a month, Authority Score 44 and 9,427 referring domains [semrush domain_rank, backlinks_overview].
 
 ## Consumer journey
@@ -23,11 +23,11 @@ A moving research and review site that also runs lead paths [capture /moving-cos
 
 - Good: move details come first, with a no-exact-date option and three labeled stages [walk, same form].
 - Unclear: on a form headed "Safeway Moving | powered by moveBuddha", "Or call us directly" could mean either firm, and the persona ("Hey! I'm Ryan.") never says whom it works for [walk my.bestinterstatemoving.com/movebuddha/safeway-moving/quote].
-- Count unknown: the cut-off bid text gives no number of movers or choice [walk /moving-cost-calculator-tool/], though /about-us/ criticizes sites that "sold customer info to dozens of movers" [capture]. [inference] The two sit uneasily.
+- Count unknown: the cut-off bid text gives no number of movers or choice [walk /moving-cost-calculator-tool/], though the About page criticizes sites that "sold customer info to dozens of movers" [capture /about-us/]. [inference] The two sit uneasily.
 - Inconsistent: for Atlanta 30303 to Miami 33101, freight topped out at $7,814 in the widget and $1,761 on the results page [walk /moving-cost-calculator/, /moving-cost-calculator-tool/].
 
 ## Mover side
-No captured page addresses movers, and the footer has no mover sign-up link, so joining, fees, caps and lead checks are unseen [capture]. Partner cards show toll-free numbers, unlike local movers' cards, and Safeway's doubles as the form's "call us" line [capture /movers/ri/; walk]. [inference] These are probably tracked lines; who answers is unknown.
+No captured page addresses movers, and the footer has no mover sign-up link, so joining, fees, caps and lead checks are unseen [capture]. Partner cards show toll-free numbers, unlike local movers' cards, and Safeway's is also the number its partner form offers [capture /movers/ri/; walk]. [inference] These are probably tracked lines; who answers is unknown.
 
 ## Trust, verification and reviews
 - **Partner cards.** Safeway, American Van Lines and North American Van Lines appear on every captured city, state and route page under superlatives such as "best overall value", and Safeway tops the LA and Orlando interstate picks [capture /movers/ca/los-angeles/long-distance/, /movers/fl/orlando/long-distance/]. /about-us/ says partner content is labeled, but the text-only capture shows no label on the cards, and affiliate ties "may influence … why they're placed on our site" [capture /about-us/, /advertising-disclosure/]. v1's no-pay-for-ranking claim was not re-confirmed [v1 §2.2].
@@ -38,7 +38,7 @@ No captured page addresses movers, and the footer has no mover sign-up link, so 
 - **Scale.** A 400,000 figure counts different things on different pages, and reviews read "1,000,000+" on the home page but "4,000+" in state boilerplate, all unsourced [capture /movers/ri/, /popular-routes/, /, /movers/ca/long-distance/].
 
 ## Disclosure and consent
-- The "Advertising Disclosure" link opens every page's text and leads the fold, on desktop and mobile, on the 6 pages where fold order was recorded [capture]. Its 294-word page is hedged and names no payer [capture /advertising-disclosure/]. [inference] Payers are probably featured movers or intermediaries.
+- The "Advertising Disclosure" link opens every page's text and leads the fold, on desktop and mobile, on the 6 pages where fold order was recorded [capture, all 14 pages]. Its 294-word page is hedged and names no payer [capture /advertising-disclosure/]. [inference] Payers are probably featured movers or intermediaries.
 - The walk notes show no compensation statement on the results screen or the partner form, which runs on a separately named host, my.bestinterstatemoving.com, whose owner is not shown [walk].
 - A footer "Do Not Sell or Share" link appears; the privacy policy and terms were not captured [capture].
 - Clarity and Hotjar (which offer session recording), ad tags and an OpenAI pixel host load across the pooled scan, with no consent-certificate script; whether recording was on is unknown [capture].
