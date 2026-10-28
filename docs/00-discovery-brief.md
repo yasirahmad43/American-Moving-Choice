@@ -1,6 +1,6 @@
 # American Moving Choice: Discovery & Implementation Brief (Phase 1)
 
-**Date:** 2026-10-27 · **Status:** Phase 1 deliverable for review · **Branch:** `claude/fervent-bohr-u9rg4y`
+**Date:** 2026-10-27, revised 2026-10-28 after the reference-site review · **Status:** Phase 1 deliverable for review · **Branch:** `claude/fervent-bohr-u9rg4y`
 
 This brief is the entry point. Each section summarizes a decision or finding and links to the detailed document. Everything marked **Decision needed** is collected in [§11 Questions](#11-consolidated-questions-for-the-owner).
 
@@ -26,7 +26,7 @@ This brief is the entry point. Each section summarizes a decision or finding and
 |---|---|
 | **What works** | Research and business rules are complete and ready for review. The marketplace's hardest guarantees (no overselling, no double charges, no contact data before payment, credits that match the formula, refunds that never reopen slots, consent-scoped buyers, company isolation) run as tested code in test mode. |
 | **Evidence** | 23 unit tests + 17 PostgreSQL integration tests passing locally and in GitHub Actions; the race suite passed 10/10 repeated runs. Semrush exports in `research/raw/semrush/`. Every regulatory claim is cited with an access date. |
-| **Not done / not production-ready** | No public site, portals, payments integration, verification client, CMS or analytics yet. The financial policy and consent wording await your and counsel's approval. Competitor flows were not observed in a live browser (network policy). |
+| **Not done / not production-ready** | No public site, portals, payments integration, verification client, CMS or analytics yet. The financial policy and consent wording await your and counsel's approval. Reference-site quote flows were observed only up to the contact step, so what happens after submit is unknown at every site (§3). |
 | **Outstanding dependencies** | Answers to §11 (especially pricing, refunds, sharing limit, counsel, markets); integration access (Stripe, FMCSA WebKey, Supabase/Vercel approval, Search Console/GA4, Twilio 10DLC); a base branch for pull requests. |
 | **Next deliverable** | Phase 2 sign-off pack: the final product spec (merging these documents and your answers), migrations for the full data model, app scaffolding with preview deployments, and a clickable quote-survey prototype. |
 
@@ -56,30 +56,39 @@ Full record in [`skills-log.md`](skills-log.md). Highlights:
 - **Integrations that worked:** Semrush (real US data pulled for 11 domains and about 100 keywords), GitHub. Available but not yet used (need your go-ahead because they create billable resources): Supabase, Vercel. Also present: Canva, Higgsfield (image/video generation), Google Drive, Hugging Face.
 - **Failed to connect in this session:** Similarweb, Figma, Amplitude, Notion, Linear, Asana, Atlassian, ClickUp, Monday, Intercom, Pendo, Fireflies, Slack, BigQuery. Similarweb would have added traffic estimates, and Figma would have hosted design files.
 - **Not available:** a DataForSEO integration (needed by `seo-dataforseo`), Google Search Console / GA4 API access (needed by `seo-google`), Stripe account keys, FMCSA QCMobile WebKey, Twilio/Postmark accounts, and the `ui-ux-pro-max` design skill (not installed; `high-end-visual-design` and `design-taste-frontend-v1` were used instead).
-- **Network restriction and how it was handled:** this cloud environment's network policy refuses direct connections to the reference sites, fmcsa.dot.gov and federalregister.gov. At your direction, the reference sites were observed directly from a **Vercel Sandbox in your Vercel account** (project `amc-reference-research`). Headless Chromium rendered public pages there, respecting robots.txt, and walked quote flows with test ZIPs up to the contact step without entering personal data. Tools: `tools/reference-capture/`.
+- **Network restriction and how it was handled:** this cloud environment's network policy refuses direct connections to the reference sites, fmcsa.dot.gov and federalregister.gov. At your direction, the reference sites were observed directly from a **Vercel Sandbox in your Vercel account** (project `amc-reference-research`). Headless Chromium rendered public pages there, respecting robots.txt, and walked quote flows with test ZIPs, stopping at or before the contact step, without entering personal data. Tools: `tools/reference-capture/`. The review of all 11 sites is complete; findings are in §3.
   - Moving.com loaded only partly; its bot protection blocked some pages.
-  - HomeGuide refused the headless browser and ConsumerAffairs refused all automated access. No attempt was made to bypass either. Those two rely on search and Semrush evidence plus any plain-HTTP pages they serve normally.
+  - HomeGuide refused the headless browser and ConsumerAffairs refused all automated access. No attempt was made to bypass either. Their reviews rest on search results, Semrush and the earlier search-only matrix, so confidence in them is low.
   - The regulatory research (FMCSA/FCC/FTC) still rests on search excerpts of official pages, each cited; open the key pages directly before launch.
 
 ## 3. Reference-site findings
 
-Ranked by Semrush estimated US organic traffic (October 2026): ConsumerAffairs (~420k/mo), HomeGuide (~326k), EnergySage (~239k, a model rather than a competitor), HireAHelper (~125k), Move.org (~108k), Moving.com (~65k), moveBuddha (~38k), MyGoodMovers (~26k), Unpakt (~6k), Budget Van Lines (~2k), Consumer Moving Reviews (<1k). See `research/keyword-research.md` for method and caveats.
+The direct review of all 11 reference sites is complete.
 
-What matters most (full matrix in `research/reference-matrix.md`):
-1. **Value before contact details.** The strongest flows (moveBuddha's estimator, HireAHelper's priced listings) give something useful before asking for a phone number. Broker-style flows ask for contact details first and then "multiple movers will be in touch". We ask move details first, explain why we need contact details, and show exactly how many and which movers may receive them.
-2. **Say how many companies will call.** Most references don't, or bury it. Our consumer-selected limit (1 = exclusive) is a real differentiator.
-3. **Consent quality is weak across the category** (bundled arbitration, sitewide autodialer consent in terms). Ours names the movers, uses a separate unchecked box, and keeps full evidence.
-4. **Profiles:** HireAHelper's structure (rates, policies, booked-move counts) is the best model, but stale reviews and placeholder data hurt trust. We show freshness dates, verification dates and honest empty states.
-5. **Ratings must be consistent and genuine.** One reference shows different scores for the same company on different pages. We keep one source of truth, show quote and move experiences separately, and never fabricate ratings.
-6. **Traffic drivers:** cost calculators (≈30% of moving.com's organic traffic), city "movers" pages (HireAHelper's model), "best X companies" guides (Move.org) and brand cost content. State hubs are a gap competitors barely serve. Route pages exist only at moveBuddha and are small.
-7. **Avoid:** undisclosed broker roles, fake-looking ratings, contact gates before value, and near-empty permutation pages such as ZIP-to-ZIP routes.
+**How the evidence was gathered.** Direct captures on 2026-10-27 (§2) covered up to 14 public pages per site; ConsumerAffairs and HomeGuide blocked them, and Moving.com loaded partly. Quote-flow walks with test ZIPs stopped at or before the contact step, so nothing after submit was seen. Semrush gave US traffic estimates; searches covered owners, regulators and complaints. Site names in the list link to the verified site reviews; [`research/reference-review/README.md`](research/reference-review/README.md) covers labels and limits.
+
+Ranked by Semrush estimated US organic traffic (October 2026): ConsumerAffairs (~420k/mo), HomeGuide (~326k), EnergySage (~239k, a model rather than a competitor), HireAHelper (~125k), Move.org (~108k), Moving.com (~65k), moveBuddha (~38k), MyGoodMovers (~26k), Unpakt (~6k), Budget Van Lines (~2k), Consumer Moving Reviews (CMR, <1k) [semrush: domain_rank]. Moving is a slice of the top two: about 24k (ConsumerAffairs' /movers/ folder) and at least 1,239 (HomeGuide) [semrush: top_pages_more]. See `research/keyword-research.md` for method and caveats.
+
+What matters most:
+1. **Value before contact is rare.** In the walks, only [moveBuddha](research/reference-review/sites/movebuddha.md)'s price ranges and [HireAHelper](research/reference-review/sites/hireahelper.md)'s mover names offered it; [CMR](research/reference-review/sites/consumermovingreviews.md) and [MyGoodMovers](research/reference-review/sites/mygoodmovers.md) take contact details first [walk]. No site showed a live count of eligible movers [cross-site analysis]. We should show that count first.
+2. **None seen lets consumers pick how many companies.** [Moving.com](research/reference-review/sites/movingcom.md) says "up to 4" (/leads/) and [MyGoodMovers](research/reference-review/sites/mygoodmovers.md) three, in an FAQ [capture]; [HomeGuide](research/reference-review/sites/homeguide.md) capped phone sharing at five in a 2023 article [search]. Our edge: consumers set the cap, buyers are named at consent, all are carriers, and credits follow sharing [inference].
+3. **Consent is weak where seen.** [CMR](research/reference-review/sites/consumermovingreviews.md) relies on "By submitting" (/request-a-quote/); [MyGoodMovers](research/reference-review/sites/mygoodmovers.md)' unchecked box also accepts its Terms and names no mover (/moving-cost-calculator) [walk]. Their adequacy is for counsel (compliance facts §3). Our draft's box also bundles the Terms ([consent draft](business-rules/consent-and-disclosure-copy-draft.md) §5); a split is proposed.
+4. **Role and money.** No walked flow said how the site is paid [walk; cross-site analysis]; we state both in the survey, consent and confirmation. Our risk is drift, not concealment [inference]: [Unpakt](research/reference-review/sites/unpakt.md) holds payments and [CMR](research/reference-review/sites/consumermovingreviews.md) promises a specialist call [capture; walk], features for counsel to weigh (compliance facts §2).
+5. **Credentials are claimed more than shown.** At least seven sites say "licensed", "vetted" or "verified" without a method [cross-site analysis]. [Move.org](research/reference-review/sites/moveorg.md)'s list says its picks aren't brokers, yet its review calls the #1 pick "a broker and a carrier" (/allied-moving-reviews/) [capture]. [HireAHelper](research/reference-review/sites/hireahelper.md)'s best profile signals need bookings we don't run [inference].
+6. **"Preferred" already reads as paid or affiliated.** [Move.org](research/reference-review/sites/moveorg.md)'s sponsored slots include "Preferred Partner" (/disclosure/), and [CMR](research/reference-review/sites/consumermovingreviews.md)'s owner is Preferred Movers Network Inc. [capture]. Our badge is a screening status every approved mover gets, not a paid one ([mover verification](business-rules/mover-verification-and-reviews.md) §4). Decide the name before Phase 3 design sign-off, after counsel clearance and usability round 1.
+7. **Numbers and ratings drift.** Figures drift at eight of 11 sites, ratings or counts at four of nine captured sites [cross-site analysis]. [moveBuddha](research/reference-review/sites/movebuddha.md) priced one test move two ways [walk]; [MyGoodMovers](research/reference-review/sites/mygoodmovers.md) calls a two-review mover "BEST LOCAL MOVER" (/movers/al) [capture]. We need one record per number, invitation-only labeled reviews and minimum samples for "top" claims.
+8. **Tools and cost pages lead traffic.** [Moving.com](research/reference-review/sites/movingcom.md)'s calculator draws about 30% of its visits. City pages lead only at [HireAHelper](research/reference-review/sites/hireahelper.md) (24.6%), and state cost pages earn at [MyGoodMovers](research/reference-review/sites/mygoodmovers.md). Routes are small: 133 to 156 visits at moveBuddha, 1 to 3 for CMR's ZIP lanes [semrush: top_pages, top_pages_more]. No site shows a coverage gate like ours [cross-site analysis].
+9. **Money and ties shape order.** [MyGoodMovers](research/reference-review/sites/mygoodmovers.md)' Terms let plans change listing order, and [CMR](research/reference-review/sites/consumermovingreviews.md)'s related companies lead its lists [capture]. No captured mover page shows prices, caps and refunds together [cross-site analysis]. We should publish buying rules and keep payment out of order and badges.
+10. **Forms carry tracking.** At least seven of nine captured sites load replay-capable tools [cross-site analysis]. We need a tag policy for survey pages; wiretap exposure is for counsel.
+
+Decisions, proposed document changes and owner questions: [`research/reference-review/implications-for-content-seo-design.md`](research/reference-review/implications-for-content-seo-design.md) (§1, §10, §11). Cross-site matrix: [`research/reference-matrix.md`](research/reference-matrix.md).
 
 ## 4. Proposed MVP and later enhancements
 
 Summary below; the full prioritization is in `product/mvp-scope.md`.
 
 **MVP (launch in Wave 1 markets):**
-- Public site: home, quote survey + confirmation, trust pages (How We Verify Movers, Movers vs Brokers, Review Methodology, Advertising Disclosure, Editorial Policy), Wave 1 state/city/route pages that pass the publishing gate, cost guide + calculator, Preferred Movers directory and company profiles, "for movers" lead-buying pages.
+- Public site: home, quote survey + confirmation, trust pages (How We Verify Movers, Movers vs Brokers, Review Methodology, How AMC Makes Money, Which Companies Receive My Request, Editorial Policy, About, Contact, Complaints, Report a Concern; `seo/site-architecture.md` §1.2), Wave 1 state/city/route pages that pass the publishing gate, cost guide + calculator, the mover directory (name pending) and company profiles, "for movers" lead-buying pages.
 - Lead intake: progressive survey, validation and risk scoring, duplicate grouping, consent evidence, honest no-coverage handling.
 - Mover onboarding: application, FMCSA API checks + document upload, admin review, approval → profile + badge.
 - Marketplace: matching, real-time previews, exclusive/shared purchase with card + account credit, the recommended credit policy (after approval).
@@ -88,11 +97,11 @@ Summary below; the full prioritization is in `product/mvp-scope.md`.
 
 **Later:** ACH prepaid wallet; CRM add-ons (automations, two-way SMS/email from the CRM, call tracking, calendar sync, integrations with moving-software platforms, API access); original data reports once enough consented data exists; additional buyer categories (e.g. auto-transport *carriers*) with the same carrier-only rule; native apps if usage warrants.
 
-**Out of scope initially:** bidding, consumer–mover messaging on the platform, booking/deposits, native apps.
+**Out of scope initially:** bidding, consumer–mover messaging on the platform, booking/deposits, native apps. The reference review recommends making booking and deposits a standing exclusion, not just an initial one (owner decision; see [implications](research/reference-review/implications-for-content-seo-design.md) D5).
 
 ## 5. Recommended stack and architecture
 
-Next.js on Vercel (public site + separate authenticated portal app), PostgreSQL on Supabase (Auth with MFA, Realtime, Storage, RLS as defence in depth), Payload CMS, Stripe, a transactional outbox with Inngest jobs, Postmark/Twilio, Turnstile, Sentry, GA4/Search Console/Bing/PostHog. Rough fixed platform cost is **$250–$600/month** before usage-based fees, people and ads. Details, tradeoffs and alternatives are in `architecture/stack-and-architecture.md`, and the full data model is in `architecture/data-model.md`.
+Next.js on Vercel (public site + separate authenticated portal app), PostgreSQL on Supabase (Auth with MFA, Realtime, Storage, RLS as defense in depth), Payload CMS, Stripe, a transactional outbox with Inngest jobs, Postmark/Twilio, Turnstile, Sentry, GA4/Search Console/Bing/PostHog. Rough fixed platform cost is **$250–$600/month** before usage-based fees, people and ads. Details, tradeoffs and alternatives are in `architecture/stack-and-architecture.md`, and the full data model is in `architecture/data-model.md`.
 
 **Already built and tested in this branch** (useful independent work while answers are pending, all in test mode with no live money):
 - `packages/core`: matching engine (nationwide, origin-only, destination-only, directional routes, any-within-group, all-groups-required, exclusions override, paused rules, capability ceiling), eligibility snapshots, shared-lead calculator, allow-list preview redaction, ZIP/phone normalization, duplicate-group limit. **23 unit tests passing.**
@@ -144,19 +153,19 @@ A naive "price ÷ buyers" split keeps platform revenue stuck near one shared pri
 
 ## 8. SEO architecture and initial market selection
 
-> **Provisional.** URL patterns, page families and the Wave 1 list will be revised after the full reference-site review that is now under way (see `research/reference-review/`). No content (page copy or content briefs) will be written until that review is complete.
+> **Reference review complete.** The review (§3) confirmed this plan's approach: full state slugs, `/companies/` profiles, directional routes, no ZIP pages and a publishing gate that no reference matches. `seo/site-architecture.md` has been revised with the review's proposed changes (SA-1 to SA-20 in the [implications document](research/reference-review/implications-for-content-seo-design.md) §6.9). Items that wait on you or counsel, such as the badge and directory name, are marked pending there. The Wave 1 list still waits on your answer to §11 Q3 and on approved-mover coverage. With the review done, the condition for starting content work is met; implications §7.1 lists the recommended first pieces.
 
 Full plan in `seo/site-architecture.md`. Every keyword-to-page mapping in `seo/keyword-to-page-map.csv` (298 keywords → 134 URLs) carries real Semrush numbers.
 
 - **Consumer vs business intent are separate trees.** Consumer: `/movers/{state}/`, `/movers/{state}/{city}/` (+ `long-distance/` children), `/moving-routes/{a}-to-{b}/` (each direction its own page), `/moving-to/`, `/moving-costs/`, `/moving-cost-calculator/`, `/verify-a-mover/`, `/compare/`, `/guides/`. Company profiles live at `/companies/{slug}/`, so they can never collide with a state. Business: `/for-movers/` ("buy moving leads"). Portals on `app.` are all noindex. No indexable ZIP pages in any wave.
 - **Publishing gate:** a programmatic page is published only when it passes every check:
-  - at least 3 Preferred Movers with genuine coverage (5 for state pages)
+  - at least 3 approved movers with explicit coverage (5 for state pages), the same count the page shows
   - at least 3 verified local facts
-  - a sourced, dated cost block
-  - at least 4 unique FAQs
+  - a sourced, dated cost block where site architecture §4.1 G4 requires one (state hubs once data exists; optional for moving-to guides)
+  - at least 3 or 4 unique FAQs by family (site architecture §4.1 G6)
   - at least 40% unique content
   - a "swap test" (the page wouldn't make sense with another city's name in it)
-  - a named human reviewer
+  - a named human reviewer (every page in waves 1 and 2; a sample after that, per §4.1 G9)
 
   Pages that fail aren't published, and pages that later slip below the gate are deindexed after a 30-day buffer. This is our safeguard against Google's doorway and scaled-content policies.
 - **Market selection:** a score built from Semrush demand, CPC (as a proxy for lead value), keyword difficulty and content feasibility, with **approved-mover coverage as a hard gate**.
@@ -230,7 +239,7 @@ Each question has a recommended default. Answering "accept defaults" on any item
 | 1 | **Production domain & identity** | Which domain is ours, and can you grant DNS access? What legal entity name, business address and support email/phone should appear in disclosures? | americanmovingchoice.com (if registered), with DNS on Cloudflare |
 | 2 | **Business classification & counsel** | Who is counsel, and by when can they review: (a) our lead-marketplace vs broker position, especially for exclusive leads; (b) the consent draft (`business-rules/consent-and-disclosure-copy-draft.md`); (c) privacy policy, consumer terms and mover terms; (d) retention rules; (e) state moving-broker definitions (e.g. Florida)? | Engage counsel during Phase 2. No live leads until sign-off |
 | 3 | **Launch markets** | Approve the proposed Wave 1 markets (§8), or name markets where you already have mover relationships? | Wave 1 as proposed, adjusted to where pilot movers actually operate |
-| 4 | **Provider coverage & eligibility** | How many movers can you bring to a pilot, and where? Do they all hold USDOT + MC + household-goods carrier authority? Keep MC mandatory? That excludes intrastate-only local movers, and FMCSA has announced plans to stop issuing MC numbers. | Keep MC mandatory (the setting exists). Aim for at least 3 approved movers per Wave 1 market before indexing its pages |
+| 4 | **Provider coverage & eligibility** | How many movers can you bring to a pilot, and where? Do they all hold USDOT + MC + household-goods carrier authority? Keep MC mandatory? That excludes intrastate-only local movers, and FMCSA has announced plans to stop issuing MC numbers. | Keep MC mandatory (the setting exists). Aim for at least 3 approved movers with explicit coverage per city or route page, and 5 per state page, before indexing (site architecture §4.1 G1) |
 | 5 | **Sharing limit** | What is the most companies a consumer may choose? Should any option be preselected? | Maximum 5; nothing preselected |
 | 6 | **Pricing policy** | Approve the equalizing step-down (100/80/65/55/50%) or pick another option or schedule? Should a company's prices also vary by move category (local / in-state / interstate), not only exclusive vs shared? What are the starting price bands? | Approve step-down. **Yes to per-category prices:** interstate leads are worth far more (Semrush CPCs for long-distance terms run ~$38–$51 vs ~$17–$26 for city "movers" terms). Price bands set from pilot data |
 | 7 | **Refunds & credits** | Valid quality-claim reasons, claim window, credit vs cash, credit expiry, closure treatment, dispute fees? | Account credit by default; 72-hour window with evidence; credits don't expire; disputes per mover terms |
