@@ -1,11 +1,11 @@
 # Unpakt: reference review
 
-A moving marketplace where consumers compare "guaranteed" prices, book a mover and pay Unpakt, which pays the mover after the move [capture /, /how-it-works/]. It is on the list as the clearest case of the book-and-pay model AMC has ruled out [inference].
+A moving marketplace where consumers compare "guaranteed" prices, book a mover and pay Unpakt, which pays the mover after the move [capture /, /how-it-works/]; it is on the list as the clearest case of the book-and-pay model AMC rules out [inference].
 
-**Reviewed:** 2026-10-27. **Evidence:** 9 of 9 pages captured (www, and blog.unpakt.com marked "blog"); automated and guided walks of the home form, both stopped at the first screen; Semrush US, October 2026; earlier-stage WebSearch, not re-verified, so search-only claims are marked or left out. **Confidence:** medium, because nothing past the first form screen, and no profile or city page, was observed.
+**Reviewed:** 2026-10-27. **Evidence:** 9 of 9 pages captured (www, and blog.unpakt.com marked "blog"); automated and guided walks of the home form, both stopped at the first screen; Semrush US, October 2026; earlier-stage WebSearch, not re-verified. **Confidence:** medium, because nothing past the first form screen, and no profile or city page, was observed.
 
 ## At a glance
-- Prices come from a formula on each mover's "cost per unit of stuff", and Unpakt holds the consumer's payment until after the move [capture /how-it-works/, /].
+- Prices come from a formula on each mover's "cost per unit of stuff", and consumers pay Unpakt, not the mover [capture /how-it-works/, /].
 - No captured page says how Unpakt is paid or how it checks movers, and none shows a USDOT or MC number [capture].
 - All six captured www pages mark Unpakt up as a MovingCompany rated 4.2 from 36 ratings; no visible rating was recorded [capture].
 - The first screen presets size and date; the guided walk then failed twice and landed on /sign-in/ [walk /].
