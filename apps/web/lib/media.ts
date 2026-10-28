@@ -1,57 +1,27 @@
+import "server-only";
+
 /**
- * Media contract (design/premium): every image and video on the public site comes from
- * content/media/manifest.json (docs/media/inventory.md). Pages claim assets by tag, and the
- * loader guarantees that no asset id is used on more than one page:
+ * Media contract: every image and video on the public site comes from
+ * content/media/manifest.json (docs/media/inventory.md; `pnpm media:check` validates it against
+ * the files on disk). One loader serves both the hand-built pages and the programmatic SEO
+ * templates, and it guarantees that no asset id is used on more than one page:
  *
- * - An asset may reserve itself for one page with `usedOn: ["/route/"]`; most ship unassigned
- *   (`usedOn: []`) and are claimed at build time.
- * - `claimMedia(page, tags)` returns an asset carrying every tag that is either reserved for
- *   `page` or unassigned and not yet claimed by another page in this process. The pick is stable
- *   for a page (seeded by the page route), so the same page keeps the same asset across renders.
- * - Loading the manifest throws if two assets share an id or an asset lists more than one page,
- *   and claiming throws in development (logs in production) if the id already belongs to another
- *   page. `pnpm media:check` validates the manifest against the files on disk.
+ * - An asset reserves itself for one page with `usedOn: ["/route/"]`. The hand-built pages pin
+ *   their assets this way; the SEO generator claims free assets (seo_media_usage) and
+ *   `pnpm seo:media-sync` writes those claims back into usedOn.
+ * - `claimMedia(page, tags)` returns an asset carrying every tag: one reserved for `page` first,
+ *   else an unassigned asset no other page has claimed in this process (picked by a stable hash of
+ *   the page route). `claimMediaById(page, id)` does the same for a named asset.
+ * - Claiming an id that belongs to another page throws in development and logs in production.
+ *   Loading the manifest throws on duplicate ids or an asset listing more than one page.
  *
  * Replacing an asset means editing its manifest entry; no component changes.
  */
 import manifestJson from "@/content/media/manifest.json";
+import type { MediaAsset, MediaCredit, MediaKind } from "./media-sources";
 
-export type MediaKind = "image" | "video";
-
-export interface MediaCredit {
-  creator: string;
-  source_url: string;
-  license: string;
-  attribution_required: boolean;
-}
-
-export interface MediaSource {
-  src: string;
-  type: string;
-  /** A smaller tier for small viewports; absent for the full-size encoding. */
-  width?: number;
-}
-
-export interface MediaAsset {
-  id: string;
-  kind: MediaKind;
-  src: string;
-  srcset?: { src: string; width: number }[];
-  sources?: MediaSource[];
-  poster?: string;
-  width: number;
-  height: number;
-  alt: string;
-  autoplay?: boolean;
-  duration?: number;
-  blurDataURL?: string;
-  credit: MediaCredit;
-  generator?: { provider?: string; model?: string; prompt?: string; job_id?: string; generated_at?: string };
-  tags: string[];
-  usedOn: string[];
-  placeholder?: boolean;
-  generated?: boolean;
-}
+export type { MediaAsset, MediaCredit, MediaKind, MediaSource } from "./media-sources";
+export { videoSourcesFor } from "./media-sources";
 
 interface Manifest {
   version: number;
@@ -78,13 +48,28 @@ function validate(manifest: Manifest): Manifest {
 
 const manifest: Manifest = validate(manifestJson as Manifest);
 
+/** Every asset, in manifest order. */
+export function mediaManifest(): MediaAsset[] {
+  return manifest.assets;
+}
+
+/** An asset by id, or null. Read-only: no claim is recorded (the SEO store records its own). */
+export function mediaById(id: string): MediaAsset | null {
+  return manifest.assets.find((asset) => asset.id === id) ?? null;
+}
+
+/** Assets carrying every given tag, in manifest order. */
+export function mediaByTags(tags: string[]): MediaAsset[] {
+  return manifest.assets.filter((asset) => tags.every((tag) => asset.tags.includes(tag)));
+}
+
 /** Which page claimed each asset id in this server process: the reuse guard. */
 const claims = new Map<string, string>();
 
 function claim(asset: MediaAsset, page: string): MediaAsset {
-  const owner = claims.get(asset.id);
+  const owner = claims.get(asset.id) ?? asset.usedOn[0];
   if (owner && owner !== page) {
-    const message = `media manifest: asset "${asset.id}" is used on "${owner}" and "${page}"; every asset belongs to one page`;
+    const message = `media manifest: asset "${asset.id}" belongs to "${owner}" and was requested by "${page}"; every asset belongs to one page`;
     if (DEV) fail(message);
     console.error(message);
   }
@@ -126,16 +111,45 @@ export function optionalMedia(page: string, tags: string | string[], options: { 
   }
 }
 
-/** A specific asset by id, claimed for `page`. For the few slots that name their asset outright. */
-export function mediaById(page: string, id: string): MediaAsset {
-  const asset = manifest.assets.find((candidate) => candidate.id === id);
+/** A specific asset by id, claimed for `page`. For slots that name their asset outright. */
+export function claimMediaById(page: string, id: string): MediaAsset {
+  const asset = mediaById(id);
   if (!asset) fail(`media manifest: no asset with id "${id}"`);
-  if (asset.usedOn.length && !asset.usedOn.includes(page)) fail(`media manifest: asset "${id}" is reserved for ${asset.usedOn[0]}, not "${page}"`);
   return claim(asset, page);
 }
 
-/** @deprecated Use claimMedia. Kept for callers that pass a single tag. */
-export const mediaFor = (page: string, tag: string): MediaAsset => claimMedia(page, tag);
+/**
+ * The assets a programmatic page holds (seo_pages.media_ids), each claimed for that page. An id
+ * that is missing from the manifest or reserved for another page is skipped with a logged
+ * error rather than failing the page: the store and the manifest are reconciled by media-sync.
+ */
+export function mediaForSeoPage(page: string, ids: string[]): MediaAsset[] {
+  const out: MediaAsset[] = [];
+  for (const id of ids) {
+    const asset = mediaById(id);
+    if (!asset) {
+      console.error(`media manifest: seo page "${page}" lists unknown asset "${id}"`);
+      continue;
+    }
+    const owner = claims.get(asset.id) ?? asset.usedOn[0];
+    if (owner && owner !== page) {
+      console.error(`media manifest: seo page "${page}" lists asset "${id}" that belongs to "${owner}"; skipped`);
+      continue;
+    }
+    out.push(claim(asset, page));
+  }
+  return out;
+}
+
+/** The srcset attribute for an image asset, or undefined when it has one size. */
+export function srcSetOf(asset: MediaAsset): string | undefined {
+  return asset.srcset?.length ? asset.srcset.map((s) => `${s.src} ${s.width}w`).join(", ") : undefined;
+}
+
+/** The visible credit line an asset needs (only when attribution is required). */
+export function creditLine(asset: MediaAsset): string | null {
+  return asset.credit.attribution_required ? `${asset.credit.creator} (${asset.credit.license})` : null;
+}
 
 /** All assets whose credit requires attribution (for a credits line in the footer). */
 export function attributionCredits(): { id: string; credit: MediaCredit }[] {
@@ -150,16 +164,4 @@ export function hasPlaceholderMedia(): boolean {
 /** next/image can't optimize SVG art; everything else goes through the optimizer. */
 export function isUnoptimizable(asset: MediaAsset): boolean {
   return /\.svg(\?|$)/i.test(asset.src);
-}
-
-/** The video sources in playback order for a viewport: the smaller tier first on narrow screens. */
-export function videoSourcesFor(asset: MediaAsset, viewportWidth: number): MediaSource[] {
-  const sources = asset.sources?.length ? asset.sources : [{ src: asset.src, type: "video/mp4" }];
-  const small = viewportWidth > 0 && viewportWidth < 900;
-  const tier = (source: MediaSource) => (source.width && source.width < asset.width ? "small" : "full");
-  return [...sources].sort((a, b) => {
-    const pa = tier(a) === (small ? "small" : "full") ? 0 : 1;
-    const pb = tier(b) === (small ? "small" : "full") ? 0 : 1;
-    return pa - pb;
-  });
 }

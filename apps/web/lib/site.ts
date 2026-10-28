@@ -31,6 +31,16 @@ export const TRUST_LINKS: NavLink[] = [
   { href: "/editorial-policy/", label: "Editorial policy" },
 ];
 
+/** Hubs of the generated page families (site architecture §3.3: every page within 3 clicks of home). */
+export const EXPLORE_LINKS: NavLink[] = [
+  { href: "/movers/", label: "Movers by state" },
+  { href: "/routes/", label: "Moving routes" },
+  { href: "/services/", label: "Moving services" },
+  { href: "/moving-costs/", label: "Moving costs" },
+  { href: "/questions/", label: "Moving questions" },
+  { href: "/planning/", label: "Planning checklists" },
+];
+
 export const HELP_LINKS: NavLink[] = [
   { href: "/about/", label: "About" },
   { href: "/contact/", label: "Contact" },

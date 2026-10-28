@@ -7,7 +7,7 @@
  * smaller encoding tier. Decorative: aria-hidden.
  */
 import { useEffect, useRef, useState } from "react";
-import { videoSourcesFor, type MediaAsset, type MediaSource } from "@/lib/media";
+import { videoSourcesFor, type MediaAsset, type MediaSource } from "@/lib/media-sources";
 
 export function AmbientVideo({ asset, className }: { asset: MediaAsset; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);

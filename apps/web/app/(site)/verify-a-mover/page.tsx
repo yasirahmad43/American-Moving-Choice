@@ -29,7 +29,7 @@ function External({ href, children }: { href: string; children: React.ReactNode 
 
 /** Verify a mover (site architecture §1.2): the landing page indexes; lookup results are never URLs. */
 export default function VerifyAMoverPage() {
-  const art = claimMedia(PAGE, ["trust", "theme:safety", "landscape"]);
+  const art = claimMedia(PAGE, ["directory", "theme:profile", "landscape"]);
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Verify a mover", path: "/verify-a-mover/" }])} />

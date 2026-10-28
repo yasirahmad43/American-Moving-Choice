@@ -3,7 +3,8 @@
   "notes": [
     "media/library: every asset below with credit.creator 'American Moving Choice (AI-generated via Higgsfield)' was generated for AMC (stills: gpt_image_2_5; videos: seedance_2_5). Not stock; no attribution required. See docs/media/inventory.md and docs/media/prompt-matrix.csv.",
     "media/library: usedOn starts empty; the page that adopts an asset writes its one route there. `pnpm media:check` fails if an id is listed on more than one page.",
-    "media/library: `src` is the largest WebP tier (native 1344px for 16:9, 1168px for 4:3, 1024px for 1:1); `srcset` lists the 800px tier. `blurDataURL` is a 24px blurred WebP for next/image placeholder='blur'."
+    "media/library: `src` is the largest WebP tier (native 1344px for 16:9, 1168px for 4:3, 1024px for 1:1); `srcset` lists the 800px tier. `blurDataURL` is a 24px blurred WebP for next/image placeholder='blur'.",
+    "design/premium: the hand-built pages (/, /get-quotes/, /directory/, /companies/[slug]/, /moving-cost-calculator/, /verify-a-mover/, /for-movers/ and the trust and cost content pages) pin their assets here; apps/web/lib/media.ts serves them by page and tag."
   ],
   "assets": [
     {
@@ -45,7 +46,9 @@
         "season:summer",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoYAA4APu1kqU4ppaOiMAgBMB2JQBOgA3StwI6fPqzhw4fMAAD+uwpZSOoxBuqw5iLdltF5JS+A8uzsB1VthHn7yjCSn9A0QAA=",
       "generator": {
@@ -96,7 +99,9 @@
         "video",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/moving-cost-calculator/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAAAwAwCdASoYAA4APu1Ct1apoqakGAEwHYllAKwAaCq8DA7UAP7p8+J8vu8ceaHlKMWVDLXt0UvFpv1UmiNBNLIA",
       "generator": {
@@ -145,7 +150,9 @@
         "video",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/get-quotes/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQBACdASoYAA4APu1qrU8ppiQiMAgBMB2JZQDA3GS+msp7DSlh3aNwAAD+/MVqzgZvEWfiqU28ClUG1ZHf2BX9nMZHt6fWvyDm4ZJP14gAAA==",
       "generator": {
@@ -194,7 +201,9 @@
         "video",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQBACdASoYAA4APu1mq04ppaQiMAgBMB2JYwCdMoRwABwmaHlCMSygAADOIj283zeSpeqrh0ldgqTHfG0n7y3B53mb1xeRxaEcDA+oe4IQrT1cAAA=",
       "generator": {
@@ -519,7 +528,9 @@
         "hero",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/services/local/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADQAwCdASoYAA0APu1yrU+pp6QiMAgBMB2JZQC06BZn/pPn2mjbpTAA/nvOHsZckuSKm3ZofZE8yVfxHXvL367dicj5gXjcP39VRaTFHSAAAA==",
       "generator": {
@@ -559,7 +570,9 @@
         "card",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/services/packing/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAQBACdASoYAA0APu1iqk4ppaQiMAgBMB2JYgCdMoAB9WnuQILiJksTQAD+X9M9QKfQN4j8TkI79cEK3fKthVS7U4PNoZep9NRxS33QQ4LQWYJIgBKzBfcAAAA=",
       "generator": {
@@ -844,7 +857,9 @@
         "quotes",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAwBACdASoYAA0APu1kqk2ppaQiMAgBMB2JYwCdMoACfMI4Xp5R35G3ToAA/hjQNuHwEiGgIDPOc3O5NHBQUecsD0+xERuY0NjPWDbGR3VMKpcMxifm4Q4AAAA=",
       "generator": {
@@ -1652,7 +1667,9 @@
         "service:long-distance",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/services/long-distance/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADQAwCdASoYAA0APu1kqk2ppaQiMAgBMB2JYgCdL1AB0DxDC7VfTcQAycS7WXLmz7jZ4icKUSWCKySYXuPsVa85u+FEcWHf2DcnF7VIFc5yMzzNbfEbxVd5ZwAAAA==",
       "generator": {
@@ -2052,7 +2069,9 @@
         "service:interstate",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/services/interstate/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAACQAwCdASoYAA0APu1iqU2ppaOiMAgBMB2JQBTiglGKfKHyKQZAAN2Q8QctuC63AXOKhbsZ3EuiLQxLbRdUs9V8cNcYIGsrDAAAAA==",
       "generator": {
@@ -2692,7 +2711,9 @@
         "service:storage",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/services/storage/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASoYAA0APu1iqU2ppaOiMAgBMB2JQBWAA2sgOLwB0XC3gAD+u+9uQTPgxTnhde4wfh+G6xeKEbn7Ao1HuzJoZY5TIdKSwY0y7u8gAA==",
       "generator": {
@@ -3012,7 +3033,9 @@
         "service:specialty",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/services/specialty/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACwAwCdASoYAA0APu1orU2ppqSiMAgBMB2JQAAj20HKDFAGmG56EAD+7PLZ2k3w8q0dX/lHdvql3w9bLd6F7c5oV3Jb/8NJLk6M54T2isUPRSXXXip+EsouAAA=",
       "generator": {
@@ -3732,7 +3755,9 @@
         "theme:pricing",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAwBACdASoYAA0APu1kqk4ppaQiMAgBMB2JQBOmUABmy/6jlKZJyN4LEQAA/tQy1hCLioRHwAANN6+SumBhb4Gi2IUOW5OKzoGSR1uPfFd9hcTbS55P5VmAAAA=",
       "generator": {
@@ -4052,7 +4077,9 @@
         "theme:pricing",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/moving-cost-calculator/method/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnwAAABXRUJQVlA4IHAAAACwBACdASoYABIAPtFWok2oJKMiN+gBABoJZQC/7BvN6quJYMnhpILn+Fk851GAAP67Bb91LY4TuB/bIhzJQhjwk2BWXGDxxQ1+J5dFyfxu0BwOKnF9Rd+trWwkqiG8N+h0j4CkRjszdPWiBxJldoAA",
       "generator": {
@@ -4932,7 +4959,9 @@
         "theme:fleet",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/for-movers/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JYwCdACHW4NirJfuRQAD+3s2khPOBHGmb+iM60jYCI6jtnRTfcd+1kUEd8ZfcgnAKx1KQAAA=",
       "generator": {
@@ -5492,7 +5521,9 @@
         "theme:profile",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/companies/[slug]/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAABQAwCdASoYAA0ALrV2u12jqampiYC0SgAAp12Qi1I9g0v2wAD+CmIPL8IpnHcNdq4BJxeANABBZnRT9BJJbZTjKc9Do/uWUgTPQT3LiGO8AAAA",
       "generator": {
@@ -5532,7 +5563,9 @@
         "theme:profile",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/directory/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JYwDCgB7C05twQfFXwAD7fe+xRQ0oFe4v/z2WQ0EX8Dwmgx1VvF4m1zow49PgAAA=",
       "generator": {
@@ -5732,7 +5765,9 @@
         "theme:profile",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/verify-a-mover/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAABQBACdASoYAA0APu1iqk4ppaQiMAgBMB2JYgCdL1yBhOIntdu46/l7f1LQAP3h/8uJorPFNXYWKJyl18qnej61r8c1IPGKVWsAfzywrA1wWR9o5oxvstTwkWLHgAAA",
       "generator": {
@@ -6292,7 +6327,9 @@
         "theme:safety",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/how-we-verify-movers/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAAAwBQCdASoYABIAPuVipk2pJaOiMAwBIByJQBUk6YhwOWyuVwjcZbHVwt3Ok+ABJF3JQAD2WFwwwT26aq6asv1xIV7xTtOUQ6AbslbgnfH9Mu+Rzw1Z9Lx1p052qMw8jcJGZLdWAAA=",
       "generator": {
@@ -6332,7 +6369,9 @@
         "theme:safety",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers-vs-brokers/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAACwBACdASoYABIAPu1mq1AppSOisBgIATAdiWcAyrQNynHZaD0O0VPx4pdnzXkAAP7fhZkSnAA2Q9F+3Wb4jOeEUAUOIQBRzCpsPA/9nrsn+BcDleqPlZLsnNCkuDYmmQwjRetnMJhhgAAA",
       "generator": {
@@ -6452,7 +6491,9 @@
         "theme:safety",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/review-methodology/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQBQCdASoYABIAPt1apU2opSOsN/qoAYAbiUAYVCmAO7vt86Dd9r96B0Q37IY6gUugAM4eeMRRzctHNJSkzwxVkEBfjTqudyzc9ueinmLR4+1BrAyD+zpy6cbQzZhhcqOAAA==",
       "generator": {
@@ -6861,7 +6902,9 @@
         "hero",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/california/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAADQAwCdASoYAA0APu1iqU2ppaOiMAgBMB2JQBOmUABT/BVxO/RC54AA8yLTz+lUUEajOpHdkL0P7FQaVV/RJ3OXTdZlVuSgY49XQxyHpP73EQ43lkbMrAAA",
       "generator": {
@@ -11002,7 +11045,9 @@
         "tile",
         "square"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/delaware/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAADQBACdASoYABgAPu1ur1CppqQiqAqpMB2JYwCdAAvjMv8uEveN7vCJRDwgZohwQACfXaLQChhDsFdECXWCrd6h3+qLvmZ8y7UZvWpcMpXwrZHgn8EjyFCIVkDQgkpiXgcAAA==",
       "generator": {
@@ -11207,7 +11252,9 @@
         "tile",
         "square"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/idaho/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAABQBQCdASoYABgAPt1kp02opqOiN/qoARAbiWMAAO1UXD9+sho9sD97EC2M3M9rl023hAgA/pgSpu7GW0WwxLlPkRgf1sNJzC6eFbrZclM4TNEqFv52PzCdV8mqIBuScnVi9XBjkLJForZOEKegAA==",
       "generator": {
@@ -11494,7 +11541,9 @@
         "tile",
         "square"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/maine/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAADwBACdASoYABgAPu1krFAppSQisBgIATAdiWMAnTOAgRzfLSMSmuBNCqoeQMxhAAAA+1EzvHeLVc2RJg39l8kX+SSk4PLJxSMZtKaIdUz9LjjUZVGaDjQ/LX0XKHszwD3+pS52U+zQjViCx3HbKRb46XjOECpZBYd4AAAA",
       "generator": {
@@ -12560,7 +12609,9 @@
         "tile",
         "square"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/vermont/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAAAwBQCdASoYABgAPuVgqk2pJaQiMAwBIByJbACdABSDRIZADZVby5Z6rNr8bpKQwhGHAAD8dJMKz3iXCHDfmcs7BPvTjXLGTzVOimuhe0yXzUwVdLGBiTsVZr6GeyiqEkbWPz1TaBys56ulyPzhfvoWQSrcAlekBbn4SXj2oqjVpR1uWg4dfW8ya57CtAAA",
       "generator": {
@@ -12683,7 +12734,9 @@
         "tile",
         "square"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/west-virginia/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQBQCdASoYABgAPu1mq0+ppSOiMBgIATAdiWUApxQKY2KAKtWANb0b9nynOOptvKRQAMe6xxdrvXuX4ysuWpIjTS45M9n2nVDK8yZQRMLqFzKx1ommPa5mgz8zBoatYQ2cAA==",
       "generator": {
@@ -12765,7 +12818,9 @@
         "tile",
         "square"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers/wyoming/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAABQBQCdASoYABgAPu1iqU6ppSOiMBgMATAdiWUAygAPY5KYabSLd7jyyQaPb1ggi6fPcwAA3GhS/wGbX5UKYGgwiqWcBe3OHVU4MtYqoYFyoOIUah7bWr37HxtK5RDk/KIHlR2SEAA=",
       "generator": {

@@ -27,7 +27,7 @@ import { JsonLd, organizationId } from "@/components/site/json-ld";
 import { MoneyLine } from "@/components/site/money-line";
 import { Note } from "@/components/site/review-notes";
 import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
-import { claimMedia, mediaById } from "@/lib/media";
+import { claimMedia, claimMediaById } from "@/lib/media";
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 
 const PAGE = "/";
@@ -157,8 +157,8 @@ export default function HomePage() {
   const { WEB_URL } = env();
   const moversOnly = storedTextParts("ST-2");
   // Media claims (lib/media.ts): the home hero loop, the how-it-works loop, a quotes still and a costs still.
-  const hero = mediaById(PAGE, "home-hero-crew-loading-golden-hour");
-  const howItWorksArt = mediaById(PAGE, "how-it-works-laptop-boxes");
+  const hero = claimMediaById(PAGE, "home-hero-crew-loading-golden-hour");
+  const howItWorksArt = claimMediaById(PAGE, "how-it-works-laptop-boxes");
   const ledgerArt = claimMedia(PAGE, ["home", "comparison"]);
   const costsArt = claimMedia(PAGE, ["costs", "theme:pricing", "landscape"]);
   const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;

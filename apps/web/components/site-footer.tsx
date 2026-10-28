@@ -1,7 +1,7 @@
 import { env } from "@amc/server/env";
 import { RouteMapArt, RouteMark, Wordmark } from "@amc/ui";
 import Link from "next/link";
-import { GEONAMES_CREDIT, HELP_LINKS, LEGAL_LINKS, PREVIEW_BANNER_TEXT, TRUST_LINKS, type NavLink } from "@/lib/site";
+import { EXPLORE_LINKS, GEONAMES_CREDIT, HELP_LINKS, LEGAL_LINKS, PREVIEW_BANNER_TEXT, TRUST_LINKS, type NavLink } from "@/lib/site";
 import { storedText } from "@/lib/stored-texts";
 
 function LinkList({ title, links, extra }: { title: string; links: NavLink[]; extra?: React.ReactNode }) {
@@ -34,7 +34,7 @@ export function SiteFooter() {
       <div className="pointer-events-none absolute -right-24 -top-24 -z-10 h-[34rem] w-[52rem] opacity-60 [mask-image:radial-gradient(closest-side,black,transparent)]" aria-hidden="true">
         <RouteMapArt />
       </div>
-      <div className="mx-auto grid max-w-content gap-12 pb-12 pt-16 gutter lg:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(0,1fr))] lg:gap-10">
+      <div className="mx-auto grid max-w-content gap-12 pb-12 pt-16 gutter lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] lg:gap-8">
         <div className="grid content-start gap-5">
           <Wordmark tone="reversed" size="lg" />
           <p className="max-w-[52ch] text-on-band-2">{storedText("ST-1a")}</p>
@@ -43,6 +43,7 @@ export function SiteFooter() {
             Routes are directional. Evidence is dated.
           </p>
         </div>
+        <LinkList title="Find movers" links={EXPLORE_LINKS} />
         <LinkList title="How we work" links={TRUST_LINKS} />
         <LinkList title="Help" links={HELP_LINKS} />
         <LinkList

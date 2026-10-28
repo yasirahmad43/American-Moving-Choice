@@ -4,7 +4,7 @@ import { Calculator } from "@/components/calculator/calculator";
 import { calculatorPageContent, renderTokens } from "@/components/calculator/content";
 import { COPY, MOVING_COSTS } from "@/components/calculator/copy";
 import { MediaFrame } from "@/components/media/media-frame";
-import { mediaById } from "@/lib/media";
+import { claimMediaById } from "@/lib/media";
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 
 const PAGE = "/moving-cost-calculator/";
@@ -13,7 +13,7 @@ export function generateMetadata(): Metadata {
   const page = calculatorPageContent();
   // The front-matter title has no site suffix (site architecture §8.2 template, 55 characters).
   // Results render client-side after a POST and never get their own URL, so they can't be indexed.
-  return { title: { absolute: page.title }, description: page.metaDescription };
+  return { title: { absolute: page.title }, description: page.metaDescription, alternates: { canonical: "/moving-cost-calculator/" } };
 }
 
 /** Styles for the drafted copy rendered from Markdown (headings, lists, links; review notes stay hidden for the public). */
@@ -30,7 +30,7 @@ const proseClasses =
 export default function MovingCostCalculatorPage() {
   const page = calculatorPageContent();
   // Distance drives most of a long-distance price: the aerial highway loop.
-  const art = mediaById(PAGE, "long-distance-hero-aerial-highway-dawn");
+  const art = claimMediaById(PAGE, "long-distance-hero-aerial-highway-dawn");
   const tokenCopy = {
     "form.services.storage.help": renderTokens("Storage for {{cost.method.storage_assumption}}."),
     "form.services.specialty_items.help": renderTokens("Covers {{cost.method.specialty_items}}."),
