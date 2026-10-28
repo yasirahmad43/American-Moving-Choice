@@ -1,21 +1,21 @@
-import { readFileSync } from "node:fs";
 import { beforeEach, afterAll, describe, expect, it } from "vitest";
 import pg from "pg";
+import { databaseUrl, resetDatabase } from "./helpers";
 
-const url = process.env.DATABASE_URL ?? "postgres://amc:amc@localhost:5432/amc_test";
-const pool = new pg.Pool({ connectionString: url, max: 20 });
-const migration = readFileSync(new URL("../migrations/001_marketplace_core.sql", import.meta.url), "utf8");
+const pool = new pg.Pool({ connectionString: databaseUrl, max: 20 });
 
 afterAll(() => pool.end());
 
 beforeEach(async () => {
-  await pool.query("drop schema public cascade; create schema public;");
-  await pool.query(migration);
+  await resetDatabase(pool); // every migration in db/migrations, in filename order
   await pool.query(`insert into sharing_policies(version, factors_bp) values ('v1', '{10000,8000,6500,5500,5000}')`);
 });
 
+// Each company gets its own USDOT number: only one approved company may hold a number (002).
+let usdotSeq = 1234500;
 async function company(name: string, prices: { excl: number; shared: number }, over: Record<string, unknown> = {}) {
-  const cols = { legal_name: name, status: "approved", usdot_number: "1234567", mc_number: "123456", ...over };
+  const usdot = String(usdotSeq++);
+  const cols = { legal_name: name, status: "approved", usdot_number: usdot, mc_number: usdot.slice(1), ...over };
   const keys = Object.keys(cols);
   const { rows } = await pool.query(
     `insert into companies(${keys.join(",")}) values (${keys.map((_, i) => `$${i + 1}`).join(",")}) returning id`,

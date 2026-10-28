@@ -1,0 +1,14 @@
+/*
+ * Self-hosted fonts (build plan §3; VD §6). No runtime or build-time Google Fonts requests:
+ * the files come from the @fontsource-variable npm packages and are bundled by Next.js.
+ *
+ * - Archivo, variable width (62–125%) and weight, as "Archivo Variable" (display).
+ * - Source Sans 3, variable weight, as "Source Sans 3 Variable" (body and UI).
+ *
+ * Latin files: Archivo width axis ~88 KB + Source Sans 3 ~32 KB, within the 120 KB budget.
+ * Other subsets load only when a page uses their characters (unicode-range).
+ *
+ * Import from the root layout: import "@amc/ui/fonts.css";
+ */
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/source-sans-3/wght.css";

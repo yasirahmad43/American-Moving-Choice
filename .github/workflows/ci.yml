@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+# Least privilege for the workflow token: the job only reads the repository.
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,7 +26,9 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
+      # db/test resets this database; packages/server tests create and use amc_test_server.
       DATABASE_URL: postgres://amc:amc@localhost:5432/amc_test
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -31,5 +37,18 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm test
+      - name: Typecheck every package and both apps
+        run: pnpm typecheck
+      - name: Unit and database tests
+        run: pnpm test
+      - name: Build both apps
+        env:
+          # Placeholders only: the builds read no database and no real secret.
+          DATABASE_URL: postgres://amc:amc@localhost:5432/amc_build_placeholder
+          SESSION_SECRET: ci-placeholder-session-secret-not-a-real-secret
+          APP_ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+          WEB_URL: https://www.example.invalid
+          APP_URL: https://app.example.invalid
+          DEMO_MODE: "true"
+          SITE_INDEXABLE: "false"
+        run: pnpm build

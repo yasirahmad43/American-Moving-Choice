@@ -1,0 +1,86 @@
+import Link from "next/link";
+import { PageFrame } from "@/components/site/page-frame";
+import { pageMetadata } from "@/components/site/page-meta";
+import { Note, Token } from "@/components/site/review-notes";
+
+const URL = "/privacy/";
+const TITLE = "Privacy Policy | American Moving Choice";
+const DESCRIPTION = "Placeholder privacy policy for the American Moving Choice preview: what a move request collects, who receives it, and the sections counsel will write.";
+
+export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
+
+export default function PrivacyPage() {
+  return (
+    <PageFrame
+      url={URL}
+      h1="Privacy policy"
+      description={DESCRIPTION}
+      trail={[{ label: "Privacy", href: URL }]}
+      overline="Legal"
+      lede="This is a placeholder. Counsel writes the privacy policy; the outline below shows what it will cover and the facts the product already fixes."
+      waitingOn="Counsel writes this policy. Nothing on this page is the policy itself."
+    >
+      <p>
+        <Note kind="counsel">counsel writes the full privacy policy, including the notice at collection that applicable state privacy laws require (consent draft §5; compliance facts §3)</Note>
+      </p>
+
+      <h2>Who we are</h2>
+      <p>
+        American Moving Choice, operated by <Token k="org.legal_name" />, <Token k="org.address" />. Privacy questions: <Token k="org.support_email" />.
+      </p>
+
+      <h2>What a move request collects</h2>
+      <ul>
+        <li>Move details: where you&apos;re moving from and to, the date, the size of your home and the services you want.</li>
+        <li>Contact details: your name, email address and phone number, and how you agree to be contacted.</li>
+        <li>
+          A record of your consent: the text you saw, including the names of the movers listed, the number you chose, and when you agreed.
+        </li>
+      </ul>
+      <p>
+        We ask for contact details only after we&apos;ve shown you which movers in our network cover your move. Move details stay in your browser
+        while you fill in the survey; contact details are never stored in your browser.{" "}
+        <Note kind="build">contact details never stored client-side (VD §9.3); no ZIPs, dates or contact details in URLs or analytics (site architecture §8.8)</Note>
+      </p>
+
+      <h2>Who receives your details</h2>
+      <p>
+        Only movers named on your Review and send screen, and no more than the number you chose, can receive your contact details. Each of those
+        movers pays us when it buys your request. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
+        each step.
+      </p>
+      <p>
+        <Note kind="counsel">whether paid delivery of a request to named movers is a &quot;sale&quot; or &quot;sharing&quot; under state privacy laws, and the opt-out wording that follows (implications §3.7)</Note>
+      </p>
+
+      <h2>Service providers</h2>
+      <p>
+        <Note kind="counsel">list the processors that handle personal data (hosting, database, email and text delivery, payments for movers) and what each does</Note>
+      </p>
+
+      <h2>How long we keep your details</h2>
+      <p>
+        <Note kind="counsel">retention periods for requests, consent records and cases</Note>
+      </p>
+
+      <h2>Your choices</h2>
+      <ul>
+        <li>You can withdraw a request from the link on your confirmation page. Movers who already bought it are told.</li>
+        <li>You can reply STOP to any text message from a mover, or ask the mover or us to stop contacting you.</li>
+        <li>
+          You can ask us about the details we hold about you, or ask us to delete them, through <Link href="/report-a-concern/">Report a concern</Link>{" "}
+          (choose &quot;My personal details&quot;).
+        </li>
+      </ul>
+      <p>
+        <Note kind="counsel">state-law rights and how to exercise them, and Global Privacy Control handling (site architecture §8.8)</Note>
+      </p>
+
+      <h2>Tracking on quote pages</h2>
+      <p>
+        The quote survey and its confirmation page load no advertising, retargeting or social-media tags, no chat widgets and no session recording.{" "}
+        <Note kind="build">script allowlist per survey step checked in CI (site architecture §8.8)</Note>
+      </p>
+    </PageFrame>
+  );
+}

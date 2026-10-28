@@ -1,0 +1,237 @@
+/*
+ * Tailwind CSS 4 theme for American Moving Choice ("Route Ledger", docs/design/visual-direction.md).
+ *
+ * Use from an app's global stylesheet:
+ *
+ *   @import "tailwindcss";
+ *   @import "@amc/ui/theme.css";
+ *   @source "../../../packages/ui/src";
+ *
+ * The theme maps the tokens in tokens.css (light and dark) to utilities. Tailwind's default color
+ * palette is removed on purpose, so only token colors exist: bg-surface, text-text-2,
+ * border-border-strong, bg-cta, text-error, bg-band and so on.
+ */
+@import "./tokens.css";
+
+/* dark: follows the system unless <html data-theme> says otherwise, like tokens.css. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+}
+
+@theme inline {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-red: var(--brand-red);
+  --color-display-red: var(--display-red);
+  --color-wordmark: var(--wordmark);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-on-cta: var(--on-cta);
+  --color-link: var(--link);
+  --color-focus: var(--focus);
+  --color-info-bg: var(--info-bg);
+  --color-info-text: var(--info-text);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-error: var(--error);
+  --color-error-bg: var(--error-bg);
+  --color-icon-success: var(--icon-success);
+  --color-icon-warning: var(--icon-warning);
+  --color-band: var(--band);
+  --color-on-band: var(--on-band);
+  --color-on-band-2: var(--on-band-2);
+  --color-focus-on-band: var(--focus-on-band);
+  --color-backdrop: var(--backdrop);
+
+  --font-display: var(--ff-display);
+  --font-sans: var(--ff-body);
+  --font-mono: var(--ff-mono);
+
+  --radius-tag: var(--r-tag);
+  --radius-badge: var(--r-badge);
+  --radius-control: var(--r-control);
+  --radius-card: var(--r-card);
+  --radius-shell: var(--r-shell);
+  --radius-shell-inner: var(--r-shell-inner);
+  --radius-pill: var(--r-pill);
+
+  --shadow-e1: var(--sh-1);
+  --shadow-e2: var(--sh-2);
+  --shadow-e3: var(--sh-3);
+}
+
+@theme {
+  /* Breakpoints 480 / 768 / 1024 / 1280 / 1536 (VD §7) */
+  --breakpoint-sm: 30rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+  /* Containers: reading 720px, content 1200px, portal 1440px (max-w-reading, ...) */
+  --container-reading: 45rem;
+  --container-content: 75rem;
+  --container-portal: 90rem;
+
+  /* Motion (VD §11): ease-out for entrances, ease-std for state changes, ease-exit for dismissals */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-std: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+/* Type scale (VD §6). Sizes are fluid where the direction says so. */
+@utility type-display-xl {
+  font-family: var(--ff-display);
+  font-weight: 800;
+  font-stretch: 75%;
+  font-size: clamp(2.25rem, 1.35rem + 3.6vw, 4rem);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+@utility type-display-l {
+  font-family: var(--ff-display);
+  font-weight: 800;
+  font-stretch: 78%;
+  font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.5rem);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+@utility type-h3 {
+  font-family: var(--ff-display);
+  font-weight: 700;
+  font-stretch: 100%;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+@utility type-h4 {
+  font-family: var(--ff-body);
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+@utility type-lede {
+  font-family: var(--ff-body);
+  font-weight: 400;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.25rem);
+  line-height: 1.55;
+}
+@utility type-body-public {
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+@utility type-small {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+@utility type-legal {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+@utility type-overline {
+  font-family: var(--ff-display);
+  font-weight: 700;
+  font-stretch: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Tabular figures for money, counts, dates and USDOT/MC numbers (VD §6). */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inline text link: link color, underlined, visible on hover. */
+@utility link {
+  color: var(--link);
+  text-decoration-line: underline;
+  text-underline-offset: 0.2em;
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Vertical section rhythm: clamp(48px, 2rem + 5vw, 112px). */
+@utility section-pad {
+  padding-block: var(--section-pad);
+}
+
+/* Side gutters: 16px mobile, 24px tablet, 32px from 1280px. */
+@utility gutter {
+  padding-inline: var(--gutter);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--bg);
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--ff-body);
+    font-size: 1rem;
+    line-height: 1.5;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  /* Navy bands: lighter focus ring (VD §5.1, 7.17:1 on navy). */
+  [data-band] :focus-visible {
+    outline-color: var(--focus-on-band);
+  }
+  ::selection {
+    background-color: var(--info-bg);
+    color: var(--info-text);
+  }
+  summary {
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

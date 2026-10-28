@@ -3,4 +3,18 @@ dist/
 .env
 .env.*
 !.env.example
-coverage/
+/coverage/
+**/node_modules/.cache/coverage/
+db/seed/out/
+db/out/
+# Next.js and TypeScript build output
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.vercel/
+# Playwright
+test-results/
+playwright-report/
+.worktrees/
+apps/*/AGENTS.md
+.claude/worktrees/

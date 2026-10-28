@@ -1,0 +1,181 @@
+/*
+ * Route Ledger design tokens (docs/design/visual-direction.md §5 to §7).
+ *
+ * Light is the default. Dark follows prefers-color-scheme, and data-theme="light" or
+ * data-theme="dark" on <html> overrides the system setting. Components use these variables
+ * through the Tailwind theme in theme.css (bg-surface, text-text-2, border-border-strong, ...).
+ *
+ * Contrast rules that the tokens encode (VD §5.3, §5.4):
+ * - --border is decorative only; anything a user must recognize as a control uses --border-strong.
+ * - --brand-red is never body text; --cta marks the one quote-request action in view.
+ * - Red is never placed on navy as the only distinguishing cue.
+ */
+:root {
+  color-scheme: light;
+
+  /* Canvas and surfaces */
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f6f8fb;
+  --surface-3: #eef2f7;
+
+  /* Text */
+  --text: #111c2e;
+  --text-2: #3b4a61;
+  --text-3: #55657d;
+
+  /* Lines */
+  --border: #dfe5ee;
+  --border-strong: #74839a;
+
+  /* Brand and actions */
+  --brand-navy: #063167;
+  --brand-red: #e0141c;
+  --display-red: #e0141c;
+  --wordmark: #063167;
+  --primary: #063167;
+  --primary-hover: #04254f;
+  --on-primary: #ffffff;
+  --cta: #c21018;
+  --cta-hover: #a10d14;
+  --on-cta: #ffffff;
+  --link: #1f4c8c;
+  --focus: #1f4c8c;
+
+  /* Status */
+  --info-bg: #eef3fa;
+  --info-text: #063167;
+  --success: #146c35;
+  --success-bg: #e7f4ec;
+  --warning: #7a4a00;
+  --warning-bg: #fff3dc;
+  --error: #b3261e;
+  --error-bg: #fdecea;
+  --icon-success: #1a7f40;
+  --icon-warning: #c77700;
+
+  /* Navy bands (company-facing CTA band, footer) */
+  --band: #063167;
+  --on-band: #ffffff;
+  --on-band-2: #dce6f4;
+  --focus-on-band: #9dc4ff;
+
+  /* Elevation: navy-tinted, diffused (VD §7) */
+  --sh-1: 0 1px 2px rgba(6, 49, 103, 0.06), 0 2px 6px -2px rgba(6, 49, 103, 0.08);
+  --sh-2: 0 12px 28px -14px rgba(6, 49, 103, 0.22), 0 2px 6px rgba(6, 49, 103, 0.06);
+  --sh-3: 0 28px 56px -20px rgba(6, 49, 103, 0.32);
+  --backdrop: rgba(10, 18, 34, 0.55);
+
+  /* Typography (VD §6). Fonts are self-hosted from @fontsource-variable (fonts.css). */
+  --ff-display: "Archivo Variable", "Archivo", "Arial Narrow", "Helvetica Neue", system-ui, sans-serif;
+  --ff-body: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --ff-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Radii (VD §7): tags, badges, controls, cards, survey shell */
+  --r-tag: 4px;
+  --r-badge: 8px;
+  --r-control: 12px;
+  --r-card: 16px;
+  --r-shell: 24px;
+  --r-shell-inner: 18px;
+  --r-pill: 999px;
+
+  /* Layout (VD §7) */
+  --section-pad: clamp(48px, 2rem + 5vw, 112px);
+  --gutter: 16px;
+
+  /* Motion durations (VD §11); the easing curves live in theme.css as ease-out, ease-std, ease-exit */
+  --d1: 120ms;
+  --d2: 200ms;
+  --d3: 280ms;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0a1222;
+    --surface: #111b2e;
+    --surface-2: #172338;
+    --surface-3: #1d2a42;
+    --text: #e9eef6;
+    --text-2: #b4bfd0;
+    --text-3: #8f9bb0;
+    --border: #2a3852;
+    --border-strong: #5b6b86;
+    --display-red: #ff5a5f;
+    --wordmark: #e9eef6;
+    --primary: #bfd3f2;
+    --primary-hover: #d6e3f7;
+    --on-primary: #04254f;
+    --cta: #e0141c;
+    --cta-hover: #c21018;
+    --on-cta: #ffffff;
+    --link: #9dbdf0;
+    --focus: #8ec5ff;
+    --info-bg: #14284a;
+    --info-text: #bfd3f2;
+    --success: #6fd394;
+    --success-bg: #0f2a1b;
+    --warning: #f5b95a;
+    --warning-bg: #2e2108;
+    --error: #ff8a80;
+    --error-bg: #33140f;
+    --icon-success: #6fd394;
+    --icon-warning: #f5b95a;
+    --band: #04254f;
+    --sh-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --sh-2: 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+    --sh-3: 0 28px 56px -20px rgba(0, 0, 0, 0.7);
+    --backdrop: rgba(0, 0, 0, 0.65);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0a1222;
+  --surface: #111b2e;
+  --surface-2: #172338;
+  --surface-3: #1d2a42;
+  --text: #e9eef6;
+  --text-2: #b4bfd0;
+  --text-3: #8f9bb0;
+  --border: #2a3852;
+  --border-strong: #5b6b86;
+  --display-red: #ff5a5f;
+  --wordmark: #e9eef6;
+  --primary: #bfd3f2;
+  --primary-hover: #d6e3f7;
+  --on-primary: #04254f;
+  --cta: #e0141c;
+  --cta-hover: #c21018;
+  --on-cta: #ffffff;
+  --link: #9dbdf0;
+  --focus: #8ec5ff;
+  --info-bg: #14284a;
+  --info-text: #bfd3f2;
+  --success: #6fd394;
+  --success-bg: #0f2a1b;
+  --warning: #f5b95a;
+  --warning-bg: #2e2108;
+  --error: #ff8a80;
+  --error-bg: #33140f;
+  --icon-success: #6fd394;
+  --icon-warning: #f5b95a;
+  --band: #04254f;
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sh-2: 0 12px 28px -14px rgba(0, 0, 0, 0.6);
+  --sh-3: 0 28px 56px -20px rgba(0, 0, 0, 0.7);
+  --backdrop: rgba(0, 0, 0, 0.65);
+}
