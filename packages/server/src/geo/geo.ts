@@ -55,6 +55,26 @@ export function zipDistanceMiles(from: string, to: string): number | null {
   return Math.round(distanceMiles(a, b) * 10) / 10;
 }
 
+/** The radius options the marketplace ZIP filters accept, in miles. */
+export const ZIP_RADIUS_MILES = [25, 50, 100] as const;
+
+/**
+ * Every known ZIP code whose centroid lies within `miles` of the given ZIP's centroid (the ZIP
+ * itself included), for "within 25/50/100 miles" filters. Null when the ZIP is unknown. A linear
+ * scan of the bundled dataset (about 41,000 rows) takes a few milliseconds.
+ */
+export function zipsWithinMiles(zip: string, miles: number): string[] | null {
+  const center = lookupZip(zip);
+  if (!center || !(miles > 0)) return null;
+  const out: string[] = [];
+  for (const [code, row] of Object.entries(ZIPS)) {
+    if (!row) continue;
+    const [, , , lat, lng] = row;
+    if (distanceMiles(center, { lat, lng }) <= miles) out.push(code);
+  }
+  return out;
+}
+
 export interface ResolvedMove {
   origin: ZipLocation;
   destination: ZipLocation;

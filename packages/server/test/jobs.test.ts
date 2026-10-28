@@ -51,15 +51,22 @@ describe("registry", () => {
     expect(jobBySlug("nope")).toBeNull();
   });
 
-  it("is scheduled once a day per job in apps/app/vercel.json (Hobby-plan safe)", () => {
+  it("is scheduled in apps/app/vercel.json: once a day per job, or the job's own expression", () => {
     const config = JSON.parse(readFileSync(new URL("../../../apps/app/vercel.json", import.meta.url), "utf8")) as { crons: { path: string; schedule: string }[] };
     expect(config.crons.map((c) => c.path).sort()).toEqual(JOBS.map((j) => `/api/cron/${j.slug}`).sort());
     for (const cron of config.crons) {
+      const job = JOBS.find((j) => cron.path.endsWith(`/${j.slug}`))!;
+      if (job.cronSchedule) {
+        expect(cron.schedule).toBe(job.cronSchedule);
+        continue;
+      }
       const [minute, hour, ...rest] = cron.schedule.split(" ");
       expect(rest).toEqual(["*", "*", "*"]);
       expect(minute).toMatch(/^\d{1,2}$/);
-      expect(Number(hour)).toBe(JOBS.find((j) => cron.path.endsWith(`/${j.slug}`))!.cronHourUtc);
+      expect(Number(hour)).toBe(job.cronHourUtc);
     }
+    // The outbox runs every 15 minutes (Vercel Pro), so mover notices never wait a day (audit F6).
+    expect(jobBySlug("deliver-outbox")?.cronSchedule).toBe("*/15 * * * *");
   });
 
   it("picks the expiry alert threshold", () => {
