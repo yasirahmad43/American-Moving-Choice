@@ -1,0 +1,103 @@
+import { Breadcrumbs, Container } from "@amc/ui";
+import { GEO_THRESHOLDS, publishedStateHubs } from "@amc/server/geo-pages";
+import { getSettings } from "@amc/server/settings";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { connection } from "next/server";
+import { JsonLd, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
+import { ZipCheck } from "./zip-check";
+
+export const metadata: Metadata = {
+  title: "Movers by state",
+  description: "How movers in the American Moving Choice network set the areas they serve, and a ZIP check that shows coverage for your state.",
+  ...canonical("/movers/"),
+};
+
+/** Geo index (site architecture §1.2): lists published hubs only; in the preview none pass the gates. */
+export default async function MoversIndexPage() {
+  await connection();
+  const [hubs, settings] = await Promise.all([publishedStateHubs(), getSettings()]);
+  return (
+    <Container size="reading" className="grid gap-10 section-pad">
+      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Movers", path: "/movers/" }])} />
+      <div className="grid gap-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Movers" }]} />
+        <h1 className="type-display-l text-text">Movers by state</h1>
+        <p className="type-lede text-text-2">
+          Every mover in the American Moving Choice network sets the areas it serves. A request reaches only movers whose coverage includes
+          it, and never more than the number you choose.
+        </p>
+      </div>
+
+      <section aria-labelledby="zip-heading" className="grid gap-4 rounded-card border border-border bg-surface p-5 shadow-e1 sm:p-6">
+        <h2 id="zip-heading" className="type-h3 text-text">
+          Check coverage where you're moving from
+        </h2>
+        <ZipCheck />
+      </section>
+
+      <section aria-labelledby="states-heading" className="grid gap-3">
+        <h2 id="states-heading" className="type-h3 text-text">
+          State pages
+        </h2>
+        {hubs.length ? (
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {hubs.map((state) => (
+              <li key={state.code}>
+                <Link href={`/movers/${state.slug}/`} className="link">
+                  Movers in {state.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-text">
+            No state pages are published yet. We publish a state page only when it passes every publishing check, including at least{" "}
+            <span className="tabular">{GEO_THRESHOLDS.state_hub.movers}</span> movers in our network with coverage there and checked facts about
+            the state's own rules for movers. Until then, the ZIP check above and the quote survey show coverage for your move.
+          </p>
+        )}
+      </section>
+
+      <section aria-labelledby="how-heading" className="grid gap-3 text-text">
+        <h2 id="how-heading" className="type-h3 text-text">
+          How coverage works
+        </h2>
+        <ul className="grid list-disc gap-2 pl-6">
+          <li>
+            <strong>Movers set their own coverage.</strong> Each sets where moves may start and end (whole states, counties or ZIP codes),
+            which kinds of move it takes (local, in-state long-distance or between states), home sizes and services. The capabilities
+            approved for it cap what its coverage can include.
+          </li>
+          <li>
+            <strong>Based in isn't the same as serves.</strong> A mover's profile shows where it's based apart from where it works, so a
+            mover based in one city isn't listed for another unless its coverage includes it.
+          </li>
+          <li>
+            <strong>Your answers decide who can receive your request.</strong> The quote survey checks your move against every mover's
+            coverage before it asks for contact details, names the movers that cover it, and asks how many may contact you, up to{" "}
+            <span className="tabular">{settings.max_sharing_limit}</span>.
+          </li>
+          <li>
+            <strong>Only screened movers count.</strong> Every mover in a count or list is an approved moving carrier with no broker
+            authority.
+          </li>
+        </ul>
+        <p className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/which-companies-receive-my-request/" className="link inline-flex min-h-11 items-center">
+            Which companies receive my request
+          </Link>
+          <Link href="/how-we-verify-movers/" className="link inline-flex min-h-11 items-center">
+            How we verify movers
+          </Link>
+          <Link href="/review-methodology/" className="link inline-flex min-h-11 items-center">
+            How reviews work
+          </Link>
+          <Link href="/directory/" className="link inline-flex min-h-11 items-center">
+            Mover directory
+          </Link>
+        </p>
+      </section>
+    </Container>
+  );
+}
