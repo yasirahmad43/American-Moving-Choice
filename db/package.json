@@ -10,7 +10,8 @@
     "reset": "tsx scripts/reset.ts",
     "seed:build": "tsx seed/build.ts",
     "bundle:supabase": "tsx scripts/bundle-supabase.ts",
-    "scram-verifier": "tsx scripts/scram-verifier.ts"
+    "scram-verifier": "tsx scripts/scram-verifier.ts",
+    "vercel-deploy": "tsx scripts/vercel-deploy.ts"
   },
   "devDependencies": {
     "@amc/core": "workspace:*",

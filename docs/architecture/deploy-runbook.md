@@ -26,6 +26,8 @@ postgres://amc_app.<project-ref>:<password>@<pooler-host>:6543/postgres
 
 The pooler host is shown in the project's connection settings (for example `aws-0-us-east-1.pooler.supabase.com`). Set `DATABASE_SSL=verify` and `DATABASE_SSL_CA` to Supabase's CA certificate (PEM, downloadable from the project's database settings; literal `\n` sequences are accepted), so the connection is encrypted and the server is authenticated. `require` encrypts without checking the certificate and is open to an active man-in-the-middle; production refuses `disable` for any host other than localhost. Prepared statements are not used, so transaction mode is safe.
 
+**Automatic path (used for the preview).** Instead of steps 4–5, the amc-app production build runs `pnpm --filter @amc/db vercel-deploy` before `next build` (`apps/app/vercel.json`). With `VERCEL_ENV=production` and `DATABASE_URL` set, it applies pending migrations as `amc_app`, then loads the demo seed once (while `admin_users` is empty), built in memory from `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_MOVER_EMAIL`, `SEED_MOVER_PASSWORD`, `SEED_ADMIN_TOTP_SECRET`, `APP_ENCRYPTION_KEY`, `HMAC_SECRET` and `WEB_URL` set on the amc-app production environment. It refuses the same unsafe seeds as `db:bundle:supabase`. Preview builds never touch the database.
+
 ## 2. Hosting (Vercel)
 
 Two projects linked to the GitHub repository, both building with pnpm from the repository root:
