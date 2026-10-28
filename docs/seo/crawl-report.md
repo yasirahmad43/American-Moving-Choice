@@ -1,14 +1,14 @@
 # Crawl report: http://localhost:3500
 
-Generated 2026-10-28T15:43:13.385Z by `pnpm seo:crawl` (tools/seo-crawl.ts). Plain HTTP fetch of the server-rendered HTML, starting from the home page and the sitemap index, following every same-origin link.
+Generated 2026-10-28T16:10:54.038Z by `pnpm seo:crawl` (tools/seo-crawl.ts). Plain HTTP fetch of the server-rendered HTML, starting from the home page and the sitemap index, following every same-origin link.
 
 ## Summary
 
 | Check | Result |
 |---|---|
-| URLs fetched | 395 |
-| 200 HTML pages | 389 |
-| Indexable pages (no noindex) | 389 |
+| URLs fetched | 307 |
+| 200 HTML pages | 301 |
+| Indexable pages (no noindex) | 301 |
 | noindex pages | 0 |
 | Broken links (non-200 targets) | 6 |
 | Redirects followed | 0 (chains > 1 hop: 0) |
@@ -20,7 +20,7 @@ Generated 2026-10-28T15:43:13.385Z by `pnpm seo:crawl` (tools/seo-crawl.ts). Pla
 | Orphans (indexable, no inbound link) | 0 |
 | Indexable pages deeper than 3 clicks from home | 0 |
 | Sitemap files | 9 |
-| Sitemap URLs | 389 (non-200: 0; noindex: 0) |
+| Sitemap URLs | 301 (non-200: 0; noindex: 0) |
 | Indexable pages missing from the sitemap | 0 |
 | Invalid JSON-LD blocks | 0 |
 | FAQ schema without visible FAQ (or vice versa) | 0 |
@@ -28,9 +28,9 @@ Generated 2026-10-28T15:43:13.385Z by `pnpm seo:crawl` (tools/seo-crawl.ts). Pla
 
 ### Indexable pages by first path segment
 
-- /movers/: 252
+- /movers/: 161
 - /questions/: 35
-- /routes/: 26
+- /routes/: 29
 - /planning/: 22
 - /companies/: 15
 - /services/: 7

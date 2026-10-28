@@ -156,13 +156,21 @@ test.describe("review invitation", () => {
 test.describe("location pages and verify-a-mover", () => {
   test("movers index explains coverage and reports a ZIP's state inline; gated pages are 404", async ({ page }) => {
     await page.goto(`${WEB_URL}/movers/`);
-    await expect(page.getByText("No state pages are published yet.")).toBeVisible();
+    // With only the demo seed no state page is published; after `pnpm seo:generate state` and
+    // `seo:publish` the hub lists them instead and /movers/texas/ is live.
+    const generated = (await page.getByRole("link", { name: /Texas/ }).count()) > 0;
+    if (!generated) await expect(page.getByText("No state pages are published yet.")).toBeVisible();
     await page.getByLabel("Your ZIP code").fill("78704");
     await page.getByRole("button", { name: "Check coverage" }).click();
     await expect(page.getByText(/Austin, TX: \d+ movers in our network cover moves starting in Texas/)).toBeVisible();
     expect(page.url()).toBe(`${WEB_URL}/movers/`);
-    expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(404);
-    expect((await page.goto(`${WEB_URL}/movers/texas/dallas/`))?.status()).toBe(404);
+    if (generated) {
+      expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(200);
+      await expect(page.locator("h1")).toHaveCount(1);
+    } else {
+      expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(404);
+      expect((await page.goto(`${WEB_URL}/movers/texas/dallas/`))?.status()).toBe(404);
+    }
   });
 
   test("verify-a-mover finds fixture USDOT 9000001 and reports the broker fixture as a broker", async ({ page }) => {
