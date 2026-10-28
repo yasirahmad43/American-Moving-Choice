@@ -16,9 +16,9 @@ export function ScrollProgress() {
  */
 export function Counter({ value, className, suffix = "" }: { value: number; className?: string; suffix?: string }) {
   return (
-    <span className={className} data-counter={value} data-counter-suffix={suffix || undefined}>
-      {value.toLocaleString("en-US")}
-      {suffix}
+    <span className={className}>
+      <span data-counter={value} data-counter-suffix={suffix || undefined} aria-hidden="true">{value.toLocaleString("en-US")}{suffix}</span>
+      <span className="sr-only">{value.toLocaleString("en-US")}{suffix}</span>
     </span>
   );
 }

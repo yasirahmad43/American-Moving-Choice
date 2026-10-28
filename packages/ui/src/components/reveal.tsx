@@ -46,10 +46,26 @@ export function Reveal({ as: Tag = "div", delay = 0, threshold = 0.15, className
           }
         }
       },
-      { threshold, rootMargin: "0px 0px -8% 0px" },
+      { threshold: Math.min(0.15, Math.max(0, threshold)), rootMargin: "0px 0px -4% 0px" },
     );
     observer.observe(node);
-    return () => observer.disconnect();
+    // Only hide content after the observer is attached. A failed hydration never hides SSR text.
+    node.dataset.reveal = "pending";
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const show = () => {
+      if (preference.matches || node.contains(document.activeElement)) {
+        node.dataset.reveal = "in";
+        observer.disconnect();
+      }
+    };
+    preference.addEventListener("change", show);
+    node.addEventListener("focusin", show);
+    return () => {
+      observer.disconnect();
+      preference.removeEventListener("change", show);
+      node.removeEventListener("focusin", show);
+      node.dataset.reveal = "in";
+    };
   }, [threshold]);
   const Component = Tag as "div";
   return (

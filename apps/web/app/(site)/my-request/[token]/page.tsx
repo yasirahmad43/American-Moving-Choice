@@ -4,7 +4,6 @@ import { getRequestByToken, type ManagedRequest, type RequestStatus } from "@amc
 import { Alert, Card, Container, EmptyState, LinkButton, StatusPill, formatAbsoluteDate, type StatusTone } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MoverName } from "@/components/survey/mover-name";
 import { WithdrawForm } from "@/components/survey/withdraw-form";
 import { withdrawAction } from "./actions";
 
@@ -21,12 +20,12 @@ const STATUS: Record<RequestStatus, { label: string; tone: StatusTone; explain: 
   open: {
     label: "Open",
     tone: "info",
-    explain: (r) => `Movers named below can buy your request until ${formatAbsoluteDate(r.expiresAt, { withTime: true, month: "long" })}, up to ${r.limit === 1 ? "1 mover" : `${r.limit} movers`}.`,
+    explain: (r) => `Participating companies can receive your request until ${formatAbsoluteDate(r.expiresAt, { withTime: true, month: "long" })}, up to ${r.limit === 1 ? "1 mover" : `${r.limit} movers`}.`,
   },
   in_review: {
     label: "Being checked",
     tone: "warning",
-    explain: () => "We're checking your request before movers can see it. You'll get an email if a mover buys it.",
+    explain: () => "We're checking your request before matching companies can receive it.",
   },
   sold_out: {
     label: "Complete",
@@ -123,40 +122,10 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
         ) : null}
       </Card>
 
-      <section aria-labelledby="buyers-heading" className="grid gap-3">
-        <h2 id="buyers-heading" className="type-h3 text-text">
-          Movers that bought your request
-        </h2>
-        {r.buyers.length ? (
-          <>
-            <p className="text-text-2">These movers received your contact details and may contact you directly. Each paid American Moving Choice for your request.</p>
-            <ol className="grid gap-0 rounded-card border border-border">
-              {r.buyers.map((b) => (
-                <li key={`${b.displayName}-${b.purchasedAt}`} className="grid gap-1 border-t border-border p-4 first:border-t-0">
-                  <MoverName {...b} />
-                  <p className="type-small text-text-2 tabular">Bought {formatAbsoluteDate(b.purchasedAt, { withTime: true, month: "long" })}</p>
-                </li>
-              ))}
-            </ol>
-          </>
-        ) : (
-          <p className="text-text-2">No mover has bought your request, so no mover has received your contact details from us.</p>
-        )}
-      </section>
-
-      <section aria-labelledby="named-heading" className="grid gap-3">
-        <h2 id="named-heading" className="type-h3 text-text">
-          Movers named on your request
-        </h2>
-        <p className="text-text-2">Only these movers can buy your request, no more of them than the number you chose.</p>
-        <ul className="grid gap-0 rounded-card border border-border">
-          {r.named.map((m) => (
-            <li key={m.companyId} className="border-t border-border p-4 first:border-t-0">
-              <MoverName {...m} />
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Card as="section" title="What happens next" titleAs="h2">
+        <p className="text-text-2">Up to {r.limit} participating moving {r.limit === 1 ? "company" : "companies"} may contact you using the methods you chose. Each company will identify itself when it contacts you.</p>
+        <p className="mt-3 type-small text-text-2">{r.buyerCount ? `${r.buyerCount} ${r.buyerCount === 1 ? "company has" : "companies have"} received your request.` : "No company has received your contact details from us yet."}</p>
+      </Card>
 
       {r.canWithdraw ? (
         <Card as="section" title="Withdraw your request" titleAs="h2">
@@ -164,12 +133,12 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
             Withdrawing stops any new mover from buying your request. We tell movers that already bought it to stop contacting you. It can't take back details
             a mover already received.
           </p>
-          <WithdrawForm action={withdrawAction.bind(null, token)} buyers={r.buyers.length} />
+          <WithdrawForm action={withdrawAction.bind(null, token)} buyers={r.buyerCount} />
         </Card>
       ) : null}
 
       <p className="type-small text-text-2">
-        Contact from a company you weren't told about?{" "}
+        Unexpected contact about your move?{" "}
         <Link href="/report-a-concern/" className="link">
           Report a concern
         </Link>

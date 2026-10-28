@@ -293,7 +293,7 @@
 
 @layer components {
   /* Scroll reveals: 14px rise + fade, 560ms, once. Without JavaScript everything is visible. */
-  [data-reveal] {
+  [data-reveal="pending"] {
     opacity: 0;
     transform: translateY(14px);
     transition:
@@ -343,9 +343,8 @@
     transform: rotateY(180deg);
   }
   @media (hover: hover) and (pointer: fine) {
-    .flip:hover .flip-inner,
-    .flip:focus-within .flip-inner {
-      transform: rotateY(180deg);
+    .flip:not([data-flipped="true"]):hover .flip-inner {
+      transform: rotateY(-3deg) rotateX(1deg);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -357,14 +356,10 @@
       transform: none;
       opacity: 0;
     }
-    .flip[data-flipped="true"] .flip-front,
-    .flip:hover .flip-front,
-    .flip:focus-within .flip-front {
+    .flip[data-flipped="true"] .flip-front {
       opacity: 0;
     }
-    .flip[data-flipped="true"] .flip-back,
-    .flip:hover .flip-back,
-    .flip:focus-within .flip-back {
+    .flip[data-flipped="true"] .flip-back {
       opacity: 1;
     }
     .flip[data-flipped="true"] .flip-inner,

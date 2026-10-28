@@ -6,7 +6,7 @@
  * without JavaScript everything is visible and static.
  */
 import { Container, Icon3D, LinkButton, SectionHeader, TiltCard, type Icon3DName } from "@amc/ui";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export interface Stop {
   title: ReactNode;
@@ -33,11 +33,12 @@ export function HowItWorks({
   tone?: "alt" | "default";
 }) {
   const n = stops.length;
+  if (n === 0) return null;
   // Stop positions along the 1000-unit route, matched to the card columns.
   const xs = stops.map((_, i) => 12 + ((1000 - 24) / n) * (i + 0.5));
   return (
     <section data-pin-sequence="" aria-labelledby={id} className={tone === "alt" ? "bg-surface-2" : undefined}>
-      <div data-pin-target="" className="grid min-h-[min(100dvh,56rem)] content-center section-pad lg:py-0">
+      <div data-pin-target="" className="grid content-center section-pad lg:min-h-[min(44rem,calc(100dvh-7rem))] lg:py-10">
         <Container className="grid gap-10 lg:gap-14">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <SectionHeader id={id} overline={overline} title={title} lede={lede} action={action ?? <LinkButton href="/get-quotes/" variant="secondary">Start a quote request</LinkButton>} />
@@ -69,7 +70,7 @@ export function HowItWorks({
               <path d="M6 0 V1000" stroke="var(--border-strong)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 8" vectorEffect="non-scaling-stroke" />
             </svg>
 
-            <ol className="relative grid gap-6 lg:grid-cols-4 lg:gap-5">
+            <ol className="workflow-stops relative grid gap-6 lg:gap-5" style={{ "--step-count": n } as CSSProperties}>
               {stops.map((stop, index) => {
                 const last = index === n - 1;
                 return (
@@ -80,7 +81,7 @@ export function HowItWorks({
                         aria-hidden="true"
                         className={
                           last
-                            ? "inline-grid size-11 place-items-center rounded-pill bg-brand-red font-display text-[1.0625rem] font-extrabold tabular text-white ring-[6px] ring-surface-2 [font-stretch:85%]"
+                            ? "inline-grid size-11 place-items-center rounded-pill bg-cta font-display text-[1.0625rem] font-extrabold tabular text-white ring-[6px] ring-surface-2 [font-stretch:85%]"
                             : "inline-grid size-11 place-items-center rounded-pill bg-surface font-display text-[1.0625rem] font-extrabold tabular text-brand-navy ring-[3px] ring-brand-navy [font-stretch:85%] shadow-[0_0_0_6px_var(--surface-2)]"
                         }
                       >

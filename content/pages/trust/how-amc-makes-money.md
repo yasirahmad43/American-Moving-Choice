@@ -4,7 +4,7 @@ url: /advertising-disclosure/
 family: Trust page
 title: "How American Moving Choice Makes Money"   # full brand name, because "AMC" alone is ambiguous in search results; the H1 and breadcrumb keep the fixed page name (site architecture §8.2; README §4)
 # ST-1c (allowed on this page: site architecture §8.2)
-meta_description: "American Moving Choice is a service, not a mover or broker. Movers pay us for the requests they buy; payment never changes screening, ratings or order."
+meta_description: "Movers pay American Moving Choice for requests they buy. Consumers use the service free and choose the maximum number of companies that may contact them."
 h1: "How AMC makes money"
 breadcrumb: "Home › How AMC makes money"
 indexation: index once approved
@@ -16,178 +16,58 @@ reviewer: "{{page.reviewer}}"
 data_owner: n/a
 ai_assisted: true
 ai_role: drafted
-stored_texts: [ST-1a, ST-1c, ST-3, ST-5b]   # ST-5b, the badge summary under "What payment never changes", is a proposed record that counsel reviews with ST-5
+stored_texts: [ST-1a]
 tokens: [pricing.revenue_relationship, setting.max_movers, setting.rank_min_reviews, badge.name, directory.url, org.support_email, page.author, page.reviewer]
 depends_on:
-  - "implications §11 Q8 (owner and counsel): the sentence behind {{pricing.revenue_relationship}}, set after pilot pricing (stored texts, default sentence, corrected to shared pricing §5 on 2026-10-28)"
-  - "shared pricing §9 decisions 1 and 2, brief §11 Q5 and Q6: policy option B (step-down with credits), the factor schedule and the maximum behind {{setting.max_movers}}"
-  - "shared pricing §9 decision 3, brief §11 Q6: price bands, and whether prices vary by move type (default shown: they can)"
-  - "shared pricing §9 decision 5, brief §11 Q7: quality-claim reasons. 'What we earn doesn't depend on whether you hire anyone' holds only if hiring another mover, or not answering, never qualifies (implications §9.1)"
-  - "implications §2.3 items 2 and 4, §11 Q4, brief §11 Q5, consent draft §4: the count-question safeguards"
-  - "implications §3.1, §2.3 item 3, §11 Q3: the published order on the Review and send screen and the profile-origin path"
-  - "site architecture §1.1 (SEO owner): record the exception that lets this consumer page summarize how requests are priced (content README §9; page brief, open item 2)"
-  - "mover verification §9 decision 5, site architecture §0 item 5: no sponsored placement at launch"
-  - "owner: no third-party ads or affiliate links (default none; mvp-scope §6 mentions later truck-rental affiliates)"
-  - "implications §3.7 (counsel): no 'never sell' line; who receives contact details"
-  - "owner and counsel (page brief, open item 5): whether a purchase paid wholly with promotional or goodwill credit counts as the mover paying us (shared pricing §2 kind 4)"
-  - "counsel: whether 'where it appears' and 'order' in ST-1a, ST-1c and ST-3 hold, given that only buyers' customers can review and rating sorts need a minimum sample (mover verification §6; site architecture §2.4 rule 3)"
-  - "brief §11 Q1, implications §11 Q10 and §4.3 (owner and counsel): related-party disclosure, and whether a related mover can hold the badge"
-  - "implications §5, §11 Q6 and §5.4 Q5 (counsel): badge name and its money relation"
-  - "implications D5, brief §4: booking and deposits stay out of the product (MVP scope §5 still lists a 'Booking deposits and payments' add-on)"
-  - "Owner: corporate-family counting, one purchase per family per request (implications §9.5, §11 Q12); the current rule counts each company (shared pricing §1)"
-  - "Counsel: 'Preferred' described as reading as a paid or chosen status while {{badge.name}}'s working name contains it (README §5; implications §5, §11 Q6)"
-  - "counsel: final wording of ST-1a, ST-1c, ST-3 and ST-5b (stored texts; site architecture §7.1), including the ST-1 note on 'not … a moving broker' as a legal conclusion (carrier-vs-broker note, counsel items 1 to 4)"
-  - "site architecture §0 item 9: directory name and slug behind {{directory.url}}"
+  - "Counsel: review current count-based contact permission and final legal wording before real consumer requests"
 last_updated: null
 ---
 
 # How AMC makes money
 
-American Moving Choice is paid by moving companies, not by you. A mover in our network pays us when it buys a move request, and you pay us nothing. What we earn depends on how many movers buy each request, so this page sets out how our revenue works and the limits we place on our own incentives.
-
-Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
-
-[Build: this review note renders from the page record, as the editorial policy specifies (content/pages/trust/editorial-policy.md, "How we tell you"; README §2)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown (editorial policy, "How we tell you")]
-
-[Build: a reader who opens this page from the quote survey can return to the survey with every answer kept (lead lifecycle §1, §2; page brief §2, reader 1)]
-
-We show the statement below, in these words, on the Review and send screen of our quote survey, on the confirmation page and in the footer of every page. [Build: one record renders ST-1a on this page, in the consent block, on confirmation and in the footer, and a build check matches them (site architecture §7.1; implications §3.4)]
+American Moving Choice is paid by moving companies, not by you. Movers in our network pay for the move requests they choose to buy. You choose how many movers may contact you, and using this service is free for consumers.
 
 <!-- ST-1a -->
-> American Moving Choice is an online service that connects people planning a move with moving companies in our network. We are not a moving company or a moving broker. We don't transport belongings, give estimates, or arrange or book moves. Movers in our network pay us for the move requests they choose to buy. What a mover pays never changes its screening result, its ratings, how its reviews are shown, or where it appears in our directory, on our location pages or in the list of movers you see before you send a request.
+> {{text.ST-1a}}
 
-[Movers vs brokers](/movers-vs-brokers/) explains the difference between the two, and why we work only with movers.
+## What movers pay for
 
-## Who pays us, and who doesn't
+A mover first sees a limited preview of the move, including its route, date, size and requested services. Contact details aren't shown before purchase. An eligible mover may purchase the request while it is available, within the consumer's chosen maximum.
 
-**Movers pay us for each request they buy.** A mover pays at the moment it buys a request. If no mover buys your request, we earn nothing from it.
+Movers have private prices for exclusive and shared requests. Choosing one mover creates an exclusive request; choosing two or more creates a shared request. Shared pricing can decrease as additional eligible companies purchase the request, with the difference returned as account credit under the platform's pricing rules.
 
-**You pay us nothing.** We don't charge you to use the site, and we don't take deposits, booking fees, commissions or any other payment for your move. [Owner: booking, deposits and move payments stay out of the product — default shown (implications D5; brief §4; MVP scope §5 still lists a 'Booking deposits and payments' add-on)]
+What we earn depends on the requests companies purchase. A purchase doesn't mean you hired that company or completed a move. Movers set their own estimates, prices and terms, and you decide whether to hire one.
 
-**What we earn doesn't depend on whether you hire anyone.** We're paid when a mover buys your request, not when anyone hires a mover. So what we earn doesn't change with whether you hire a mover, which one you choose or what your move costs. [Owner: shared pricing §9 decision 5 and brief §11 Q7, the reasons that qualify a mover for a quality refund — default shown: hiring another mover, or not answering yet, never qualifies (implications §9.1)] Payment for the move itself is between you and the mover you hire.
+## Your choice stays yours
 
-## How are requests priced to movers?
+The quote survey doesn't preselect how many movers you should hear from. Every selectable option has equal visual weight. Choices above current coverage aren't available, and your maximum isn't increased to create more sales.
 
-This is a short summary. The full buying rules for movers are on our [pricing page for movers](/for-movers/pricing/). [Owner: site architecture §1.1 bars lead-pricing talk on consumer pages, while content README §9 puts a pricing summary on this page — default shown: the summary, with no figures; the SEO owner records the exception in site architecture §1.1 (page brief, open item 2)]
+Companies aren't presented as preferred movers, featured listings or a list of individual quote buttons. You submit one request for your move. Eligible companies introduce themselves when they contact you, using only the channels you permitted.
 
-**Each mover has its own prices.** We set each mover's prices in its account, and they can differ by type of move: local, in-state long-distance or interstate. [Owner: brief §11 Q6, prices by type of move — default shown (implications §9.1)] Prices are private: we don't publish them, and movers never see one another's prices.
+[Which companies receive my request](/which-companies-receive-my-request/) explains the process, the contact limit and withdrawal.
 
-**Your answer decides the type of request.** At the How many movers step, our survey asks, "How many moving companies would you like to hear from?" The type is fixed when you send your request.
+## What payment doesn't buy
 
-| Your answer | Type of request | Who can buy it | What each buyer pays |
-|---|---|---|---|
-| 1 | Exclusive | One mover at most | Its own exclusive price |
-| 2 or more | Shared | Up to the number you chose | Its own shared price, which steps down as more movers buy |
+| What doesn't depend on a mover's spending | What decides it |
+|---|---|
+| Passing our screening | The checks described in [How we verify movers](/how-we-verify-movers/) |
+| Your maximum number of contacting companies | Your choice in the quote survey |
+| The contact channels a mover may use | The permission you gave |
+| Approval to purchase a request | Coverage, capabilities, account standing and request availability |
+| The calculation of a planning range | The calculator's data and published method |
 
-Movers under common ownership count as one buyer, so only one of them can buy your request. [Owner: corporate-family counting — default shown (implications §9.5, §11 Q12); the current rule counts each company (shared pricing §1)]
+We don't sell public company showcases, preferred positions or individual-company quote placements. A company can't pay to bypass a failed screening check, buy more places on a request than you allowed, or change your contact permissions.
 
-**Shared prices step down as more movers buy.** Each time another mover buys a shared request, the price drops for every buyer. The new buyer pays the lower price, and each earlier buyer gets the difference back as credit in its account with us. In the end, every buyer pays the same percentage of its own price. [Owner: shared pricing §9 decision 1, policy option B (step-down with automatic credits), recommended but not approved — default shown (brief §11 Q6)]
+## Who receives your contact details?
 
-How big each step is hasn't been decided. We'll publish the steps on our pricing page for movers once they're set. [Owner: shared pricing §9 decision 2, the factor schedule — default shown: no step figures on this page]
+Only eligible companies recorded for the request that complete a purchase, up to the maximum you chose. We keep the eligibility record and purchase history internally. Your survey and confirmation don't display company names; each company identifies itself during contact.
 
-## Does your answer change what we earn?
+The sale of a request is part of how this service earns money. Read [our privacy outline](/privacy/) and the contact permission before sending. Nothing is shared with movers without your agreement to contact.
 
-Yes. What we earn from your request depends on the number you choose and on how many movers buy it.
+## Ads and other links
 
-{{pricing.revenue_relationship}}
+We may pay to advertise American Moving Choice on search engines and other websites. That is separate from companies buying move requests through our platform. We don't present sponsored mover listings to consumers.
 
-[Owner: replace with the real relationship once pilot prices are set; owner and counsel approve the sentence — default shown (implications §11 Q8). The default in content/stored-texts.md now follows the illustrative prices in shared pricing §5] [Build: render this paragraph from `{{pricing.revenue_relationship}}`, so the approved sentence replaces this default wherever it shows (content README §3)]
+## Questions about your request or our business
 
-That gives us a reason to prefer some answers over others. We also set the highest number the question offers, {{setting.max_movers}}, and how much shared prices step down. Both change what we earn. [Owner: the maximum, shared pricing §9 decision 2 and brief §11 Q5 — default shown (implications §11 Q4)]
-
-These rules limit how our interest can shape the question:
-
-- **Nothing is chosen for you.** No answer is selected in advance.
-- **Every option you can choose looks the same.** No number is bigger, brighter or marked as recommended, and the words around the question don't push you toward any number, fewer movers or more.
-- **You can't choose more movers than are available.** If fewer than {{setting.max_movers}} movers are available for your move, the numbers above that count are shown, but you can't select them, and the screen says why.
-- **Revenue doesn't decide tests of this question.** When we test changes to the question, we don't judge them by how much money they make us.
-
-[Owner: the four safeguards are recommendations not yet adopted (implications §2.3 items 2 and 4; brief §11 Q5) — default shown (implications §11 Q4)] [Build: no preselected option; equal visual weight for every option that can be chosen; no helper text favors any option; options above the live eligible count, up to the maximum, disabled, with the reason; no experiment on this screen uses revenue as its decision metric]
-
-Read more about [how the question works](/which-companies-receive-my-request/).
-
-## What payment never changes
-
-No amount of buying or spending changes any of these:
-
-| Payment never changes | What decides it | Read more |
-|---|---|---|
-| A mover's screening result and badge | Our published screening checks. The badge also needs an account that isn't suspended | [How we verify movers](/how-we-verify-movers/) |
-| A mover's ratings, and which reviews we show and how | The same published method for every mover. Movers can't edit, delete or hide reviews, and we never reject a review for being negative | [Review methodology](/review-methodology/) |
-| Order in our directory and on our location pages | A published sort rule that uses no payment information | [How our directory is ordered]({{directory.url}}) |
-| Order of movers on your Review and send screen | A published order that uses no payment information. If you started from a mover's profile, that mover comes first | [How movers are named](/which-companies-receive-my-request/) |
-| Cost ranges from our calculator | Movers' rate cards only. The cost model reads no purchase, spend, credit or plan data, and only movers with active accounts count | [How the calculator works](/moving-cost-calculator/method/#can-a-mover-pay-to-change-a-range) |
-
-"No payment information" means none of these: what a mover pays for a request, how many requests it buys, how much it spends, its account credit, its budget, and any paid plan or add-on. [Build: a fixture test shows order ignores all payment information, and inclusion ignores it except billing standing (implications §9.2; lead lifecycle §3 item 1)] [Owner: implications §3.1, a published order for the rest of the Review and send list — default shown]
-
-<!-- ST-5b -->
-We issue our badge, {{badge.name}}, only from our screening checks, and it comes off if the mover's account is suspended for any reason, including unpaid charges. Every mover in our network pays us for the requests it buys, but the badge isn't sold, and buying more never earns or keeps it.
-
-[What the badge means](/how-we-verify-movers/#badge) [Owner and Counsel: whether a mover with a tie to AMC's people can hold the badge (implications §4.3, §11 Q10)] [Counsel: ST-5b is a proposed stored text; review it with ST-5 (implications §5.4 Q5; stored-texts ST-5b)] [Build: the badge issues only from verification results and comes off with any suspension; a mover with no purchases and passing checks gets it (implications §4.3; mover verification §3, §4)]
-
-<a id="which-movers-are-listed"></a>
-
-## Which movers are listed?
-
-Only movers with active accounts in good standing appear in our directory and on our location pages, and only they can be named on your Review and send screen. An account is in good standing when the mover has passed [our screening](/how-we-verify-movers/), its checks are current and the account isn't suspended, for example for a failed check or unpaid charges. A suspended mover can't buy requests, and we don't list it or name it to you.
-
-Paying what it owes is part of keeping a mover's account active. Buying also has one indirect link to reviews: only people whose request a mover bought can review it, so a mover that buys more requests may collect more reviews. We never order lists of movers by review count by default, and when you sort by rating, a mover gets no priority until it has {{setting.rank_min_reviews}} eligible reviews of the kind you're sorting by. [Counsel: ST-1a, ST-1c, ST-3 and the table under "What payment never changes" say payment or buying never affects where a mover appears or its order. Reviews come only from requests a mover bought, and a rating sort ranks movers once they reach the minimum sample. Confirm the stored texts still hold, or approve one of the variants in the ST-1 and ST-3 notes in content/stored-texts.md (mover verification §6; site architecture §2.4 rule 3; implications §4.4; page brief, open item 15)]
-
-Lists of movers in our directory and on our location pages carry this line inside the list, so it stays with the list if someone copies or quotes it:
-
-<!-- ST-3 -->
-> Every mover listed here pays American Moving Choice for the move requests it buys, and only movers with active accounts are listed. How much a mover buys or spends never affects whether or where it appears. [How this list is ordered]
-
-[Build: ST-3 renders inside the list block on directory, location and comparison pages, so a quoted list keeps it (implications §3.4; site architecture §7.4)]
-
-## What movers can't buy from us
-
-No mover can buy any of these from us:
-
-- a ranking, or a higher place in any list
-- an award (we don't give any)
-- a spot in our directory, on a location page or in an article
-- reviews, or any say over which reviews appear
-- editorial coverage, such as a guide or article about the company
-- our badge
-
-## Is any placement sponsored?
-
-No. We don't offer sponsored placement. [Owner: mover verification §9 decision 5 — default shown]
-
-If we ever offer it, it will follow these rules:
-
-- It's labeled "Sponsored" and looks different from everything around it.
-- It sits outside ranked lists, comparisons and the list of movers on your Review and send screen, and it's never part of an award.
-- It's never called "Preferred", "Featured" or "Partner", words that read as a paid or chosen status, and it never uses a name that could be mistaken for our badge or for a recommendation. [Counsel: this sentence says "Preferred" reads as a paid or chosen status, and {{badge.name}}'s working name is "Preferred Mover · American Moving Choice"; settle the sentence with the badge name (README §5; implications §5, §11 Q6)]
-- It never changes a mover's screening result, ratings, how its reviews are shown, or the order of any list.
-
-## Do we run ads or earn from links?
-
-We may pay search engines and other websites to show ads for American Moving Choice. That money goes from us to them, and it plays no part in which movers you see or in what order.
-
-We don't show ads for other companies, and we don't earn commissions from links to other websites. [Owner: confirm none — default shown: none]
-
-## Who gets your details?
-
-Your contact details go only to movers named on your Review and send screen that buy your request, and only if you agreed to be contacted. Each mover that receives your details pays us for your request, and it gets them only after its purchase is complete. [Owner and Counsel: a mover can pay for a request wholly with account credit, including promotional or goodwill credit (shared pricing §2 kind 4; lead lifecycle §7 step 2). Confirm that "pays us" holds wherever this page, ST-1a and ST-3 say a mover pays (page brief, open item 5)] [Build: if the box stays unticked, nothing is shared (implications §2.4; backlog 4.2.4)] [Counsel: implications §3.7 — no "never sell" line until counsel decides whether paid delivery to named movers is a "sale" or a "share"; confirm "go only to movers" beside the service providers the privacy policy names]
-
-[Which companies receive my request](/which-companies-receive-my-request/) explains each step, including who else handles your details and how to withdraw your request. Our [privacy policy](/privacy/) covers the rest.
-
-## Do we have ties to any movers?
-
-Our [About page](/about/) names the company behind American Moving Choice and its owner. It also lists any tie between the people who own or work for us and a mover, a moving broker or a company that buys move requests from other websites. If that company is a mover in our network, its profile shows the tie too. Such a mover may still be listed, but we never feature it, rank it or include it in a comparison. [Owner and Counsel: brief §11 Q1, implications §11 Q10 — default shown]
-
-## Changes to this page
-
-When we change this page, we record the change here with its date.
-
-| Version | Date | What changed |
-|---|---|---|
-| 1 | Set on first publish | First published |
-
-[Build: the CMS renders each row's version and date from the page record, and stamps the date when an approved change publishes, the first on the first approved publish (README §2 `last_updated`)] [Owner: changelog numbering, and who approves a change to this page before a new row publishes. The draft numbers versions 1, 2, 3, as the other trust pages do (editorial policy brief §10 item 6) — default shown]
-
-## Questions about this page
-
-Email us at {{org.support_email}}.
+Use [Contact](/contact/) for support, or [Report a concern](/report-a-concern/) if a company contacts you outside the permission you gave, doesn't identify itself, or appears to be acting as a broker. Include your request reference if you have it.

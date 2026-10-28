@@ -12,6 +12,7 @@ import { checkRateLimit, rateLimitKey } from "../auth/rate-limit";
 import { isTokenShaped, sha256Hex } from "../auth/tokens";
 import { getPool, isUniqueViolation, tx, type Queryable } from "../db/pool";
 import { REVIEW_RATE_LIMITS, parseReviewInput, type FieldErrors, type InvitationReviewType } from "./logic";
+import { hasContactEvidence } from "./contact-evidence";
 
 export interface InvitationView {
   id: string;
@@ -46,7 +47,9 @@ interface InvitationRow {
 const INVITATION_SELECT = `select i.id, i.review_type, i.company_id, i.purchase_id, p.slug, coalesce(p.display_name, c.legal_name) as company_name,
   c.is_demo, i.send_after, i.completed_at, i.expires_at, now() as now
   from review_invitations i join companies c on c.id = i.company_id left join company_profiles p on p.company_id = c.id
-  where i.token_hash = $1`;
+  where i.token_hash = $1 and i.sent_at is not null
+    and exists (select 1 from purchases pu join lead_groups g on g.id = pu.group_id
+                where pu.id = i.purchase_id and pu.refunded_at is null and g.status <> 'withdrawn')`;
 
 function classify(row: InvitationRow | undefined): InvitationLookup {
   if (!row || row.send_after > row.now) return { status: "invalid" };
@@ -70,6 +73,8 @@ function classify(row: InvitationRow | undefined): InvitationLookup {
 export async function getInvitation(token: string, options: { markOpened?: boolean } = {}, db: Queryable = getPool()): Promise<InvitationLookup> {
   if (!isTokenShaped(token)) return { status: "invalid" };
   const found = await db.query<InvitationRow>(INVITATION_SELECT, [sha256Hex(token)]);
+  const row = found.rows[0];
+  if (row && !await hasContactEvidence(row.company_id, row.purchase_id)) return { status: "invalid" };
   const result = classify(found.rows[0]);
   if (result.status === "valid" && options.markOpened) {
     await db.query("update review_invitations set opened_at = now() where id = $1 and opened_at is null", [result.invitation.id]);
@@ -112,6 +117,8 @@ export async function submitReview(token: string, raw: Record<string, unknown>, 
       const state = classify(found.rows[0]);
       if (state.status !== "valid") return { ok: false, error: state.status } as const;
       const row = found.rows[0]!;
+      await client.query("select set_config('app.company_id', $1, true)", [row.company_id]);
+      if (!await hasContactEvidence(row.company_id, row.purchase_id, client)) return { ok: false, error: "invalid" } as const;
 
       const parsed = parseReviewInput(row.review_type, raw);
       if (!parsed.ok) return { ok: false, error: "validation", fieldErrors: parsed.errors } as const;

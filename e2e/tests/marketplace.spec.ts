@@ -34,9 +34,7 @@ async function saveDemoCard(page: Page) {
 async function sendExclusiveRequest(browser: Browser, person: { firstName: string; lastName: string; email: string; phone: string }): Promise<string> {
   const context = await browser.newContext({ extraHTTPHeaders: { "x-forwarded-for": `203.0.113.${Math.floor(1 + Math.random() * 250)}` } });
   const page = await context.newPage();
-  await page.goto(`${WEB_URL}/companies/demo-lone-star-relocation-co/`);
-  await page.getByRole("link", { name: `Request a quote from ${LONE_STAR}` }).click();
-  await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
+  await page.goto(`${WEB_URL}/get-quotes/?entry=household`);
   await expect(page.getByRole("heading", { name: "Where are you moving?" })).toBeVisible();
   await page.getByLabel("ZIP code you're moving from").fill("75201");
   await page.getByLabel("ZIP code you're moving to").fill("77002");
@@ -45,7 +43,7 @@ async function sendExclusiveRequest(browser: Browser, person: { firstName: strin
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("2 bedrooms").check();
   await page.getByRole("button", { name: "Check which movers serve my move" }).click();
-  await expect(page.locator("ul li").filter({ hasText: "USDOT" }).first()).toContainText(LONE_STAR);
+  await expect(page.getByText(LONE_STAR, { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("Phone calls").check();
   await page.locator("#channel-email").check();
@@ -54,7 +52,7 @@ async function sendExclusiveRequest(browser: Browser, person: { firstName: strin
   await page.locator("#email").fill(person.email);
   await page.getByLabel("Phone number").fill(person.phone);
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByLabel(`Only ${LONE_STAR}`).check();
+  await page.locator('label[for="limit-1"]').click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.locator("#consent").check();
   await page.locator("#terms").check();
@@ -142,8 +140,9 @@ test.describe("marketplace", () => {
     await withDatabase(async (db) => {
       const group = (await db.query<{ id: string; status: string }>("select g.id, g.status from lead_groups g join leads l on l.group_id = g.id where l.reference_code = $1", [reference])).rows[0]!;
       expect(group.status).toBe("sold_out");
-      const notice = await db.query("select status from messages where template = 'purchase_notice' and to_address = $1", [person.email]);
+      const notice = await db.query("select status, body_text, subject from messages where template = 'purchase_notice' and to_address = $1", [person.email]);
       expect(notice.rowCount).toBe(1);
+      expect(JSON.stringify(notice.rows)).not.toContain(LONE_STAR);
       // An exclusive request sold once is refused to any other company.
       const other = (await db.query<{ id: string }>("select id from companies where status = 'approved' and id <> $1 limit 1", [LONE_STAR_ID])).rows[0]!;
       await expect(db.query("select * from reserve_purchase($1, $2, 'e2e-second-company')", [other.id, group.id])).rejects.toThrow();

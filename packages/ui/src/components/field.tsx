@@ -17,6 +17,7 @@ export const controlClasses =
 /** Props a Field passes to its control. */
 export interface ControlProps {
   id: string;
+  placeholder?: string;
   "aria-describedby"?: string;
   "aria-invalid"?: true;
   required?: boolean;
@@ -56,21 +57,21 @@ export function Field({ id, label, help, error, required, optional, hideLabel, f
   const describedBy = [help ? helpId(id) : null, error ? errorId(id) : null].filter(Boolean).join(" ") || undefined;
   const control: ControlProps = {
     id,
+    ...(floating ? { placeholder: " " } : {}),
     ...(describedBy ? { "aria-describedby": describedBy } : {}),
     ...(error ? { "aria-invalid": true as const } : {}),
     ...(required ? { required: true } : {}),
   };
-  let rendered: ReactNode;
-  if (typeof children === "function") {
-    rendered = children(control);
-  } else if (isValidElement(children)) {
-    const own = children.props["aria-describedby"];
-    const ownPlaceholder = children.props.placeholder;
-    rendered = cloneElement(children, {
+  const supplied = typeof children === "function" ? children(control) : children;
+  let rendered: ReactNode = supplied;
+  if (isValidElement<Record<string, unknown>>(supplied)) {
+    const own = supplied.props["aria-describedby"];
+    const ownPlaceholder = supplied.props.placeholder;
+    rendered = cloneElement(supplied, {
       ...control,
       "aria-describedby": [typeof own === "string" ? own : null, describedBy].filter(Boolean).join(" ") || undefined,
       // A floating label needs :placeholder-shown, so the control always carries a placeholder.
-      ...(floating && children.props.placeholder === undefined ? { placeholder: " " } : {}),
+      ...(floating && supplied.props.placeholder === undefined ? { placeholder: " " } : {}),
       ...(floating && typeof ownPlaceholder === "string" ? { placeholder: ownPlaceholder } : {}),
     });
   }

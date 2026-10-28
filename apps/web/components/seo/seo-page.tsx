@@ -1,56 +1,24 @@
 /**
  * Renders a published programmatic page from its stored content (@amc/server/seo): breadcrumbs,
  * H1, the first-screen answer with its dated data points, the sections, the quote entry, FAQ,
- * related links (published targets only), sources, credits and JSON-LD. The stored content and
- * the JSON-LD are rendered verbatim; this file only skins them with the Route Ledger premium
+ * related links (published targets only), sources, credits and JSON-LD. Historical company
+ * listings and identity-first copy are removed before any content is rendered or passed to
+ * client components. This file skins the remaining content with the Route Ledger premium
  * system (packages/ui): editorial header, claimed media, stat tiles, ledger strips for sourced
  * facts, flip cards for cost factors, expandable FAQ cards, a related-links grid and the sticky
  * quote CTA on phones.
  */
 import { env } from "@amc/server/env";
 import { publishedAmong, publishedRelated, type ContentBlock, type SeoPageRecord } from "@amc/server/seo";
-import { Breadcrumbs, Container, Counter, ExpandableCard, FlipCard, Icon3D, IdCardIcon, LedgerStrip, LineIcon, Reveal, RouteMark, SectionHeader, StatTile, StickyCta, Table, TiltCard, type Icon3DName } from "@amc/ui";
+import { Breadcrumbs, Container, Counter, ExpandableCard, FlipCard, Icon3D, IdCardIcon, LedgerStrip, Reveal, RouteMark, SectionHeader, StatTile, StickyCta, Table, TiltCard, type Icon3DName } from "@amc/ui";
 import Link from "next/link";
 import { MediaFrame } from "@/components/media/media-frame";
 import { JsonLd } from "@/components/site/json-ld";
 import { creditLine, mediaForSeoPage } from "@/lib/media";
-import { storedTextParts } from "@/lib/stored-texts";
 import { InlineText, stripLinks } from "./inline-text";
 import { PREFILL_STORAGE_KEY, QuoteEntryButton } from "./quote-entry";
-import { breadcrumbLd, faqLd, moverListLd, pageLd, type Crumb } from "./seo-metadata";
-
-function PaidLine() {
-  // ST-3: the paid-relationship line sits inside the list block (site architecture §7.4).
-  return (
-    <p className="type-small text-text-2">
-      {storedTextParts("ST-3").map((part, index) =>
-        part.kind === "text" ? (
-          <span key={index}>{part.text}</span>
-        ) : (
-          <Link key={index} href="/directory/" className="link">
-            {part.label}
-          </Link>
-        ),
-      )}
-    </p>
-  );
-}
-
-/** Initials mark standing in for a company logo (VD §9.5). */
-function Monogram({ name }: { name: string }) {
-  const initials = name
-    .replace(/^Demo\s+/i, "")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]!.toUpperCase())
-    .join("");
-  return (
-    <span aria-hidden="true" className="inline-grid size-11 shrink-0 place-items-center rounded-control bg-surface-3 font-display text-[1.0625rem] font-extrabold text-brand-navy ring-1 ring-border [font-stretch:85%]">
-      {initials}
-    </span>
-  );
-}
+import { breadcrumbLd, pageLd, type Crumb } from "./seo-metadata";
+import { publicSeoPage } from "./public-content";
 
 /** A 3D icon for a data-point label (origin pin for places, route for distances, and so on). */
 function iconForLabel(label: string): Icon3DName {
@@ -202,29 +170,8 @@ function Block({ block, allow }: { block: ContentBlock; allow: (href: string) =>
       );
     }
     case "movers":
-      return (
-        <div className="not-prose grid gap-4">
-          {block.heading ? <h3 className="type-h3 text-text">{block.heading}</h3> : null}
-          <ul className="grid gap-4 sm:grid-cols-2" data-motion="stagger">
-            {block.items.map((m) => (
-              <TiltCard as="li" key={m.slug} max={7} depth={16} padding="none" className="min-w-0" bodyClassName="relative flex gap-4 p-4">
-                <Monogram name={m.name} />
-                <div className="min-w-0 tilt-layer">
-                  <Link href={`/companies/${m.slug}/`} className="font-semibold text-text no-underline after:absolute after:inset-0 after:rounded-card hover:underline">
-                    {m.name}
-                  </Link>
-                  <p className="type-small text-text-2">
-                    {m.basedIn ? `Based in ${m.basedIn}. ` : ""}
-                    {m.coverageNote}
-                  </p>
-                </div>
-                <LineIcon name="arrow-right" size={18} className="ml-auto mt-1 shrink-0 text-text-3" />
-              </TiltCard>
-            ))}
-          </ul>
-          {block.paidLine ? <PaidLine /> : null}
-        </div>
-      );
+      // Defense in depth: even a caller that skips publicSeoPage cannot render a company list.
+      return null;
   }
 }
 
@@ -238,17 +185,15 @@ function routeEnds(page: SeoPageRecord): { from: string; to: string } | null {
 /** Sections whose heading names cost factors get flip cards; everything else stays prose. */
 const FLIP_SECTION = /cost factor|what (drives|affects) the (price|cost)|price factor/i;
 
-export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumbs: Crumb[] }) {
+export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageRecord; crumbs: Crumb[] }) {
+  const page = publicSeoPage(storedPage);
   const { WEB_URL } = env();
   const related = await publishedRelated(page);
   // Inline links to unpublished SEO pages render as plain text (no 404s, site architecture §3.3).
   const inlineHrefs = [...new Set((JSON.stringify(page.content).match(/\]\((\/[^)\s]*)\)/g) ?? []).map((m) => m.slice(2, -1)))];
   const live = await publishedAmong(inlineHrefs);
   const allow = (href: string) => live.has(href);
-  const movers = page.content.sections.flatMap((s) => s.blocks).flatMap((b) => (b.type === "movers" ? b.items : []));
   const media = mediaForSeoPage(page.url, page.mediaIds).find((m) => m.kind === "image") ?? null;
-  const faq = faqLd(page);
-  const moverList = moverListLd(WEB_URL, movers);
   const trail = [{ label: "Home", href: "/" }, ...crumbs];
   const route = routeEnds(page);
   const quote = page.content.quote;
@@ -257,8 +202,6 @@ export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumb
     <>
       <JsonLd data={breadcrumbLd(WEB_URL, trail)} />
       <JsonLd data={pageLd(WEB_URL, page)} />
-      {faq ? <JsonLd data={faq} /> : null}
-      {moverList ? <JsonLd data={moverList} /> : null}
 
       {/* Editorial header: breadcrumbs, H1, the first-screen answer, data points and the quote entry. */}
       <div className="mesh-light border-b border-border">

@@ -37,10 +37,10 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-content gap-12 pb-12 pt-16 gutter lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))] lg:gap-8">
         <div className="grid content-start gap-5">
           <Wordmark tone="reversed" size="lg" />
-          <p className="max-w-[52ch] text-on-band-2">{storedText("ST-1a")}</p>
+          <p className="max-w-[32ch] text-on-band-2">Moving quotes on your terms. Useful guidance for wherever life takes you.</p>
           <p className="flex items-center gap-3 type-small text-on-band-2">
             <RouteMark size={14} />
-            Routes are directional. Evidence is dated.
+            A little planning. A better start.
           </p>
         </div>
         <LinkList title="Find movers" links={EXPLORE_LINKS} />
@@ -63,6 +63,7 @@ export function SiteFooter() {
         />
       </div>
       <div className="border-t border-white/15">
+        <p className="mx-auto max-w-content pb-2 pt-6 gutter type-small leading-relaxed text-on-band-2">{storedText("ST-1a")}</p>
         <div className="mx-auto grid max-w-content gap-3 py-5 gutter type-small text-on-band-2 md:flex md:flex-wrap md:items-center md:justify-between md:gap-x-6">
           <ul className="flex flex-wrap gap-x-5">
             {LEGAL_LINKS.map((link) => (

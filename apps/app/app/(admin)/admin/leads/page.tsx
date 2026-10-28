@@ -48,7 +48,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
       />
       {filters.status === "needs_review" ? (
         <p className="type-small text-text-2">
-          Requests held for review can't be bought. Open one to qualify it (the movers named in the consent are then told it's available) or reject it.
+          Requests held for review can't be bought. Open one to qualify it (eligible companies are then told it's available) or reject it.
         </p>
       ) : null}
       <FilterBar resetHref="/admin/leads">

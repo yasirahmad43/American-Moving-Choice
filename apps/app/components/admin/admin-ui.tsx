@@ -3,7 +3,7 @@
  * definition lists, status pills and JSON disclosure. Dense by design (VD §13.11): hairline
  * dividers, tabular figures, monospace IDs.
  */
-import { AbsoluteDate, Field, Input, Select, StatusPill, cx, type StatusTone } from "@amc/ui";
+import { AbsoluteDate, Field, Icon3D, Input, LineIcon, Select, StatusPill, cx, type Icon3DName, type StatusTone } from "@amc/ui";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -37,11 +37,11 @@ export function LinkTabs({ items, current, label }: { items: { id: string; label
 /** A GET form for list filters; every control needs a label. */
 export function FilterBar({ children, resetHref }: { children: ReactNode; resetHref: string }) {
   return (
-    <form method="get" className="flex min-w-0 flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4 depth-1" role="search" aria-label="Filters">
+    <form method="get" className="flex min-w-0 flex-wrap items-end gap-3 rounded-card border border-border bg-surface p-4 shadow-e1 sm:p-5" role="search" aria-label="Filters">
       {children}
-      <div className="flex gap-2">
+      <div className="flex w-full flex-wrap gap-2 border-t border-border pt-3 sm:w-auto sm:border-0 sm:pt-0">
         <button type="submit" className="btn-depth inline-flex min-h-12 items-center rounded-control bg-primary px-4 font-semibold text-on-primary">
-          Apply filters
+          <LineIcon name="filter" size={16} className="mr-2" />Apply filters
         </button>
         <Link href={resetHref} className="inline-flex min-h-12 items-center px-3 font-semibold text-link underline">
           Clear
@@ -53,7 +53,7 @@ export function FilterBar({ children, resetHref }: { children: ReactNode; resetH
 
 export function FilterSelect({ id, name, label, value, options }: { id: string; name: string; label: string; value: string; options: { value: string; label: string }[] }) {
   return (
-    <Field id={id} label={label} className="min-w-[11rem] max-w-full">
+    <Field id={id} label={label} className="w-full min-w-0 flex-[1_1_11rem] sm:max-w-[18rem]">
       <Select name={name} defaultValue={value}>
         <option value="">Any</option>
         {options.map((o) => (
@@ -68,7 +68,7 @@ export function FilterSelect({ id, name, label, value, options }: { id: string; 
 
 export function FilterInput({ id, name, label, value, type = "text", placeholder }: { id: string; name: string; label: string; value: string; type?: string; placeholder?: string }) {
   return (
-    <Field id={id} label={label} floating className="min-w-[14rem]">
+    <Field id={id} label={label} className="w-full min-w-0 flex-[1_1_14rem] sm:max-w-[22rem]">
       <Input name={name} type={type} defaultValue={value} placeholder={placeholder} />
     </Field>
   );
@@ -178,14 +178,22 @@ export function JsonDetails({ value, summary = "Show data" }: { value: unknown; 
 
 /** A count tile for the dashboard. */
 export function StatTile({ label, value, href, note }: { label: string; value: ReactNode; href?: string; note?: ReactNode }) {
+  const icons: Record<string, Icon3DName> = { "/admin/verification": "verified", "/admin/cases": "folder", "/admin/reviews": "star", "/admin/mailbox": "mail", "/admin/leads": "ledger", "/admin/billing": "wallet" };
+  const icon = icons[href?.split("?")[0] ?? ""] ?? "chart";
   const body = (
     <>
-      <p className="type-small font-semibold text-text-2">{label}</p>
-      <p className="mt-1 font-display text-[2rem] leading-none font-extrabold tabular text-text [font-stretch:85%]">{value}</p>
-      {note ? <p className="mt-2 type-small text-text-3">{note}</p> : null}
+      <div className="flex items-start justify-between gap-3">
+        <p className="max-w-[17ch] text-[0.8125rem] font-semibold leading-snug text-text-2">{label}</p>
+        <Icon3D name={icon} size={36} className="shrink-0 !filter-none" />
+      </div>
+      <p className="mt-3 font-display text-[2.25rem] leading-none font-extrabold tracking-[-0.04em] tabular text-text">{value}</p>
+      <div className="mt-3 flex items-end justify-between gap-2 border-t border-border pt-3">
+        <p className="type-small leading-snug text-text-3">{note ?? (href ? "View records" : "Current total")}</p>
+        {href ? <LineIcon name="arrow-right" size={16} className="shrink-0 text-link" /> : null}
+      </div>
     </>
   );
-  const frame = "block rounded-card border border-border border-t-[3px] border-t-brand-navy bg-surface p-4 depth-1";
+  const frame = "block h-full rounded-card border border-border bg-surface p-4 shadow-e1 transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-e2 sm:p-5";
   return href ? (
     <Link href={href} className={`${frame} lift no-underline`}>
       {body}

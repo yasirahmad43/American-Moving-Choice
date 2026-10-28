@@ -8,7 +8,7 @@ import { ConcernForm } from "./concern-form";
 const URL = "/report-a-concern/";
 const TITLE = "Report a Concern or a Broker | American Moving Choice";
 const DESCRIPTION =
-  "Report a company that acted as a broker, contacted you without being named, showed wrong credentials or treated you badly. You get a case reference.";
+  "Report a company that acted as a broker, ignored your contact preferences, showed wrong credentials or treated you badly. You get a case reference.";
 
 export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 

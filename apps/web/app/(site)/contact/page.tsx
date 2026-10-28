@@ -41,7 +41,7 @@ export default function ContactPage() {
 
       <h2>Report a mover or a broker</h2>
       <p>
-        If a company acted as a broker, contacted you without being named on your Review and send screen, or treated you badly, use{" "}
+        If a company acted as a broker, contacted you without permission or outside your chosen channels, didn't identify itself, or treated you badly, use{" "}
         <Link href="/report-a-concern/">Report a concern</Link>. You&apos;ll get a case reference. <Link href="/complaints/">Complaints</Link> explains what
         happens next and how to complain to FMCSA or your state.
       </p>

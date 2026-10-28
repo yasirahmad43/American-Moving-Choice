@@ -12,8 +12,8 @@ export interface NavLink {
 /** Header navigation, in order. "Get quotes" renders as the header CTA. */
 export const PRIMARY_NAV: NavLink[] = [
   { href: "/moving-costs/", label: "Moving costs" },
-  { href: "/directory/", label: "Mover directory" },
-  { href: "/how-we-verify-movers/", label: "How we verify movers" },
+  { href: "/planning/", label: "Moving guides" },
+  { href: "/#how-it-works", label: "How it works" },
   { href: "/for-movers/", label: "For movers" },
 ];
 
@@ -54,7 +54,7 @@ export const LEGAL_LINKS: NavLink[] = [
 ];
 
 export const PREVIEW_BANNER_TEXT =
-  "Preview build. Not launched; drafts await owner and counsel review. Companies shown are fictional demo data.";
+  "Preview build. Not launched; drafts await owner and counsel review. Requests and transactions use fictional demo data.";
 
 /** Attribution the GeoNames licence (CC BY 4.0) requires for the ZIP data (build plan §7.1). */
 export const GEONAMES_CREDIT = {

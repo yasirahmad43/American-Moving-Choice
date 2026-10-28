@@ -158,7 +158,7 @@ export default async function PurchasedRequestPage({ params }: { params: Promise
                 <Fact term="Most movers the customer allowed">
                   <span className="tabular">{consent.selectedLimit}</span>
                 </Fact>
-                <Fact term="Movers named to the customer">
+                <Fact term="Eligible companies recorded">
                   <span className="tabular">{consent.namedCount}</span>
                 </Fact>
                 <Fact term="Consent text version">

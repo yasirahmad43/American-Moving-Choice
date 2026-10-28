@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon3D, cx, type Icon3DName } from "@amc/ui";
+import { LineIcon, cx, type LineIconName } from "@amc/ui";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,70 +10,73 @@ export interface SidebarSection {
 }
 
 /** The 3D icon for a section link, by route (pass 2). */
-const NAV_ICONS: Record<string, Icon3DName> = {
+const NAV_ICONS: Record<string, LineIconName> = {
   "/portal": "chart",
-  "/portal/marketplace": "megaphone",
-  "/portal/leads": "key",
+  "/portal/marketplace": "grid",
+  "/portal/leads": "lock",
   "/portal/pipeline": "route",
-  "/portal/profile": "credentials",
-  "/portal/coverage": "target",
-  "/portal/rates": "price",
+  "/portal/profile": "clipboard",
+  "/portal/coverage": "map-pin",
+  "/portal/rates": "money",
   "/portal/reviews": "star",
-  "/portal/verification": "verified",
+  "/portal/verification": "check",
   "/portal/application": "ledger",
-  "/portal/billing": "wallet",
-  "/portal/team": "chat",
+  "/portal/billing": "money",
+  "/portal/team": "users",
   "/portal/settings": "settings",
   "/admin": "chart",
-  "/admin/verification": "verified",
+  "/admin/verification": "check",
   "/admin/companies": "box",
   "/admin/leads": "mail",
-  "/admin/purchases": "credits",
-  "/admin/billing": "wallet",
-  "/admin/pricing": "dollar",
+  "/admin/purchases": "ledger",
+  "/admin/billing": "money",
+  "/admin/pricing": "money",
   "/admin/reviews": "star",
-  "/admin/cases": "folder",
+  "/admin/cases": "clipboard",
   "/admin/content": "ledger",
-  "/admin/content/research": "bulb",
-  "/admin/content/media": "pin",
-  "/admin/content/publication": "rocket",
-  "/admin/content/preferred-movers": "thumb-up",
+  "/admin/content/research": "search",
+  "/admin/content/media": "grid",
+  "/admin/content/publication": "dispatch",
+  "/admin/content/preferred-movers": "check",
   "/admin/mailbox": "mail",
   "/admin/jobs": "clock",
   "/admin/settings": "settings",
   "/admin/audit-log": "search",
-  "/admin/users": "key",
+  "/admin/users": "lock",
 };
 
 /** Section links with the current page marked (aria-current) by more than color. */
-export function SidebarNav({ sections, label, rootHref }: { sections: SidebarSection[]; label: string; rootHref: string }) {
+export function SidebarNav({ sections, label, rootHref, tone = "light" }: { sections: SidebarSection[]; label: string; rootHref: string; tone?: "light" | "dark" }) {
   const pathname = usePathname() ?? "";
-  const isCurrent = (href: string) => (href === rootHref ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
+  const currentHref = sections.flatMap((section) => section.items).map((item) => item.href).filter((href) => href === rootHref ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)).sort((a, b) => b.length - a.length)[0];
+  const dark = tone === "dark";
   return (
     <nav aria-label={label} className="grid gap-5">
       {sections.map((section) => (
         <div key={section.title}>
-          <h2 className="px-3 type-overline text-text-3">{section.title}</h2>
+          <h2 className={cx("px-3 text-[0.625rem] font-bold uppercase tracking-[0.16em]", dark ? "text-on-band-2" : "text-text-3")}>{section.title}</h2>
           <ul className="mt-1.5 grid gap-0.5">
             {section.items.map((item) => {
-              const current = isCurrent(item.href);
+              const current = currentHref === item.href;
               const icon = NAV_ICONS[item.href];
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}
                     aria-current={current ? "page" : undefined}
                     className={cx(
-                      "icon3d-hover flex min-h-11 items-center gap-2.5 rounded-control px-2.5 font-semibold no-underline transition-[background-color,color,transform] duration-[var(--d1)]",
-                      current ? "bg-primary text-on-primary depth-1" : "text-text-2 hover:bg-surface-2 hover:text-text",
+                      "relative flex min-h-11 items-center gap-3 rounded-control px-3 text-[0.875rem] font-semibold no-underline transition-colors duration-[var(--d1)]",
+                      dark ? current ? "bg-white text-brand-navy shadow-sm" : "text-on-band-2 hover:bg-white/10 hover:text-white" : current ? "bg-primary text-on-primary" : "text-text-2 hover:bg-surface-2 hover:text-text",
                     )}
                   >
                     {icon ? (
-                      <Icon3D name={icon} size={24} className="shrink-0 !filter-none" />
+                      <LineIcon name={icon} size={18} className="shrink-0" />
                     ) : (
                       <span aria-hidden="true" className={cx("size-1.5 shrink-0 rounded-pill", current ? "bg-[#ff5a5f]" : "bg-border-strong")} />
                     )}
                     {item.label}
+                    {current ? <span aria-hidden="true" className={cx("ml-auto size-1.5 shrink-0 rounded-full", dark ? "bg-cta" : "bg-on-primary")} /> : null}
                   </Link>
                 </li>
               );

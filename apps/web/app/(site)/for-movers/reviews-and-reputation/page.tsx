@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ApplyCta, ForMoversNav } from "@/components/site/for-movers";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
-import { Note, Token } from "@/components/site/review-notes";
+import { Token } from "@/components/site/review-notes";
 
 const URL = "/for-movers/reviews-and-reputation/";
 const TITLE = "Reviews and Reputation for Movers | American Moving Choice";
@@ -62,11 +62,11 @@ export default function ReviewsReputationPage() {
       <h2>How invitations are sent</h2>
       <ul>
         <li>
-          We invite every consumer whose request was bought to review the quoting experience, about <Token k="setting.quote_invite_delay_days" /> days
-          after the purchase.
+          Once contact has been recorded, eligible consumers can receive a quote-experience invitation, no earlier than <Token k="setting.quote_invite_delay_days" /> days
+          after the purchase. A purchase alone doesn't trigger disclosure of your company name.
         </li>
         <li>
-          You can ask us to invite customers you&apos;ve marked booked or completed to review the move. We send those invitations too, we log every
+          After contact is recorded, you can ask us to invite customers you&apos;ve marked booked or completed to review the move. We send those invitations, log every
           request, and we watch for patterns such as inviting only a small share of booked customers.
         </li>
         <li>Each invitation is a single-use link. There is no open &quot;write a review&quot; form.</li>
@@ -74,7 +74,7 @@ export default function ReviewsReputationPage() {
 
       <h2>What you can and can&apos;t do</h2>
       <ul>
-        <li>You can respond publicly to any review (owner and manager roles), truthfully and without sharing the customer&apos;s private details.</li>
+        <li>Owner and manager roles can respond to feedback through the portal, truthfully and without sharing the customer's private details.</li>
         <li>You can report a review with a reason. Reports go to our moderators, and both sides can appeal.</li>
         <li>You can&apos;t edit, delete or hide a review. We never reject a review for being negative.</li>
         <li>No incentives tied to a positive review, no review gating and no fake reviews. Breaking these rules can lead to suspension.</li>
@@ -82,15 +82,14 @@ export default function ReviewsReputationPage() {
 
       <h2>Ratings</h2>
       <p>
-        Ratings are a simple average for each experience type, with the count and dates shown. A profile with no eligible reviews says &quot;No customer
-        reviews yet&quot;. When consumers sort by rating, a mover gets no priority until it has <Token k="setting.rank_min_reviews" /> eligible reviews of
-        that type. <Note kind="owner">which rating type leads on profiles (implications §11 Q15)</Note>
+        Quote and moving-experience ratings are calculated separately from eligible records. Public company profiles, company review pages,
+        preferred-mover showcases and consumer rating sorts aren't part of this service. Feedback remains part of the portal and moderation workflow.
       </p>
 
       <h2>What you can&apos;t buy</h2>
       <p>
         No review product, rating boost, award or placement is for sale. Buying more leads brings more invitations, but never changes how ratings are
-        calculated or which reviews we publish. <Link href="/review-methodology/">Our review methodology</Link> is the full public rulebook.
+        calculated or how our team moderates feedback. <Link href="/review-methodology/">Our review methodology</Link> explains the process.
       </p>
 
       <ApplyCta />

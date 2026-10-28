@@ -7,7 +7,7 @@
  */
 import type { CSSProperties, ReactNode } from "react";
 import { cx } from "../cx";
-import { TableEnhancer } from "./table-enhancer";
+import { SortableTableHeader, TableBody, TableControls, TableEnhancer } from "./table-enhancer";
 
 export interface TableColumn<Row> {
   key: string;
@@ -104,13 +104,6 @@ export function Sparkline({ values, width = 64, height = 18, className }: { valu
   );
 }
 
-const SortGlyph = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-    <path d="M6 2 2.5 6h7L6 2Z" fill="currentColor" />
-    <path d="M6 10 2.5 6.5h7L6 10Z" fill="currentColor" opacity="0.45" />
-  </svg>
-);
-
 export function Table<Row>({
   caption,
   hideCaption,
@@ -134,49 +127,48 @@ export function Table<Row>({
   const tableId = id ?? `dt-${slug(caption)}`;
   const density = compact ? "compact" : "comfortable";
   columns = columns.map((c, i) => ({ ...c, sortable: c.sortable ?? (allSortable && rows.length > 1), primary: c.primary ?? i === 0 }));
-  const sortable = columns.filter((c) => c.sortable).map((c) => c.key);
+  const sortable = columns.filter((c) => c.sortable).map((c) => ({ key: c.key, label: typeof c.header === "string" ? c.header : c.mobileLabel ?? c.key }));
   const showToggle = densityToggle ?? rows.length >= 6;
   const cellPad = "px-3.5";
   const skeletonRows = loading ? Array.from({ length: loading }, (_, i) => i) : [];
 
   return (
-    <div className={cx("grid w-full min-w-0 gap-3", className)}>
+    <TableEnhancer tableId={tableId} sortable={sortable} defaultSort={defaultSort} density={density} densityToggle={showToggle} className={cx("dt-shell grid w-full min-w-0 gap-3", className)}>
       {Boolean(!hideCaption || toolbar || showToggle || sortable.length > 0) && (
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
             {!hideCaption ? <p className="type-h4 text-text">{caption}</p> : null}
             {toolbar}
+            <p className="mt-1 type-small text-text-3">{loading ? "Loading records…" : `${rows.length.toLocaleString("en-US")} ${rows.length === 1 ? "record" : "records"} shown`}</p>
           </div>
-          <TableEnhancer tableId={tableId} sortable={sortable} defaultSort={defaultSort} density={density} densityToggle={showToggle} />
+          <TableControls />
         </div>
       )}
-      <p className="sr-only" aria-live="polite" data-sort-live="" />
-      <div id={tableId} data-density={density} className="dt dt-responsive">
+      <div id={tableId} className="dt dt-responsive">
         <div className="dt-scroll" style={maxHeight ? ({ "--dt-max-height": maxHeight } as CSSProperties) : undefined}>
-          <table>
+          <table role="table" aria-busy={loading ? true : undefined}>
             <caption className="sr-only">{caption}</caption>
-            <thead>
-              <tr>
+            <thead role="rowgroup">
+              <tr role="row">
                 {columns.map((column) => {
                   const label = typeof column.header === "string" ? column.header : column.mobileLabel ?? column.key;
                   const right = column.numeric || column.align === "right";
+                  if (column.sortable) return (
+                    <SortableTableHeader key={column.key} columnKey={column.key} label={label} right={right} initialSort={column.sort} className={cx("px-3.5 py-2.5 text-left", right && "text-right", column.className)}>
+                      {column.header}
+                    </SortableTableHeader>
+                  );
                   return (
                     <th
                       key={column.key}
                       scope="col"
+                      role="columnheader"
                       data-key={column.key}
                       data-label={label}
                       aria-sort={column.sort && column.sort !== "none" ? column.sort : undefined}
                       className={cx("px-3.5 py-2.5 text-left", right && "text-right", column.className)}
                     >
-                      {column.sortable ? (
-                        <button type="button" className={cx("dt-sort", right && "flex-row-reverse")} aria-label={`Sort by ${label}`}>
-                          {column.header}
-                          <SortGlyph />
-                        </button>
-                      ) : (
-                        column.header
-                      )}
+                      {column.header}
                     </th>
                   );
                 })}
@@ -187,9 +179,8 @@ export function Table<Row>({
                 ) : null}
               </tr>
             </thead>
-            <tbody>
-              {loading
-                ? skeletonRows.map((i) => (
+            {loading ? <tbody>
+              {skeletonRows.map((i) => (
                     <tr key={`skeleton-${i}`} aria-hidden="true">
                       {columns.map((column, j) => (
                         <td key={column.key} className={cx(cellPad, "py-3")}>
@@ -198,9 +189,10 @@ export function Table<Row>({
                       ))}
                       {actions ? <td className={cellPad} /> : null}
                     </tr>
-                  ))
-                : rows.map((row) => (
-                    <tr key={rowKey(row)}>
+                  ))}
+            </tbody> : rows.length === 0 ? <tbody><tr><td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-8 text-center text-text-3">No records to show.</td></tr></tbody> : <TableBody rows={rows.map((row) => ({
+                  key: rowKey(row),
+                  content: <tr key={rowKey(row)} role="row" data-row-key={rowKey(row)}>
                       {columns.map((column) => {
                         const label = column.mobileLabel ?? (typeof column.header === "string" ? column.header : "");
                         const right = column.numeric || column.align === "right";
@@ -211,6 +203,7 @@ export function Table<Row>({
                         return (
                           <td
                             key={column.key}
+                            role="cell"
                             data-col={column.key}
                             data-label={label}
                             data-sort={sortValue === null || sortValue === undefined ? undefined : String(sortValue)}
@@ -225,7 +218,7 @@ export function Table<Row>({
                               column.className,
                             )}
                           >
-                            {bar !== null && bar !== undefined ? (
+                            <div className="dt-value min-w-0">{bar !== null && bar !== undefined ? (
                               <span className={cx("mini-bar", right && "justify-end")}>
                                 <MiniBar value={bar} />
                                 <span>{content}</span>
@@ -237,7 +230,7 @@ export function Table<Row>({
                               </span>
                             ) : (
                               content
-                            )}
+                            )}</div>
                           </td>
                         );
                       })}
@@ -246,12 +239,11 @@ export function Table<Row>({
                           <span className="dt-actions inline-flex flex-wrap justify-end gap-1.5">{actions(row)}</span>
                         </td>
                       ) : null}
-                    </tr>
-                  ))}
-            </tbody>
+                    </tr>,
+                  }))} />}
           </table>
         </div>
       </div>
-    </div>
+    </TableEnhancer>
   );
 }

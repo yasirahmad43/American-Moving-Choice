@@ -1,0 +1,13 @@
+.workspace-topbar { box-shadow: 0 1px 0 rgba(6, 49, 103, 0.025); }
+.workspace-sidebar { max-height: calc(100dvh - 8rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.35) transparent; }
+.workspace-main > .grid > header { padding-bottom: 1.5rem; }
+.workspace-main > .grid > header h1 { letter-spacing: -.035em; }
+.workspace-main .dt { box-shadow: 0 2px 4px -2px rgba(6,49,103,.06), 0 16px 28px -25px rgba(6,49,103,.18); }
+.workspace-main .dt thead th { letter-spacing: .065em; }
+.workspace-main .dt tbody td { font-size: .9375rem; }
+.workspace-main :where(input, select, textarea) { box-shadow: inset 0 1px 2px rgba(6,49,103,.025); }
+.workspace-main :where(input, select, textarea):focus-visible { box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus) 12%, transparent); }
+@media (max-width: 39.99rem) {
+  .workspace-context { order: 3; width: 100%; border-top: 1px solid var(--border); padding-top: .625rem; padding-bottom: .25rem; }
+  .workspace-main > .grid > header h1 { font-size: 1.75rem; }
+}

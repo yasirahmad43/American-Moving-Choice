@@ -15,15 +15,15 @@ export function SiteHeader() {
     <header className="site-header relative z-10 border-b border-border/70 bg-surface">
       <div className="mx-auto flex min-h-16 max-w-content items-center gap-x-5 gutter">
         <Wordmark href="/" />
-        <nav aria-label="Primary" className="ml-auto hidden lg:block">
+        <nav aria-label="Primary" className="ml-auto hidden xl:block">
           <NavLinks items={PRIMARY_NAV} />
         </nav>
-        <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:gap-3">
+        <div className="ml-auto flex items-center gap-2 xl:ml-0 xl:gap-3">
           <Link href={MONEY_LINK.href} className="hidden min-h-11 items-center px-2 type-small text-text-2 underline decoration-border-strong underline-offset-[0.25em] transition-colors duration-[var(--d1)] hover:text-link hover:decoration-link sm:inline-flex">
             {MONEY_LINK.label}
           </Link>
-          <HeaderCta />
-          <details className="group lg:hidden">
+          <span className="hidden sm:block"><HeaderCta /></span>
+          <details className="group xl:hidden">
             <summary className="inline-flex min-h-11 list-none items-center gap-1.5 rounded-control border-[1.5px] border-border-strong px-3 font-semibold text-text btn-soft [&::-webkit-details-marker]:hidden">
               <MenuIcon size={20} />
               Menu

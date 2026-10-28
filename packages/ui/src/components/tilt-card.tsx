@@ -33,21 +33,43 @@ export function TiltCard({ as: Tag = "div", max = 9, depth = 24, tone = "surface
   const enabled = useRef(false);
 
   useEffect(() => {
-    enabled.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const pointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      enabled.current = pointer.matches && !reducedMotion.matches;
+      if (!enabled.current) {
+        cancelAnimationFrame(frame.current);
+        ref.current?.style.setProperty("--rx", "0deg");
+        ref.current?.style.setProperty("--ry", "0deg");
+        ref.current?.style.setProperty("--gl", "0");
+      }
+    };
+    update();
+    pointer.addEventListener("change", update);
+    reducedMotion.addEventListener("change", update);
+    return () => {
+      cancelAnimationFrame(frame.current);
+      pointer.removeEventListener("change", update);
+      reducedMotion.removeEventListener("change", update);
+    };
   }, []);
 
   const onMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
-      if (!enabled.current) return;
+      if (!enabled.current || event.pointerType !== "mouse") return;
       const node = ref.current;
       if (!node) return;
-      const rect = node.getBoundingClientRect();
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
+      const clientX = event.clientX;
+      const clientY = event.clientY;
       cancelAnimationFrame(frame.current);
       frame.current = requestAnimationFrame(() => {
-        node.style.setProperty("--ry", `${((px - 0.5) * 2 * max).toFixed(2)}deg`);
-        node.style.setProperty("--rx", `${((0.5 - py) * 2 * max).toFixed(2)}deg`);
+        const rect = node.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const px = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const py = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+        const rotation = Math.max(0, Math.min(12, max));
+        node.style.setProperty("--ry", `${((px - 0.5) * 2 * rotation).toFixed(2)}deg`);
+        node.style.setProperty("--rx", `${((0.5 - py) * 2 * rotation).toFixed(2)}deg`);
         node.style.setProperty("--gx", `${(px * 100).toFixed(1)}%`);
         node.style.setProperty("--gy", `${(py * 100).toFixed(1)}%`);
         node.style.setProperty("--gl", "1");

@@ -142,14 +142,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               ]}
             />
             <Table sortable
-              caption="Movers in the consent text"
+              caption="Recorded recipient eligibility"
               compact
               rowKey={(r) => r.id}
               rows={detail.consentCompanies}
               columns={[
                 { key: "name", header: "Mover", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.id}`}>{r.name}</Link> },
                 { key: "usdot", header: "USDOT", numeric: true, cell: (r) => r.usdot ?? "None" },
-                { key: "named", header: "In consent", cell: (r) => (r.named ? <Status value="pass" label="Named" /> : <Status value="removed" label="Removed by consumer" />) },
+                { key: "named", header: "Permission snapshot", cell: (r) => (r.named ? <Status value="pass" label="Included" /> : <Status value="removed" label="Excluded" />) },
               ]}
             />
           </div>
@@ -166,14 +166,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         empty={<p className="text-text-2">No eligible movers were matched.</p>}
         columns={[
           { key: "company", header: "Mover", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.company_id}`}>{r.legal_name}</Link> },
-          { key: "named", header: "Named in consent", cell: (r) => (r.named_in_consent ? "Yes" : "No") },
+          { key: "named", header: "Included in permission", cell: (r) => (r.named_in_consent ? "Yes" : "No") },
           { key: "rule", header: "Matched rule", cell: (r) => (r.matched_rule_id ? <ShortId id={r.matched_rule_id} /> : "None") },
           { key: "version", header: "Coverage version", numeric: true, cell: (r) => (r.coverage_version === r.current_coverage_version ? r.coverage_version : `${r.coverage_version} (now ${r.current_coverage_version})`) },
           { key: "at", header: "Matched", cell: (r) => <When value={r.matched_at} /> },
         ]}
       />
       {canDecide && group?.status === "available" && detail.eligibility.some((r) => r.named_in_consent) ? (
-        <Card title="Re-run matching" titleAs="h2" description="Refreshes the snapshots of the movers named in the consent against their current coverage, so a stale snapshot stops blocking their purchase. Movers the consumer removed stay removed, and no mover is ever added to a request it was not shown for.">
+        <Card title="Re-run matching" titleAs="h2" description="Refreshes coverage for companies already included in this request's permission snapshot. It does not add recipients, widen the customer's contact limit, or restore excluded companies.">
           <ActionForm action={rematchAction} submitLabel="Re-run matching" submitVariant="secondary" inline>
             <input type="hidden" name="leadId" value={lead.id} />
             <input type="hidden" name="groupId" value={group.id} />

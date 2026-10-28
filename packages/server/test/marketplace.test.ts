@@ -32,12 +32,12 @@ describe("pricing helpers", () => {
     expect(splitCharge(2925, 5000)).toEqual({ creditCents: 2925, cardCents: 0 });
   });
 
-  it("writes the consumer notice with the mover, USDOT, profile and that the mover paid AMC", () => {
+  it("keeps purchase updates anonymous until the company introduces itself", () => {
     const notice = purchaseNoticeText({ firstName: "Jordan", moverName: "Demo Movers", usdot: "9000001", referenceCode: "AMC-AAAA-BBBB", profileUrl: "http://localhost:3000/companies/demo-movers/" });
-    expect(notice.subject).toBe("Demo Movers received your moving request");
-    expect(notice.body).toContain("Demo Movers (USDOT 9000001)");
-    expect(notice.body).toContain("paid American Moving Choice");
-    expect(notice.body).toContain("http://localhost:3000/companies/demo-movers/");
+    expect(notice.subject).toBe("An update on your moving request");
+    expect(notice.body).not.toMatch(/Demo Movers|9000001|demo-movers/);
+    expect(notice.body).toContain("Movers pay American Moving Choice");
+    expect(notice.body).toContain("identify itself when it contacts you");
   });
 });
 
@@ -143,9 +143,11 @@ describe("purchase", () => {
     const notice = await pool().query("select to_address, template, subject, body_text, status from messages where related_id = $1", [result.purchaseId]);
     expect(notice.rows).toHaveLength(1);
     expect(notice.rows[0]).toMatchObject({ to_address: request.email, template: "purchase_notice", status: "demo" });
-    expect(notice.rows[0].body_text).toContain(`${mover.name} (USDOT ${mover.usdot})`);
-    expect(notice.rows[0].body_text).toContain("paid American Moving Choice");
-    expect(notice.rows[0].body_text).toContain("/companies/");
+    expect(notice.rows[0].body_text).not.toContain(mover.name);
+    expect(notice.rows[0].body_text).not.toContain(mover.usdot);
+    expect(notice.rows[0].body_text).toContain("Movers pay American Moving Choice");
+    expect(notice.rows[0].body_text).not.toContain("/companies/");
+    expect(notice.rows[0].body_text).toContain("identify itself when it contacts you");
     const access = await pool().query("select action, user_id from contact_access_log where purchase_id = $1", [result.purchaseId]);
     expect(access.rows).toEqual([{ action: "notify", user_id: mover.ownerId }]);
 

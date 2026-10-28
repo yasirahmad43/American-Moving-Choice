@@ -110,10 +110,10 @@
     background: linear-gradient(315deg, rgba(255, 255, 255, 0.18), transparent 45%);
   }
   .flip-inner {
-    transition: transform 900ms cubic-bezier(0.32, 0.72, 0, 1);
+    transition: transform 560ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   @media (hover: hover) and (pointer: fine) {
-    .flip:hover .flip-inner {
+    .flip[data-flipped="true"] .flip-inner {
       transform: rotateY(180deg) translateZ(8px);
     }
   }
@@ -170,7 +170,7 @@
       filter 600ms var(--ease-std);
   }
   .icon3d[data-float="true"] {
-    animation: icon-float 6s ease-in-out infinite;
+    animation: icon-float 4s ease-in-out 1;
     animation-delay: var(--float-delay, 0s);
   }
   @media (hover: hover) {
@@ -191,8 +191,8 @@
   }
   /* Trust strip: icons wake in sequence as the strip enters the viewport. */
   .trust-item .icon3d {
-    opacity: 0;
-    transform: translateY(14px) scale(0.86);
+    opacity: 1;
+    transform: none;
   }
   [data-reveal="in"] .trust-item .icon3d,
   :root:not([data-js]) .trust-item .icon3d {
@@ -235,26 +235,21 @@
     }
   }
 
-  /* --- GSAP-driven states: only once the provider sets <html data-gsap> ------------------- */
-  :root[data-gsap] [data-motion="rise"],
-  :root[data-gsap] [data-motion="stagger"] > * {
-    opacity: 0;
-    transform: translateY(28px);
+  /* GSAP owns individual initial states after attaching triggers. SSR content stays visible. */
+  [data-motion="words"] .word {
+    display: inline-block;
   }
-  :root[data-gsap] [data-motion="scale"] {
-    opacity: 0;
-    transform: scale(0.92);
+  [data-pin-step] .tilt-body {
+    transition: border-color 280ms var(--ease-std), box-shadow 280ms var(--ease-std), transform 160ms linear;
   }
-  :root[data-gsap] [data-motion="words"] .word {
-    opacity: 0.14;
+  [data-active-step] .tilt-body {
+    border-color: var(--primary);
+    box-shadow: var(--sh-depth-2), inset 0 3px 0 var(--brand-navy);
   }
-  :root[data-gsap] [data-stamp] {
-    opacity: 0;
-    transform: scale(1.8) rotate(-12deg);
-  }
-  :root[data-gsap] [data-pin-step] {
-    opacity: 0.25;
-    transform: translateY(32px) scale(0.96);
+  @media (min-width: 64rem) {
+    .workflow-stops {
+      grid-template-columns: repeat(var(--step-count, 4), minmax(0, 1fr));
+    }
   }
 
   /* --- Mesh gradient drift: two blurred orbs on transform, GPU only ------------------------ */
@@ -280,7 +275,7 @@
     left: -12%;
     top: -22%;
     background: radial-gradient(circle, rgba(157, 196, 255, 0.5), transparent 65%);
-    animation: drift-a 22s ease-in-out infinite alternate;
+    animation: drift-a 4s ease-out 1 forwards;
   }
   .mesh-drift::after {
     width: 34vw;
@@ -290,7 +285,7 @@
     right: -10%;
     bottom: -26%;
     background: radial-gradient(circle, rgba(224, 20, 28, 0.32), transparent 65%);
-    animation: drift-b 26s ease-in-out infinite alternate;
+    animation: drift-b 4s ease-out 1 forwards;
   }
   .mesh-drift-light::before {
     background: radial-gradient(circle, rgba(6, 49, 103, 0.14), transparent 65%);
@@ -339,21 +334,22 @@
     line-height: 1.2;
     color: var(--text-3);
     pointer-events: none;
+    max-width: calc(100% - 1.9rem);
     transform-origin: left top;
     transition:
       transform 180ms var(--ease-std),
       color 180ms var(--ease-std);
   }
-  .field-float > input:focus-visible ~ label,
+  .field-float > input:focus ~ label,
   .field-float > input:not(:placeholder-shown) ~ label,
-  .field-float > textarea:focus-visible ~ label,
+  .field-float > textarea:focus ~ label,
   .field-float > textarea:not(:placeholder-shown) ~ label {
     transform: translateY(-0.55rem) scale(0.74);
     color: var(--text-2);
     font-weight: 700;
     letter-spacing: 0.02em;
   }
-  .field-float > input:focus-visible ~ label {
+  .field-float > input:focus ~ label {
     color: var(--primary);
   }
   .field-float > input::placeholder,
@@ -414,17 +410,17 @@
   .dt tbody tr:last-child td {
     border-bottom: 0;
   }
-  .dt[data-density="compact"] tbody td {
+  .dt-shell[data-density="compact"] tbody td {
     padding-block: 0.4rem;
   }
-  .dt[data-density="comfortable"] tbody td {
+  .dt-shell[data-density="comfortable"] tbody td {
     padding-block: 0.8rem;
   }
   .dt-sort {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     color: inherit;
     font: inherit;
     letter-spacing: inherit;
@@ -453,12 +449,22 @@
     transform: rotate(180deg);
   }
   .dt-actions {
-    opacity: 0.6;
+    opacity: 1;
     transition: opacity 150ms;
   }
   .dt tbody tr:hover .dt-actions,
   .dt tbody tr:focus-within .dt-actions {
     opacity: 1;
+  }
+  .dt tbody tr:focus-within {
+    background: var(--info-bg);
+    box-shadow: inset 3px 0 0 var(--primary);
+  }
+  .dt-value {
+    overflow-wrap: anywhere;
+  }
+  .dt-mobile-sort {
+    display: none;
   }
   /* Card mode under 720px: the header is hidden, each row stacks with its labels. */
   @media (max-width: 44.99rem) {
@@ -469,6 +475,7 @@
       overflow: hidden;
       clip: rect(0 0 0 0);
       white-space: nowrap;
+      visibility: hidden;
     }
     .dt-responsive,
     .dt-responsive .dt-scroll,
@@ -505,17 +512,21 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 1rem;
+      gap: 0.75rem;
       padding: 0.45rem 0 !important;
       border-bottom: 1px dashed var(--border);
       text-align: right;
+    }
+    .dt-responsive .dt-value {
+      max-width: 68%;
+      white-space: normal;
     }
     .dt-responsive tbody td:last-child {
       border-bottom: 0;
     }
     .dt-responsive tbody td[data-label]::before {
       content: attr(data-label);
-      flex: 0 0 auto;
+      flex: 0 1 38%;
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -528,8 +539,19 @@
       display: none;
     }
     .dt-responsive tbody td.dt-primary {
-      text-align: left;
+      text-align: right;
       font-weight: 600;
+    }
+    .dt-mobile-sort {
+      display: block;
+    }
+    .dt-responsive .mini-bar {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .dt-responsive .dt-actions {
+      width: 100%;
+      justify-content: flex-start;
     }
   }
 
@@ -606,6 +628,10 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .flip:not([data-flipped="true"]):hover .flip-inner,
+    .flip[data-flipped="true"] .flip-inner {
+      transform: none;
+    }
     .icon3d[data-float="true"],
     .mesh-drift::before,
     .mesh-drift::after,

@@ -20,11 +20,14 @@ function filterQuery(filters: MarketplaceFilters): string {
   return text ? `?${text}` : "";
 }
 
-function Filters({ filters }: { filters: MarketplaceFilters }) {
+function Filters({ filters, view }: { filters: MarketplaceFilters; view: "cards" | "list" }) {
   return (
     <form method="get" action="/portal/marketplace" className="grid gap-4" aria-label="Filter requests">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Field id="scope" label="Area" help="Nationwide lists every request that names your company; state and ZIP filters narrow the route.">
+      {view === "list" ? <input type="hidden" name="view" value="list" /> : null}
+      <fieldset className="min-w-0 border-0 p-0">
+        <legend className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-text-3">Route and coverage</legend>
+        <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Field id="scope" label="Area">
           <Select name="scope" defaultValue={filters.scope ?? ""}>
             <option value="">Use the filters below</option>
             <option value="nationwide">Nationwide (any route)</option>
@@ -68,6 +71,12 @@ function Filters({ filters }: { filters: MarketplaceFilters }) {
             ))}
           </Select>
         </Field>
+        </div>
+        <p className="mt-3 type-small text-text-3">Nationwide shows every request that names your company. State and ZIP filters narrow those routes.</p>
+      </fieldset>
+      <fieldset className="min-w-0 border-0 border-t border-border pt-4">
+        <legend className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-text-3">Move details</legend>
+        <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Field id="moveDateFrom" label="Move date from">
           <Input type="date" name="moveDateFrom" defaultValue={filters.moveDateFrom ?? ""} />
         </Field>
@@ -101,12 +110,13 @@ function Filters({ filters }: { filters: MarketplaceFilters }) {
             ))}
           </Select>
         </Field>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" variant="secondary">
-          Apply filters
+        </div>
+      </fieldset>
+      <div className="flex flex-wrap items-center gap-2 border-t border-border pt-4">
+        <Button type="submit">
+          <LineIcon name="filter" size={16} />Apply filters
         </Button>
-        <LinkButton href="/portal/marketplace" variant="ghost">
+        <LinkButton href={view === "list" ? "/portal/marketplace?view=list" : "/portal/marketplace"} variant="ghost">
           Clear filters
         </LinkButton>
       </div>
@@ -124,12 +134,14 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
   const view = (Array.isArray(sp.view) ? sp.view[0] : sp.view) === "list" ? "list" : "cards";
   const query = filterQuery(filters);
   const viewHref = (v: "cards" | "list") => `/portal/marketplace${query}${v === "list" ? (query ? "&" : "?") + "view=list" : ""}`;
+  const appliedCount = Object.values(filters).filter((value) => value !== undefined && value !== "").length;
 
   return (
     <div className="grid gap-6">
       <PageHeader
         title={item.label}
-        description="Move requests that name your company, with the price you would pay to buy each one. Contact details unlock after purchase."
+        overline="New opportunities"
+        description="Move requests matched to your company, with the price you would pay to buy each one. Contact details unlock after purchase."
         size="portal"
         actions={
           <>
@@ -140,7 +152,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
                   href={viewHref(v)}
                   aria-current={view === v ? "page" : undefined}
                   className={cx(
-                    "inline-flex min-h-10 items-center gap-1.5 rounded-pill px-3.5 text-[0.9375rem] font-semibold no-underline transition-colors duration-[var(--d1)]",
+                    "inline-flex min-h-11 items-center gap-1.5 rounded-pill px-3.5 text-[0.875rem] font-semibold no-underline transition-colors duration-[var(--d1)]",
                     view === v ? "bg-primary text-on-primary" : "text-text-2 hover:bg-surface-2 hover:text-text",
                   )}
                 >
@@ -150,22 +162,22 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
               ))}
             </nav>
             <LinkButton href={viewHref(view)} variant="secondary">
-              Refresh
+              <LineIcon name="clock" size={16} />Refresh
             </LinkButton>
           </>
         }
       />
 
-      <Card padding="md">
-        <dl className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <dt className="type-small text-text-3">Account credit available</dt>
-            <dd className="type-h4 tabular">
+      <Card padding="md" className="border-t-[3px] border-t-brand-navy">
+        <dl className="grid gap-5 sm:grid-cols-3">
+          <div className="grid content-start gap-2">
+            <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.06em] text-text-3"><LineIcon name="money" size={15} />Available credit</dt>
+            <dd className="font-display text-2xl font-bold tracking-tight tabular">
               <Money cents={buyer.availableCreditCents} />
             </dd>
           </div>
-          <div>
-            <dt className="type-small text-text-3">Payment method</dt>
+          <div className="grid content-start gap-2 sm:border-l sm:border-border sm:pl-5">
+            <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.06em] text-text-3"><LineIcon name="lock" size={15} />Payment method</dt>
             <dd>
               {buyer.paymentMethod ? (
                 <span className="tabular">
@@ -178,8 +190,8 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
               )}
             </dd>
           </div>
-          <div>
-            <dt className="type-small text-text-3">Updates</dt>
+          <div className="grid content-start gap-2 sm:border-l sm:border-border sm:pl-5">
+            <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.06em] text-text-3"><LineIcon name="clock" size={15} />Availability</dt>
             <dd>
               <LiveAvailability groupIds={listings.map((l) => l.groupId)} />
             </dd>
@@ -190,20 +202,20 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
       {blocked ? <Alert tone="warning">{blocked}</Alert> : null}
 
       <details className="expandable group rounded-card border border-border bg-surface p-5 shadow-e1" open={hasFilters}>
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-text [&::-webkit-details-marker]:hidden">
-          <span>Filters{hasFilters ? " (on)" : ""}</span>
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-semibold text-text [&::-webkit-details-marker]:hidden">
+          <span className="flex flex-wrap items-center gap-2"><LineIcon name="filter" size={18} />Filter requests{hasFilters ? <span className="rounded-pill bg-info-bg px-2 py-0.5 text-xs font-bold tabular text-info-text">{appliedCount} active</span> : null}</span>
           <span aria-hidden="true" className="expandable-chevron inline-grid size-9 shrink-0 place-items-center rounded-pill border-[1.5px] border-border-strong text-text-2 group-hover:bg-surface-2">
             <ChevronDownIcon size={18} />
           </span>
         </summary>
         <div className="mt-4">
-          <Filters filters={filters} />
+          <Filters filters={filters} view={view} />
         </div>
       </details>
 
-      <p className="type-small text-text-3">
-        Only movers the customer saw named and agreed to can buy a request. For shared requests the credit policy is a proposal awaiting
-        owner approval.
+      <p className="flex items-start gap-2 type-small text-text-3"><LineIcon name="info" size={16} className="mt-0.5 shrink-0" /><span>
+        Only companies recorded as eligible for a request can buy it, within the customer's contact limit and preferences. For shared requests the credit policy is a proposal awaiting
+        owner approval.</span>
       </p>
 
       {listings.length === 0 ? (
@@ -217,7 +229,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
           icon="megaphone"
           action={
             hasFilters ? (
-              <LinkButton href="/portal/marketplace" variant="secondary">
+              <LinkButton href={view === "list" ? "/portal/marketplace?view=list" : "/portal/marketplace"} variant="secondary">
                 Clear filters
               </LinkButton>
             ) : (
@@ -229,7 +241,8 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
         />
       ) : view === "list" ? (
         <Table
-          caption={`${listings.length} available ${listings.length === 1 ? "request" : "requests"}`}
+          id="marketplace-requests"
+          caption="Available requests"
           rows={listings}
           rowKey={(l) => l.groupId}
           sortable
@@ -244,14 +257,12 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
                 </Link>
               ),
             },
-            { key: "route", header: "Route", cell: (l) => `${l.preview.origin.city}, ${l.preview.origin.state} → ${l.preview.destination.city}, ${l.preview.destination.state}` },
-            { key: "date", header: "Move date", nowrap: true, cell: (l) => (l.preview.moveDate ? <AbsoluteDate value={l.preview.moveDate} /> : "Not given") },
-            { key: "size", header: "Size", cell: (l) => (l.preview.moveSize ? MOVE_SIZE_LABELS[l.preview.moveSize] ?? l.preview.moveSize : "Not given") },
-            { key: "type", header: "Type", cell: (l) => <Chip tone={l.preview.leadType === "exclusive" ? "exclusive" : "shared"}>{l.preview.leadType === "exclusive" ? "Exclusive" : "Shared"}</Chip> },
+            { key: "route", header: "Route", cell: (l) => <span className="grid gap-1"><span>{l.preview.origin.city}, {l.preview.origin.state}</span><span className="flex items-center gap-1 text-text-3"><LineIcon name="arrow-right" size={13} />{l.preview.destination.city}, {l.preview.destination.state}</span></span> },
+            { key: "date", header: "Move", mobileLabel: "Move date & size", cell: (l) => <span className="grid gap-1"><span>{l.preview.moveDate ? <AbsoluteDate value={l.preview.moveDate} /> : "Date not given"}</span><span className="type-small text-text-3">{l.preview.moveSize ? MOVE_SIZE_LABELS[l.preview.moveSize] ?? l.preview.moveSize : "Size not given"}</span></span> },
+            { key: "type", header: "Type & source", cell: (l) => <span className="grid justify-items-start gap-1.5"><Chip tone={l.preview.leadType === "exclusive" ? "exclusive" : "shared"}>{l.preview.leadType === "exclusive" ? "Exclusive" : "Shared"}</Chip><span className="type-small text-text-3">{SOURCE_LABELS[l.preview.sourceCategory] ?? l.preview.sourceCategory}</span></span> },
             { key: "buyers", header: "Buyers", numeric: true, sortValue: (l) => l.preview.buyerCount, bar: (l) => l.preview.buyerCount / Math.max(1, l.preview.maxBuyers), cell: (l) => `${l.preview.buyerCount} of ${l.preview.maxBuyers}` },
             { key: "price", header: "Your price", numeric: true, sortValue: (l) => l.price.chargeCents, cell: (l) => <Money cents={l.price.chargeCents} /> },
-            { key: "received", header: "Received", nowrap: true, sortValue: (l) => String(l.preview.createdAt), cell: (l) => <AbsoluteDate value={l.preview.createdAt} withTime /> },
-            { key: "until", header: "Available until", nowrap: true, sortValue: (l) => l.expiresAt.toISOString(), cell: (l) => <AbsoluteDate value={l.expiresAt} withTime /> },
+            { key: "received", header: "Received", sortValue: (l) => String(l.preview.createdAt), cell: (l) => <span className="grid gap-1"><AbsoluteDate value={l.preview.createdAt} withTime /><span className="type-small text-text-3">Until <AbsoluteDate value={l.expiresAt} withTime /></span></span> },
           ]}
           actions={(l) => (
             <LinkButton href={`/portal/marketplace/${l.groupId}`} variant="secondary" size="sm">

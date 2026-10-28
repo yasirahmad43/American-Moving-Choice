@@ -69,11 +69,11 @@ test.describe("moving cost calculator", () => {
     // A changed answer dims the result and hides the call to action until the reader calculates again.
     await page.getByRole("checkbox", { name: "Packing" }).check();
     await expect(page.getByText("You changed an answer. Calculate the range again to update it.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "See which movers cover this move" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Request moving quotes" })).toHaveCount(0);
     await page.getByRole("button", { name: "Calculate the range" }).click();
     await expect(page.getByText("Services: packing", { exact: true })).toBeVisible();
 
-    await page.getByRole("button", { name: "See which movers cover this move" }).click();
+    await page.getByRole("button", { name: "Request moving quotes" }).click();
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
     // The survey reads the calculator's prefill once (then clears it) and shows every carried
     // answer for confirmation, starting at Where.
@@ -92,8 +92,8 @@ test.describe("moving cost calculator", () => {
     await calculate(page, "82001", "82601", "2 bedrooms");
     await expect(page.getByRole("heading", { level: 2, name: "Not enough data for a range yet" })).toBeFocused();
     await expect(page.getByText(/A range needs rate cards from at least 5 different movers/)).toBeVisible();
-    await expect(page.getByText("You can still see which movers cover this move and request quotes from them.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "See which movers cover this move" })).toBeVisible();
+    await expect(page.getByText("Check coverage for this move and choose how many movers may contact you.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Request moving quotes" })).toBeVisible();
     await expect(page.getByTestId("range-label")).toHaveCount(0);
   });
 

@@ -31,7 +31,7 @@ export default function ComplaintsPage() {
       <h2>Tell American Moving Choice</h2>
       <p>
         Use <Link href="/report-a-concern/">Report a concern</Link> if a company you heard from through us acted as a broker, contacted you without
-        being named on your Review and send screen, showed credentials that look wrong, or treated you badly. You can also write to{" "}
+        permission or outside your chosen channels, didn't identify itself, showed credentials that look wrong, or treated you badly. You can also write to{" "}
         <Token k="org.support_email" />.
       </p>
       <ol>
@@ -39,7 +39,7 @@ export default function ComplaintsPage() {
         <li>Someone on our team reviews the report and may contact you if you left contact details.</li>
         <li>
           A report of broker activity or wrong credentials starts a full recheck of the company. If a check fails, we stop the company from buying
-          requests and take it out of our directory while we look into it.{" "}
+          requests while we look into it.{" "}
           <Link href="/how-we-verify-movers/">How we verify movers</Link>
         </li>
         <li>We record what we decided and why. We can&apos;t settle a claim or a price dispute between you and a mover.</li>

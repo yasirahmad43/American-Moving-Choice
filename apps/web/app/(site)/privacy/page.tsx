@@ -34,23 +34,23 @@ export default function PrivacyPage() {
         <li>Move details: where you&apos;re moving from and to, the date, the size of your home and the services you want.</li>
         <li>Contact details: your name, email address and phone number, and how you agree to be contacted.</li>
         <li>
-          A record of your consent: the text you saw, including the names of the movers listed, the number you chose, and when you agreed.
+          A record of your consent: the text you saw, the maximum number of movers and contact channels you chose, the eligible-company snapshot, and when you agreed.
         </li>
       </ul>
       <p>
-        We ask for contact details only after we&apos;ve shown you which movers in our network cover your move. Move details stay in your browser
+        We ask for contact details only after we&apos;ve checked coverage and shown you the number of eligible movers. Company names aren't shown before contact. Move details stay in your browser
         while you fill in the survey; contact details are never stored in your browser.{" "}
         <Note kind="build">contact details never stored client-side (VD §9.3); no ZIPs, dates or contact details in URLs or analytics (site architecture §8.8)</Note>
       </p>
 
       <h2>Who receives your details</h2>
       <p>
-        Only movers named on your Review and send screen, and no more than the number you chose, can receive your contact details. Each of those
+        Only eligible movers recorded for your request, and no more than the number you chose, can receive your contact details. Each of those
         movers pays us when it buys your request. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
-        each step.
+        each step. Companies identify themselves when they contact you.
       </p>
       <p>
-        <Note kind="counsel">whether paid delivery of a request to named movers is a &quot;sale&quot; or &quot;sharing&quot; under state privacy laws, and the opt-out wording that follows (implications §3.7)</Note>
+        <Note kind="counsel">review the count-based contact permission, paid delivery of requests, state privacy disclosures and opt-out wording before real consumer requests are accepted</Note>
       </p>
 
       <h2>Service providers</h2>

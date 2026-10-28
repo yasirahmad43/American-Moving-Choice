@@ -30,10 +30,10 @@ export default async function AdminDashboard() {
   const leadRows = stats.leadsByStatus;
   return (
     <div className="grid gap-8">
-      <PageHeader size="portal" title="Admin dashboard" description="Queues, requests and money for the last 7 and 30 days. Times are US Eastern." />
+      <PageHeader size="portal" overline="Operations overview" title="Admin dashboard" description="The work that needs attention, and the numbers behind your marketplace. All times are US Eastern." />
 
       <section aria-labelledby="queues">
-        <SectionTitle id="queues">Queues</SectionTitle>
+        <SectionTitle id="queues" description="Open a queue to review the records behind each total.">Needs attention</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatTile label="Pending verifications" value={q.pendingVerifications} href="/admin/verification" note={q.recheckIssues ? `${q.recheckIssues} approved with recheck issues` : undefined} />
           <StatTile label="Open cases" value={q.openCases} href="/admin/cases" note={q.overdueCases ? `${q.overdueCases} past their SLA` : "None past their SLA"} />

@@ -3,8 +3,11 @@
  * seeded admin's two-step verification enrollment and sign-in.
  */
 import { createHash, randomBytes } from "node:crypto";
+import { mkdir } from "node:fs/promises";
+import { resolve } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import * as OTPAuth from "otpauth";
+import { expectNoSeriousAxeViolations } from "./helpers";
 import {
   ADMIN_TOTP_SECRET,
   APP_URL,
@@ -47,7 +50,7 @@ test.describe("public site shell", () => {
     expect(response?.headers()["x-robots-tag"]).toBe("noindex, nofollow");
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("region", { name: "Preview notice" })).toContainText("Companies shown are fictional demo data.");
+    await expect(page.getByRole("region", { name: "Preview notice" })).toContainText("Requests and transactions use fictional demo data.");
     const nav = page.getByRole("navigation", { name: "Primary" }).first();
     await expect(page.getByRole("link", { name: "Get quotes" }).first()).toBeVisible();
     await expect(nav).toBeAttached();
@@ -259,6 +262,16 @@ test.describe("company app", () => {
     await page.getByLabel("6-digit code").fill(code);
     await page.getByRole("button", { name: "Verify" }).click();
     await expect(page).toHaveURL(`${APP_URL}/admin`);
+
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width > 1000 ? 1000 : 844 });
+      await expectNoSeriousAxeViolations(page, "admin " + width);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+      if (process.env.AMC_PROOF_DIR) {
+        await mkdir(process.env.AMC_PROOF_DIR, { recursive: true });
+        await page.screenshot({ path: resolve(process.env.AMC_PROOF_DIR, "admin-" + (width > 1000 ? "desktop" : "mobile") + ".png"), fullPage: true });
+      }
+    }
 
     // The same code in a second session is refused (RFC 6238 §5.2).
     const other = await page.context().browser()!.newContext();

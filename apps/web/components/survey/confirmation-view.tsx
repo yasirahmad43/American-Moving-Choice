@@ -9,7 +9,6 @@ import type { MoveSize } from "@amc/core";
 import { Alert, Card, formatAbsoluteDate } from "@amc/ui";
 import Link from "next/link";
 import type { Ref } from "react";
-import { MoverName } from "./mover-name";
 import type { SurveyTexts } from "./texts";
 
 export interface ConfirmationData {
@@ -62,17 +61,10 @@ export function ConfirmationView({
       <Card as="section" title="Who can receive your request" titleAs="h2">
         <p className="mb-4 text-text">
           {c.limit === 1
-            ? "Only 1 mover from this list can buy your request and get your contact details."
-            : `Up to ${c.limit} movers from this list can buy your request and get your contact details.`}{" "}
+            ? "Only 1 participating moving company may receive your details and contact you."
+            : `Up to ${c.limit} participating moving companies may receive your details and contact you.`}{" "}
           A mover may decide not to buy it or not to quote, so you might hear from fewer.
         </p>
-        <ol className="grid gap-4">
-          {c.movers.map((m) => (
-            <li key={m.companyId} className="border-t border-border pt-4 first:border-t-0 first:pt-0">
-              <MoverName {...m} />
-            </li>
-          ))}
-        </ol>
         <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-border pt-4 type-small sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold text-text">Move</dt>
           <dd className="text-text-2">
@@ -92,8 +84,8 @@ export function ConfirmationView({
           What happens next
         </h2>
         <ol className="grid list-decimal gap-2 pl-6 text-text">
-          <li>Movers named above can buy your request. When one does, we email you its name, its USDOT number and a link to its profile.</li>
-          <li>Movers that buy it contact you directly, only in the ways you chose. They'll ask about your inventory and access.</li>
+          <li>We match your request with participating moving companies that serve your move, within the limit you chose.</li>
+          <li>Each company introduces itself when it contacts you directly, only in the ways you chose. Ask for its USDOT number and written estimate.</li>
           <li>A reputable mover will offer an in-home or virtual survey before giving a written estimate. You're never obligated to hire anyone.</li>
         </ol>
         <p className="text-text-2">We can't promise when, or whether, any mover buys your request or gets in touch.</p>
@@ -101,7 +93,7 @@ export function ConfirmationView({
 
       <Card as="section" title="Changed your mind?" titleAs="h2">
         <p className="text-text">
-          You can see your request, which movers have bought it, and withdraw it at any time. Withdrawing stops any new mover from buying it, and we tell
+          You can see your request status and contact preferences, and withdraw it at any time. Withdrawing stops any new mover from buying it, and we tell
           movers that already bought it to stop contacting you.
         </p>
         <p className="mt-3">
@@ -114,10 +106,10 @@ export function ConfirmationView({
 
       <section aria-labelledby="concern-heading" className="grid gap-2">
         <h2 id="concern-heading" className="type-h4 text-text">
-          Contact from a company you weren't told about?
+          Unexpected contact about your move?
         </h2>
         <p className="text-text">
-          Only the movers named above can buy your request. If another company contacts you about it,{" "}
+          If a company does not identify itself, ignores your contact preferences, or contacts you after you withdraw,{" "}
           <Link href="/report-a-concern/" className="link">
             report a concern
           </Link>

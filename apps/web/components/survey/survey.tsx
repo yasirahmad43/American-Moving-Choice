@@ -47,7 +47,6 @@ import { Alert, Button, Checkbox, Field, FieldError, Input, RadioCardGroup, Step
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { ConfirmationView, type ConfirmationData } from "./confirmation-view";
-import { MoverName } from "./mover-name";
 import { StoredTextLine, type SurveyTexts } from "./texts";
 
 type FoundState = Extract<SurveyCoverageResult, { ok: true }>;
@@ -173,7 +172,7 @@ function initialDraft(): { draft: Draft; prefilled: boolean } {
     draft.flexible = stored.flexible === true;
     if (isSurveyMoveSize(stored.moveSize)) draft.moveSize = stored.moveSize;
     if (Array.isArray(stored.services)) draft.services = stored.services.filter(isSurveyService);
-    if (typeof stored.profileCompanyId === "string" && UUID.test(stored.profileCompanyId)) draft.profileCompanyId = stored.profileCompanyId;
+    // Profile-specific acquisition is retired; restored drafts always use the central flow.
   }
 
   let prefilled = false;
@@ -198,10 +197,7 @@ function initialDraft(): { draft: Draft; prefilled: boolean } {
     prefilled = Boolean(draft.originZip || draft.destZip || draft.moveSize);
     draft.step = "where";
   }
-  if (profile && typeof profile.companyId === "string" && UUID.test(profile.companyId)) {
-    draft.profileCompanyId = profile.companyId;
-    draft.step = "where";
-  }
+
   return { draft, prefilled };
 }
 
@@ -280,7 +276,6 @@ function SurveyFlow({
   const [contact, setContact] = useState<Contact>(EMPTY_CONTACT);
   const [found, setFound] = useState<FoundState | null>(null);
   const [limit, setLimit] = useState<number | null>(null);
-  const [onlyProfile, setOnlyProfile] = useState(false);
   const [removed, setRemoved] = useState<string[]>([]);
   const [recount, setRecount] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -363,9 +358,7 @@ function SurveyFlow({
   // ---------------------------------------------------------------- derived values
   const coverage: Coverage | null = found && found.coverage.ok ? found.coverage : null;
   const movers: Mover[] = coverage?.movers ?? [];
-  const profile = coverage?.profileCompany ?? null;
   const named = movers.filter((m) => !removed.includes(m.companyId));
-  const removedMovers = movers.filter((m) => removed.includes(m.companyId));
   const maxLimit = found?.maxLimit ?? 5;
   const consentText =
     found && limit !== null && named.length > 0 && limit <= named.length && contact.channels.length > 0
@@ -409,7 +402,7 @@ function SurveyFlow({
           moveSize: draft.moveSize,
           services: draft.services,
           need: draft.need,
-          profileCompanyId: draft.profileCompanyId,
+          profileCompanyId: null,
         });
         if (!result.ok) {
           if (result.kind === "rate_limited") {
@@ -437,7 +430,6 @@ function SurveyFlow({
     runCoverage((state) => {
       setFound(state);
       setLimit(null);
-      setOnlyProfile(false);
       setRemoved([]);
       setRecount(false);
       setConsentChecked(false);
@@ -454,15 +446,8 @@ function SurveyFlow({
 
   const chooseCount = (value: string) => {
     setErrors({});
-    if (value === "only" && profile?.eligible) {
-      setOnlyProfile(true);
-      setLimit(1);
-      setRemoved(movers.filter((m) => m.companyId !== profile.companyId).map((m) => m.companyId));
-    } else {
-      if (onlyProfile) setRemoved([]);
-      setOnlyProfile(false);
-      setLimit(Number(value));
-    }
+    setRemoved([]);
+    setLimit(Number(value));
     setRecount(false);
     setConsentChecked(false);
   };
@@ -473,22 +458,6 @@ function SurveyFlow({
     goTo("review");
   };
 
-  const toggleRemoved = (companyId: string) => {
-    const next = removed.includes(companyId) ? removed.filter((id) => id !== companyId) : [...removed, companyId];
-    setRemoved(next);
-    setConsentChecked(false);
-    const remaining = movers.length - next.length;
-    // Fewer movers than the number chosen: the count question returns with the numbers still possible.
-    if (limit !== null && limit > remaining) {
-      setLimit(null);
-      setRecount(true);
-      setAnnouncement(
-        remaining === 0
-          ? "No movers left on the list. Put one back to send your request."
-          : `Only ${remaining} ${remaining === 1 ? "mover is" : "movers are"} left on the list, so choose again how many moving companies you'd like to hear from.`,
-      );
-    }
-  };
 
   const handleResult = (result: SubmitResult) => {
     if (result.ok) {
@@ -525,16 +494,11 @@ function SurveyFlow({
           setLimit(null);
           setRecount(true);
         }
-        if (onlyProfile && !(fresh.ok && fresh.profileCompany?.eligible)) {
-          setOnlyProfile(false);
-          setLimit(null);
-          setRecount(true);
-        }
         setConsentChecked(false);
         setAlert({
           tone: "warning",
           title: "The movers available for your move changed",
-          body: "Check the list below, then tick the box again to agree to be contacted by the movers listed.",
+          body: "Review the updated availability and contact preferences, then tick the box again if you want to send your request.",
         });
         focusField.current = FIELD_IDS.form!;
         return;
@@ -547,7 +511,7 @@ function SurveyFlow({
         runCoverage((state) => {
           setFound(state);
           setConsentChecked(false);
-          setAlert({ tone: "warning", title: "We checked coverage again", body: "Your session was open for a long time, so we checked which movers serve your move again. Review the list and tick the box again." });
+          setAlert({ tone: "warning", title: "We checked coverage again", body: "Your session was open for a long time, so we checked which movers serve your move again. Review your preferences and tick the box again." });
           focusField.current = FIELD_IDS.form!;
         });
         return;
@@ -569,9 +533,9 @@ function SurveyFlow({
     event.preventDefault();
     if (!found || !coverage) return;
     const next: FieldErrors = {};
-    if (named.length === 0) next.movers = "Put back at least one mover to send your request.";
+    if (named.length === 0) next.movers = "Check coverage again before sending your request.";
     if (limit === null || limit > named.length) next.limit = "Choose how many moving companies you'd like to hear from.";
-    if (!consentChecked) next.consent = "To send your request, tick the box to agree to be contacted by the movers listed.";
+    if (!consentChecked) next.consent = "To send your request, tick the box to agree to be contacted by participating moving companies matched to your move.";
     if (!termsAccepted) next.terms = "To send your request, accept the Terms of Use and acknowledge the Privacy Policy.";
     setDeclined(!consentChecked && named.length > 0);
     if (errorCount(next) || !consentText || limit === null) return showErrors(next);
@@ -592,10 +556,10 @@ function SurveyFlow({
       email: contact.email,
       phone: contact.phone,
       limit,
-      onlyProfileCompany: onlyProfile,
+      onlyProfileCompany: false,
       shownCompanyIds: movers.map((m) => m.companyId),
       removedCompanyIds: removed,
-      profileCompanyId: draft.profileCompanyId,
+      profileCompanyId: null,
       consentChecked,
       termsAccepted,
       consentVersionId: found.consent.versionId,
@@ -811,7 +775,7 @@ function SurveyFlow({
             <fieldset id="services" className="m-0 grid gap-1 border-0 p-0" aria-describedby={errors.services ? errorId("services") : "services-help"}>
               <legend className="mb-1 p-0 text-[0.9375rem] font-semibold text-text">Services you need (optional)</legend>
               <p id="services-help" className="type-small text-text-3">
-                Choose any that apply. Only movers that offer every service you choose are shown.
+                Choose any that apply. Only movers that offer every service you choose are matched.
               </p>
               {SURVEY_SERVICES.filter((s) => s !== "labor_only" || draft.need === "loading_help").map((service) => (
                 <Checkbox
@@ -844,7 +808,7 @@ function SurveyFlow({
               {/* Consent draft §3 without its "We don't sell your details" sentence, which waits on counsel (implications §3.7). */}
               <p className="text-text">
                 To prepare a quote, movers need to reach you to confirm details like access, stairs and inventory. You'll choose how many movers may
-                receive your details, and you'll see which ones before you submit.
+                receive your details and which methods they may use. Each company introduces itself when it contacts you.
               </p>
             </section>
             <fieldset id="channels" className="m-0 grid gap-1 border-0 p-0" aria-describedby={["channels-help", errors.channels ? errorId("channels") : null].filter(Boolean).join(" ")}>
@@ -891,11 +855,10 @@ function SurveyFlow({
             {heading("How many movers")}
             <CountQuestion
               options={options}
-              value={onlyProfile ? "only" : limit === null ? null : String(limit)}
+              value={limit === null ? null : String(limit)}
               onChange={chooseCount}
               error={errors.limit}
               helper={texts.st4a}
-              profile={profile?.eligible ? profile : null}
               available={named.length}
             />
             {nav()}
@@ -910,54 +873,18 @@ function SurveyFlow({
             {formAlert}
             <RequestSummary draft={draft} coverage={coverage} contact={contact} onEdit={goTo} />
 
-            <section aria-labelledby="named-heading" className="grid gap-3">
-              <h3 id="named-heading" className="type-h3 text-text">
-                Movers who can buy your request
-              </h3>
-              <p className="text-text-2">
-                {onlyProfile && profile
-                  ? `You chose only ${profile.displayName}. It's the only mover named, and the only one that can buy your request.`
-                  : "Only the movers listed here can buy your request. You can remove any of them; a mover you remove can never buy it."}
-              </p>
+            <section aria-labelledby="contact-plan-heading" className="grid gap-3 rounded-card border border-border bg-surface p-5">
+              <h3 id="contact-plan-heading" className="type-h3 text-text">Your contact preferences</h3>
+              <p className="text-text-2">Participating moving companies that serve your move may contact you using only the methods you choose. Each company will introduce itself when it gets in touch.</p>
               {errors.movers ? <FieldError id={errorId("movers")}>{errors.movers}</FieldError> : null}
-              <ol id="movers" className="grid gap-0 rounded-card border border-border">
-                {named.map((m) => (
-                  <li key={m.companyId} className="flex flex-wrap items-start justify-between gap-3 border-t border-border p-4 first:border-t-0">
-                    <MoverName {...m} />
-                    {!onlyProfile ? (
-                      <Button type="button" variant="secondary" size="sm" onClick={() => toggleRemoved(m.companyId)}>
-                        Remove<span className="sr-only"> {m.displayName}</span>
-                      </Button>
-                    ) : null}
-                  </li>
-                ))}
-                {named.length === 0 ? <li className="p-4 text-text-2">No movers are left on the list.</li> : null}
-              </ol>
-              {removedMovers.length && !onlyProfile ? (
-                <div className="grid gap-2">
-                  <h4 className="type-h4 text-text">Removed</h4>
-                  <ul className="grid gap-2">
-                    {removedMovers.map((m) => (
-                      <li key={m.companyId} className="flex flex-wrap items-center justify-between gap-3 rounded-control bg-surface-2 px-4 py-2">
-                        <span className="text-text-2">
-                          {m.displayName} <span className="tabular">(USDOT {m.usdotNumber})</span>: can't buy your request
-                        </span>
-                        <Button type="button" variant="ghost" size="sm" onClick={() => toggleRemoved(m.companyId)}>
-                          Put back<span className="sr-only"> {m.displayName}</span>
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
             </section>
 
             {recount || limit === null ? (
               <div className="grid gap-3 rounded-card border-[1.5px] border-warning p-5">
                 <p className="font-semibold text-text">
                   {named.length > 0
-                    ? `${named.length} ${named.length === 1 ? "mover is" : "movers are"} left on the list, so choose again.`
-                    : "Put back at least one mover, then choose how many movers you'd like to hear from."}
+                    ? `${named.length} ${named.length === 1 ? "mover is" : "movers are"} available, so choose again.`
+                    : "Check coverage again, then choose how many movers you'd like to hear from."}
                 </p>
                 {named.length > 0 ? (
                   <CountQuestion
@@ -966,7 +893,6 @@ function SurveyFlow({
                     onChange={chooseCount}
                     error={errors.limit}
                     helper={texts.st4a}
-                    profile={null}
                     available={named.length}
                   />
                 ) : null}
@@ -976,7 +902,7 @@ function SurveyFlow({
                 <strong className="tabular">
                   {limit === 1 ? "Only 1 mover" : `Up to ${limit} movers`}
                 </strong>{" "}
-                from this list can receive your details.{" "}
+                may receive your details and contact you.{" "}
                 <button type="button" className="link" onClick={() => goTo("count")}>
                   Change the number
                 </button>
@@ -1033,23 +959,8 @@ function SurveyFlow({
             </div>
 
             {declined ? (
-              <Alert tone="info" title="Prefer to contact a mover yourself?">
-                If you leave the box unticked, nothing is shared with any mover and no mover can buy your request. You can look at the movers' profiles and
-                contact any of them yourself:
-                <ul className="mt-2 grid gap-1">
-                  {named.map((m) => (
-                    <li key={m.companyId}>
-                      {m.profileSlug ? (
-                        <a href={`/companies/${m.profileSlug}/`} target="_blank" rel="noopener" className="link">
-                          {m.displayName}
-                          <span className="sr-only"> (opens in a new tab)</span>
-                        </a>
-                      ) : (
-                        m.displayName
-                      )}
-                    </li>
-                  ))}
-                </ul>
+              <Alert tone="info" title="Your request has not been sent">
+                Contact permission is optional. Leave the box unticked and no request or contact details will be shared. You can go back to edit your contact preferences or leave this page.
               </Alert>
             ) : null}
 
@@ -1131,7 +1042,7 @@ function MoveSidebar({ draft, coverage, texts }: { draft: Draft; coverage: Cover
           </Link>
         </li>
         <li>
-          <strong className="text-text">You choose how many companies</strong> can receive your details, and you see which ones before you send.{" "}
+          <strong className="text-text">You choose how many companies</strong> can receive your details. Companies introduce themselves when they contact you.{" "}
           <Link href="/which-companies-receive-my-request/" className="link">
             Which companies receive my request
           </Link>
@@ -1199,42 +1110,16 @@ function FoundStep({
       </form>
     );
   }
-  const profile = coverage.profileCompany;
   return (
-    <form
-      noValidate
-      onSubmit={(e) => {
-        e.preventDefault();
-        onContinue();
-      }}
-      className="grid gap-5"
-    >
+    <form noValidate onSubmit={(e) => { e.preventDefault(); onContinue(); }} className="grid gap-5">
       {heading(
         movers.length === 1 ? "1 mover in our network serves your move" : `${movers.length} movers in our network serve your move`,
-        `From ${coverage.move.origin.city}, ${coverage.move.origin.state} to ${coverage.move.destination.city}, ${coverage.move.destination.state}, with the size and services you chose. The count doesn't take your move date into account.`,
+        `From ${coverage.move.origin.city}, ${coverage.move.origin.state} to ${coverage.move.destination.city}, ${coverage.move.destination.state}, with the size and services you chose. Availability does not reserve a moving date.`,
       )}
-      {profile && !profile.eligible ? (
-        <Alert tone="info" title={`${profile.displayName} doesn't serve this move`}>
-          You started from its profile, but it doesn't serve this route, size or service. You can go on with the movers below, or go back and change your
-          answers.
-        </Alert>
-      ) : null}
-      {/*
-        [Owner: names, USDOT numbers and check dates before contact are the recommended default
-        (implications §11 Q1, §2.2); a count-only variant is the alternative. Counsel confirms the
-        names don't read as AMC choosing a mover.] This note stays in code, not in consumer copy.
-      */}
-      <ul className="grid gap-0 rounded-card border border-border">
-        {movers.map((m) => (
-          <li key={m.companyId} className="border-t border-border p-4 first:border-t-0">
-            <MoverName {...m} showCheckDate />
-          </li>
-        ))}
-      </ul>
-      <p className="type-small text-text-2">
-        These are normally the movers we name on your Review and send screen, where you can remove any of them. We show no prices and no phone numbers.
-        Next, we ask how movers may contact you.
-      </p>
+      <div className="rounded-card border border-border bg-surface-2 p-5">
+        <p className="font-semibold text-text">Your next step: choose how to hear from movers.</p>
+        <p className="mt-2 text-text-2">You choose how many participating companies may contact you and which contact methods they can use. Each company identifies itself when it gets in touch.</p>
+      </div>
       {nav()}
     </form>
   );
@@ -1246,7 +1131,6 @@ function CountQuestion({
   onChange,
   error,
   helper,
-  profile,
   available,
 }: {
   options: ReturnType<typeof countOptions>;
@@ -1254,7 +1138,6 @@ function CountQuestion({
   onChange: (value: string) => void;
   error?: string;
   helper: string;
-  profile: { companyId: string; displayName: string } | null;
   available: number;
 }) {
   return (
@@ -1275,9 +1158,7 @@ function CountQuestion({
             disabled: !o.enabled,
             ...(o.reason ? { disabledReason: o.reason } : {}),
           })),
-          ...(profile
-            ? [{ value: "only", label: `Only ${profile.displayName}`, description: "It's the only mover named, and the only one that can buy your request." }]
-            : []),
+
         ]}
       />
       <p className="type-small text-text-2 tabular">
