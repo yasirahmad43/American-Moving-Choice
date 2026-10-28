@@ -96,7 +96,7 @@ export default async function RateCardPage() {
         <h2 id="card-history" className="type-h4 text-text">
           History
         </h2>
-        <Table
+        <Table sortable
           caption="Your rate cards, newest first"
           hideCaption
           rows={history}

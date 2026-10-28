@@ -13,8 +13,10 @@ export const ROLES = {
   profiles: ["super_admin", "ops", "verification", "moderator", "content_editor"],
   /** Credit adjustments, refunds, claims, disputes. */
   finance: ["super_admin", "finance"],
-  /** Request decisions (approve, reject, withdraw, expire). */
+  /** Request decisions (approve, reject, withdraw, expire) and re-running the matcher for a request. */
   leads: ["super_admin", "ops", "support"],
+  /** Editing a company's coverage rules and capabilities on its behalf. */
+  coverage: ["super_admin", "ops"],
   /** Review moderation. */
   reviews: ["super_admin", "moderator", "ops"],
   /** Case handling. */
@@ -27,4 +29,6 @@ export const ROLES = {
   platform: ["super_admin"],
   /** Sharing policies. */
   policies: ["super_admin", "finance"],
+  /** Programmatic content, research, media and publication (packages/server/src/admin/content.ts). */
+  content: ["super_admin", "ops", "content_editor"],
 } as const satisfies Record<string, readonly AdminRole[]>;

@@ -31,21 +31,22 @@ export default function MovingLeadsPage() {
         { label: "Moving leads", href: URL },
       ]}
       overline="For moving companies"
-      lede="Each lead is a consumer who entered their move, saw your company named, chose how many movers may contact them and agreed to be contacted. Before any mover can buy it, the request passes the checks below."
+      lede="Each lead comes from a consumer who entered their move, chose how many eligible movers may contact them, and agreed to the contact channels shown. Before any mover can buy it, the request passes the checks below."
       waitingOn="Some checks depend on providers not yet connected in the preview; the owner approves this list."
     >
       <ForMoversNav current={URL} />
 
       <h2>What makes a lead</h2>
       <ul>
-        <li>The consumer saw the movers that serve their move and could remove any of them before sending.</li>
+        <li>The consumer saw the number of eligible movers for their route. Individual company names aren't shown before contact.</li>
         <li>
           They chose the most movers who may contact them (1 to <Token k="setting.max_movers" />) and how: calls, texts or email.
         </li>
-        <li>They ticked a separate box agreeing to be contacted by the movers named. We store a record of exactly what they saw and agreed to.</li>
+        <li>They ticked a separate box agreeing to be contacted by eligible movers, within their chosen maximum. We store the request, eligibility snapshot, and what they agreed to.</li>
         <li>
-          Only movers named on that screen can buy the lead, within <Token k="setting.sale_window_hours" /> hours of the request.
+          Only eligible movers recorded for that request can buy the lead, within <Token k="setting.sale_window_hours" /> hours of the request.
         </li>
+        <li>When you follow up, introduce your company clearly and use only the consumer's selected contact channels.</li>
       </ul>
 
       <h2>The checks</h2>

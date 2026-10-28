@@ -22,8 +22,6 @@ export interface RouteText {
 
 export const routeLine = (r: RouteText) => `${r.originCity}, ${r.originState} to ${r.destCity}, ${r.destState}`;
 
-const moverLine = (m: NamedMoverText) => `- ${m.displayName}${m.usdotNumber ? ` (USDOT ${m.usdotNumber})` : ""}`;
-
 /** "November 14, 2026" for a YYYY-MM-DD date, without time-zone drift. */
 export function longDate(isoDate: string): string {
   const [y, m, d] = isoDate.split("-").map(Number) as [number, number, number];
@@ -51,11 +49,10 @@ export function requestReceivedEmail(input: {
   }
   lines.push(
     input.limit === 1
-      ? "Only 1 of these movers can buy your request and get your contact details:"
-      : `Up to ${input.limit} of these movers can buy your request and get your contact details:`,
-    ...input.movers.map(moverLine),
+      ? "Only 1 participating moving company can receive your request and contact details."
+      : `Up to ${input.limit} participating moving companies can receive your request and contact details.`,
     "",
-    "A mover may decide not to buy your request or not to quote, so you might hear from fewer. When a mover buys your request, we email you its name, its USDOT number and a link to its profile.",
+    "You may hear from fewer companies than the number you selected. Each company will identify itself when it contacts you using the contact methods you chose.",
     "",
     "Movers will ask about your inventory and access. A reputable mover will offer an in-home or virtual survey before giving a written estimate.",
     "",
@@ -63,7 +60,7 @@ export function requestReceivedEmail(input: {
     "{{manage_link}}",
     "Keep this link private: anyone who has it can see and withdraw your request.",
     "",
-    `Contact from a company you weren't told about? Report it: ${input.webUrl}/report-a-concern/`,
+    `Unexpected contact about this request? Report it: ${input.webUrl}/report-a-concern/`,
   );
   const template = lines.join("\n");
   return {
@@ -85,7 +82,7 @@ export function requestAvailableEmail(input: {
     subject: `New request available: ${routeLine(input.route)}`,
     bodyText: [
       `A new ${type} request matches your coverage: ${routeLine(input.route)}, ${MOVE_SIZE_LABELS[input.moveSize].toLowerCase()}, moving around ${longDate(input.moveDate)}.`,
-      "Your company was named to the consumer on the Review and send screen, so you can buy it while it's available.",
+      "The consumer requested contact from participating moving companies that serve this move. Identify your company when you contact them and honor their chosen contact methods.",
       `Open the marketplace to see the preview and your price: ${input.appUrl}/portal/marketplace`,
     ].join("\n"),
   };

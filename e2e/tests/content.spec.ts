@@ -20,11 +20,14 @@ const CONTENT_PAGES = [
 
 test.describe("content pages", () => {
   for (const path of CONTENT_PAGES) {
-    test(`${path} renders as a draft with breadcrumbs, one h1 and its canonical URL`, async ({ page }) => {
+    test(`${path} renders with breadcrumbs, one h1, its canonical URL and no reviewer notes`, async ({ page }) => {
       const response = await page.goto(`${WEB_URL}${path}`);
       expect(response?.status()).toBe(200);
-      await expect(page.locator('section[aria-label="Page status"]')).toHaveCount(1);
-      expect(await page.locator("mark.review-note").count()).toBeGreaterThan(0);
+      // Reviewer-only pieces never reach visitors: production builds strip them, development builds
+      // hide them until ?review=1 (apps/web/lib/review-mode.ts).
+      await expect(page.locator('section[aria-label="Page status"]:visible')).toHaveCount(0);
+      await expect(page.locator("mark.review-note:visible")).toHaveCount(0);
+      expect(await page.locator("main").innerText()).not.toMatch(/name pending|\[(Counsel|Owner|Verify|Build|Data):/);
       await expect(page.locator("h1")).toHaveCount(1);
       // No unfilled template variables or leftover statement markers.
       const text = await page.locator("main").evaluate((el) => {
@@ -53,13 +56,13 @@ test.describe("home page hand-off", () => {
     await page.goto(`${WEB_URL}/`);
     // On the home page the header's Get quotes link is secondary; the hero form is the main action.
     await expect(page.locator('header a[href="/get-quotes/"]').first()).toHaveClass(/bg-surface/);
-    await page.getByRole("button", { name: "See which movers cover your move" }).click();
+    await page.getByRole("button", { name: "Get my moving quotes" }).click();
     await expect(page.getByText("Enter the 5-digit ZIP code you're moving from.")).toBeVisible();
 
     await page.getByLabel("Moving from (ZIP code)").fill(" 02108-1234");
     await page.getByLabel("Moving to (ZIP code)").fill("10001");
     await expect(page.getByLabel("Moving from (ZIP code)")).toHaveValue("02108");
-    await page.getByRole("button", { name: "See which movers cover your move" }).click();
+    await page.getByRole("button", { name: "Get my moving quotes" }).click();
 
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
     // The home page's prefill shape ({ entry, originZip, destZip }) is read once and cleared.

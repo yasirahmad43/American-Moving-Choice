@@ -13,7 +13,7 @@ export function ForgotPasswordForm() {
       <FormMessage state={state} />
       {state.status !== "success" ? (
         <>
-          <Field id="email" label="Email" error={state.fieldErrors?.email}>
+          <Field floating id="email" label="Email" error={state.fieldErrors?.email}>
             <Input type="email" name="email" autoComplete="email" inputMode="email" defaultValue={state.values?.email} required />
           </Field>
           <SubmitButton fullWidth>Send reset link</SubmitButton>

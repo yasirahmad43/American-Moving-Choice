@@ -53,12 +53,12 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with
 
 We publish to help you plan a move and check the movers you might hire. We choose topics from what people planning a move search for and ask about, and we write to answer the question, not to reach a word count.
 
-- **[Guides](/guides/)** answer common questions, such as how to choose a mover, how to spot a moving scam and what your rights are when you move between states. Each guide has to add something useful that you can't easily find elsewhere. Our moving-to guides set out what a state asks of new residents, such as registering a vehicle. Each has its own publishing bar, including at least {{setting.moving_to_min_requirements}} such requirements checked against government sources.
+- **[Planning guides](/planning/)** cover packing, moving checklists and settling into a new state. **[Moving questions](/questions/)** explain estimates, choosing a mover and warning signs to check before hiring. Each page must add useful detail and meet its publication checks; location-specific requirements need government sources.
 - **[Cost pages](/moving-costs/)** show what moves cost as ranges, never as single prices.
 - **Tools** help you check something for your own move: our [moving cost calculator](/moving-cost-calculator/) gives a planning range, and [Verify a mover](/verify-a-mover/) helps you look up a mover's federal record.
-- **[Location pages](/movers/)** for states, cities and routes between states show the movers in our network that serve the area, with local facts and costs. We publish one only where enough movers serve the area and we have real local data. If a live page stays below that bar, we hide it from search, then redirect or remove it. [When a location page goes live](#location-pages) sets out the details.
+- **[Location pages](/movers/)** for states, cities and routes between states explain coverage, local facts and costs without naming or showcasing individual companies. We publish one only where enough movers serve the area and we have real local data. If a live page stays below that bar, we hide it from search, then redirect or remove it. [When a location page goes live](#location-pages) sets out the details.
 
-This policy covers what we write and publish. Customer reviews follow our [Review methodology](/review-methodology/), and anything a mover writes about itself, such as its profile description, is marked as provided by that company.
+This policy covers what we write and publish. Invitation-only customer feedback follows our [Review methodology](/review-methodology/). We don't publish company profiles, public company review showcases or preferred-mover lists.
 
 ### What we don't publish
 
@@ -72,7 +72,7 @@ This policy covers what we write and publish. Customer reviews follow our [Revie
 
 No. American Moving Choice is paid by movers in our network for the move requests they buy, not by you; [How AMC makes money](/advertising-disclosure/) explains how that works.
 
-A mover's payment buys it move requests, nothing more. Only movers with active accounts appear on our location pages or count toward them; [How AMC makes money](/advertising-disclosure/#which-movers-are-listed) explains what that does and doesn't depend on, including review invitations. [Counsel: the same question as How AMC makes money, "Which movers are listed?": reviews come only from requests a mover bought, and rating sorts rank movers once they reach {{setting.rank_min_reviews}} eligible reviews; word this as counsel decides for ST-1a and ST-3 (stored-texts ST-1 and ST-3 notes)]
+A mover's payment buys it move requests, nothing more. Only approved movers in good standing count toward coverage, and no company is named or promoted on location pages. [How AMC makes money](/advertising-disclosure/) explains the relationship.
 
 No mover can pay for:
 
@@ -159,7 +159,7 @@ We use AI tools in our editorial work, including to draft pages such as this one
 ### What we never use AI for
 
 - **Reviews.** We never use AI to write a review, a rating or a testimonial, or anything else in a customer's name.
-- **Review summaries below our threshold.** We don't publish AI summaries of reviews until a written policy for them is on our [review methodology page](/review-methodology/#what-we-dont-do), and never for a mover with fewer than {{setting.ai_summary_min_reviews}} reviews.
+- **Company review summaries.** We don't publish company review showcases or AI-written company review summaries. Our [review methodology page](/review-methodology/) explains how invitation-only feedback is handled.
 - **Made-up people or words.** We never use AI to invent a quote, a person, a credential or an experience, and anything invented in a draft comes out before the page goes live. AI is never credited as an author or reviewer, and every author, reviewer and customer we name is a real person.
 - **Images passed off as real.** We never use AI to make images of customers, staff, movers or moves. "Images, video and customer stories" below explains the limits.
 - **Pages in bulk.** We never use AI to publish pages at scale without data we've checked. Every location page and moving-to guide has to pass its publishing bar, however it was drafted. [Google's spam policies](https://developers.google.com/search/docs/essentials/spam-policies) also treat generating many pages mainly to manipulate rankings, with little value to users, as spam, whether AI, people or both made them. [Verify: Google spam policies, "scaled content abuse" (compliance facts §5, from a search excerpt of the page, last updated late August 2026)]
@@ -186,7 +186,7 @@ This page is AI-assisted. AI drafted it from our planning and policy documents. 
 
 ## Images, video and customer stories
 
-- **Generated images stay abstract.** We use generated images only for illustrations, backgrounds and objects, such as a box texture or a stylized route map. They never show people, whether customers, staff or movers, and never show offices, a real company's trucks, a move or a testimonial. They can't be placed on a mover's profile, in reviews or in customer stories. So any photo of people or a move that we choose is a real photograph, though it may be a stock photo used under license rather than a picture of our customers or of movers in our network.
+- **Generated scenes are illustrative.** Our media library includes AI-generated moving scenes alongside other licensed assets. They illustrate the topic; they aren't evidence of a real customer's move, a particular company's crew, an office or a testimonial. We don't present generated people as actual customers or network movers. Each media record identifies its source, generation status and license.
 - **Every image is logged.** We record the source, license, creator and release status of every image, and whether it was generated.
 - **Places are what we say they are.** We never caption a generic photo as a particular city. We don't use seals, flags or government logos, such as FMCSA's, and we avoid landmarks that could suggest a business tie or an endorsement.
 - **Movers' photos are labeled.** A mover's photos and videos appear only if the mover confirms it's allowed to publish them, and they're labeled as provided by that company.

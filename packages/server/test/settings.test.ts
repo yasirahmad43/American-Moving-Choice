@@ -29,7 +29,7 @@ describe("settings", () => {
       claim_window_hours: 72,
       show_zip_in_preview: false,
       active_policy_version: "share-stepdown-v1-proposal",
-      active_consent_version: "consent-v0-draft",
+      active_consent_version: "contact-introduction-v1-draft",
     });
     expect(await getMaxSharingLimit()).toBe(5);
   });

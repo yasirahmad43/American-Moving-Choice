@@ -1,31 +1,26 @@
-import { Breadcrumbs, Container } from "@amc/ui";
-import { evaluateStateHub } from "@amc/server/geo-pages";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { cache } from "react";
+import { connection } from "next/server";
+import { loadPage, pageOrNotFound, stateSlugOrRedirect, trailFor } from "@/components/seo/load";
+import { seoMetadata } from "@/components/seo/seo-metadata";
+import { SeoPageView } from "@/components/seo/seo-page";
 
 type Params = Promise<{ state: string }>;
 
-const load = cache((slug: string) => evaluateStateHub(slug));
-
 /**
- * A state hub exists only when every gate in site architecture §4.1 passes; otherwise 404, never a
- * thin page or "published as noindex" (§4.2). In the preview no hub passes, because the facts,
- * data, FAQ, uniqueness and review gates have no data yet.
+ * State hub (/movers/{state}/, site architecture §1.2, VD §13.2): served only when seo_pages
+ * holds a published row for the URL; otherwise 404, never a thin page. Two-letter codes and
+ * uppercase slugs 301 to the canonical slug.
  */
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const hub = await load((await params).state);
-  return hub?.evaluation.publishable ? { title: `Movers in ${hub.state.name}` } : {};
+  const slug = stateSlugOrRedirect((await params).state);
+  const page = await loadPage(`/movers/${slug}/`);
+  return page ? seoMetadata(page) : { title: "Page not found", robots: { index: false, follow: false } };
 }
 
 export default async function StateHubPage({ params }: { params: Params }) {
-  const hub = await load((await params).state);
-  if (!hub || !hub.evaluation.publishable) notFound();
-  // Unreachable until the gate data exists; the full hub (VD §13.2) is built with that data.
-  return (
-    <Container className="grid gap-6 section-pad">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Movers", href: "/movers/" }, { label: hub.state.name }]} />
-      <h1 className="type-display-l text-text">Movers in {hub.state.name}</h1>
-    </Container>
-  );
+  await connection();
+  const slug = stateSlugOrRedirect((await params).state);
+  const page = await pageOrNotFound(`/movers/${slug}/`);
+  const crumbs = await trailFor(page, [], { label: "Movers", href: "/movers/" });
+  return <SeoPageView page={page} crumbs={crumbs} />;
 }

@@ -19,7 +19,12 @@ import {
   suspendOnFailedRecheck,
 } from "../src/jobs/jobs";
 import { decryptSecretBody } from "../src/outbox/outbox";
+import { deliverPending, enqueueEmail } from "../src/outbox/outbox";
+import { newToken } from "../src/auth/tokens";
+import { withCompany } from "../src/db/pool";
 import { resetDatabase } from "./helpers";
+import { actorOf, addDemoCard, makeCompany, makeRequest } from "./marketplace-fixtures";
+import { purchase as buyRequest } from "../src/marketplace/purchase";
 
 const pool = () => getPool();
 const fixed = (prefix: string, n: number) => `${prefix}000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -51,15 +56,22 @@ describe("registry", () => {
     expect(jobBySlug("nope")).toBeNull();
   });
 
-  it("is scheduled once a day per job in apps/app/vercel.json (Hobby-plan safe)", () => {
+  it("is scheduled in apps/app/vercel.json: once a day per job, or the job's own expression", () => {
     const config = JSON.parse(readFileSync(new URL("../../../apps/app/vercel.json", import.meta.url), "utf8")) as { crons: { path: string; schedule: string }[] };
     expect(config.crons.map((c) => c.path).sort()).toEqual(JOBS.map((j) => `/api/cron/${j.slug}`).sort());
     for (const cron of config.crons) {
+      const job = JOBS.find((j) => cron.path.endsWith(`/${j.slug}`))!;
+      if (job.cronSchedule) {
+        expect(cron.schedule).toBe(job.cronSchedule);
+        continue;
+      }
       const [minute, hour, ...rest] = cron.schedule.split(" ");
       expect(rest).toEqual(["*", "*", "*"]);
       expect(minute).toMatch(/^\d{1,2}$/);
-      expect(Number(hour)).toBe(JOBS.find((j) => cron.path.endsWith(`/${j.slug}`))!.cronHourUtc);
+      expect(Number(hour)).toBe(job.cronHourUtc);
     }
+    // The outbox runs every 15 minutes (Vercel Pro), so mover notices never wait a day (audit F6).
+    expect(jobBySlug("deliver-outbox")?.cronSchedule).toBe("*/15 * * * *");
   });
 
   it("picks the expiry alert threshold", () => {
@@ -134,6 +146,8 @@ describe("review invitations", () => {
   it("builds the public review link", () => {
     expect(reviewLink("demo-mover", "tok", "https://example.test")).toBe("https://example.test/companies/demo-mover/review/?token=tok");
   });
+
+
 });
 
 describe("credentials", () => {
@@ -206,4 +220,35 @@ describe("runner", () => {
 
 it("purchase fixtures exist", async () => {
   expect((await pool().query("select count(*)::int as n from purchases where id = any($1::uuid[])", [[purchase(5), purchase(6)]])).rows[0].n).toBe(2);
+});
+
+
+describe("review contact gating", () => {
+  it("requires recorded contact before scheduling or sending, including already queued emails", async () => {
+    const buyer = await makeCompany({ name: "Contact Gate Test Movers" });
+    await addDemoCard(buyer);
+    const request = await makeRequest({ limit: 1, named: [buyer] });
+    const bought = await buyRequest({ ...actorOf(buyer), groupId: request.groupId, idempotencyKey: "review-contact-gate" });
+    if (!bought.ok) throw new Error("fixture purchase failed");
+    const untouched = { id: bought.purchaseId, company_id: buyer.companyId };
+    await scheduleReviewInvitations();
+    expect((await pool().query("select id from review_invitations where purchase_id = $1", [untouched.id])).rowCount).toBe(0);
+    // Legacy queued invitations are held without issuing their link or identifying the buyer.
+    const invitation = (await pool().query<{ id: string }>("insert into review_invitations (purchase_id, company_id, review_type, token_hash, send_after, expires_at) values ($1, $2, 'quote_experience', $3, now() - interval '1 minute', now() + interval '30 days') returning id", [untouched.id, untouched.company_id, sha256Hex(newToken())])).rows[0]!;
+    const before = (await pool().query("select sent_at from review_invitations where id = $1", [invitation.id])).rows[0];
+    expect(before.sent_at).toBeNull();
+    expect((await sendDueInvitations()).details!.deferred).toBeGreaterThanOrEqual(1);
+    expect((await pool().query("select sent_at from review_invitations where id = $1", [invitation.id])).rows[0].sent_at).toBeNull();
+    const delivered: string[] = [];
+    const transport = { name: "capture", deliver: async (message: { bodyText: string }) => { delivered.push(message.bodyText); return { status: "sent" as const, provider: "capture", providerRef: "fixture" }; } };
+    const transports = { email: transport, sms: transport };
+    const messageId = await enqueueEmail({ to: "contact-check@demo.invalid", template: "review_invitation", subject: "Review this mover", bodyText: "Company identity", relatedType: "review_invitation", relatedId: invitation.id }, undefined, { transports });
+    await deliverPending({ transports });
+    expect(delivered).toEqual([]);
+    expect((await pool().query("select status, attempts from messages where id = $1", [messageId])).rows[0]).toMatchObject({ status: "queued", attempts: 0 });
+    await withCompany(untouched.company_id, (client) => client.query("update crm_records set stage = 'contacted' where purchase_id = $1", [untouched.id]));
+    await deliverPending({ transports });
+    expect(delivered).toEqual(["Company identity"]);
+    expect((await pool().query("select status from messages where id = $1", [messageId])).rows[0].status).toBe("sent");
+  });
 });

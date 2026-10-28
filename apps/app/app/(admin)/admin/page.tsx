@@ -30,10 +30,10 @@ export default async function AdminDashboard() {
   const leadRows = stats.leadsByStatus;
   return (
     <div className="grid gap-8">
-      <PageHeader size="portal" title="Admin dashboard" description="Queues, requests and money for the last 7 and 30 days. Times are US Eastern." />
+      <PageHeader size="portal" overline="Operations overview" title="Admin dashboard" description="The work that needs attention, and the numbers behind your marketplace. All times are US Eastern." />
 
       <section aria-labelledby="queues">
-        <SectionTitle id="queues">Queues</SectionTitle>
+        <SectionTitle id="queues" description="Open a queue to review the records behind each total.">Needs attention</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <StatTile label="Pending verifications" value={q.pendingVerifications} href="/admin/verification" note={q.recheckIssues ? `${q.recheckIssues} approved with recheck issues` : undefined} />
           <StatTile label="Open cases" value={q.openCases} href="/admin/cases" note={q.overdueCases ? `${q.overdueCases} past their SLA` : "None past their SLA"} />
@@ -49,7 +49,7 @@ export default async function AdminDashboard() {
         <SectionTitle id="money" description="Gross charges are what purchases cost (card plus credit). Credits issued are sharing credits, quality-refund credits and positive adjustments. Net revenue is gross charges minus credits issued minus cash refunds.">
           Purchases and revenue
         </SectionTitle>
-        <Table
+        <Table sortable
           caption="Purchases and revenue"
           hideCaption
           rowKey={(r) => String(r.days)}
@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Requests by status" titleAs="h2" description="Consumer requests submitted today and in the last 7 days.">
-          <Table
+          <Table sortable
             caption="Requests by status"
             hideCaption
             compact
@@ -82,7 +82,7 @@ export default async function AdminDashboard() {
             ]}
           />
           <h3 className="mt-6 mb-2 type-h4 text-text">Request groups by sale status</h3>
-          <Table
+          <Table sortable
             caption="Request groups by sale status"
             hideCaption
             compact
@@ -118,7 +118,7 @@ export default async function AdminDashboard() {
             </div>
           </dl>
           <h3 className="mt-6 mb-2 type-h4 text-text">Latest job runs</h3>
-          <Table
+          <Table sortable
             caption="Latest job runs"
             hideCaption
             compact

@@ -1,6 +1,6 @@
 /**
- * Slice S4 scenarios: the mover directory, a company profile, a token-gated review, the location
- * gates and verify-a-mover, with axe checks on the directory and a profile.
+ * Central quote entry redirects, no public company showcases, token-gated feedback, location
+ * gates and verify-a-mover, with axe checks at desktop and mobile sizes.
  */
 import { createHash, randomBytes } from "node:crypto";
 import AxeBuilder from "@axe-core/playwright";
@@ -8,7 +8,6 @@ import { expect, test, type Page } from "@playwright/test";
 import { WEB_URL, hasDatabase, withDatabase } from "./env";
 
 const LONE_STAR = "demo-lone-star-relocation-co";
-const REVIEW_ID = "e2000000-0000-4000-8000-000000000002";
 const LONE_STAR_ID = "c0000000-0000-4000-8000-000000000001";
 
 async function expectNoSeriousAxeViolations(page: Page) {
@@ -17,92 +16,46 @@ async function expectNoSeriousAxeViolations(page: Page) {
   expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`)).toEqual([]);
 }
 
-test.describe("mover directory", () => {
-  test("lists the demo companies alphabetically with demo chips and badges, never the broker", async ({ page }) => {
-    const response = await page.goto(`${WEB_URL}/directory/`);
-    expect(response?.status()).toBe(200);
-    const list = page.locator("main ul.grid").first();
-    const names = await list.locator("> li h3").allTextContents();
-    expect(names).toHaveLength(12);
-    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "en-US", { sensitivity: "base" })));
-    await expect(list.locator("> li").first().getByText("Demo company: fictional")).toBeVisible();
-    await expect(list.locator("> li").first().getByText(/Preferred Mover/).first()).toBeVisible();
-    await expect(page.getByText("Every mover listed here pays American Moving Choice")).toBeVisible();
-    await expect(page.getByText("Demo Dual Authority Moving Group")).toHaveCount(0);
+test.describe("central quote entry", () => {
+  test("legacy directory and company URLs redirect without publishing identities or metadata", async ({ page, request }) => {
+    for (const path of [
+      "/directory/",
+      "/directory/?sort=quote_rating",
+      "/directory/page/2/",
+      `/companies/${LONE_STAR}/`,
+      `/companies/${LONE_STAR}/reviews/`,
+    ]) {
+      const response = await request.get(`${WEB_URL}${path}`, { maxRedirects: 0 });
+      expect(response.status()).toBe(308);
+      expect(response.headers().location).toBe("/get-quotes/");
+      expect(await response.text()).not.toContain("Demo Lone Star Relocation Co.");
+    }
 
-    const explainer = list.locator("> li").first().locator("details");
-    await explainer.locator("summary").click();
-    await expect(explainer).toContainText("passed our screening on");
-    await expect(explainer).toContainText("isn't a government endorsement");
-
-    await page.goto(`${WEB_URL}/directory/page/2/`);
-    const rest = await page.locator("main ul.grid").first().locator("> li h3").allTextContents();
-    expect(rest).toHaveLength(3);
-    expect(rest).not.toContain("Demo Dual Authority Moving Group");
-    expect((await page.goto(`${WEB_URL}/directory/page/9/`))?.status()).toBe(404);
-  });
-
-  test("directory has no serious axe violations", async ({ page }) => {
-    await page.goto(`${WEB_URL}/directory/`);
-    await expectNoSeriousAxeViolations(page);
-  });
-});
-
-test.describe("company profile", () => {
-  test.beforeAll(async () => {
-    await withDatabase(async (db) => {
-      await db.query("delete from review_responses where review_id = $1", [REVIEW_ID]);
-      await db.query(
-        "insert into review_responses (review_id, company_id, body, status) values ($1, $2, 'Demo response: thank you, we have added extra padding to our checklist.', 'published')",
-        [REVIEW_ID, LONE_STAR_ID],
-      );
-    });
-  });
-
-  test("shows dated credential rows, the badge explainer, separate ratings with labels and responses", async ({ page }) => {
     await page.goto(`${WEB_URL}/companies/${LONE_STAR}/`);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Demo Lone Star Relocation Co.");
-    await expect(page.getByText("Demo company: fictional").first()).toBeVisible();
-    const credentials = page.locator("section", { has: page.getByRole("heading", { name: "Credentials and checks" }) });
-    await expect(credentials.getByText("USDOT number")).toBeVisible();
-    await expect(credentials.getByText("No broker authority on record")).toBeVisible();
-    await expect(credentials.getByText(/Last checked [A-Z][a-z]{2} \d{1,2}, \d{4}/).first()).toBeVisible();
-    await expect(credentials.getByRole("link", { name: /FMCSA company snapshot/ }).first()).toHaveAttribute("href", /safer\.fmcsa\.dot\.gov/);
-    await expect(page.getByText("What this badge means")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Quote and sales experience", level: 3 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Moving experience", level: 3 })).toBeVisible();
-    await expect(page.getByText("Verified completed move").first()).toBeVisible();
-    await expect(page.getByText("Verified platform inquiry").first()).toBeVisible();
-    if (hasDatabase) await expect(page.getByText("Response from Demo Lone Star Relocation Co.")).toBeVisible();
-
-    const jsonLd = (await page.locator('script[type="application/ld+json"]').allTextContents()).flatMap((t) => [JSON.parse(t)].flat());
-    const company = jsonLd.find((d) => d["@type"] === "MovingCompany");
-    expect(company.identifier[0]).toMatchObject({ propertyID: "USDOT", value: "9000001" });
-    expect(company.aggregateRating).toMatchObject({ ratingValue: "4.0", ratingCount: 1 });
-    expect(JSON.stringify(company)).not.toMatch(/telephone/);
-
-    await page.getByRole("link", { name: "Request a quote from Demo Lone Star Relocation Co." }).click();
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
-    // The survey takes the profile origin (then clears it): it skips the need question and lists
-    // this company first (the survey scenarios check the ordering).
-    await expect(page.getByText("Step 1 of 7")).toBeVisible();
+    await expect(page.getByText("Demo Lone Star Relocation Co.", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /quote from/i })).toHaveCount(0);
     expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.profile"))).toBeNull();
-    const draft = JSON.parse((await page.evaluate(() => sessionStorage.getItem("amc.survey.draft"))) ?? "{}");
-    expect(draft).toMatchObject({ profileCompanyId: LONE_STAR_ID });
   });
 
-  test("profile has no serious axe violations", async ({ page }) => {
-    await page.goto(`${WEB_URL}/companies/${LONE_STAR}/`);
-    await expectNoSeriousAxeViolations(page);
+  test("sitemaps contain no retired company profiles or directory routes", async ({ request }) => {
+    const index = await request.get(`${WEB_URL}/sitemap.xml`);
+    expect(index.status()).toBe(200);
+    expect(await index.text()).not.toContain("companies.xml");
+    const core = await request.get(`${WEB_URL}/sitemaps/core.xml`);
+    expect(core.status()).toBe(200);
+    expect(await core.text()).not.toMatch(/\/(?:companies|directory)\//);
+    expect((await request.get(`${WEB_URL}/sitemaps/companies.xml`)).status()).toBe(404);
   });
 
-  test("a company without reviews says so, and unknown or rejected companies are 404", async ({ page }) => {
-    await page.goto(`${WEB_URL}/companies/demo-coral-key-moving-co/`);
-    await expect(page.getByRole("heading", { name: "No customer reviews yet" })).toBeVisible();
-    await expect(page.getByText("New to our network").first()).toBeVisible();
-    expect((await page.goto(`${WEB_URL}/companies/demo-dual-authority-moving-group/`))?.status()).toBe(404);
-    expect((await page.goto(`${WEB_URL}/companies/${LONE_STAR}/reviews/`))?.status()).toBe(404);
-  });
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    test(`quote entry has no serious axe violations at ${viewport.width}px`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await page.goto(`${WEB_URL}/directory/`);
+      await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
+      await expectNoSeriousAxeViolations(page);
+    });
+  }
 });
 
 test.describe("review invitation", () => {
@@ -112,21 +65,44 @@ test.describe("review invitation", () => {
     const token = randomBytes(32).toString("base64url");
     const hash = createHash("sha256").update(token).digest("hex");
     await withDatabase(async (db) => {
-      await db.query("delete from rate_limits where key like 'review:%'");
-      // Earlier runs' invitations (the seed's use fixed IDs starting e1).
-      await db.query("delete from reviews where reviewer_display_name = 'E2E R.'");
-      await db.query("delete from review_invitations i where i.id::text not like 'e1000000-%' and not exists (select 1 from reviews r where r.invitation_id = i.id)");
-      const purchase = await db.query<{ id: string; company_id: string }>(
-        `select id, company_id from purchases p where company_id = $1
-         and not exists (select 1 from review_invitations i where i.purchase_id = p.id and i.review_type = 'quote_experience') limit 1`,
-        [LONE_STAR_ID],
-      );
-      const row = purchase.rows[0]!;
-      await db.query(
-        `insert into review_invitations (purchase_id, company_id, review_type, token_hash, sent_at, expires_at)
-         values ($1, $2, 'quote_experience', $3, now(), now() + interval '30 days')`,
-        [row.id, row.company_id, hash],
-      );
+      await db.query("begin");
+      try {
+        // CRM uses forced RLS even for the app owner, so fixtures select the same company
+        // context as the application. This also works when the local runner is a superuser.
+        await db.query("select set_config('app.company_id', $1, true)", [LONE_STAR_ID]);
+        await db.query("delete from rate_limits where key like 'review:%'");
+        // Earlier runs' invitations (the seed's use fixed IDs starting e1).
+        await db.query("delete from reviews where reviewer_display_name = 'E2E R.'");
+        await db.query("delete from review_invitations i where i.id::text not like 'e1000000-%' and not exists (select 1 from reviews r where r.invitation_id = i.id)");
+        const purchase = await db.query<{ id: string; company_id: string }>(
+          `select p.id, p.company_id from purchases p
+           join lead_groups g on g.id = p.group_id
+           join crm_records r on r.purchase_id = p.id and r.company_id = p.company_id
+           where p.company_id = $1 and p.refunded_at is null and g.status <> 'withdrawn'
+             and (r.stage = any($2::text[]) or exists (
+               select 1 from crm_activities a where a.record_id = r.id and a.company_id = r.company_id
+                 and a.type = 'stage_change' and a.body ~* $3
+             ))
+             and not exists (select 1 from review_invitations i where i.purchase_id = p.id and i.review_type = 'quote_experience')
+           order by p.created_at desc, p.id limit 1`,
+          [
+            LONE_STAR_ID,
+            ["contacted", "qualified", "quote_sent", "follow_up", "booked", "completed"],
+            "^Stage changed from (Contacted|Qualified|Quote[ _]sent|Follow[-_]up|Booked|Completed) to (New|Contacted|Qualified|Quote[ _]sent|Follow[-_]up|Booked|Completed|Lost)\\.$|^Stage changed from (New|Lost) to (Contacted|Qualified|Quote[ _]sent|Follow[-_]up|Booked|Completed)\\.$",
+          ],
+        );
+        const row = purchase.rows[0];
+        if (!row) throw new Error("The local seed needs an unrefunded, active Lone Star purchase with recorded CRM contact and no quote-feedback invitation.");
+        await db.query(
+          `insert into review_invitations (purchase_id, company_id, review_type, token_hash, send_after, sent_at, expires_at)
+           values ($1, $2, 'quote_experience', $3, now(), now(), now() + interval '30 days')`,
+          [row.id, row.company_id, hash],
+        );
+        await db.query("commit");
+      } catch (error) {
+        await db.query("rollback");
+        throw error;
+      }
     });
     const response = await page.goto(`${WEB_URL}/companies/${LONE_STAR}/review/?token=${token}`);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
@@ -138,14 +114,17 @@ test.describe("review invitation", () => {
     await page.getByLabel(/This review describes my own experience/).check();
     await page.getByRole("button", { name: "Send my review" }).click();
     await expect(page.getByText("Thank you. We received your review.")).toBeVisible();
-    const stored = await withDatabase((db) =>
-      db.query("select r.status, r.evidence_level from reviews r join review_invitations i on i.id = r.invitation_id where i.token_hash = $1", [hash]),
-    );
+    const stored = await withDatabase(async (db) => {
+      // withDatabase opens a dedicated connection for this callback and closes it afterward.
+      await db.query("select set_config('app.company_id', $1, false)", [LONE_STAR_ID]);
+      return db.query("select r.status, r.evidence_level from reviews r join review_invitations i on i.id = r.invitation_id where i.token_hash = $1", [hash]);
+    });
     expect(stored?.rows[0]).toEqual({ status: "pending", evidence_level: "platform_inquiry" });
 
     await page.goto(`${WEB_URL}/companies/${LONE_STAR}/review/?token=${token}`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("This review link has already been used");
     await page.goto(`${WEB_URL}/companies/${LONE_STAR}/`);
+    await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
     await expect(page.getByText("E2E review: the estimator")).toHaveCount(0);
   });
 });
@@ -153,13 +132,21 @@ test.describe("review invitation", () => {
 test.describe("location pages and verify-a-mover", () => {
   test("movers index explains coverage and reports a ZIP's state inline; gated pages are 404", async ({ page }) => {
     await page.goto(`${WEB_URL}/movers/`);
-    await expect(page.getByText("No state pages are published yet.")).toBeVisible();
+    // With only the demo seed no state page is published; after `pnpm seo:generate state` and
+    // `seo:publish` the hub lists them instead and /movers/texas/ is live.
+    const generated = (await page.getByRole("link", { name: /Texas/ }).count()) > 0;
+    if (!generated) await expect(page.getByText("No state pages are published yet.")).toBeVisible();
     await page.getByLabel("Your ZIP code").fill("78704");
     await page.getByRole("button", { name: "Check coverage" }).click();
     await expect(page.getByText(/Austin, TX: \d+ movers in our network cover moves starting in Texas/)).toBeVisible();
     expect(page.url()).toBe(`${WEB_URL}/movers/`);
-    expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(404);
-    expect((await page.goto(`${WEB_URL}/movers/texas/dallas/`))?.status()).toBe(404);
+    if (generated) {
+      expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(200);
+      await expect(page.locator("h1")).toHaveCount(1);
+    } else {
+      expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(404);
+      expect((await page.goto(`${WEB_URL}/movers/texas/dallas/`))?.status()).toBe(404);
+    }
   });
 
   test("verify-a-mover finds fixture USDOT 9000001 and reports the broker fixture as a broker", async ({ page }) => {

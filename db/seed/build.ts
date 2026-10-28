@@ -29,6 +29,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import bcrypt from "bcryptjs";
+import { CONTACT_INTRODUCTION_BODY, CONTACT_INTRODUCTION_VERSION, SURVEY_FORM_VERSION, renderConsentText } from "@amc/core/src/survey";
 import {
   classifyMove,
   matchCompany,
@@ -150,7 +151,7 @@ const ids = {
 const ADMIN = ids.user(1);
 const MOVER_OWNER = ids.user(2);
 const POLICY = "share-stepdown-v1-proposal";
-const CONSENT_VERSION = "consent-v0-draft";
+const CONSENT_VERSION = CONTACT_INTRODUCTION_VERSION;
 /** The Terms and privacy acknowledgment text (a separate control from contact consent). */
 const TERMS_ACK_VERSION = "terms-ack-v0-draft";
 const CHANNELS = ["call", "sms", "email"];
@@ -752,12 +753,11 @@ function match(r: RequestSpec): Matched {
 
 /** The rendered consent text, assembled in SQL around the stored consent body (alias v). */
 function renderedConsentSql(m: Matched): string {
-  const r = m.request;
-  const date = `to_char(${onDay(r.moveDateDays).text}, 'Mon FMDD, YYYY')`;
-  const names = m.named.map((c) => `${c.name} (USDOT ${usdotOf(c)})`).join(" · ");
-  const before = `Your request: ${r.origin.city}, ${r.origin.state} → ${r.dest.city}, ${r.dest.state} · ${r.flexible ? "around " : ""}`;
-  const after = ` · ${SIZE_LABEL[r.moveSize]}\nUp to ${r.limit} of these participating movers may receive your details and contact you:\n${names}\n\n`;
-  return `${lit(before)} || ${date} || ${lit(after)} || replace(v.body, '{N}', ${lit(String(r.limit))})`;
+  return lit(renderConsentText(CONTACT_INTRODUCTION_BODY, {
+    movers: m.named.map((c) => ({ displayName: c.name, usdotNumber: usdotOf(c) })),
+    limit: m.request.limit,
+    channels: ["call", "sms", "email"],
+  }));
 }
 
 // ================================================================== build
@@ -1140,7 +1140,7 @@ end $$;\n`);
       channels: CHANNELS,
     });
     consentStatements.push(insertSelect("consent_records", {
-      id: ids.consent(r.i), lead_id: ids.lead(r.i), consent_text_version_id: sql("v.id"), rendered_text: sql("r.rendered_text"),
+      id: ids.consent(r.i), lead_id: ids.lead(r.i), consent_text_version_id: sql("v.id"), recipient_disclosure_mode: "contact_introduction", rendered_text: sql("r.rendered_text"),
       rendered_text_sha256: sql("encode(sha256(convert_to(r.rendered_text, 'UTF8')), 'hex')"),
       named_company_ids: uuidArray(m.named.map((c) => ids.company(c.n))),
       removed_company_ids: uuidArray(m.removed.map((c) => ids.company(c.n))), selected_limit: r.limit,
@@ -1149,7 +1149,7 @@ end $$;\n`);
       user_agent: r.device === "mobile"
         ? "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
         : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
-      page_url: "/get-quotes/review", form_version: "survey-v1", form_state_sha256: sha256(formState), ab_variant: "none",
+      page_url: "/get-quotes/review", form_version: SURVEY_FORM_VERSION, form_state_sha256: sha256(formState), ab_variant: "none",
       phone_hash: hash("phone", phone), email_hash: hash("email", email), tag_manifest_version: "tags-v0-draft", certificate_id: null,
       submitted_at: created,
     }, `from consent_text_versions v\ncross join lateral (select ${renderedConsentSql(m)} as rendered_text) r\nwhere v.id = ${lit(CONSENT_VERSION)}`));
@@ -1332,8 +1332,8 @@ end $$;\n`);
       },
       {
         id: ids.message(2), channel: "email", to_address: emailOf(r1), template: "purchase_notice",
-        subject: `${owner.name} received your moving request`,
-        body_text: `${owner.name} (USDOT ${usdotOf(owner)}) received your request ${referenceCode(r1)} and may contact you about your move. Participating movers pay American Moving Choice to receive requests.\nProfile: ${opts.webUrl}${profilePath(owner.name)}\nUse your manage-request link to stop new movers from receiving it. (Demo message: nothing was sent.)`,
+        subject: "An update on your moving request",
+        body_text: `A participating moving company received your request ${referenceCode(r1)} and may contact you about your move. Each company identifies itself when it contacts you. Participating movers pay American Moving Choice to receive requests.\nUse your manage-request link to stop new movers from receiving it. (Demo message: nothing was sent.)`,
         related_type: "purchase", related_id: livePurchase(r1), status: "demo", provider: "demo", provider_ref: null, error: null,
         attempts: 1, created_at: sql("now()"), sent_at: null,
       },
@@ -1382,7 +1382,7 @@ end $$;\n`);
   section("sanity checks",
     `do $$ begin
   if (select count(*) from companies where is_demo and status = 'approved') < 12 then raise exception 'seed check: fewer than 12 approved demo companies'; end if;
-  if (select count(*) from consent_records) <> ${REQUESTS.length} then raise exception 'seed check: a consent record is missing (is consent-v0-draft seeded?)'; end if;
+  if (select count(*) from consent_records) <> ${REQUESTS.length} then raise exception 'seed check: a consent record is missing (is contact-introduction-v1-draft seeded?)'; end if;
   if not exists (select 1 from purchase_attempts where payment_ref = 'demo_seed' and status = 'succeeded') then raise exception 'seed check: live demo purchase missing'; end if;
   if not exists (select 1 from lead_groups g where g.sharing_limit = 1 and g.status = 'available' and g.expires_at > now()
                  and not exists (select 1 from purchases p where p.group_id = g.id)) then raise exception 'seed check: no open exclusive request'; end if;

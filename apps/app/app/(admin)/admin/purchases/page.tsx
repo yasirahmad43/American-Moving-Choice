@@ -1,9 +1,10 @@
 import { chargeReconciliation, listCompanies, listPurchases, orphanAttempts, reconciliation } from "@amc/server/admin";
 import { hasAdminRole, requireAdmin } from "@amc/server/auth";
+import { listReconciliationReports } from "@amc/server/jobs";
 import { Alert, Money, PageHeader, Table } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FilterBar, Scroll, FilterInput, FilterSelect, LinkTabs, Mono, Pager, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
+import { FilterBar, Scroll, FilterInput, FilterSelect, JsonDetails, LinkTabs, Mono, Pager, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { ROLES } from "../_lib/roles";
 
@@ -48,7 +49,7 @@ async function PurchaseList({ sp, filters, canRefund }: { sp: Record<string, str
   return (
     <>
       <Scroll label="Purchases table">
-      <Table
+      <Table sortable
         caption={`Purchases (${total})`}
         compact
         rowKey={(r) => r.id}
@@ -79,14 +80,36 @@ async function PurchaseList({ sp, filters, canRefund }: { sp: Record<string, str
 }
 
 async function Reconciliation({ filters }: { filters: { from: string; to: string } }) {
-  const [rows, orphans, charges] = await Promise.all([reconciliation({ from: filters.from || null, to: filters.to || null }), orphanAttempts(), chargeReconciliation({ onlyIssues: true })]);
+  const [rows, orphans, charges, reports] = await Promise.all([
+    reconciliation({ from: filters.from || null, to: filters.to || null }),
+    orphanAttempts(),
+    chargeReconciliation({ onlyIssues: true }),
+    listReconciliationReports(10),
+  ]);
   const issues = rows.filter((r) => r.issues.length);
+  const latest = reports[0];
   return (
     <div className="grid gap-6">
       {issues.length ? <Alert tone="warning">{issues.length} purchase{issues.length === 1 ? "" : "s"} need attention.</Alert> : <Alert tone="success">Every purchase matches its payment reference, ledger entries and disclosure.</Alert>}
+      <Table sortable
+        caption="Daily reconciliation reports (reconcile-payments job)"
+        compact
+        rowKey={(r) => r.id}
+        rows={reports}
+        empty={<p className="text-text-2">No daily report yet. The reconcile-payments job runs every morning and can be run from the Jobs page.</p>}
+        columns={[
+          { key: "at", header: "Run", cell: (r) => <When value={r.created_at} /> },
+          { key: "issues", header: "Issues", numeric: true, cell: (r) => (r.issues_count ? <Status value="needs_review" label={String(r.issues_count)} /> : <Status value="pass" label="0" />) },
+          { key: "ledger", header: "Ledger", numeric: true, cell: (r) => String(r.summary.ledger_issues ?? 0) },
+          { key: "charges", header: "Charges", numeric: true, cell: (r) => String(r.summary.charge_issues ?? 0) },
+          { key: "orphans", header: "Orphan attempts", numeric: true, cell: (r) => String(r.summary.orphan_attempts ?? 0) },
+          { key: "refunds", header: "Unsettled refunds", numeric: true, cell: (r) => String(r.summary.unsettled_refunds ?? 0) },
+          { key: "detail", header: "Detail", cell: (r) => (r.id === latest?.id ? <JsonDetails value={r.summary} summary="Latest report" /> : null) },
+        ]}
+      />
       {charges.length ? (
         <Scroll label="Provider charge issues">
-          <Table
+          <Table sortable
             caption="Provider charges that need attention"
             compact
             rowKey={(r) => r.attempt_id}
@@ -105,7 +128,7 @@ async function Reconciliation({ filters }: { filters: { from: string; to: string
         <p className="type-small text-text-2">Every provider charge matches its purchase attempt. Retry failed provider refunds on <Link className="text-link underline" href="/admin/billing?tab=provider-refunds">Billing</Link>.</p>
       )}
       {orphans.length ? (
-        <Table
+        <Table sortable
           caption="Payments without a purchase (each needs a refund)"
           compact
           rowKey={(r) => r.id}
@@ -120,7 +143,7 @@ async function Reconciliation({ filters }: { filters: { from: string; to: string
         />
       ) : null}
       <Scroll label="Reconciliation table">
-      <Table
+      <Table sortable
         caption={`Purchases and payment references (${rows.length})`}
         compact
         rowKey={(r) => r.purchase_id}

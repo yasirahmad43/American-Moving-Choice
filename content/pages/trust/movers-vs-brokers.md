@@ -94,7 +94,7 @@ This table covers moves between states, which FMCSA regulates.
 
 [Verify: by row — who moves your things, note B13, B5 and B18; authority, compliance facts §1 and note A6 (Form OP-1), A4 and A1; filings, note B11, A6 and B10; estimates, note B2 and B7 (as corrected: no 50-mile radius, video surveys allowed since the 2022 rule) and consumer-moving-rules note C1 and C2 (C2 as corrected); moving day, note B13 and B18; claims, note B12 (FMCSA's 9-month advice and the 9-month floor in 49 U.S.C. 14706(e)(1)). All rest on search excerpts.] [Counsel: the broker-estimate wording follows the summary in carrier-vs-broker note item 6.]
 
-Federal law makes the carrier that received your goods, and the carrier that delivered them, liable for actual loss or damage ([49 U.S.C. 14706](https://uscode.house.gov/view.xhtml?req=granuleid%3AUSC-prelim-title49-section14706&num=0&edition=prelim)). Movers must offer a neutral dispute settlement program, and FMCSA can't resolve claims for you. FMCSA's page [What if there are problems?](https://www.fmcsa.dot.gov/protect-your-move/what-if-problems) explains the steps, and our guide to [your rights when moving between states](/guides/your-rights-when-moving-interstate/) covers the claims process.
+Federal law makes the carrier that received your goods, and the carrier that delivered them, liable for actual loss or damage ([49 U.S.C. 14706](https://uscode.house.gov/view.xhtml?req=granuleid%3AUSC-prelim-title49-section14706&num=0&edition=prelim)). Movers must offer a neutral dispute settlement program, and FMCSA can't resolve claims for you. FMCSA's page [What if there are problems?](https://www.fmcsa.dot.gov/protect-your-move/what-if-problems) explains the steps, and [What happens if goods are damaged?](/questions/what-happens-if-my-goods-are-damaged-in-a-move/) covers the claims questions to raise with your mover.
 
 [Verify: carrier-vs-broker note B12 (search excerpts of 49 U.S.C. 14706 and FMCSA's "What if there are problems?").] [Counsel: note item 5; neither source covers every theory under which a broker could be liable.]
 
@@ -221,7 +221,7 @@ We explain [every check we run and what happens when one fails](/how-we-verify-m
 ## What about van lines and their agents?
 
 <!-- ST-8 -->
-> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact.
+> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. We record its legal identity and van-line relationship during screening. The company must identify itself when it contacts you.
 
 [Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out a move bought through us under its own authority and bill of lading, given the term that the carrier that quotes your move is the carrier that does it (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5)] [Build: ST-8 renders from its record, as on How we verify movers (stored-texts ST-8, proposed)]
 
@@ -241,7 +241,7 @@ We don't:
 - negotiate prices or terms, for you or for any mover;
 - give estimates or quotes. [Counsel: stored-texts ST-1 notes ask whether the cost calculator's planning ranges fit this statement (compliance facts §2).]
 
-What we do is connect you with movers you choose to hear from, and those movers pay us for the move requests they choose to buy. Only movers named on your Review and send screen can buy your request, no more of them than the number you chose, and movers that buy it contact you directly. You pay us nothing.
+What we do is connect you with movers you choose to hear from, and those movers pay us for the move requests they choose to buy. Only eligible movers recorded for your request can buy it, within your chosen maximum and contact channels. Company names aren't shown before contact; movers introduce themselves when they contact you directly. You pay us nothing.
 
 [How AMC makes money](/advertising-disclosure/) explains how we're paid, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can buy your request.
 
@@ -271,5 +271,5 @@ When we change this page, we record the change here with its date.
 
 - [How we verify movers](/how-we-verify-movers/): every check we run on movers in our network, and how often.
 - [Verify a mover](/verify-a-mover/): explains USDOT and MC numbers and state licenses, and helps you look up a mover.
-- [How to avoid moving scams](/guides/how-to-avoid-moving-scams/): warning signs to know before you hire anyone.
+- [How to spot a moving scam](/questions/how-to-spot-a-moving-scam/): warning signs to know before you hire anyone.
 - [FMCSA Protect Your Move: Movers vs. Brokers](https://www.fmcsa.dot.gov/protect-your-move/movers-vs-brokers): FMCSA's own guide, with its [fact sheet](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-05/PYM-MoversvsBrokers-2023.pdf).

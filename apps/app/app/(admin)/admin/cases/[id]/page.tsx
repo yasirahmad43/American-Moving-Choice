@@ -124,7 +124,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           </Card>
         ) : null}
       </div>
-      <Table
+      <Table sortable
         caption="Case history"
         compact
         rowKey={(r) => r.id}

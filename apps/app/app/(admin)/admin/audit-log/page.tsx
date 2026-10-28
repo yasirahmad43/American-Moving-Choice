@@ -43,7 +43,7 @@ export default async function AuditLogPage({ searchParams }: { searchParams: Pro
         <FilterInput id="from" name="from" label="From" type="date" value={filters.from} />
         <FilterInput id="to" name="to" label="To" type="date" value={filters.to} />
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`Audit entries (${total})`}
         compact
         rowKey={(r) => r.id}

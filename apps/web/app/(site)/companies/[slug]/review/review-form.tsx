@@ -27,7 +27,7 @@ function SubmitButton() {
   );
 }
 
-export function ReviewForm({ token, reviewType, companyName, slug }: { token: string; reviewType: "quote_experience" | "move_experience"; companyName: string; slug: string | null }) {
+export function ReviewForm({ token, reviewType, companyName }: { token: string; reviewType: "quote_experience" | "move_experience"; companyName: string }) {
   const [state, action] = useActionState(submitReviewAction, idleState as ReviewFormState);
   const messageRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -44,7 +44,7 @@ export function ReviewForm({ token, reviewType, companyName, slug }: { token: st
     return (
       <div ref={messageRef} tabIndex={-1} className="grid gap-4 focus:outline-none">
         <Alert tone="success" title="Thank you. We received your review.">
-          It's waiting for moderation and isn't published yet. We check every review against our records under the rules in our review
+          It's waiting for our team's review. We check each submission against our records under the rules in our review
           methodology{isMove ? ", and we'll contact you about the documents you described before giving it a label" : ""}. We never reject a
           review for being negative.
         </Alert>
@@ -52,11 +52,9 @@ export function ReviewForm({ token, reviewType, companyName, slug }: { token: st
           <Link href="/review-methodology/" className="link inline-flex min-h-11 items-center">
             How reviews work
           </Link>
-          {slug ? (
-            <Link href={`/companies/${slug}/`} className="link inline-flex min-h-11 items-center">
-              Back to {companyName}
-            </Link>
-          ) : null}
+          <Link href="/" className="link inline-flex min-h-11 items-center">
+            Back to American Moving Choice
+          </Link>
         </p>
       </div>
     );
@@ -149,7 +147,7 @@ export function ReviewForm({ token, reviewType, companyName, slug }: { token: st
       />
 
       <p className="type-small text-text-2">
-        Your review is checked before it's published, under the rules in our{" "}
+        Your feedback is checked by our team under the rules in our{" "}
         <Link href="/review-methodology/" className="link">
           review methodology
         </Link>

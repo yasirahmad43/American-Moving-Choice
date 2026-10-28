@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "American Moving Choice media manifest",
+  "type": "object",
+  "required": ["version", "assets"],
+  "properties": {
+    "version": { "const": 1 },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "src", "width", "height", "alt", "credit", "tags", "usedOn"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+          "kind": { "enum": ["image", "video"] },
+          "src": { "type": "string", "description": "Site-relative path under /public or an absolute URL. The largest still, or the default video encoding." },
+          "srcset": {
+            "type": "array",
+            "description": "Images: alternative widths of the same still.",
+            "items": { "type": "object", "required": ["src", "width"], "properties": { "src": { "type": "string" }, "width": { "type": "integer", "minimum": 1 } } }
+          },
+          "sources": {
+            "type": "array",
+            "description": "Videos: alternative encodings in preference order; width marks a smaller tier for small viewports.",
+            "items": {
+              "type": "object",
+              "required": ["src", "type"],
+              "properties": { "src": { "type": "string" }, "type": { "type": "string" }, "width": { "type": "integer", "minimum": 1 } }
+            }
+          },
+          "poster": { "type": "string", "description": "Video only: poster image at the same aspect ratio." },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "alt": { "type": "string", "description": "Empty for decorative media." },
+          "autoplay": { "type": "boolean", "description": "Video only: ambient loop, muted, plays only in view and never under prefers-reduced-motion." },
+          "duration": { "type": "number", "minimum": 0, "description": "Video only: seconds." },
+          "blurDataURL": { "type": "string", "pattern": "^data:image/", "description": "Tiny blurred preview shown while the still loads." },
+          "credit": {
+            "type": "object",
+            "required": ["creator", "source_url", "license", "attribution_required"],
+            "properties": {
+              "creator": { "type": "string" },
+              "source_url": { "type": "string" },
+              "license": { "type": "string" },
+              "attribution_required": { "type": "boolean" }
+            }
+          },
+          "generator": {
+            "type": "object",
+            "description": "Present on generated assets (docs/design/visual-direction.md section 10: abstract, background or object illustration only; never real companies, people or landmarks).",
+            "properties": {
+              "provider": { "type": "string" },
+              "model": { "type": "string" },
+              "prompt": { "type": "string" },
+              "job_id": { "type": "string" },
+              "generated_at": { "type": "string" }
+            }
+          },
+          "tags": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "The first tag is the page family; others describe orientation, state, season, service, size, theme and step." },
+          "usedOn": {
+            "type": "array",
+            "maxItems": 1,
+            "items": { "type": "string" },
+            "description": "The one page route the asset is reserved for (pattern form for dynamic routes, e.g. /companies/[slug]/). Empty while unassigned: pages claim assets by tag at build time (apps/web/lib/media.ts), and no id may end up on more than one page."
+          },
+          "placeholder": { "type": "boolean" },
+          "generated": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

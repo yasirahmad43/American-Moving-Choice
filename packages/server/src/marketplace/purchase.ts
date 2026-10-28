@@ -11,7 +11,7 @@
  * path and the Stripe webhook can both call it.
  */
 import { audit } from "../audit/audit";
-import { getPool, isUuid, raisedMessage, withCompany, type Queryable } from "../db/pool";
+import { getPool, isTransientPgError, isUuid, raisedMessage, withCompany, type Queryable } from "../db/pool";
 import { env } from "../env/env";
 import { enqueueEmail } from "../outbox/outbox";
 import { defaultPaymentMethod } from "../payments/methods";
@@ -93,11 +93,15 @@ export async function purchase(
         if (!refreshed.refreshed) return fail("eligibility_stale");
         continue;
       }
-      if (code === "purchase_in_progress" && busyTries < 3) {
+      // A concurrent reservation or settlement holds the row locks: wait briefly and try again. A
+      // deadlock or serialization failure between two callers is the same situation to the buyer
+      // (nothing was reserved or charged), so it retries the same way and never surfaces as a crash.
+      if ((code === "purchase_in_progress" || isTransientPgError(error)) && busyTries < 3) {
         busyTries++;
         await sleep(deps.busyRetryDelayMs ?? 700);
         continue;
       }
+      if (isTransientPgError(error)) return fail("purchase_in_progress");
       if (code === "already_purchased" || code === "lead_unavailable" || code === "sold_out") {
         const existing = await pool.query<{ id: string }>("select id from purchases where group_id = $1 and company_id = $2", [input.groupId, actor.companyId]);
         // reserve_purchase checks availability before "already purchased": a request this company
@@ -105,10 +109,16 @@ export async function purchase(
         if (existing.rows[0]) return fail("already_purchased", undefined, existing.rows[0].id);
         return fail(code);
       }
+      // The key was first used for another request (180): a client bug, never a success for the
+      // wrong lead. Nothing was reserved or charged.
+      if (code === "idempotency_key_reused") return fail("unknown");
       if (code && isPurchaseErrorCode(code)) return fail(code);
+      console.error(`[purchase] reserve failed: ${error instanceof Error ? error.name : "error"} ${(error as { code?: string }).code ?? ""}`);
       throw error;
     }
   }
+  // Idempotency is scoped to (company, key, request): belt and braces behind the database check.
+  if (attempt.group_id !== input.groupId) return fail("unknown");
 
   // A replayed key returns the earlier attempt.
   if (attempt.status === "succeeded") {
@@ -255,7 +265,7 @@ export async function refundUnhonoured(attempt: Pick<AttemptRow, "id" | "company
 
 const LEAD_TYPE_LABEL = { exclusive: "exclusive", shared: "shared" } as const;
 
-/** The consumer notice (build plan §7.2 "Notices"): one email per purchase naming the mover. */
+/** The consumer notice (build plan §7.2 "Notices"): one anonymous email per purchase; the company identifies itself on contact. */
 export function purchaseNoticeText(input: {
   firstName: string;
   moverName: string;
@@ -263,20 +273,19 @@ export function purchaseNoticeText(input: {
   referenceCode: string;
   profileUrl: string | null;
 }): { subject: string; body: string } {
-  const usdot = input.usdot ? ` (USDOT ${input.usdot})` : "";
   const lines = [
     `Hi ${input.firstName},`,
     "",
-    `${input.moverName}${usdot} received your moving request ${input.referenceCode} through American Moving Choice and may contact you about your move.`,
+    `A participating moving company received your moving request ${input.referenceCode} through American Moving Choice and may contact you about your move.`,
     "",
-    `${input.moverName} paid American Moving Choice to receive your request. Movers pay us for the requests they choose to buy; you pay us nothing.`,
+    "The company will identify itself when it contacts you. Movers pay American Moving Choice to receive requests; you pay us nothing.",
   ];
-  if (input.profileUrl) lines.push("", `Mover profile: ${input.profileUrl}`);
+
   lines.push(
     "",
     "Changed your mind? Use the manage-request link in your confirmation email to stop new movers from receiving your request.",
   );
-  return { subject: `${input.moverName} received your moving request`, body: lines.join("\n") };
+  return { subject: "An update on your moving request", body: lines.join("\n") };
 }
 
 /**

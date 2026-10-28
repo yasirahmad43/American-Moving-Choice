@@ -7,6 +7,7 @@ import "server-only";
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { CONTENT_RENDER_MODE } from "@/lib/review-mode";
 import { storedText } from "@/lib/stored-texts";
 import { parseFrontMatter } from "./front-matter";
 import { renderMarkdown, type RenderStats } from "./markdown";
@@ -52,7 +53,7 @@ export interface ContentPage {
  * Routes other slices own (build plan §11). The catch-all never serves these, even when a draft
  * exists for them (the moving cost calculator's interface copy is rendered by slice S3).
  */
-const RESERVED_PREFIXES = ["/get-quotes/", "/my-request/", "/directory/", "/companies/", "/movers/", "/verify-a-mover/"];
+const RESERVED_PREFIXES = ["/get-quotes/", "/my-request/", "/directory/", "/companies/", "/movers/", "/verify-a-mover/", "/routes/", "/services/", "/questions/", "/planning/"];
 /** S3 owns the calculator page itself; its method page (/moving-cost-calculator/method/) is served here. */
 const RESERVED_EXACT = ["/moving-cost-calculator/"];
 
@@ -162,7 +163,7 @@ function loadPage(dir: string, file: string): ContentPage {
     last_updated: data.last_updated == null ? null : asString(data.last_updated),
   };
   if (!/^\/([a-z0-9-]+\/)*$/.test(meta.url)) throw new Error(`content/pages/${file}: url must be lowercase, start and end with "/" (got "${meta.url}")`);
-  const rendered = renderMarkdown(parsed.content, { resolveToken: resolve, linkLabels: LINK_LABELS });
+  const rendered = renderMarkdown(parsed.content, { resolveToken: resolve, linkLabels: LINK_LABELS, mode: CONTENT_RENDER_MODE });
   return {
     file,
     meta,

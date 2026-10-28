@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { closePool, getPool } from "../src/db/pool";
 import { resetEnvCache } from "../src/env/env";
+import { requestReceivedEmail } from "../src/leads/messages";
+import { purchaseNoticeText } from "../src/marketplace/purchase";
 import { canViewMessage, mailboxBody } from "../src/outbox/mailbox";
 import { MAX_DELIVERY_ATTEMPTS, OutboxError, decryptSecretBody, deliverPending, enqueueEmail, enqueueSms } from "../src/outbox/outbox";
 import { demoTransport, postmarkTransport, transportsFromEnv, type Transport, type Transports } from "../src/outbox/transports";
@@ -94,6 +96,53 @@ describe("outbox", () => {
     await pool().query("delete from messages where id = $1", [id]);
   });
 
+  it("suppresses archived identity-bearing consumer notices but preserves current confirmation details and manage links", async () => {
+    const delivered: { subject: string | null; body: string }[] = [];
+    const capture: Transport = { name: "capture", deliver: async (message) => {
+      delivered.push({ subject: message.subject, body: message.bodyText });
+      return { status: "sent", provider: "capture", providerRef: "anonymous-notice" };
+    } };
+    const transports = { email: capture, sms: capture };
+    const reference = "AMC-TEST-5678";
+    const manageUrl = "https://example.test/my-request/PRIVATE_MANAGE_TOKEN/";
+    const currentReceipt = requestReceivedEmail({
+      referenceCode: reference, route: { originCity: "Austin", originState: "TX", destCity: "Dallas", destState: "TX" },
+      limit: 2, movers: [{ displayName: "Legacy Named Movers", usdotNumber: "9000001" }],
+      manageUrl, webUrl: "https://example.test", joinedReferenceCode: null,
+    });
+    const currentPurchase = purchaseNoticeText({
+      firstName: "Alex", moverName: "Legacy Named Movers", usdot: "9000001", referenceCode: reference,
+      profileUrl: "https://example.test/companies/legacy-named-movers/",
+    });
+    const legacyBody = `Up to 2 of these movers can buy your request and get your contact details:\n- Legacy Named Movers (USDOT 9000001)\n${manageUrl}`;
+    const plainLegacy = await enqueueEmail({ to: "legacy-plain@example.com", template: "request_received", subject: `We received your moving request ${reference}`, bodyText: legacyBody }, undefined, { transports });
+    // A safe mailbox preview cannot conceal an identity-bearing encrypted deliverable.
+    const secretLegacy = await enqueueEmail({ to: "legacy-secret@example.com", template: "request_received", subject: currentReceipt.subject, bodyText: currentReceipt.bodyText, secretBodyText: legacyBody }, undefined, { transports });
+    const namedSubject = await enqueueEmail({ to: "legacy-purchase@example.com", template: "purchase_notice", subject: "Legacy Named Movers received your moving request", bodyText: currentPurchase.body }, undefined, { transports });
+    const hiddenPurchase = await enqueueEmail({ to: "legacy-purchase-secret@example.com", template: "purchase_notice", subject: currentPurchase.subject, bodyText: currentPurchase.body, secretBodyText: "Legacy Named Movers paid American Moving Choice to receive your request." }, undefined, { transports });
+    // The same guard applies when a pre-deployment delivery failed and remained queued.
+    await pool().query("update messages set attempts = 2, error = 'temporary provider error' where id = $1", [secretLegacy]);
+    const receiptId = await enqueueEmail({ to: "current-receipt@example.com", template: "request_received", ...currentReceipt }, undefined, { transports });
+    const purchaseId = await enqueueEmail({ to: "current-purchase@example.com", template: "purchase_notice", subject: currentPurchase.subject, bodyText: currentPurchase.body }, undefined, { transports });
+
+    expect(await deliverPending({ transports })).toMatchObject({ processed: 6, sent: 2, failed: 4, retrying: 0 });
+    expect(delivered).toEqual([
+      { subject: currentReceipt.subject, body: currentReceipt.secretBodyText },
+      { subject: currentPurchase.subject, body: currentPurchase.body },
+    ]);
+    expect(delivered[0]!.body).toContain(reference);
+    expect(delivered[0]!.body).toContain(manageUrl);
+    expect(JSON.stringify(delivered)).not.toContain("Legacy Named Movers");
+    for (const id of [plainLegacy, secretLegacy, namedSubject, hiddenPurchase]) {
+      expect(await statusOf(id)).toMatchObject({ status: "failed", provider: "policy", sent_at: null });
+      expect((await statusOf(id)).error).toContain("Legacy consumer notice suppressed");
+      expect((await pool().query("select body_secret_enc from messages where id = $1", [id])).rows[0].body_secret_enc).toBeNull();
+    }
+    expect((await statusOf(receiptId)).status).toBe("sent");
+    expect((await statusOf(purchaseId)).status).toBe("sent");
+    expect(await deliverPending({ transports })).toMatchObject({ processed: 0 });
+  });
+
   it("sends without holding a transaction, and retries a claim left by a crashed run", async () => {
     const id = await enqueueEmail({ to: "claim@example.com", template: "test_notice", subject: "s", bodyText: "b" }, undefined, { transports: live });
     let openTransactions = -1;
@@ -124,7 +173,7 @@ describe("outbox", () => {
       return new Response(JSON.stringify({ ErrorCode: 0, MessageID: "pm-123" }), { status: 200 });
     }) as unknown as typeof fetch;
 
-    const id = await enqueueEmail({ to: "customer@example.com", template: "purchase_notice", subject: "A mover received your request", bodyText: "Details" }, undefined, { transports: live });
+    const id = await enqueueEmail({ to: "customer@example.com", template: "test_notice", subject: "A mover received your request", bodyText: "Details" }, undefined, { transports: live });
     const report = await deliverPending({ transports: { email: postmarkTransport("server-token", "AMC <notify@example.com>", fakeFetch), sms: demoTransport } });
     expect(report).toMatchObject({ processed: 1, sent: 1 });
     expect(await statusOf(id)).toMatchObject({ status: "sent", provider: "postmark", provider_ref: "pm-123", attempts: 1, error: null });

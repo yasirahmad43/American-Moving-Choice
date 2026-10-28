@@ -201,7 +201,7 @@ describe("checkCoverage", () => {
       { originZip: "75201", destZip: "77002-1234", moveSize: "2br", services: [], need: "household", profileCompanyId: null },
       { ip: "203.0.113.50" },
     );
-    expect(result).toMatchObject({ ok: true, maxLimit: 5, consent: { versionId: "consent-v0-draft" } });
+    expect(result).toMatchObject({ ok: true, maxLimit: 5, consent: { versionId: "contact-introduction-v1-draft" } });
     expect(await surveyCoverage({ originZip: "1", destZip: "77002", moveSize: "huge", services: [], need: null, profileCompanyId: null }, { ip: null })).toMatchObject({
       ok: false,
       kind: "invalid",
@@ -218,7 +218,7 @@ describe("submitRequest", () => {
     if (!result.ok || !coverage.ok) return;
     const named = coverage.movers.filter((m) => m.companyId !== charlie).map((m) => m.companyId);
     expect(result.confirmation).toMatchObject({ limit: 2, joinedReferenceCode: null, route: { originCity: "Dallas", destCity: "Houston" } });
-    expect(result.confirmation.movers.map((m) => m.companyId)).toEqual(named);
+    expect(result.confirmation.movers).toEqual([]);
     expect(result.confirmation.referenceCode).toMatch(/^AMC-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$/);
 
     const lead = (await pool().query("select * from leads where reference_code = $1", [result.confirmation.referenceCode])).rows[0];
@@ -243,7 +243,7 @@ describe("submitRequest", () => {
 
     const consent = (await pool().query("select * from consent_records where lead_id = $1", [lead.id])).rows[0];
     expect(consent).toMatchObject({
-      consent_text_version_id: "consent-v0-draft",
+      consent_text_version_id: "contact-introduction-v1-draft",
       named_company_ids: named,
       removed_company_ids: [charlie],
       selected_limit: 2,
@@ -253,15 +253,15 @@ describe("submitRequest", () => {
       terms_accepted: true,
       ip: "203.0.113.7",
       page_url: "http://localhost:3000/get-quotes/",
-      form_version: "survey-v1",
+      form_version: "survey-v2-contact-introduction",
       tag_manifest_version: "tags-v1-none",
     });
-    expect(consent.rendered_text).toContain("Demo Alpha Movers (USDOT 9000001)");
+    expect(consent.rendered_text).toContain("up to 2 participating moving companies");
+    expect(consent.recipient_disclosure_mode).toBe("contact_introduction");
+    expect(consent.rendered_text).not.toMatch(/Demo|USDOT/);
     expect(consent.rendered_text).not.toContain("Demo Charlie Movers");
     expect(consent.rendered_text).not.toMatch(/Terms of Use|Privacy Policy/);
-    expect(consent.rendered_text.indexOf(coverage.movers.find((m) => m.companyId === named[0])!.displayName)).toBeLessThan(
-      consent.rendered_text.indexOf(coverage.movers.find((m) => m.companyId === named[1])!.displayName),
-    );
+
 
     const eligibility = (await pool().query("select company_id, named_in_consent, coverage_version from lead_eligibility where group_id = $1", [lead.group_id])).rows;
     expect(Object.fromEntries(eligibility.map((r) => [r.company_id, r.named_in_consent]))).toEqual({ [alpha]: true, [bravo]: true, [charlie]: false });
@@ -306,7 +306,7 @@ describe("submitRequest", () => {
   it("asks again when the consent text the consumer saw no longer matches", async () => {
     const { input } = await draft({ email: "changed@example.com", phone: "2145550103" });
     const tampered = await submitRequest({ ...input, renderedTextSha256: "0".repeat(64) }, meta());
-    expect(tampered).toMatchObject({ ok: false, kind: "movers_changed", consent: { versionId: "consent-v0-draft" } });
+    expect(tampered).toMatchObject({ ok: false, kind: "movers_changed", consent: { versionId: "contact-introduction-v1-draft" } });
     const ineligible = await submitRequest({ ...input, shownCompanyIds: [...input.shownCompanyIds, id(4)] }, meta());
     expect(ineligible).toMatchObject({ ok: false, kind: "movers_changed" });
   });
@@ -391,9 +391,11 @@ describe("manage and withdraw", () => {
       status: "open",
       limit: 2,
       canWithdraw: true,
-      buyers: [{ displayName: "Demo Alpha Movers", usdotNumber: "9000001", profileSlug: "demo-alpha-movers" }],
+      buyers: [],
+      buyerCount: 1,
     });
-    expect(before.ok && before.value.named).toHaveLength(3);
+    expect(before.ok && before.value.named).toHaveLength(0);
+    expect(JSON.stringify(before)).not.toMatch(/Demo Alpha Movers|9000001|demo-alpha-movers/);
 
     expect(await withdrawRequest(token, { ip: "198.51.100.41" })).toEqual({ ok: true, alreadyWithdrawn: false, buyersNotified: 1 });
     expect(await withdrawRequest(token, { ip: "198.51.100.41" })).toEqual({ ok: true, alreadyWithdrawn: true, buyersNotified: 0 });

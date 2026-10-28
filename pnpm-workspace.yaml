@@ -3,3 +3,10 @@ packages:
   - "packages/*"
   - "db"
   - "e2e"
+
+allowBuilds:
+  esbuild: true
+
+# Keep the browser-compatibility dataset outside the package manager's release-age window.
+overrides:
+  baseline-browser-mapping: 2.11.33

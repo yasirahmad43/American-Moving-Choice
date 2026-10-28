@@ -15,7 +15,11 @@ import { ROLES } from "../../_lib/roles";
 import {
   approveAction,
   callbackAction,
+  capabilitiesAction,
   checkDecisionAction,
+  coverageDeleteAction,
+  coveragePauseAction,
+  coverageRuleAction,
   descriptionAction,
   reinstateAction,
   rejectAction,
@@ -68,6 +72,7 @@ export default async function CompanyDetailPage({ params, searchParams }: { para
     price: hasAdminRole(adminRole, ROLES.pricing),
     profile: hasAdminRole(adminRole, ROLES.profiles),
     finance: hasAdminRole(adminRole, ROLES.finance),
+    coverage: hasAdminRole(adminRole, ROLES.coverage),
   };
   return (
     <div className="grid gap-6">
@@ -95,7 +100,7 @@ export default async function CompanyDetailPage({ params, searchParams }: { para
       {tab === "overview" ? <Overview detail={detail} can={can} /> : null}
       {tab === "verification" ? <Verification detail={detail} canVerify={can.verify} /> : null}
       {tab === "members" ? <Members detail={detail} /> : null}
-      {tab === "coverage" ? <Coverage detail={detail} /> : null}
+      {tab === "coverage" ? <Coverage detail={detail} canEdit={can.coverage} /> : null}
       {tab === "prices" ? <Prices detail={detail} canPrice={can.price} /> : null}
       {tab === "rates" ? <Rates detail={detail} /> : null}
       {tab === "ledger" ? <Ledger detail={detail} canFinance={can.finance} /> : null}
@@ -190,7 +195,7 @@ function Overview({ detail, can }: { detail: Detail; can: { verify: boolean; pro
         ) : (
           <p className="text-text-2">No portal application on file.</p>
         )}
-        <Table
+        <Table sortable
           caption="Mover terms acceptances"
           className="mt-4"
           compact
@@ -208,7 +213,7 @@ function Overview({ detail, can }: { detail: Detail; can: { verify: boolean; pro
       </Card>
       {can.verify ? <StatusDecisions detail={detail} /> : null}
       <Card title="Outbox messages to this company" titleAs="h2">
-        <Table
+        <Table sortable
           caption="Messages"
           hideCaption
           compact
@@ -327,7 +332,7 @@ function RecordDiff({ detail }: { detail: Detail }) {
     { field: "Phone", application: detail.company.phone ?? "None", record: String(payload.phone_on_record ?? "None") },
   ];
   return (
-    <Table
+    <Table sortable
       caption="Application compared with the official record"
       compact
       rowKey={(r) => r.field}
@@ -367,7 +372,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
           <SectionTitle id="checklist" description="The newest evidence row of each check. A reviewer decision is a newer row; nothing is edited.">
             Evidence checklist
           </SectionTitle>
-          <Table
+          <Table sortable
             caption="Evidence checklist"
             hideCaption
             rowKey={(r) => r.type}
@@ -395,7 +400,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
           </div>
           <div className="min-w-0">
             <h3 className="mb-2 type-h4 text-text">Credentials</h3>
-            <Table
+            <Table sortable
               caption="Credentials"
               hideCaption
               compact
@@ -412,7 +417,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
           </div>
           <div className="min-w-0">
             <h3 className="mb-2 type-h4 text-text">Authority on record</h3>
-            <Table
+            <Table sortable
               caption="Authority"
               hideCaption
               compact
@@ -553,7 +558,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
 
       <section aria-labelledby="all-checks">
         <SectionTitle id="all-checks">Verification history</SectionTitle>
-        <Table
+        <Table sortable
           caption="Every verification check"
           hideCaption
           compact
@@ -579,7 +584,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
 function Members({ detail }: { detail: Detail }) {
   return (
     <div className="grid gap-6">
-      <Table
+      <Table sortable
         caption="Team members"
         rowKey={(r) => r.id}
         rows={detail.members}
@@ -594,7 +599,7 @@ function Members({ detail }: { detail: Detail }) {
           { key: "login", header: "Last sign-in", cell: (r) => <When value={r.last_login_at} /> },
         ]}
       />
-      <Table
+      <Table sortable
         caption="Invitations"
         rowKey={(r) => r.id}
         rows={detail.invitations}
@@ -610,11 +615,38 @@ function Members({ detail }: { detail: Detail }) {
   );
 }
 
-function Coverage({ detail }: { detail: Detail }) {
+const CAPABILITY_OPTIONS = {
+  moveTypes: ["local", "intrastate", "interstate"],
+  moveSizes: ["studio", "1br", "2br", "3br", "4br_plus", "office", "partial"],
+  services: ["full_service", "packing", "storage", "auto_transport", "labor_only", "specialty_items"],
+} as const;
+
+function CheckboxList({ name, options, checked, legend }: { name: string; options: readonly string[]; checked: readonly string[]; legend: string }) {
+  return (
+    <fieldset className="grid gap-1">
+      <legend className="type-small font-semibold">{legend}</legend>
+      {options.map((value) => (
+        <label key={value} className="flex items-center gap-2">
+          <input type="checkbox" name={name} value={value} defaultChecked={checked.includes(value)} />
+          <span>{humanize(value)}</span>
+        </label>
+      ))}
+    </fieldset>
+  );
+}
+
+function Coverage({ detail, canEdit }: { detail: Detail; canEdit: boolean }) {
   const cap = detail.capabilities;
+  const id = detail.company.id;
+  const anyActive = detail.coverage.some((r) => !r.paused);
+  const anyPaused = detail.coverage.some((r) => r.paused);
   return (
     <div className="grid gap-6">
-      <Card title="Verified capabilities" titleAs="h2" description="The ceiling coverage rules can't widen. Read-only here; companies edit coverage in the portal.">
+      <Card
+        title="Verified capabilities"
+        titleAs="h2"
+        description={canEdit ? "The ceiling coverage rules can't widen. Edits here are audited as admin changes and apply to future requests only." : "The ceiling coverage rules can't widen. Companies edit coverage in the portal."}
+      >
         {cap ? (
           <Facts
             items={[
@@ -626,8 +658,20 @@ function Coverage({ detail }: { detail: Detail }) {
         ) : (
           <p className="text-text-2">None recorded.</p>
         )}
+        {canEdit ? (
+          <div className="mt-4 border-t border-border pt-4">
+            <ActionForm action={capabilitiesAction} submitLabel="Save capabilities" submitVariant="secondary" resetOnSuccess={false}>
+              <Hidden id={id} />
+              <div className="grid gap-4 sm:grid-cols-3">
+                <CheckboxList name="moveTypes" legend="Move types" options={CAPABILITY_OPTIONS.moveTypes} checked={cap?.move_types ?? []} />
+                <CheckboxList name="moveSizes" legend="Home sizes" options={CAPABILITY_OPTIONS.moveSizes} checked={cap?.move_sizes ?? []} />
+                <CheckboxList name="services" legend="Services" options={CAPABILITY_OPTIONS.services} checked={cap?.services ?? []} />
+              </div>
+            </ActionForm>
+          </div>
+        ) : null}
       </Card>
-      <Table
+      <Table sortable
         caption="Coverage rules"
         rowKey={(r) => r.id}
         rows={detail.coverage}
@@ -639,8 +683,83 @@ function Coverage({ detail }: { detail: Detail }) {
           { key: "origin", header: "Origin", cell: (r) => r.locations.filter((l) => l.side === "origin").map((l) => `${l.level} ${l.value}`).join(", ") || "Anywhere" },
           { key: "dest", header: "Destination", cell: (r) => r.locations.filter((l) => l.side === "destination").map((l) => `${l.level} ${l.value}`).join(", ") || "Anywhere" },
           { key: "paused", header: "Paused", cell: (r) => (r.paused ? "Yes" : "No") },
+          ...(canEdit
+            ? [
+                {
+                  key: "actions",
+                  header: "Actions",
+                  cell: (r: Detail["coverage"][number]) => (
+                    <div className="flex flex-wrap gap-2">
+                      <ActionForm action={coveragePauseAction} submitLabel={r.paused ? "Resume" : "Pause"} submitVariant="secondary" inline>
+                        <Hidden id={id} />
+                        <input type="hidden" name="ruleId" value={r.id} />
+                        <input type="hidden" name="paused" value={r.paused ? "false" : "true"} />
+                      </ActionForm>
+                      <ActionForm
+                        action={coverageDeleteAction}
+                        submitLabel="Delete"
+                        submitVariant="danger"
+                        inline
+                        confirm={{ title: "Delete this coverage rule?", description: "Requests already matched keep their snapshot; new requests use the remaining rules.", confirmLabel: "Delete" }}
+                      >
+                        <Hidden id={id} />
+                        <input type="hidden" name="ruleId" value={r.id} />
+                      </ActionForm>
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
+      {canEdit ? (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card title="Pause or resume all coverage" titleAs="h2" description="A paused company matches no new requests; its snapshots on requests already listed stay as they are.">
+            <div className="flex flex-wrap gap-3">
+              {anyActive ? (
+                <ActionForm action={coveragePauseAction} submitLabel="Pause all rules" submitVariant="danger" inline confirm={{ title: "Pause every coverage rule?", description: "The company stops receiving new requests until a rule is resumed.", confirmLabel: "Pause all" }}>
+                  <Hidden id={id} />
+                  <input type="hidden" name="paused" value="true" />
+                </ActionForm>
+              ) : null}
+              {anyPaused ? (
+                <ActionForm action={coveragePauseAction} submitLabel="Resume all rules" submitVariant="secondary" inline>
+                  <Hidden id={id} />
+                  <input type="hidden" name="paused" value="false" />
+                </ActionForm>
+              ) : null}
+              {!detail.coverage.length ? <p className="text-text-2">No rules to pause.</p> : null}
+            </div>
+          </Card>
+          <Card title="Add a coverage rule" titleAs="h2" description="States as two-letter codes and ZIP codes as five digits, separated by commas. Leave a side empty for anywhere.">
+            <ActionForm action={coverageRuleAction} submitLabel="Add rule" submitVariant="secondary">
+              <Hidden id={id} />
+              <Field id="rule-kind" label="Kind" required>
+                <Select name="kind" defaultValue="include" required>
+                  <option value="include">Include</option>
+                  <option value="exclude">Exclude</option>
+                </Select>
+              </Field>
+              <Field id="rule-label" label="Label" optional>
+                <Input name="label" maxLength={80} />
+              </Field>
+              <Field id="rule-origin-states" label="Origin states" optional>
+                <Input name="originStates" placeholder="TX, OK" />
+              </Field>
+              <Field id="rule-origin-zips" label="Origin ZIP codes" optional>
+                <Textarea name="originZips" rows={2} />
+              </Field>
+              <Field id="rule-dest-states" label="Destination states" optional>
+                <Input name="destStates" placeholder="TX" />
+              </Field>
+              <Field id="rule-dest-zips" label="Destination ZIP codes" optional>
+                <Textarea name="destZips" rows={2} />
+              </Field>
+              <CheckboxList name="moveTypes" legend="Move types (none = any the company offers)" options={CAPABILITY_OPTIONS.moveTypes} checked={[]} />
+            </ActionForm>
+          </Card>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -649,7 +768,7 @@ function Prices({ detail, canPrice }: { detail: Detail; canPrice: boolean }) {
   const current = detail.prices[0];
   return (
     <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-      <Table
+      <Table sortable
         caption="Price history (append-only)"
         rowKey={(r) => r.id}
         rows={detail.prices}
@@ -683,7 +802,7 @@ function Prices({ detail, canPrice }: { detail: Detail; canPrice: boolean }) {
 
 function Rates({ detail }: { detail: Detail }) {
   return (
-    <Table
+    <Table sortable
       caption="Rate cards"
       rowKey={(r) => r.id}
       rows={detail.rateCards}
@@ -707,7 +826,7 @@ function Ledger({ detail, canFinance }: { detail: Detail; canFinance: boolean })
             <Money cents={detail.company.balance_cents} />
           </strong>
         </p>
-        <Table
+        <Table sortable
           caption="Ledger (latest 200)"
           compact
           rowKey={(r) => r.id}
@@ -746,7 +865,7 @@ function Ledger({ detail, canFinance }: { detail: Detail; canFinance: boolean })
 
 function Purchases({ detail, canFinance }: { detail: Detail; canFinance: boolean }) {
   return (
-    <Table
+    <Table sortable
       caption="Purchases (latest 200)"
       rowKey={(r) => r.id}
       rows={detail.purchases}
@@ -767,7 +886,7 @@ function Purchases({ detail, canFinance }: { detail: Detail; canFinance: boolean
 function History({ detail }: { detail: Detail }) {
   return (
     <div className="grid gap-6">
-      <Table
+      <Table sortable
         caption="Status history"
         rowKey={(r) => r.id}
         rows={detail.history}
@@ -779,7 +898,7 @@ function History({ detail }: { detail: Detail }) {
           { key: "by", header: "By", cell: (r) => r.changed_by_email ?? "System" },
         ]}
       />
-      <Table
+      <Table sortable
         caption="Badges"
         rowKey={(r) => r.id}
         rows={detail.badges}
@@ -797,7 +916,7 @@ function History({ detail }: { detail: Detail }) {
 
 function AuditTab({ detail }: { detail: Detail }) {
   return (
-    <Table
+    <Table sortable
       caption="Audit entries for this company (latest 200)"
       compact
       rowKey={(r) => r.id}

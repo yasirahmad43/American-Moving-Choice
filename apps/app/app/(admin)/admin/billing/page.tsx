@@ -71,7 +71,7 @@ async function LedgerTab({ sp }: { sp: SP }) {
       <p className="type-small text-text-2">
         Sum of the filtered entries: <Money cents={ledger.sum} /> (credit-balance kinds and informational charges mixed unless you filter by kind).
       </p>
-      <Table
+      <Table sortable
         caption={`Ledger entries (${ledger.total})`}
         compact
         rowKey={(r) => r.id}
@@ -345,7 +345,7 @@ async function ProviderRefundsTab() {
       <SectionTitle description="Card payments that succeeded after their request could no longer be sold. No purchase exists, so these refunds are cash only and never touch the credit balance. Pending and failed ones need a retry.">
         Provider refunds
       </SectionTitle>
-      <Table
+      <Table sortable
         caption="Provider refunds"
         hideCaption
         compact

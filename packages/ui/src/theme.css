@@ -12,6 +12,7 @@
  * border-border-strong, bg-cta, text-error, bg-band and so on.
  */
 @import "./tokens.css";
+@import "./depth.css";
 
 /* dark: follows the system unless <html data-theme> says otherwise, like tokens.css. */
 @custom-variant dark {
@@ -83,6 +84,9 @@
   --shadow-e1: var(--sh-1);
   --shadow-e2: var(--sh-2);
   --shadow-e3: var(--sh-3);
+  --shadow-depth-1: var(--sh-depth-1);
+  --shadow-depth-2: var(--sh-depth-2);
+  --shadow-depth-3: var(--sh-depth-3);
 }
 
 @theme {
@@ -232,6 +236,300 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------------------------------
+ * Premium layer: ambient surfaces, scroll reveals, flip cards, the route-draw moment, the
+ * sticky mobile CTA and small micro-interactions. Every animation uses transform and opacity
+ * only, runs once, and collapses under prefers-reduced-motion (VD §11).
+ * ---------------------------------------------------------------------------------------- */
+@utility surface-glass {
+  background-color: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Double-bezel shell: outer tray + inner plate with concentric radii (VD §7, survey shell). */
+@utility bezel {
+  border-radius: var(--r-shell);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    var(--sh-2);
+  padding: 6px;
+}
+@utility bezel-inner {
+  border-radius: var(--r-shell-inner);
+  background: var(--surface);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 0 0 1px var(--border);
+}
+
+/* Ambient navy mesh for bands and hero backdrops. Decorative only. */
+@utility mesh-navy {
+  background-color: var(--band);
+  background-image:
+    radial-gradient(60% 80% at 10% 10%, rgba(157, 196, 255, 0.28), transparent 60%),
+    radial-gradient(45% 60% at 90% 20%, rgba(224, 20, 28, 0.22), transparent 60%),
+    radial-gradient(70% 70% at 50% 110%, rgba(4, 37, 79, 0.9), transparent 70%);
+}
+@utility mesh-light {
+  background-color: var(--surface-2);
+  background-image:
+    radial-gradient(50% 60% at 0% 0%, rgba(6, 49, 103, 0.08), transparent 60%),
+    radial-gradient(40% 50% at 100% 10%, rgba(224, 20, 28, 0.06), transparent 60%);
+}
+
+/* Hairline grid texture for ledger-style sections. */
+@utility grid-paper {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--border) 70%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--border) 70%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@layer components {
+  /* Scroll reveals: 14px rise + fade, 560ms, once. Without JavaScript everything is visible. */
+  [data-reveal="pending"] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 560ms var(--ease-out),
+      transform 560ms var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal="in"] {
+    opacity: 1;
+    transform: none;
+  }
+  :root:not([data-js]) [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The route-draw storytelling moment (VD §11): one SVG path draws itself once. */
+  .route-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1400ms var(--ease-std) 160ms;
+  }
+  [data-reveal="in"] .route-draw,
+  :root:not([data-js]) .route-draw {
+    stroke-dashoffset: 0;
+  }
+
+  /* Flip cards: 3D rotate on hover (fine pointers) or on toggle; crossfade under reduced motion. */
+  .flip {
+    perspective: 1400px;
+  }
+  .flip-inner {
+    position: relative;
+    display: grid;
+    transform-style: preserve-3d;
+    transition: transform 720ms var(--ease-std);
+  }
+  .flip-face {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .flip-back {
+    transform: rotateY(180deg);
+  }
+  .flip[data-flipped="true"] .flip-inner {
+    transform: rotateY(180deg);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .flip:not([data-flipped="true"]):hover .flip-inner {
+      transform: rotateY(-3deg) rotateX(1deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flip-inner {
+      transform-style: flat;
+      transition: none;
+    }
+    .flip-back {
+      transform: none;
+      opacity: 0;
+    }
+    .flip[data-flipped="true"] .flip-front {
+      opacity: 0;
+    }
+    .flip[data-flipped="true"] .flip-back {
+      opacity: 1;
+    }
+    .flip[data-flipped="true"] .flip-inner,
+    .flip:hover .flip-inner,
+    .flip:focus-within .flip-inner {
+      transform: none;
+    }
+  }
+
+  /* Lift on hover for interactive cards. */
+  .lift {
+    transition:
+      transform 320ms var(--ease-std),
+      box-shadow 320ms var(--ease-std);
+  }
+  @media (hover: hover) {
+    .lift:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--sh-2);
+    }
+  }
+
+  /* Media zoom inside overflow-hidden frames (hover physics). */
+  .zoom-media {
+    overflow: hidden;
+  }
+  .zoom-media > * {
+    transition: transform 900ms var(--ease-std);
+  }
+  @media (hover: hover) {
+    .zoom-media:hover > * {
+      transform: scale(1.04);
+    }
+  }
+
+  /* Nav links: underline grows from the left. */
+  .nav-link {
+    position: relative;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.5rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 240ms var(--ease-std);
+  }
+  .nav-link:hover::after,
+  .nav-link[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Disclosure menus: staggered rise of the items on open. */
+  details[open] > .menu-panel > * {
+    animation: menu-rise 320ms var(--ease-out) both;
+  }
+  details[open] > .menu-panel > *:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  details[open] > .menu-panel > *:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  details[open] > .menu-panel > *:nth-child(4) {
+    animation-delay: 120ms;
+  }
+  details[open] > .menu-panel > *:nth-child(5) {
+    animation-delay: 160ms;
+  }
+  details[open] > .menu-panel > *:nth-child(6) {
+    animation-delay: 200ms;
+  }
+  @keyframes menu-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Expandable cards: the chevron turns, the body fades in. */
+  details.expandable > summary .expandable-chevron {
+    transition: transform 280ms var(--ease-std);
+  }
+  details.expandable[open] > summary .expandable-chevron {
+    transform: rotate(180deg);
+  }
+  details.expandable[open] > .expandable-body {
+    animation: body-fade 280ms var(--ease-out) both;
+  }
+  @keyframes body-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Native dialog entrance (VD e3 elevation). */
+  dialog[open].dialog-enter {
+    animation: dialog-in 240ms var(--ease-out) both;
+  }
+  dialog[open].dialog-enter::backdrop {
+    animation: backdrop-in 240ms var(--ease-out) both;
+  }
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Sticky mobile CTA bar (VD §9.10): above the safe area, hidden while typing. */
+  .sticky-cta {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    padding: 0.625rem var(--gutter) calc(0.625rem + env(safe-area-inset-bottom));
+    transform: translateY(110%);
+    transition: transform 280ms var(--ease-std);
+  }
+  .sticky-cta[data-visible="true"] {
+    transform: none;
+  }
+  :root[data-sticky-cta] {
+    scroll-padding-bottom: 6rem;
+  }
+
+  /* Loading shimmer: runs only while loading, static under reduced motion. */
+  .shimmer {
+    background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shimmer {
+      animation: none;
+    }
+    .lift:hover,
+    .zoom-media:hover > * {
+      transform: none;
     }
   }
 }

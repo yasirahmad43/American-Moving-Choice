@@ -13,6 +13,7 @@ import { randomUUID } from "node:crypto";
 import { decrypt, encrypt } from "../auth/crypto";
 import { getPool, tx, type Queryable } from "../db/pool";
 import { encryptionKey } from "../env/env";
+import { reviewDeliveryEligibility } from "../reviews-public/contact-evidence";
 import { transportsFromEnv, type DeliveryResult, type Transports } from "./transports";
 
 export const MAX_DELIVERY_ATTEMPTS = 5;
@@ -126,6 +127,24 @@ interface ClaimedMessage {
   body_secret_enc: string | null;
   template: string;
   attempts: number;
+  related_id: string | null;
+}
+
+/**
+ * Queued bodies survive a deployment, including their encrypted copies. These two consumer
+ * templates used to contain mover identities, so only their current anonymous formats may be
+ * delivered. Fail closed if an older/warm server queues the retired format after cutover too.
+ * Keep approved bodies untouched so confirmation references and private manage links survive.
+ */
+function anonymousConsumerNotice(message: ClaimedMessage, deliveredBody: string): boolean {
+  if (message.template !== "request_received" && message.template !== "purchase_notice") return true;
+  const bodies = [message.body_text, deliveredBody];
+  if (bodies.some((body) => /\/companies\/|of these movers can buy your request|we email you its name|Mover profile:/i.test(body))) return false;
+  if (message.template === "purchase_notice") {
+    return message.subject === "An update on your moving request"
+      && bodies.every((body) => body.includes("The company will identify itself when it contacts you."));
+  }
+  return bodies.every((body) => body.includes("Each company will identify itself when it contacts you using the contact methods you chose."));
 }
 
 /**
@@ -145,7 +164,7 @@ export async function deliverPending(options: { limit?: number; transports?: Tra
   while (report.processed < limit) {
     const message = await tx(async (client) => {
       const next = await client.query<ClaimedMessage>(
-        `select id, channel, to_address, subject, body_text, body_secret_enc, template, attempts from messages
+        `select id, channel, to_address, subject, body_text, body_secret_enc, template, attempts, related_id from messages
          where (status = 'queued' or (status = 'sending' and claimed_at < now() - make_interval(secs => $2)))
            and not (id = any($1::uuid[]))
          order by created_at, id limit 1 for update skip locked`,
@@ -159,22 +178,45 @@ export async function deliverPending(options: { limit?: number; transports?: Tra
     if (!message) break;
     tried.push(message.id);
 
+    if (message.template === "review_invitation") {
+      const eligibility = await reviewDeliveryEligibility(message.related_id);
+      if (eligibility === "waiting") {
+        await getPool().query("update messages set status = 'queued', claimed_at = null, attempts = greatest(0, attempts - 1), error = 'Waiting for recorded customer contact' where id = $1", [message.id]);
+        report.processed++;
+        report.retrying++;
+        continue;
+      }
+      if (eligibility === "suppressed") {
+        await recordDelivery(getPool(), message, { status: "failed", provider: "policy", error: "Review invitation is no longer eligible for delivery", retryable: false });
+        report.processed++;
+        report.failed++;
+        continue;
+      }
+    }
+
     const transport = message.channel === "email" ? transports.email : transports.sms;
     let result: DeliveryResult;
     let bodyText = message.body_text;
     try {
       if (message.body_secret_enc) bodyText = decryptSecretBody(message.id, message.body_secret_enc);
-      try {
-        result = await transport.deliver({
-          id: message.id,
-          channel: message.channel,
-          toAddress: message.to_address,
-          subject: message.subject,
-          bodyText,
-          template: message.template,
-        });
-      } catch {
-        result = { status: "failed", provider: transport.name, error: "transport error", retryable: true };
+      if (!anonymousConsumerNotice(message, bodyText)) {
+        result = {
+          status: "failed", provider: "policy", retryable: false,
+          error: "Legacy consumer notice suppressed: contact-introduction policy requires anonymous confirmations and purchase updates",
+        };
+      } else {
+        try {
+          result = await transport.deliver({
+            id: message.id,
+            channel: message.channel,
+            toAddress: message.to_address,
+            subject: message.subject,
+            bodyText,
+            template: message.template,
+          });
+        } catch {
+          result = { status: "failed", provider: transport.name, error: "transport error", retryable: true };
+        }
       }
     } catch {
       // The secret body no longer decrypts (APP_ENCRYPTION_KEY changed): it can never be sent.

@@ -24,12 +24,12 @@ export const CONCERN_TYPE_LABELS: Record<ConcernType, { label: string; descripti
     description: "It said it would pass your move to another company, or another company turned up on moving day.",
   },
   unlisted_contact: {
-    label: "A company I didn't choose contacted me",
-    description: "A company that wasn't named on your Review and send screen contacted you about your request.",
+    label: "Unexpected contact about my request",
+    description: "More companies contacted you than you allowed, or contact did not match your preferences.",
   },
   credential: {
     label: "A mover's credentials look wrong",
-    description: "A USDOT or MC number, authority, insurance or state license that doesn't match what we show.",
+    description: "A USDOT or MC number, authority, insurance or state license that doesn't match what the company told you.",
   },
   misconduct: {
     label: "How a mover treated me",

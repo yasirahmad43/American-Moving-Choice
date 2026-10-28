@@ -24,11 +24,11 @@ export default async function JobsPage() {
       <PageHeader
         size="portal"
         title={item.label}
-        description="Vercel Cron calls each job once a day (Hobby-plan schedule) with the CRON_SECRET; admin pages also run the cheap sweeps when they are overdue. Every run is recorded."
+        description="Vercel Cron calls each job on its schedule (daily, or every 15 minutes for the outbox) with the CRON_SECRET; admin pages and request handlers also run the cheap sweeps when they are overdue. Every run is recorded."
       />
       <section aria-labelledby="jobs">
         <SectionTitle id="jobs">Jobs</SectionTitle>
-        <Table
+        <Table sortable
           caption="Jobs"
           hideCaption
           rowKey={(j) => j.slug}
@@ -36,7 +36,7 @@ export default async function JobsPage() {
           columns={[
             { key: "job", header: "Job", cell: (j) => <span className="grid"><span className="font-semibold">{j.label}</span><span className="type-small text-text-2">{j.description}</span></span> },
             { key: "route", header: "Cron route", cell: (j) => <Mono>/api/cron/{j.slug}</Mono> },
-            { key: "schedule", header: "Daily at (UTC)", numeric: true, cell: (j) => `${String(j.cronHourUtc).padStart(2, "0")}:00` },
+            { key: "schedule", header: "Schedule (UTC)", numeric: true, cell: (j) => (j.cronSchedule ? <Mono>{j.cronSchedule}</Mono> : `Daily ${String(j.cronHourUtc).padStart(2, "0")}:00`) },
             { key: "last", header: "Last run", cell: (j) => { const run = last.get(j.name); return run ? <span className="grid gap-1"><Status value={run.status} /><When value={run.started_at} /></span> : "Never"; } },
             {
               key: "run",
@@ -53,7 +53,7 @@ export default async function JobsPage() {
       </section>
       <section aria-labelledby="runs">
         <SectionTitle id="runs">Recent runs</SectionTitle>
-        <Table
+        <Table sortable
           caption="Recent runs"
           hideCaption
           compact

@@ -52,11 +52,28 @@ describe("review markers", () => {
   });
 });
 
+describe("public mode (production builds)", () => {
+  it("drops markers with their text and renders pending tokens as neutral public phrases", () => {
+    const { html, stats } = render("Keep this [Counsel: legal question, with [Verify: nested] text] and this. By {{page.author}}; write to {{org.support_email}}; range {{cost.hub.2br.local.range}}.", {
+      mode: "public",
+    });
+    expect(html).not.toContain("review-note");
+    expect(html).not.toMatch(/legal question|nested|Counsel|Verify/);
+    expect(html).toContain("Keep this  and this.");
+    expect(html).not.toContain("token-pending");
+    expect(html).not.toMatch(/pending/);
+    expect(html).toContain('<span class="token-public">the American Moving Choice team</span>');
+    expect(html).toContain('<span class="token-public">to be announced</span>');
+    expect(html).toContain('<span class="token-public">not yet available</span>');
+    expect(stats.notes.counsel).toBe(1);
+  });
+});
+
 describe("tokens", () => {
   it("resolves settings from the platform defaults and fixed values", () => {
     const { html } = render("Up to {{setting.max_movers}} movers, {{setting.local_radius_miles}} miles. Badge: {{badge.name}}. [Directory]({{directory.url}}).");
     expect(html).toContain("Up to 5 movers, 50 miles.");
-    expect(html).toContain("Preferred Mover · American Moving Choice (name pending)");
+    expect(html).toContain("Badge: Preferred Mover.");
     expect(html).toContain('<a href="/directory/">Directory</a>');
   });
 

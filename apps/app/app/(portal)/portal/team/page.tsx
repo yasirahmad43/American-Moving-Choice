@@ -34,7 +34,7 @@ export default async function TeamPage() {
       </Card>
 
       <Card title="Members" titleAs="h2">
-        <Table
+        <Table sortable
           caption="Team members"
           hideCaption
           rowKey={(m) => m.membershipId}
@@ -85,7 +85,7 @@ export default async function TeamPage() {
       </Card>
 
       <Card title="Pending invitations" titleAs="h2">
-        <Table
+        <Table sortable
           caption="Pending invitations"
           hideCaption
           rowKey={(i) => i.id}

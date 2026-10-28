@@ -9,7 +9,7 @@ import { ActionForm } from "@/components/admin/action-form";
 import { Facts, Mono, ShortId, Status, When, humanize } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { ROLES } from "../../_lib/roles";
-import { leadDecisionAction } from "../actions";
+import { leadDecisionAction, rematchAction } from "../actions";
 
 const item = adminNavItem("/admin/leads");
 
@@ -107,7 +107,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </Card>
       </div>
 
-      <Table
+      <Table sortable
         caption="Validation results"
         compact
         rowKey={(r) => r.id}
@@ -141,15 +141,15 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                 { label: "Submitted", value: <When value={consent.submitted_at} /> },
               ]}
             />
-            <Table
-              caption="Movers in the consent text"
+            <Table sortable
+              caption="Recorded recipient eligibility"
               compact
               rowKey={(r) => r.id}
               rows={detail.consentCompanies}
               columns={[
                 { key: "name", header: "Mover", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.id}`}>{r.name}</Link> },
                 { key: "usdot", header: "USDOT", numeric: true, cell: (r) => r.usdot ?? "None" },
-                { key: "named", header: "In consent", cell: (r) => (r.named ? <Status value="pass" label="Named" /> : <Status value="removed" label="Removed by consumer" />) },
+                { key: "named", header: "Permission snapshot", cell: (r) => (r.named ? <Status value="pass" label="Included" /> : <Status value="removed" label="Excluded" />) },
               ]}
             />
           </div>
@@ -158,7 +158,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         )}
       </Card>
 
-      <Table
+      <Table sortable
         caption="Eligibility snapshot"
         compact
         rowKey={(r) => r.company_id}
@@ -166,14 +166,22 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         empty={<p className="text-text-2">No eligible movers were matched.</p>}
         columns={[
           { key: "company", header: "Mover", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.company_id}`}>{r.legal_name}</Link> },
-          { key: "named", header: "Named in consent", cell: (r) => (r.named_in_consent ? "Yes" : "No") },
+          { key: "named", header: "Included in permission", cell: (r) => (r.named_in_consent ? "Yes" : "No") },
           { key: "rule", header: "Matched rule", cell: (r) => (r.matched_rule_id ? <ShortId id={r.matched_rule_id} /> : "None") },
           { key: "version", header: "Coverage version", numeric: true, cell: (r) => (r.coverage_version === r.current_coverage_version ? r.coverage_version : `${r.coverage_version} (now ${r.current_coverage_version})`) },
           { key: "at", header: "Matched", cell: (r) => <When value={r.matched_at} /> },
         ]}
       />
+      {canDecide && group?.status === "available" && detail.eligibility.some((r) => r.named_in_consent) ? (
+        <Card title="Re-run matching" titleAs="h2" description="Refreshes coverage for companies already included in this request's permission snapshot. It does not add recipients, widen the customer's contact limit, or restore excluded companies.">
+          <ActionForm action={rematchAction} submitLabel="Re-run matching" submitVariant="secondary" inline>
+            <input type="hidden" name="leadId" value={lead.id} />
+            <input type="hidden" name="groupId" value={group.id} />
+          </ActionForm>
+        </Card>
+      ) : null}
 
-      <Table
+      <Table sortable
         caption="Purchases and buyers"
         compact
         rowKey={(r) => r.id}
@@ -191,7 +199,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Table
+        <Table sortable
           caption="Messages"
           compact
           rowKey={(r) => r.id}
@@ -204,7 +212,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             { key: "at", header: "Queued", cell: (r) => <When value={r.created_at} /> },
           ]}
         />
-        <Table
+        <Table sortable
           caption="Quality claims"
           compact
           rowKey={(r) => r.id}

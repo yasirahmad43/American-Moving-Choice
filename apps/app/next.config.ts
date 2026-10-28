@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@amc/core", "@amc/server", "@amc/ui"],
   poweredByHeader: false,
   reactStrictMode: true,
+  // 3 MB media files plus multipart fields, below Vercel's 4.5 MB request ceiling.
+  experimental: { serverActions: { bodySizeLimit: "4mb" } },
   outputFileTracingRoot: monorepoRoot,
   turbopack: { root: monorepoRoot },
   async headers() {

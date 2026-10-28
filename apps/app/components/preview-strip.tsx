@@ -1,15 +1,12 @@
-import { WarningIcon } from "@amc/ui";
+import { InfoIcon } from "@amc/ui";
 
-/** The preview notice (build plan §8), also shown in the portals and on auth pages. A labeled section, so it is a landmark region. */
+/** The one discreet preview notice (build plan §8), shown as a quiet line at the foot of the portals and auth pages. A labeled section, so it is a landmark region. */
 export function PreviewStrip() {
   return (
-    <section className="border-b border-border bg-warning-bg text-text" aria-label="Preview notice">
-      <p className="mx-auto flex max-w-portal items-start gap-2 py-2 gutter type-small">
-        <WarningIcon size={18} className="mt-px shrink-0 text-warning" />
-        <span>
-          <strong className="font-semibold">Preview build.</strong> Not launched; drafts await owner and counsel review. Companies shown are
-          fictional demo data.
-        </span>
+    <section className="border-t border-border bg-surface-2 text-text-3" aria-label="Preview notice">
+      <p className="mx-auto flex max-w-portal items-center gap-2 py-2.5 gutter type-legal">
+        <InfoIcon size={14} className="shrink-0" />
+        <span>Preview build. Not launched; drafts await owner and counsel review. Companies shown are fictional demo data.</span>
       </p>
     </section>
   );

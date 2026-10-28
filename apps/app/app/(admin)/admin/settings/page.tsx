@@ -141,7 +141,7 @@ export default async function SettingsPage() {
         </Card>
       </section>
 
-      <Table
+      <Table sortable
         caption="Setting keys"
         compact
         rowKey={(k) => k}

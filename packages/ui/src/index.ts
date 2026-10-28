@@ -60,3 +60,28 @@ export { Stepper, type StepperProps } from "./components/stepper";
 export { Table, type TableColumn, type TableProps } from "./components/table";
 export { Tabs, type TabItem, type TabsProps } from "./components/tabs";
 export { Wordmark, type WordmarkProps } from "./components/wordmark";
+
+// Premium layer: media hero, editorial headers, bento grids, flip and expandable cards, detail
+// dialogs, stat tiles, trust strips, step timelines, ledger strips, scroll reveals and the sticky
+// mobile CTA. Motion rules live in theme.css and honor prefers-reduced-motion.
+export { RouteMapArt, BoxesArt } from "./art";
+export { Bento, BentoCell, type BentoCellProps, type BentoSpan } from "./components/bento";
+export { DetailDialog, type DetailDialogProps } from "./components/detail-dialog";
+export { ExpandableCard, type ExpandableCardProps } from "./components/expandable-card";
+export { FlipCard, type FlipCardProps } from "./components/flip-card";
+export { MediaHero, PageHero, type MediaHeroProps } from "./components/hero";
+export { LedgerStrip, type LedgerRow, type LedgerStripProps } from "./components/ledger-strip";
+export { JsFlag, Reveal, type RevealProps } from "./components/reveal";
+export { SectionHeader, type SectionHeaderProps } from "./components/section-header";
+export { StatRow, StatTile, type StatTileProps } from "./components/stat-tile";
+export { StickyCta, type StickyCtaProps } from "./components/sticky-cta";
+export { Timeline, type TimelineProps, type TimelineStep } from "./components/timeline";
+export { QuoteCard, TrustStrip, type TrustItem } from "./components/trust-strip";
+
+// Pass 2: 3D icons, tilt cards, the line-icon sprite, counters, split-line reveals, the scroll
+// progress line and the data table's inline charts.
+export { ICON_3D_NAMES, Icon3D, IconPlate, iconSrc, type Icon3DName, type Icon3DProps } from "./components/icon-3d";
+export { TiltCard, type TiltCardProps } from "./components/tilt-card";
+export { Counter, ScrollProgress, SplitLines } from "./components/scroll-progress";
+export { MiniBar, Sparkline } from "./components/table";
+export { IconSprite, LINE_ICON_NAMES, LineIcon, type LineIconName, type LineIconProps } from "./sprite";

@@ -245,7 +245,7 @@ export default function PricingPage() {
       </p>
 
       <h2>When buying is suspended</h2>
-      <p>We stop a company from buying leads, and remove its badge and directory listing, when:</p>
+      <p>We stop a company from buying leads when:</p>
       <ul>
         <li>a recheck of its FMCSA record or insurance fails, or a state credential or insurance certificate expires;</li>
         <li>we find broker activity, such as passing a move to another company;</li>
@@ -259,7 +259,7 @@ export default function PricingPage() {
 
       <h2>What you can&apos;t buy</h2>
       <p>
-        No ranking, award, directory placement, reviews or editorial coverage is for sale, and buying more never earns or keeps the badge.{" "}
+        Public company showcases aren't part of the service. No ranking, award, reviews or editorial coverage is for sale, and spending doesn't bypass screening.{" "}
         <Link href="/advertising-disclosure/">How AMC makes money</Link>
       </p>
 

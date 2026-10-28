@@ -1,317 +1,100 @@
+import "@/components/site/home.css";
 import { env } from "@amc/server/env";
-import { Container, LinkButton, Section } from "@amc/ui";
+import { Icon3D, LineIcon, LinkButton, Section, StickyCta, TiltCard } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MediaFrame } from "@/components/media/media-frame";
 import { HeroZipForm } from "@/components/site/hero-zip-form";
+import { HowItWorks } from "@/components/site/how-it-works";
 import { JsonLd, organizationId } from "@/components/site/json-ld";
 import { MoneyLine } from "@/components/site/money-line";
-import { Note } from "@/components/site/review-notes";
-import { storedText, storedTextParts } from "@/lib/stored-texts";
+import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
+import { claimMediaById } from "@/lib/media";
 
-const TITLE = "Request Quotes from Movers, Not Brokers | American Moving Choice";
-
+const TITLE = "Moving Quotes, on Your Terms | American Moving Choice";
+const DESCRIPTION = "Tell us your route, choose how many moving companies may contact you, and compare their quotes directly. Free to request.";
 export const metadata: Metadata = {
-  title: { absolute: TITLE },
-  // ST-1c: only the home, About and "How AMC makes money" pages carry it (site architecture §8.2).
-  description: storedText("ST-1c"),
-  alternates: { canonical: "/" },
-  openGraph: { title: TITLE, description: storedText("ST-1c"), url: "/", type: "website", siteName: "American Moving Choice" },
+  title: { absolute: TITLE }, description: DESCRIPTION, alternates: { canonical: "/" },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", type: "website", siteName: "American Moving Choice" },
 };
-
-/** How it works: four stops that group the survey's steps (implications §2.1). */
 const STEPS = [
-  {
-    title: "Tell us about your move",
-    body: "Where you're moving from and to, when, and the size of your home. Nothing is filled in for you.",
-    steps: "Where · When · Size and services",
-  },
-  {
-    title: "See which movers cover it",
-    body: "We check which movers in our network serve your route and show you what we found before we ask for any contact details. If none do, we say so and ask for nothing more.",
-    steps: "What we found",
-  },
-  {
-    title: "Choose how many can contact you",
-    body: "You decide the most movers who can receive your details, from 1 up to the number available for your move.",
-    steps: "Your details · How many movers",
-  },
-  {
-    title: "Review every name, then send",
-    body: "You see each mover by name and USDOT number, and you can remove any of them. Only the movers you send to can buy your request, and they contact you directly.",
-    steps: "Review and send",
-  },
+  { icon: "origin" as const, title: "Tell us where life is taking you", body: "Start with your ZIP codes, moving date, and the size of your move.", meta: "Your move" },
+  { icon: "route" as const, title: "We check your route", body: "We check our network for companies that serve your move. If we don't have coverage, we'll tell you.", meta: "Your route" },
+  { icon: "chat" as const, title: "Set your contact preferences", body: "Choose how many moving companies may contact you and how you'd like to hear from them.", meta: "Your choice" },
+  { icon: "verified" as const, title: "Compare quotes. Make your move.", body: "Companies introduce themselves when they reach out. Compare their estimates and decide who feels right.", meta: "Your decision" },
 ];
-
-const TRUST_LINKS = [
-  { href: "/how-we-verify-movers/", title: "How we verify movers", body: "Every check we run, how often we recheck it, and what we don't check." },
-  { href: "/movers-vs-brokers/", title: "Movers vs brokers", body: "The difference, how to read a company's FMCSA record, and why we work only with movers." },
-  { href: "/which-companies-receive-my-request/", title: "Which companies receive my request", body: "Who can see your details, how many, and how to withdraw." },
-  { href: "/advertising-disclosure/", title: "How AMC makes money", body: "Who pays us, how requests are priced to movers, and what payment never changes." },
-  { href: "/review-methodology/", title: "How reviews work", body: "Who can leave a review, what each label means, and how we moderate." },
-  { href: "/editorial-policy/", title: "Editorial policy", body: "Who writes and reviews our pages, how we cite sources, and how we use AI." },
-];
-
-const COST_LINKS = [
-  { href: "/moving-costs/", title: "How much do movers cost?", body: "What drives the price of a move, and where our planning ranges come from." },
-  { href: "/moving-cost-calculator/", title: "Moving cost calculator", body: "A planning range for your move, built from movers' rate cards. Not a quote." },
-  { href: "/moving-costs/how-movers-charge/", title: "How movers charge", body: "Hourly and weight-based pricing, estimate types and the extra charges to ask about." },
-];
-
 const FAQ = [
-  {
-    q: "Does it cost anything to use American Moving Choice?",
-    a: (
-      <>
-        No. You pay us nothing. Movers in our network pay us for the requests they buy. The price of your move is between you and the mover you
-        hire, and some movers charge for some kinds of estimate, so ask each one.
-      </>
-    ),
-  },
-  {
-    q: "Who receives my contact details?",
-    a: (
-      <>
-        Only movers named on your Review and send screen, and never more than the number you choose. We never resell your request.{" "}
-        <Link href="/which-companies-receive-my-request/" className="link">
-          Which companies receive my request
-        </Link>{" "}
-        explains each step.
-      </>
-    ),
-  },
-  {
-    q: "Do you give quotes or estimates?",
-    a: (
-      <>
-        No. Movers contact you directly and give their own quotes. Our cost pages show planning ranges from movers&apos; rate cards, which aren&apos;t
-        prices. Only a mover can price your move, in a written estimate.
-      </>
-    ),
-  },
-  {
-    q: "What if no mover in your network covers my move?",
-    a: <>We tell you on the What we found screen and don&apos;t ask for your contact details.</>,
-  },
-  {
-    q: "Can I change my mind after I send a request?",
-    a: (
-      <>
-        Yes. Your confirmation page has a link to withdraw your request. Withdrawing stops any more movers from buying it, and we tell the movers who
-        already bought it. <Note kind="build">withdrawal link on the confirmation page and in the confirmation email; buyers notified (consent draft §6)</Note>
-      </>
-    ),
-  },
+  { q: "Is it free to request moving quotes?", a: "Yes. You don't pay American Moving Choice to request quotes. Participating moving companies pay us for requests. Your moving price and any estimate charges are agreed directly with the company you choose." },
+  { q: "How many moving companies will contact me?", a: "You choose the maximum before sending your request. We share it only with eligible participating companies, up to that limit. Each company identifies itself when it contacts you." },
+  { q: "Are you a moving company?", a: "We're a platform connecting people with independent moving carriers. We don't transport belongings, book your move, or give estimates on a mover's behalf. The companies provide their own quotes directly." },
+  { q: "What if you don't cover my route?", a: "We'll tell you before asking for your contact details. You can still use our moving guides and planning resources." },
+  { q: "Can I withdraw my request?", a: "Yes. Use the secure link on your confirmation page or in your confirmation email. Withdrawing stops new purchases of your request and notifies companies that already received it." },
 ];
-
-function LinkCard({ href, title, body }: { href: string; title: string; body: string }) {
-  return (
-    <li className="min-w-0">
-      <Link
-        href={href}
-        className="group grid h-full content-start gap-1.5 rounded-card border border-border bg-surface p-5 text-text no-underline shadow-e1 transition-shadow duration-[var(--d1)] hover:shadow-e2"
-      >
-        <span className="type-h4 text-link underline-offset-[0.2em] group-hover:underline">{title}</span>
-        <span className="text-text-2">{body}</span>
-      </Link>
-    </li>
-  );
-}
+const SERVICES = [
+  { title: "Across town.", label: "Local moving", body: "A new neighborhood. A little more room. Plan a local move with the details in hand.", href: "/services/local/", asset: "home-family-carrying-labeled-boxes-toward" },
+  { title: "Across the country.", label: "Long-distance moving", body: "A bigger change of scenery. Understand routes, estimates, and what comes next.", href: "/services/long-distance/", asset: "home-truck-suburban-autumn-street" },
+];
+const RESOURCES = [
+  { href: "/moving-cost-calculator/", title: "Get a feel for moving costs", body: "Planning ranges, when enough mover rate data is available.", icon: "calculator" as const },
+  { href: "/moving-costs/how-movers-charge/", title: "Make sense of your estimate", body: "Understand the details behind a moving quote.", icon: "ledger" as const },
+  { href: "/planning/", title: "Get your next steps in order", body: "Useful checklists for the weeks before moving day.", icon: "calendar" as const },
+];
 
 export default function HomePage() {
   const { WEB_URL } = env();
-  const moversOnly = storedTextParts("ST-2");
-  return (
-    <>
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "@id": `${WEB_URL}/#website`,
-          name: "American Moving Choice",
-          url: `${WEB_URL}/`,
-          publisher: { "@id": organizationId(WEB_URL) },
-          inLanguage: "en-US",
-        }}
-      />
-
-      {/* Hero: H1 → lede → survey entry → money line (VD §12, §13.1; implications §8.2). */}
-      <Container className="grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,11fr)_minmax(0,9fr)] lg:items-center lg:gap-12">
-        <div className="grid max-w-[60ch] gap-4">
-          <p className="type-overline text-text-2">Movers only · No brokers</p>
-          <h1 className="type-display-xl text-text">Request quotes from moving companies, not brokers</h1>
-          <p className="type-lede text-text-2">
-            Tell us where you&apos;re moving. We show you which movers in our network cover your route, you choose how many can contact you, and you
-            see every mover&apos;s name before you send anything.
-          </p>
-        </div>
-        <div className="rounded-shell border border-border bg-surface-2 p-1.5 shadow-e2">
-          <div className="rounded-shell-inner bg-surface p-5 sm:p-7">
+  const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;
+  const hero = claimMediaById("/", "home-hero-crew-loading-golden-hour");
+  const planning = claimMediaById("/", "home-kitchen-table-with-a-laptop");
+  const care = claimMediaById("/", "home-inside-of-a-moving-truck");
+  return <>
+    <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", "@id": WEB_URL + "/#website", name: "American Moving Choice", url: WEB_URL + "/", publisher: { "@id": organizationId(WEB_URL) }, inLanguage: "en-US" }} />
+    <section className="home-hero" aria-labelledby="home-title">
+      <div className="home-hero-grid mx-auto max-w-content gutter">
+        <div className="home-hero-copy">
+          <p className="home-eyebrow"><span aria-hidden="true" />A new place. A fresh start.</p>
+          <h1 id="home-title" className="home-title">A better move.<br /><span>On your terms.</span></h1>
+          <p className="home-intro">Big plans deserve the right moving company. Request quotes from movers who serve your route, on your terms.</p>
+          <div className="home-entry" id="hero-form">
+            <div className="home-entry-top"><span className="home-step">01 <span>/ YOUR MOVE</span></span><span className="home-free"><LineIcon name="check" size={14} />Free to request</span></div>
             <HeroZipForm moneyLine={<MoneyLine />} />
           </div>
+          <p className="home-hero-assurance"><LineIcon name="lock" size={16} />Your details are shared only after you give permission.</p>
         </div>
-      </Container>
-
-      <Section tone="alt" aria-labelledby="how-it-works">
-        <div className="grid gap-8">
-          <div className="grid max-w-[60ch] gap-2">
-            <h2 id="how-it-works" className="type-display-l text-text">
-              How it works
-            </h2>
-            <p className="type-lede text-text-2">Four stops, in the order our quote survey asks them.</p>
-          </div>
-          <ol className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {STEPS.map((step, index) => (
-              <li key={step.title} className="grid content-start gap-2 rounded-card border border-border bg-surface p-5">
-                <span className="inline-grid size-9 place-items-center rounded-pill bg-primary font-bold tabular text-on-primary" aria-hidden="true">
-                  {index + 1}
-                </span>
-                <h3 className="type-h4 text-text">
-                  <span className="sr-only">Step {index + 1}: </span>
-                  {step.title}
-                </h3>
-                <p className="text-text-2">{step.body}</p>
-                <p className="type-small text-text-3">Survey steps: {step.steps}</p>
-              </li>
-            ))}
-          </ol>
+        <div className="home-hero-visual">
+          <div className="home-hero-film"><MediaFrame asset={hero} priority /><div className="home-film-shade" aria-hidden="true" /><div className="home-film-caption"><span>THE POSSIBILITIES AHEAD</span><p>New keys.<br />New beginnings.</p></div></div>
+          <div className="home-route-card"><Icon3D name="destination" size={64} /><div><p>Wherever you’re headed</p><strong>Make the move yours.</strong><div className="home-route-track" aria-hidden="true"><span /><i /><b /></div></div></div>
+          <p className="home-visual-note">↗ More possibility. Less guesswork.</p>
         </div>
-      </Section>
-
-      <Section aria-labelledby="what-is-different">
-        <div className="grid gap-8">
-          <h2 id="what-is-different" className="type-display-l max-w-[60ch] text-text">
-            What&apos;s different here
-          </h2>
-          <ul className="grid gap-x-8 gap-y-6 md:grid-cols-2">
-            <li className="grid content-start gap-1.5">
-              <h3 className="type-h4 text-text">Movers only, no brokers</h3>
-              <p className="text-text-2">
-                {moversOnly.map((part, index) =>
-                  part.kind === "text" ? (
-                    <span key={index}>{part.text.replace(/^Movers only, no brokers\.\s*/, "")}</span>
-                  ) : (
-                    <Link key={index} href="/how-we-verify-movers/" className="link">
-                      {part.label}
-                    </Link>
-                  ),
-                )}
-              </p>
-            </li>
-            <li className="grid content-start gap-1.5">
-              <h3 className="type-h4 text-text">You choose how many</h3>
-              <p className="text-text-2">
-                You set the most movers who can receive your details. Choose 1 and only one mover can ever receive them from us. Nothing is
-                preselected.
-              </p>
-            </li>
-            <li className="grid content-start gap-1.5">
-              <h3 className="type-h4 text-text">Every mover named before you send</h3>
-              <p className="text-text-2">
-                Your Review and send screen lists each mover by name and USDOT number. Remove any of them; only the movers left can buy your request.
-              </p>
-            </li>
-            <li className="grid content-start gap-1.5">
-              <h3 className="type-h4 text-text">Movers pay us, not you</h3>
-              <p className="text-text-2">
-                Movers in our network pay us for the requests they buy, and payment never changes their screening, ratings or order.{" "}
-                <Link href="/advertising-disclosure/" className="link">
-                  How AMC makes money
-                </Link>
-              </p>
-            </li>
-            <li className="grid content-start gap-1.5">
-              <h3 className="type-h4 text-text">Reviews tied to real requests</h3>
-              <p className="text-text-2">
-                Only people whose request a mover bought through us can review that mover, and each review says what was checked.{" "}
-                <Link href="/review-methodology/" className="link">
-                  How reviews work
-                </Link>
-              </p>
-            </li>
-          </ul>
-        </div>
-      </Section>
-
-      <Section tone="alt" aria-labelledby="how-we-work">
-        <div className="grid gap-6">
-          <div className="grid max-w-[60ch] gap-2">
-            <h2 id="how-we-work" className="type-display-l text-text">
-              How we work
-            </h2>
-            <p className="type-lede text-text-2">The rules we follow, written down so you can check them.</p>
-          </div>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {TRUST_LINKS.map((link) => (
-              <LinkCard key={link.href} {...link} />
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      <Section aria-labelledby="moving-costs">
-        <div className="grid gap-6">
-          <div className="grid max-w-[60ch] gap-2">
-            <h2 id="moving-costs" className="type-display-l text-text">
-              Plan your moving costs
-            </h2>
-            <p className="type-lede text-text-2">
-              Movers set their own prices. These pages explain how they charge and show planning ranges where enough movers have shared their rates.
-            </p>
-          </div>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {COST_LINKS.map((link) => (
-              <LinkCard key={link.href} {...link} />
-            ))}
-          </ul>
-        </div>
-      </Section>
-
-      <Section tone="band" aria-labelledby="for-movers">
-        <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-          <div className="grid max-w-[60ch] gap-2">
-            <h2 id="for-movers" className="type-display-l">
-              Are you a moving company?
-            </h2>
-            <p className="type-lede text-on-band-2">
-              Our network is for household-goods carriers only. See who can join, how requests reach you and how pricing works before you apply.
-            </p>
-          </div>
-          <div>
-            <Link
-              href="/for-movers/"
-              className="inline-flex min-h-12 items-center justify-center rounded-control bg-white px-5 font-semibold text-brand-navy no-underline hover:bg-on-band-2"
-            >
-              Information for movers
-            </Link>
-          </div>
-        </div>
-      </Section>
-
-      <Section aria-labelledby="questions">
-        <div className="grid max-w-[72ch] gap-6">
-          <h2 id="questions" className="type-display-l text-text">
-            Questions
-          </h2>
-          <div className="grid gap-3">
-            {FAQ.map((item) => (
-              <details key={item.q} className="group rounded-control border border-border bg-surface px-4">
-                <summary className="flex min-h-12 items-center justify-between gap-3 py-3 font-semibold text-text [&::-webkit-details-marker]:hidden">
-                  <h3 className="type-h4">{item.q}</h3>
-                  <span aria-hidden="true" className="text-text-3 transition-transform group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-                <div className="pb-4 text-text-2">{item.a}</div>
-              </details>
-            ))}
-          </div>
-          <div>
-            <LinkButton href="/get-quotes/" variant="secondary">
-              Start a quote request
-            </LinkButton>
-          </div>
-        </div>
-      </Section>
-    </>
-  );
+      </div>
+    </section>
+    <section className="home-reassurance" aria-label="Moving, with more control"><div className="mx-auto grid max-w-content gutter sm:grid-cols-3">
+      <div><Icon3D name="verified" size={44} /><p><strong>Moving carriers. No brokers.</strong><span>Learn how our network is screened.</span></p></div>
+      <div><Icon3D name="chat" size={44} /><p><strong>You set the contact limit.</strong><span>Choose from 1 to {maxMovers} companies.</span></p></div>
+      <div><Icon3D name="price" size={44} /><p><strong>Quotes come straight to you.</strong><span>Compare in your own time.</span></p></div>
+    </div></section>
+    <HowItWorks id="how-it-works" overline="A clear path from here to there" title="Your move. Four simple steps." lede="A little information from you. More confidence about what comes next." stops={STEPS} />
+    <Section className="home-services" aria-labelledby="moving-your-way">
+      <div className="home-section-heading" data-motion="rise"><div><p className="home-eyebrow"><span aria-hidden="true" />Room for what’s next</p><h2 id="moving-your-way">A few miles.<br />Or a whole new horizon.</h2></div><p>Every move has its own story.<br />Start with a plan that fits yours.</p></div>
+      <div className="home-service-grid" data-motion="stagger">{SERVICES.map((s) => <article className="home-service-card" key={s.href}><div className="home-service-photo"><MediaFrame asset={claimMediaById("/", s.asset)} sizes="(min-width: 1024px) 45vw, 100vw" /><span>{s.label}</span></div><div className="home-service-body"><div><h3>{s.title}</h3><p>{s.body}</p></div><Link href={s.href} className="home-arrow-link" aria-label={"Explore " + s.label.toLowerCase()}><LineIcon name="arrow-right" size={22} /></Link></div></article>)}</div>
+    </Section>
+    <section className="home-control-section" aria-labelledby="your-move-your-rules"><div className="mx-auto max-w-content gutter">
+      <div className="home-control-heading" data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />A little less moving stress</p><h2 id="your-move-your-rules">The choice stays<br /><em>with you.</em></h2><p>One request. Clear preferences.<br />Space to make a considered decision.</p></div>
+      <div className="home-benefit-grid" data-motion="stagger">{[
+        { number: "01", icon: "chat" as const, title: "Choose your contact limit", body: "Set the maximum number of companies you want to hear from, up to " + maxMovers + ". Nothing is selected for you." },
+        { number: "02", icon: "credentials" as const, title: "Moving companies, screened", body: "We check carrier authority and insurance filings against FMCSA records. Learn what we check and what those checks mean." },
+        { number: "03", icon: "key" as const, title: "The final decision is yours", body: "Companies introduce themselves and provide their own estimates. Compare the details and choose who you want to hire." },
+      ].map((b) => <TiltCard key={b.number} max={5} depth={20} className="home-benefit-card" bodyClassName="home-benefit-body"><span className="home-card-index">{b.number}</span><Icon3D name={b.icon} size={88} className="tilt-layer-2" /><h3 className="tilt-layer">{b.title}</h3><p className="tilt-layer">{b.body}</p></TiltCard>)}</div>
+      <Link href="/how-we-verify-movers/" className="home-text-link">How our network is screened<LineIcon name="arrow-right" size={18} /></Link>
+    </div></section>
+    <Section aria-labelledby="plan-ahead" className="home-planning"><div className="home-planning-grid">
+      <div className="home-planning-art" data-motion="scale"><MediaFrame asset={planning} sizes="(min-width: 1024px) 48vw, 100vw" /><div className="home-planning-stamp"><Icon3D name="calculator" size={60} /><span>A clearer plan.<br /><strong>A calmer move.</strong></span></div></div>
+      <div className="home-planning-copy" data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />Before the first box</p><h2 id="plan-ahead">Know a little more.<br />Worry a little less.</h2><p>From understanding an estimate to planning your packing, a little preparation goes a long way.</p><div className="home-resource-list">{RESOURCES.map((r) => <Link href={r.href} key={r.href}><Icon3D name={r.icon} size={42} /><span><strong>{r.title}</strong><small>{r.body}</small></span><LineIcon name="arrow-right" size={18} /></Link>)}</div></div>
+    </div></Section>
+    <Section tone="alt" aria-labelledby="home-faq" className="home-faq-section"><div className="home-faq-grid">
+      <div data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />A few things to know</p><h2 id="home-faq">Good questions.<br />Clear answers.</h2><p className="home-faq-intro">Moving comes with enough unknowns.<br />Here’s how requesting quotes works.</p><Link href="/questions/" className="home-text-link">More moving questions<LineIcon name="arrow-right" size={18} /></Link></div>
+      <div className="home-faq-list">{FAQ.map((f, i) => <details key={f.q}><summary><span className="home-faq-number">0{i + 1}</span><span>{f.q}</span><span className="home-faq-plus" aria-hidden="true" /></summary><p>{f.a}</p></details>)}</div>
+    </div></Section>
+    <section className="home-final" aria-labelledby="ready-to-move"><div className="home-final-photo" aria-hidden="true"><MediaFrame asset={care} alt="" sizes="100vw" /></div><div className="home-final-shade" aria-hidden="true" /><div className="mx-auto max-w-content gutter" data-motion="rise"><p className="home-eyebrow">Good things are ahead</p><h2 id="ready-to-move">Let’s get you<br />to your next chapter.</h2><p>Start with your route. Take it one step at a time.</p><LinkButton href="/get-quotes/" variant="cta" data-magnetic="">Start my moving request</LinkButton><span className="home-final-note">Free to request · Your contact preferences · No brokers</span></div></section>
+    <StickyCta href="/get-quotes/" watch="hero-form" label="Get moving quotes" />
+  </>;
 }

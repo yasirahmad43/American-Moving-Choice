@@ -1,0 +1,461 @@
+[
+ {
+  "code": "AL",
+  "slug": "alabama",
+  "name": "Alabama",
+  "lat": 32.8877,
+  "lng": -86.8142,
+  "zipCount": 811,
+  "countyCount": 67
+ },
+ {
+  "code": "AK",
+  "slug": "alaska",
+  "name": "Alaska",
+  "lat": 61.4667,
+  "lng": -152.538,
+  "zipCount": 273,
+  "countyCount": 30
+ },
+ {
+  "code": "AZ",
+  "slug": "arizona",
+  "name": "Arizona",
+  "lat": 33.6066,
+  "lng": -111.6466,
+  "zipCount": 530,
+  "countyCount": 15
+ },
+ {
+  "code": "AR",
+  "slug": "arkansas",
+  "name": "Arkansas",
+  "lat": 35.1271,
+  "lng": -92.4028,
+  "zipCount": 706,
+  "countyCount": 75
+ },
+ {
+  "code": "CA",
+  "slug": "california",
+  "name": "California",
+  "lat": 36.1713,
+  "lng": -119.7938,
+  "zipCount": 2593,
+  "countyCount": 58
+ },
+ {
+  "code": "CO",
+  "slug": "colorado",
+  "name": "Colorado",
+  "lat": 39.2639,
+  "lng": -105.3172,
+  "zipCount": 645,
+  "countyCount": 64
+ },
+ {
+  "code": "CT",
+  "slug": "connecticut",
+  "name": "Connecticut",
+  "lat": 41.5631,
+  "lng": -72.8049,
+  "zipCount": 429,
+  "countyCount": 15
+ },
+ {
+  "code": "DE",
+  "slug": "delaware",
+  "name": "Delaware",
+  "lat": 39.302,
+  "lng": -75.5278,
+  "zipCount": 96,
+  "countyCount": 3
+ },
+ {
+  "code": "DC",
+  "slug": "district-of-columbia",
+  "name": "District of Columbia",
+  "lat": 38.8965,
+  "lng": -77.0216,
+  "zipCount": 277,
+  "countyCount": 1
+ },
+ {
+  "code": "FL",
+  "slug": "florida",
+  "name": "Florida",
+  "lat": 28.1279,
+  "lng": -81.9556,
+  "zipCount": 1473,
+  "countyCount": 67
+ },
+ {
+  "code": "GA",
+  "slug": "georgia",
+  "name": "Georgia",
+  "lat": 33.0395,
+  "lng": -83.7037,
+  "zipCount": 952,
+  "countyCount": 157
+ },
+ {
+  "code": "HI",
+  "slug": "hawaii",
+  "name": "Hawaii",
+  "lat": 20.9839,
+  "lng": -154.975,
+  "zipCount": 137,
+  "countyCount": 4
+ },
+ {
+  "code": "ID",
+  "slug": "idaho",
+  "name": "Idaho",
+  "lat": 44.5294,
+  "lng": -114.8229,
+  "zipCount": 320,
+  "countyCount": 44
+ },
+ {
+  "code": "IL",
+  "slug": "illinois",
+  "name": "Illinois",
+  "lat": 40.4333,
+  "lng": -88.9811,
+  "zipCount": 1575,
+  "countyCount": 102
+ },
+ {
+  "code": "IN",
+  "slug": "indiana",
+  "name": "Indiana",
+  "lat": 39.9403,
+  "lng": -86.2675,
+  "zipCount": 968,
+  "countyCount": 92
+ },
+ {
+  "code": "IA",
+  "slug": "iowa",
+  "name": "Iowa",
+  "lat": 42.0222,
+  "lng": -93.3339,
+  "zipCount": 1055,
+  "countyCount": 99
+ },
+ {
+  "code": "KS",
+  "slug": "kansas",
+  "name": "Kansas",
+  "lat": 38.5128,
+  "lng": -97.1565,
+  "zipCount": 748,
+  "countyCount": 105
+ },
+ {
+  "code": "KY",
+  "slug": "kentucky",
+  "name": "Kentucky",
+  "lat": 37.6213,
+  "lng": -84.8319,
+  "zipCount": 946,
+  "countyCount": 120
+ },
+ {
+  "code": "LA",
+  "slug": "louisiana",
+  "name": "Louisiana",
+  "lat": 30.9352,
+  "lng": -91.7444,
+  "zipCount": 719,
+  "countyCount": 64
+ },
+ {
+  "code": "ME",
+  "slug": "maine",
+  "name": "Maine",
+  "lat": 44.5675,
+  "lng": -69.4305,
+  "zipCount": 485,
+  "countyCount": 16
+ },
+ {
+  "code": "MD",
+  "slug": "maryland",
+  "name": "Maryland",
+  "lat": 39.0542,
+  "lng": -76.7811,
+  "zipCount": 605,
+  "countyCount": 24
+ },
+ {
+  "code": "MA",
+  "slug": "massachusetts",
+  "name": "Massachusetts",
+  "lat": 42.2361,
+  "lng": -71.4942,
+  "zipCount": 685,
+  "countyCount": 14
+ },
+ {
+  "code": "MI",
+  "slug": "michigan",
+  "name": "Michigan",
+  "lat": 43.4435,
+  "lng": -84.7356,
+  "zipCount": 1159,
+  "countyCount": 83
+ },
+ {
+  "code": "MN",
+  "slug": "minnesota",
+  "name": "Minnesota",
+  "lat": 45.5629,
+  "lng": -94.1223,
+  "zipCount": 992,
+  "countyCount": 87
+ },
+ {
+  "code": "MS",
+  "slug": "mississippi",
+  "name": "Mississippi",
+  "lat": 32.827,
+  "lng": -89.691,
+  "zipCount": 531,
+  "countyCount": 82
+ },
+ {
+  "code": "MO",
+  "slug": "missouri",
+  "name": "Missouri",
+  "lat": 38.3928,
+  "lng": -92.4653,
+  "zipCount": 1157,
+  "countyCount": 115
+ },
+ {
+  "code": "MT",
+  "slug": "montana",
+  "name": "Montana",
+  "lat": 46.9361,
+  "lng": -110.2946,
+  "zipCount": 404,
+  "countyCount": 56
+ },
+ {
+  "code": "NE",
+  "slug": "nebraska",
+  "name": "Nebraska",
+  "lat": 41.1913,
+  "lng": -98.1534,
+  "zipCount": 620,
+  "countyCount": 93
+ },
+ {
+  "code": "NV",
+  "slug": "nevada",
+  "name": "Nevada",
+  "lat": 37.835,
+  "lng": -116.6517,
+  "zipCount": 254,
+  "countyCount": 17
+ },
+ {
+  "code": "NH",
+  "slug": "new-hampshire",
+  "name": "New Hampshire",
+  "lat": 43.3894,
+  "lng": -71.5658,
+  "zipCount": 281,
+  "countyCount": 10
+ },
+ {
+  "code": "NJ",
+  "slug": "new-jersey",
+  "name": "New Jersey",
+  "lat": 40.3851,
+  "lng": -74.5167,
+  "zipCount": 723,
+  "countyCount": 21
+ },
+ {
+  "code": "NM",
+  "slug": "new-mexico",
+  "name": "New Mexico",
+  "lat": 34.687,
+  "lng": -106.1764,
+  "zipCount": 427,
+  "countyCount": 33
+ },
+ {
+  "code": "NY",
+  "slug": "new-york",
+  "name": "New York",
+  "lat": 42.2238,
+  "lng": -75.1448,
+  "zipCount": 2154,
+  "countyCount": 62
+ },
+ {
+  "code": "NC",
+  "slug": "north-carolina",
+  "name": "North Carolina",
+  "lat": 35.5736,
+  "lng": -79.5283,
+  "zipCount": 1081,
+  "countyCount": 100
+ },
+ {
+  "code": "ND",
+  "slug": "north-dakota",
+  "name": "North Dakota",
+  "lat": 47.5125,
+  "lng": -99.6207,
+  "zipCount": 407,
+  "countyCount": 53
+ },
+ {
+  "code": "OH",
+  "slug": "ohio",
+  "name": "Ohio",
+  "lat": 40.3885,
+  "lng": -82.7399,
+  "zipCount": 1416,
+  "countyCount": 88
+ },
+ {
+  "code": "OK",
+  "slug": "oklahoma",
+  "name": "Oklahoma",
+  "lat": 35.5112,
+  "lng": -97.0017,
+  "zipCount": 765,
+  "countyCount": 77
+ },
+ {
+  "code": "OR",
+  "slug": "oregon",
+  "name": "Oregon",
+  "lat": 44.5298,
+  "lng": -122.0885,
+  "zipCount": 481,
+  "countyCount": 36
+ },
+ {
+  "code": "PA",
+  "slug": "pennsylvania",
+  "name": "Pennsylvania",
+  "lat": 40.6198,
+  "lng": -77.5619,
+  "zipCount": 2176,
+  "countyCount": 67
+ },
+ {
+  "code": "RI",
+  "slug": "rhode-island",
+  "name": "Rhode Island",
+  "lat": 41.708,
+  "lng": -71.5021,
+  "zipCount": 90,
+  "countyCount": 5
+ },
+ {
+  "code": "SC",
+  "slug": "south-carolina",
+  "name": "South Carolina",
+  "lat": 33.9594,
+  "lng": -81.0534,
+  "zipCount": 534,
+  "countyCount": 46
+ },
+ {
+  "code": "SD",
+  "slug": "south-dakota",
+  "name": "South Dakota",
+  "lat": 44.2998,
+  "lng": -99.1218,
+  "zipCount": 385,
+  "countyCount": 66
+ },
+ {
+  "code": "TN",
+  "slug": "tennessee",
+  "name": "Tennessee",
+  "lat": 35.8065,
+  "lng": -86.4314,
+  "zipCount": 785,
+  "countyCount": 95
+ },
+ {
+  "code": "TX",
+  "slug": "texas",
+  "name": "Texas",
+  "lat": 31.2743,
+  "lng": -97.9979,
+  "zipCount": 2600,
+  "countyCount": 254
+ },
+ {
+  "code": "UT",
+  "slug": "utah",
+  "name": "Utah",
+  "lat": 39.9097,
+  "lng": -111.8312,
+  "zipCount": 347,
+  "countyCount": 29
+ },
+ {
+  "code": "VT",
+  "slug": "vermont",
+  "name": "Vermont",
+  "lat": 44.0344,
+  "lng": -72.6497,
+  "zipCount": 308,
+  "countyCount": 14
+ },
+ {
+  "code": "VA",
+  "slug": "virginia",
+  "name": "Virginia",
+  "lat": 37.7144,
+  "lng": -78.2311,
+  "zipCount": 1214,
+  "countyCount": 133
+ },
+ {
+  "code": "WA",
+  "slug": "washington",
+  "name": "Washington",
+  "lat": 47.3463,
+  "lng": -121.2199,
+  "zipCount": 716,
+  "countyCount": 39
+ },
+ {
+  "code": "WV",
+  "slug": "west-virginia",
+  "name": "West Virginia",
+  "lat": 38.4858,
+  "lng": -80.9782,
+  "zipCount": 851,
+  "countyCount": 55
+ },
+ {
+  "code": "WI",
+  "slug": "wisconsin",
+  "name": "Wisconsin",
+  "lat": 44.1092,
+  "lng": -89.5346,
+  "zipCount": 896,
+  "countyCount": 72
+ },
+ {
+  "code": "WY",
+  "slug": "wyoming",
+  "name": "Wyoming",
+  "lat": 42.8596,
+  "lng": -107.2974,
+  "zipCount": 195,
+  "countyCount": 23
+ }
+]

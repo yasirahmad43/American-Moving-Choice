@@ -1,6 +1,6 @@
 import { requireMembership } from "@amc/server/auth";
 import { STEP_TITLES, canManageCompany, getDashboard, type DashboardData } from "@amc/server/companies";
-import { AbsoluteDate, Alert, COMPANY_STATUS_LABELS, Card, CompanyStatusPill, LinkButton, Money, PageHeader } from "@amc/ui";
+import { AbsoluteDate, Alert, COMPANY_STATUS_LABELS, Card, CompanyStatusPill, Icon3D, LineIcon, LinkButton, Money, PageHeader, type Icon3DName } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -72,15 +72,15 @@ function NextStep({ data }: { data: DashboardData }) {
   );
 }
 
-function Stat({ label, value, href, linkLabel }: { label: string; value: ReactNode; href?: string; linkLabel?: string }) {
+function Stat({ label, value, href, linkLabel, icon }: { label: string; value: ReactNode; href?: string; linkLabel?: string; icon: Icon3DName }) {
   return (
-    <div className="rounded-control border border-border bg-surface p-4">
-      <dt className="type-small font-semibold text-text-2">{label}</dt>
-      <dd className="mt-1 type-h3 tabular text-text">{value}</dd>
+    <div className="rounded-card border border-border bg-surface p-4 shadow-e1 sm:p-5">
+      <dt className="flex items-start justify-between gap-3 text-[0.8125rem] font-semibold leading-snug text-text-2"><span className="max-w-[17ch]">{label}</span><Icon3D name={icon} size={36} className="shrink-0 !filter-none" /></dt>
+      <dd className="mt-3 font-display text-[2.25rem] leading-none font-extrabold tracking-[-0.04em] tabular text-text">{value}</dd>
       {href ? (
-        <dd className="mt-1">
-          <Link href={href} className="link type-small inline-flex min-h-11 items-center">
-            {linkLabel}
+        <dd className="mt-3 border-t border-border pt-2">
+          <Link href={href} className="type-small inline-flex min-h-11 items-center gap-2 font-semibold text-link no-underline hover:underline">
+            {linkLabel}<LineIcon name="arrow-right" size={16} />
           </Link>
         </dd>
       ) : null}
@@ -100,6 +100,7 @@ export default async function PortalDashboard({ searchParams }: { searchParams: 
     <div className="grid gap-6">
       <PageHeader
         size="portal"
+        overline="Business overview"
         title={`Welcome${firstName ? `, ${firstName}` : ""}`}
         description={
           <span className="inline-flex flex-wrap items-center gap-2">
@@ -127,10 +128,10 @@ export default async function PortalDashboard({ searchParams }: { searchParams: 
             This month
           </h2>
           <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <Stat label="Requests available to you" value={data.stats.availableRequests} href={sales ? "/portal/marketplace" : undefined} linkLabel="Open the marketplace" />
-            <Stat label="Requests bought this month" value={data.stats.purchasesThisMonth} href={sales ? "/portal/leads" : undefined} linkLabel="See purchased requests" />
-            <Stat label="Spent this month" value={<Money cents={data.stats.spentThisMonthCents} />} />
-            <Stat label="Credit balance" value={<Money cents={data.stats.creditBalanceCents} />} href={data.role !== "agent" ? "/portal/billing" : undefined} linkLabel="Billing and credits" />
+            <Stat icon="search" label="Requests available to you" value={data.stats.availableRequests} href={sales ? "/portal/marketplace" : undefined} linkLabel="Open the marketplace" />
+            <Stat icon="ledger" label="Requests bought this month" value={data.stats.purchasesThisMonth} href={sales ? "/portal/leads" : undefined} linkLabel="See purchased requests" />
+            <Stat icon="card" label="Spent this month" value={<Money cents={data.stats.spentThisMonthCents} />} />
+            <Stat icon="wallet" label="Credit balance" value={<Money cents={data.stats.creditBalanceCents} />} href={data.role !== "agent" ? "/portal/billing" : undefined} linkLabel="Billing and credits" />
           </dl>
         </section>
       ) : null}

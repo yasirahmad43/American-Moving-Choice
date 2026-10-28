@@ -4,14 +4,14 @@
  * exclusive or shared, buyer count, this company's price and the credit policy.
  */
 import type { MarketplaceListing } from "@amc/server/marketplace";
-import { AbsoluteDate, Card, Chip, Money } from "@amc/ui";
+import { AbsoluteDate, Card, Chip, LineIcon, Money } from "@amc/ui";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MOVE_SIZE_LABELS, MOVE_TYPE_LABELS, SERVICE_LABELS, SOURCE_LABELS, creditPolicySentence, label, ordinal, percent } from "./labels";
 
 function BuyerMeter({ count, max }: { count: number; max: number }) {
   return (
-    <span className="inline-flex items-center gap-2">
+    <span className="inline-flex flex-wrap items-center gap-2">
       <span className="inline-flex gap-0.5" aria-hidden="true">
         {Array.from({ length: max }, (_, i) => (
           <span key={i} className={`h-2 w-4 rounded-pill ${i < count ? "bg-primary" : "bg-surface-3 shadow-[inset_0_0_0_1px_var(--border-strong)]"}`} />
@@ -38,7 +38,7 @@ const formatCents = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 export function LeadFacts({ listing }: { listing: MarketplaceListing }) {
   const p = listing.preview;
   return (
-    <dl className="grid grid-cols-2 gap-x-6 gap-y-2 sm:grid-cols-4">
+    <dl className="grid min-w-0 grid-cols-2 gap-x-5 gap-y-3 rounded-control bg-surface-2/70 p-3 sm:grid-cols-4 sm:p-4">
       <div>
         <dt className="type-small text-text-3">Move date</dt>
         <dd className="tabular">
@@ -71,7 +71,7 @@ export function LeadFacts({ listing }: { listing: MarketplaceListing }) {
 export function LeadCard({ listing, action, detailHref }: { listing: MarketplaceListing; action: ReactNode; detailHref?: string }) {
   const p = listing.preview;
   return (
-    <Card as="article" aria-labelledby={`lead-${listing.groupId}`}>
+    <Card as="article" aria-labelledby={`lead-${listing.groupId}`} className="overflow-hidden transition-[border-color,box-shadow] hover:border-border-strong hover:shadow-e2">
       <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:gap-8">
         <div className="grid min-w-0 gap-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -81,7 +81,7 @@ export function LeadCard({ listing, action, detailHref }: { listing: Marketplace
               Received <AbsoluteDate value={p.createdAt} withTime />
             </span>
           </div>
-          <h2 id={`lead-${listing.groupId}`} className="type-h4">
+          <h2 id={`lead-${listing.groupId}`} className="font-display text-[1.375rem] font-bold leading-snug tracking-[-0.02em]">
             {detailHref ? (
               <Link href={detailHref} className="link">
                 {p.firstName}: {place(p.origin)} to {place(p.destination)}
@@ -93,10 +93,11 @@ export function LeadCard({ listing, action, detailHref }: { listing: Marketplace
             )}
           </h2>
           <LeadFacts listing={listing} />
-          <p className="rounded-control bg-surface-2 px-3 py-2 type-small text-text-2">Phone, email and last name unlock after purchase.</p>
+          <p className="flex items-center gap-2 type-small text-text-3"><LineIcon name="lock" size={15} className="shrink-0" />Phone, email and last name unlock after purchase.</p>
         </div>
-        <div className="grid content-start gap-2 lg:w-72">
-          <p className="type-h3 tabular">
+        <div className="grid content-start gap-2 border-t border-border pt-5 lg:w-60 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-text-3">Your price</p>
+          <p className="font-display text-[2rem] font-bold leading-none tracking-[-0.04em] tabular">
             <Money cents={listing.price.chargeCents} />
           </p>
           <p className="type-small text-text-2">{priceExplanation(listing)}</p>
