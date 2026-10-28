@@ -30,6 +30,7 @@ import { classifyMove, distanceBandFor, estimateRoadTransit, isStateCode, type R
 import type { Queryable } from "../db/pool";
 import { distanceMiles } from "../geo/geo";
 import { NATIONAL_FACTS, STATE_FACTS, type FactSeed } from "./facts";
+import { buildCityAttachments, type GeoCityCandidate } from "./geo-zip-attachment";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(here, "..", "..", "data");
@@ -131,14 +132,10 @@ export async function importGeo(db: Queryable, options: ImportGeoOptions = {}): 
   );
   log(`cities: ${cities.length} (${places.length} with Census place facts)`);
 
-  // ZIPs, attached to a city by (state, zip ∈ city.zips), else by the ZCTA's primary Census place
-  const cityIds = await db.query<{ id: number; state_code: string; zips: string[]; place_geoid: string | null }>("select id, state_code, zips, place_geoid from seo_cities");
-  const cityByZip = new Map<string, number>();
-  const cityByPlace = new Map<string, number>();
-  for (const row of cityIds.rows) {
-    for (const zip of row.zips) if (!cityByZip.has(zip)) cityByZip.set(zip, row.id);
-    if (row.place_geoid && !cityByPlace.has(row.place_geoid)) cityByPlace.set(row.place_geoid, row.id);
-  }
+  // Prefer the GeoNames place/state for shared ZIPs, then a stable semantic city key;
+  // otherwise attach by the ZCTA's primary Census place. Database row order is irrelevant.
+  const cityIds = await db.query<GeoCityCandidate>("select id, state_code, slug, name, zips, place_geoid from seo_cities");
+  const { cityByZip, cityByPlace } = buildCityAttachments(cityIds.rows, zips);
   const zipRows: unknown[][] = [];
   let viaPlace = 0;
   for (const [zip, [place, state, countyFips, lat, lng]] of Object.entries(zips)) {

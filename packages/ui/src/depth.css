@@ -378,6 +378,10 @@
     max-height: var(--dt-max-height, none);
     overflow-y: auto;
   }
+  .dt-scroll:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
   .dt table {
     width: 100%;
     border-collapse: separate;

@@ -4,7 +4,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { APP_URL, WEB_URL } from "../tests/env";
 import { expectNoSeriousAxeViolations, inDays } from "../tests/helpers";
 
-const fixtureNames = /Demo Lone Star|Demo Bluebonnet|Demo Pecan Grove|Demo Mesquite|Demo Trinity River/;
+const fixtureNames = /Demo (?:Lone Star|Bluebonnet Hill|Pecan Grove|Mesquite Trail|Trinity River|Sunshine Parkway|Palmetto Grove|Coral Key|Manatee Bay|First Light|Golden Poppy|Orange Blossom|Pacific Tide|Sierra Vista|Harbor Lantern|Prairie Wind|Dual Authority)/;
+const siteIndexable = process.env.E2E_SITE_INDEXABLE === "true";
 const pendingWithdrawals = new WeakMap<Page, string>();
 function sameOriginUrl(value: string): URL {
   const url = new URL(value, WEB_URL);
@@ -115,11 +116,22 @@ test("published SEO URLs render without company lists", async ({ page, request }
       const heading = page.getByRole("heading", { level: 1 });
       await expect(heading).toBeVisible();
       await expect(heading).not.toHaveText("We can't find that page");
-      const canonical = page.locator('head link[rel="canonical"]');
-      await expect(canonical).toHaveCount(1);
-      await expect(canonical).toHaveAttribute("href", /\S/);
-      const canonicalHref = await canonical.getAttribute("href");
-      expect(new URL(canonicalHref!, page.url()).href, `${family} canonical matches the rendered URL at ${width}px`).toBe(new URL(page.url()).href);
+      const canonical = page.locator('link[rel="canonical"]');
+      const robots = page.locator('meta[name="robots"]');
+      // Architecture §2.4: the deliberate noindex demo carries no canonical. The expected
+      // policy is supplied by the runner, never inferred from a possibly regressed response.
+      if (siteIndexable) {
+        await expect(canonical).toHaveCount(1);
+        await expect(canonical).toHaveAttribute("href", /\S/);
+        const canonicalHref = await canonical.getAttribute("href");
+        expect(new URL(canonicalHref!, page.url()).href).toBe(new URL(page.url()).href);
+        await expect(robots).not.toHaveAttribute("content", /noindex/i);
+      } else {
+        await expect(robots).toHaveAttribute("content", /noindex/i);
+        await expect(canonical).toHaveCount(0);
+      }
+      await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", new URL(page.url()).href);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /\S/);
       if (width === 1440) {
         await expect(page.locator('aside[aria-labelledby="quote-heading"]')).toBeInViewport({ ratio: 0.5 });
       }

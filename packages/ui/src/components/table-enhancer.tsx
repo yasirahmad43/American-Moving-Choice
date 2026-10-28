@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { cx } from "../cx";
 import { compareTableValues, tableSortValue } from "./table-sort";
 
@@ -20,6 +20,37 @@ function useTable() {
   const state = useContext(Context);
   if (!state) throw new Error("Table controls must be rendered inside Table.");
   return state;
+}
+
+/** Keyboard access also works before hydration; card layouts shed the unnecessary tab stop. */
+export function TableScroll({ caption, maxHeight, children }: { caption: ReactNode; maxHeight?: string; children: ReactNode }) {
+  const scroll = useRef<HTMLDivElement>(null);
+  const labelId = useId();
+  const [scrollable, setScrollable] = useState(true);
+  useLayoutEffect(() => {
+    const node = scroll.current;
+    if (!node) return;
+    const measure = () => {
+      const style = getComputedStyle(node);
+      const x = /^(auto|scroll)$/.test(style.overflowX) && node.scrollWidth > node.clientWidth + 1;
+      const y = /^(auto|scroll)$/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 1;
+      setScrollable(x || y);
+    };
+    measure();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(node);
+    const table = node.querySelector("table");
+    if (table) observer?.observe(table);
+    window.addEventListener("resize", measure);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
+  }, [children]);
+  return (
+    <div ref={scroll} className="dt-scroll" tabIndex={scrollable ? 0 : -1} role={scrollable ? "region" : undefined}
+      aria-labelledby={scrollable ? labelId : undefined} style={maxHeight ? ({ "--dt-max-height": maxHeight } as CSSProperties) : undefined}>
+      <span id={labelId} className="sr-only" aria-hidden={!scrollable}>{caption}: scrollable table</span>
+      {children}
+    </div>
+  );
 }
 
 /** Cells are rendered by the server; the client receives React nodes, never cell functions. */

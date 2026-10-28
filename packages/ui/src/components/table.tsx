@@ -7,7 +7,7 @@
  */
 import type { CSSProperties, ReactNode } from "react";
 import { cx } from "../cx";
-import { SortableTableHeader, TableBody, TableControls, TableEnhancer } from "./table-enhancer";
+import { SortableTableHeader, TableBody, TableControls, TableEnhancer, TableScroll } from "./table-enhancer";
 
 export interface TableColumn<Row> {
   key: string;
@@ -145,7 +145,7 @@ export function Table<Row>({
         </div>
       )}
       <div id={tableId} className="dt dt-responsive">
-        <div className="dt-scroll" style={maxHeight ? ({ "--dt-max-height": maxHeight } as CSSProperties) : undefined}>
+        <TableScroll caption={caption} maxHeight={maxHeight}>
           <table role="table" aria-busy={loading ? true : undefined}>
             <caption className="sr-only">{caption}</caption>
             <thead role="rowgroup">
@@ -242,7 +242,7 @@ export function Table<Row>({
                     </tr>,
                   }))} />}
           </table>
-        </div>
+        </TableScroll>
       </div>
     </TableEnhancer>
   );
