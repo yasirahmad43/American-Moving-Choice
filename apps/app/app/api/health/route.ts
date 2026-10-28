@@ -39,8 +39,11 @@ async function probeDatabase(): Promise<Probe> {
     probe.migrations = result.rows[0]?.count ?? null;
     probe.latestMigration = result.rows[0]?.latest ?? null;
     probe.latencyMs = Math.round(performance.now() - started);
-  } catch {
+  } catch (error) {
     probe.reachable = false;
+    // Server log only (never the response): the code and message say whether DNS, TLS or auth failed.
+    const e = error as { code?: string; message?: string };
+    console.error(`health: database probe failed: ${e.code ?? "no code"}: ${e.message ?? String(error)}`);
   }
   return probe;
 }
