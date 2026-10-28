@@ -358,10 +358,12 @@ describe("submitRequest", () => {
     expect(group.sharing_limit).toBe(2);
     const eligibility = (await pool().query("select company_id, named_in_consent from lead_eligibility where group_id = $1", [rows[0].group_id])).rows;
     expect(Object.fromEntries(eligibility.map((r) => [r.company_id, r.named_in_consent]))).toEqual({ [alpha]: true, [bravo]: true, [charlie]: false });
-    // A repeat with a higher number can't widen the limit.
+    // A repeat with a higher number can't widen the limit; its consent list replaces the group's.
     const third = await draft({ limit: 3, email: "repeat@example.com", phone: "2145550120" });
     const three = await submitRequest(third.input, meta("198.51.100.32"));
     expect(three.ok && three.confirmation.limit).toBe(2);
+    const relisted = (await pool().query("select named_in_consent from lead_eligibility where group_id = $1 and company_id = $2", [rows[0].group_id, charlie])).rows[0];
+    expect(relisted.named_in_consent).toBe(true);
     const notices = await pool().query("select count(*)::int as n from messages where related_id = $1 and template = 'lead_available'", [rows[0].group_id]);
     expect(notices.rows[0].n).toBe(2); // only the first request was announced
   });

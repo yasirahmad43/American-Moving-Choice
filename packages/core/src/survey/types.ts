@@ -83,21 +83,31 @@ export const PROFILE_STORAGE_KEY = "amc.survey.profile";
 export const DRAFT_STORAGE_KEY = "amc.survey.draft";
 
 /**
- * amc.survey.prefill: values carried from a calculator, route or cost page. Every value is shown
- * for the visitor to confirm, never silently accepted (implications §2.2).
+ * amc.survey.prefill: values carried from another page. Every value is shown for the visitor to
+ * confirm, never silently accepted (implications §2.2). Two writers today: the home page
+ * ({ entry: "household", originZip, destZip }) and the cost calculator ({ v: 1, source:
+ * "cost-calculator", originZip, destinationZip, moveSize, services, confirm: true, modelVersion }).
+ * Any prefill opens the survey at Where.
  */
 export interface SurveyPrefill {
-  /** "household" opens the survey at Where (implications §2.1). */
   entry?: "household";
+  v?: number;
+  source?: string;
   originZip?: string;
   destZip?: string;
+  destinationZip?: string;
   moveSize?: MoveSize;
   services?: Service[];
+  confirm?: boolean;
+  modelVersion?: string;
 }
 
-/** amc.survey.profile: the request started from this company's profile (listed first). */
+/** amc.survey.profile: the request started from this company's profile (listed first). Only companyId is used. */
 export interface SurveyProfileOrigin {
   companyId: string;
+  slug?: string;
+  displayName?: string;
+  savedAt?: string;
 }
 
 /** Form and consent-evidence versions recorded with each request (consent_records). */

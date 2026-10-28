@@ -337,24 +337,32 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           ],
         );
 
+        // Eligibility snapshot: removed movers keep a row with named_in_consent false, so they can
+        // never buy. A repeat request's consent replaces the group's list: movers it names may buy,
+        // movers it doesn't name can't, and the group keeps the lowest number chosen
+        // [Owner: which movers a repeat names (lead lifecycle §4; Which companies receive my request,
+        // "Repeat requests") — the latest consent is the build default].
         if (dup) {
-          // The repeat can't widen who may buy: a mover the consumer didn't name this time loses its
-          // place, and movers named only on the repeat are not added (owner decision pending; lead
-          // lifecycle §4, Which companies receive my request "Repeat requests").
-          await client.query(
-            "update lead_eligibility set named_in_consent = false where group_id = $1 and named_in_consent and not (company_id = any($2::uuid[]))",
-            [groupId, named.map((m) => m.companyId)],
-          );
-        } else {
-          // Removed movers keep a row with named_in_consent false, so they can never buy.
-          const rows = shownEligible;
-          await client.query(
-            `insert into lead_eligibility (group_id, company_id, matched_rule_id, named_in_consent, coverage_version)
-             select $1, e.company_id, e.rule_id, e.named, e.coverage_version
-             from unnest($2::uuid[], $3::text[], $4::boolean[], $5::int[]) as e(company_id, rule_id, named, coverage_version)`,
-            [groupId, rows.map((m) => m.companyId), rows.map((m) => m.ruleId), rows.map((m) => !removed.has(m.companyId)), rows.map((m) => m.coverageVersion)],
-          );
+          await client.query("update lead_eligibility set named_in_consent = false where group_id = $1 and not (company_id = any($2::uuid[]))", [
+            groupId,
+            named.map((m) => m.companyId),
+          ]);
         }
+        await client.query(
+          `insert into lead_eligibility (group_id, company_id, matched_rule_id, named_in_consent, coverage_version)
+           select $1, e.company_id, e.rule_id, e.named, e.coverage_version
+           from unnest($2::uuid[], $3::text[], $4::boolean[], $5::int[]) as e(company_id, rule_id, named, coverage_version)
+           on conflict (group_id, company_id) do update
+             set named_in_consent = excluded.named_in_consent, matched_rule_id = excluded.matched_rule_id,
+                 coverage_version = excluded.coverage_version, matched_at = now()`,
+          [
+            groupId,
+            shownEligible.map((m) => m.companyId),
+            shownEligible.map((m) => m.ruleId),
+            shownEligible.map((m) => !removed.has(m.companyId)),
+            shownEligible.map((m) => m.coverageVersion),
+          ],
+        );
 
         await client.query(
           `insert into attribution_touches (lead_id, touch, landing_url, referrer, utm_source, utm_medium, utm_campaign, source_category, evidence_level)
