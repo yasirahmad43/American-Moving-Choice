@@ -27,7 +27,7 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          <Link href={MONEY_LINK.href} className="hidden min-h-11 items-center px-2 type-small text-link underline underline-offset-[0.2em] sm:inline-flex">
+          <Link href={MONEY_LINK.href} className="inline-flex min-h-11 items-center px-1 type-small text-link underline underline-offset-[0.2em] sm:px-2">
             {MONEY_LINK.label}
           </Link>
           <HeaderCta />
@@ -37,7 +37,7 @@ export function SiteHeader() {
               Menu
               <ChevronDownIcon size={16} className="transition-transform group-open:rotate-180" />
             </summary>
-            <nav aria-label="Primary" className="absolute inset-x-0 top-full border-b border-border bg-surface shadow-e2">
+            <nav aria-label="Primary (menu)" className="absolute inset-x-0 top-full border-b border-border bg-surface shadow-e2">
               <ul className="mx-auto grid max-w-content gap-1 py-3 gutter">
                 {[GET_QUOTES, ...PRIMARY_NAV, MONEY_LINK].map((item) => (
                   <li key={item.href}>
