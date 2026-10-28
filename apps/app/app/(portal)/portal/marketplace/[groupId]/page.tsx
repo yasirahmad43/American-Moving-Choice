@@ -4,6 +4,7 @@ import { Alert, EmptyState, LinkButton, PageHeader } from "@amc/ui";
 import type { Metadata } from "next";
 import { blockedReason, dialogProps, loadBuyer } from "@/components/portal/marketplace/buyer";
 import { LeadCard } from "@/components/portal/marketplace/lead-card";
+import { LiveAvailability } from "@/components/portal/marketplace/live-availability";
 import { PurchaseDialog } from "@/components/portal/marketplace/purchase-dialog";
 import { portalNavItem } from "@/lib/nav/portal";
 
@@ -56,6 +57,9 @@ export default async function MarketplaceRequestPage({ params }: { params: Promi
       />
       {blocked ? <Alert tone="warning">{blocked}</Alert> : null}
       <LeadCard listing={lookup.listing} action={<PurchaseDialog {...dialogProps(lookup.listing, buyer)} />} />
+      <p>
+        <LiveAvailability groupIds={[lookup.listing.groupId]} />
+      </p>
     </div>
   );
 }

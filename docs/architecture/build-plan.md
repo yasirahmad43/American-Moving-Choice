@@ -222,8 +222,9 @@ Environment variables (both apps unless noted):
 |---|---|---|
 | Supabase Auth | Own session auth in `@amc/server/auth` | Supabase's default mailer only sends to organization members, so arbitrary signups can't confirm their email without a custom SMTP provider; auth settings can't be changed from this environment. The tables follow data-model.md §2, so moving to Supabase Auth later remains possible |
 | Payload CMS | Markdown in `content/` rendered at build time | The drafts are not approved, and the editorial workflow is review in git for now. `content/` stays the import source for Payload |
-| Inngest | Vercel Cron plus lazy sweeps | No account yet; the outbox table keeps "commit, then notify" reliable |
-| Realtime availability | Refresh and server re-checks on purchase | The server stays authoritative either way (lead lifecycle §5) |
+| Inngest | Vercel Cron plus lazy sweeps | No account yet; the outbox table keeps "commit, then notify" reliable. The team is on Vercel Pro, so `deliver-outbox` runs every 15 minutes and the other jobs daily (`apps/app/vercel.json`); request handlers still deliver lazily |
+| Realtime availability (push) | Polling: `GET /api/marketplace/availability` every 10 s while the marketplace or a request preview is visible (`LiveAvailability`), with backoff and an immediate revalidation after a purchase. The response carries only request ID, status, buyer count and whether another reservation is in flight (lead lifecycle §5) | No websocket or SSE host in this stack; the server stays authoritative on Buy either way. Departure recorded by the marketplace rules audit (F1) |
+| Row-level security only on the CRM tables | Forced RLS on `purchases`, `ledger_entries` and `payment_methods` too, scoped to `app.company_id` when a transaction sets it (`withCompany`) and open without a context | Admin pages, jobs and the 001 purchase functions read across companies with no context, so a CRM-style "no context, no rows" policy would break them; the scoped policy is defence-in-depth behind the service filters (audit F10). `withCompany` code must never need other companies' rows (the CRM buyer count reads `purchase_attempts`) |
 | Postmark, Twilio, Stripe, Turnstile, FMCSA live | Demo modes (§9) | No credentials in this environment; adapters switch on with keys |
 
 ## 13. Definition of done

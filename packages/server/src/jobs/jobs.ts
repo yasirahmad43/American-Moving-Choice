@@ -6,11 +6,15 @@
  * marked running (a run older than that is treated as abandoned).
  */
 import { suspendCompany } from "../admin/companies";
+import { chargeReconciliation, listProviderRefunds, orphanAttempts, reconciliation } from "../admin/finance";
+import { audit } from "../audit/audit";
 import { pruneRateLimits } from "../auth/rate-limit";
 import { newToken, sha256Hex } from "../auth/tokens";
 import { getPool, tx, type Queryable } from "../db/pool";
 import { env } from "../env/env";
 import { REDACTED_LINK, deliverPending, enqueueEmail } from "../outbox/outbox";
+import { stripeClient } from "../payments/provider";
+import type { StripeClientLike } from "../payments/stripe";
 import { getSettings } from "../settings/settings";
 import { runAutomatedChecks } from "../verification/run";
 import { CHECK_LABELS, type CheckType } from "../verification/types";
@@ -29,6 +33,12 @@ export interface JobDefinition {
   description: string;
   /** UTC hour of the daily Vercel Cron call (apps/app/vercel.json). */
   cronHourUtc: number;
+  /**
+   * A cron expression that replaces the daily call (apps/app/vercel.json) for a job that runs more
+   * often; the team is on Vercel Pro, which allows sub-daily schedules. cronHourUtc is then the hour
+   * the admin page shows as the first run of the day.
+   */
+  cronSchedule?: string;
   run: () => Promise<JobResult>;
 }
 
@@ -49,10 +59,40 @@ export async function expireLeadGroups(db: Queryable = getPool()): Promise<JobRe
   return { items: result.rowCount ?? 0 };
 }
 
-/** Purchase reservations past their hold release their slot (release_expired_attempts in 001). */
-export async function releaseExpiredAttempts(db: Queryable = getPool()): Promise<JobResult> {
-  const result = await db.query<{ n: number }>("select release_expired_attempts() as n");
-  return { items: result.rows[0]?.n ?? 0 };
+/** PaymentIntent statuses under which Stripe may still confirm the charge; the reservation is kept for the next sweep. */
+const STILL_PROCESSING = new Set(["processing", "requires_action", "requires_confirmation", "requires_capture"]);
+
+/**
+ * Purchase reservations past their hold release their slot (release_expired_attempts in 001/180).
+ * With Stripe configured (lead lifecycle §7.4), an expired reservation whose card charge is still
+ * recorded as processing is first looked up at the provider: while Stripe still reports the
+ * PaymentIntent as processing the reservation is left alone, so a late success can complete the
+ * purchase instead of being refunded. In demo mode no charge ever stays processing, so nothing is
+ * consulted. A provider lookup that fails keeps the reservation too (expiring it is never urgent).
+ */
+export async function releaseExpiredAttempts(db: Queryable = getPool(), stripe: StripeClientLike | null = stripeClient()): Promise<JobResult> {
+  const skip: string[] = [];
+  let consulted = 0;
+  if (stripe) {
+    const processing = await db.query<{ attempt_id: string; provider_ref: string }>(
+      `select ch.attempt_id, ch.provider_ref from payment_charges ch
+       join purchase_attempts a on a.id = ch.attempt_id
+       where a.status = 'reserved' and a.expires_at < now()
+         and ch.provider = 'stripe' and ch.status = 'processing' and ch.provider_ref is not null
+       limit 100`,
+    );
+    for (const row of processing.rows) {
+      consulted++;
+      try {
+        const intent = await stripe.paymentIntents.retrieve(row.provider_ref);
+        if (STILL_PROCESSING.has(intent.status)) skip.push(row.attempt_id);
+      } catch {
+        skip.push(row.attempt_id);
+      }
+    }
+  }
+  const result = await db.query<{ n: number }>("select release_expired_attempts($1::uuid[]) as n", [skip]);
+  return { items: result.rows[0]?.n ?? 0, details: { released: result.rows[0]?.n ?? 0, provider_consulted: consulted, still_processing: skip.length } };
 }
 
 export async function deliverOutbox(): Promise<JobResult> {
@@ -344,6 +384,254 @@ export async function pruneRateLimitRows(): Promise<JobResult> {
   return { items: await pruneRateLimits() };
 }
 
+// ================================================================== payments reconciliation
+
+/**
+ * Daily reconciliation report (lead lifecycle §7.7; MVP M7; audit fix F11): the purchase/ledger
+ * reconciliation, the provider-charge reconciliation, succeeded attempts without a purchase and
+ * provider refunds still pending or failed, each limited to rows with issues. The counts and the
+ * IDs involved (no amounts per company, no personal data) are written to reconciliation_reports
+ * and to the job_runs row; the admin billing page shows the latest report.
+ */
+export async function reconcilePayments(db: Queryable = getPool()): Promise<JobResult> {
+  const [ledger, charges, orphans, refunds] = await Promise.all([
+    reconciliation({ onlyIssues: true }, db),
+    chargeReconciliation({ onlyIssues: true }, db),
+    orphanAttempts(db),
+    listProviderRefunds(["pending", "failed"], db),
+  ]);
+  const count = (list: { issues: string[] }[]) => {
+    const out: Record<string, number> = {};
+    for (const row of list) for (const issue of row.issues) out[issue] = (out[issue] ?? 0) + 1;
+    return out;
+  };
+  const summary = {
+    ledger_issues: ledger.length,
+    ledger_issue_kinds: count(ledger),
+    ledger_purchase_ids: ledger.map((r) => r.purchase_id).slice(0, 200),
+    charge_issues: charges.length,
+    charge_issue_kinds: count(charges),
+    charge_attempt_ids: charges.map((r) => r.attempt_id).slice(0, 200),
+    orphan_attempts: orphans.length,
+    orphan_attempt_ids: orphans.map((r) => r.id).slice(0, 200),
+    unsettled_refunds: refunds.length,
+    unsettled_refund_ids: refunds.map((r) => r.id).slice(0, 200),
+  };
+  const issues = summary.ledger_issues + summary.charge_issues + summary.orphan_attempts + summary.unsettled_refunds;
+  const run = await db.query<{ id: string }>("select id::text from job_runs where job_name = 'reconcile_payments' and status = 'running' order by started_at desc limit 1");
+  await db.query("insert into reconciliation_reports (job_run_id, issues_count, summary) values ($1, $2, $3::jsonb)", [run.rows[0]?.id ?? null, issues, JSON.stringify(summary)]);
+  return { items: issues, details: summary };
+}
+
+export interface ReconciliationReport {
+  id: string;
+  job_run_id: string | null;
+  issues_count: number;
+  summary: Record<string, unknown>;
+  created_at: Date;
+}
+
+/** The latest daily reconciliation reports, newest first. */
+export async function listReconciliationReports(limit = 30, db: Queryable = getPool()): Promise<ReconciliationReport[]> {
+  const found = await db.query<ReconciliationReport>(
+    "select id::text, job_run_id::text, issues_count, summary, created_at from reconciliation_reports order by created_at desc, id desc limit $1",
+    [limit],
+  );
+  return found.rows;
+}
+
+// ================================================================== selective-invitation monitoring
+
+/** The window of purchases the review-invitation audit looks at. */
+export const INVITATION_AUDIT_WINDOW_DAYS = 90;
+/** A company needs at least this many purchases it could have asked a review for before it is scored. */
+export const INVITATION_AUDIT_MIN_ELIGIBLE = 5;
+/** At least this many requested and this many unrequested purchases before averages are compared. */
+export const INVITATION_AUDIT_MIN_EACH = 3;
+
+export const INVITATION_AUDIT_FLAGS = {
+  low_coverage: "Asked for reviews on under half of the moves it recorded as booked or completed",
+  high_value_skew: "Requested invitations go to moves worth 1.5× or more the moves it did not ask about",
+  repeat_buyer_skew: "Requested invitations lean on repeat customers (twice their share of its purchase base)",
+} as const;
+export type InvitationAuditFlag = keyof typeof INVITATION_AUDIT_FLAGS;
+
+export interface InvitationAuditMetrics {
+  eligible: number;
+  requested: number;
+  requestedAvgValueCents: number | null;
+  otherAvgValueCents: number | null;
+  repeatRequested: number;
+  repeatBase: number;
+}
+
+/**
+ * The heuristic (mover verification §6 "Collection"; review-methodology "When a mover asks"). A
+ * company's purchase base is every purchase in the window whose CRM record it marked booked or
+ * completed, i.e. every move it could have asked a review for. It is flagged when, with at least
+ * INVITATION_AUDIT_MIN_ELIGIBLE such purchases:
+ *   low_coverage       it requested invitations for under 50% of them;
+ *   high_value_skew    with at least INVITATION_AUDIT_MIN_EACH on each side, the mean estimated
+ *                      value of the moves it asked about is 1.5× or more that of the moves it did not;
+ *   repeat_buyer_skew  the share of repeat customers (the same consumer bought from this company
+ *                      more than once in the window) among requested invitations is at least twice
+ *                      their share of the base, and above 25%.
+ * The thresholds are deliberately simple and documented so an audit can be explained to the company.
+ */
+export function invitationAuditFlags(m: InvitationAuditMetrics): InvitationAuditFlag[] {
+  const flags: InvitationAuditFlag[] = [];
+  if (m.eligible < INVITATION_AUDIT_MIN_ELIGIBLE) return flags;
+  if (m.requested * 2 < m.eligible) flags.push("low_coverage");
+  const unrequested = m.eligible - m.requested;
+  if (
+    m.requested >= INVITATION_AUDIT_MIN_EACH &&
+    unrequested >= INVITATION_AUDIT_MIN_EACH &&
+    m.requestedAvgValueCents !== null &&
+    m.otherAvgValueCents !== null &&
+    m.otherAvgValueCents > 0 &&
+    m.requestedAvgValueCents >= m.otherAvgValueCents * 1.5
+  ) {
+    flags.push("high_value_skew");
+  }
+  if (m.requested > 0 && m.eligible > 0) {
+    const shareRequested = m.repeatRequested / m.requested;
+    const shareBase = m.repeatBase / m.eligible;
+    if (shareRequested > 0.25 && shareRequested >= shareBase * 2) flags.push("repeat_buyer_skew");
+  }
+  return flags;
+}
+
+const INVITATION_AUDIT_CASE_MARK = "[review-invitation-audit]";
+
+/**
+ * Scores every company with a company-requested invitation or a booked/completed record in the
+ * window, writes a review_invitation_audits row per scored company, and opens a review case for
+ * a flagged company when none opened by this audit is still open. CRM rows carry forced RLS, so
+ * the stage lookup runs per company inside its own context.
+ */
+export async function reviewInvitationAudit(db: Queryable = getPool()): Promise<JobResult> {
+  const companies = await db.query<{ id: string }>(
+    `select distinct c.id from companies c
+     where c.status in ('approved', 'suspended')
+       and (exists (select 1 from review_invitations i where i.company_id = c.id and i.requested_by = 'company' and i.created_at > now() - make_interval(days => $1))
+            or exists (select 1 from purchases p where p.company_id = c.id and p.created_at > now() - make_interval(days => $1)))
+     order by c.id`,
+    [INVITATION_AUDIT_WINDOW_DAYS],
+  );
+  const run = await db.query<{ id: string }>("select id::text from job_runs where job_name = 'review_invitation_audit' and status = 'running' order by started_at desc limit 1");
+  const runId = run.rows[0]?.id ?? null;
+  let flagged = 0;
+  let casesOpened = 0;
+  for (const { id: companyId } of companies.rows) {
+    const outcome = await tx(async (client) => {
+      await client.query("select set_config('app.company_id', $1, true)", [companyId]);
+      const base = await client.query<{ purchase_id: string; estimated_value_cents: number | null; requested: boolean; repeat: boolean }>(
+        `select p.id as purchase_id, r.estimated_value_cents,
+                exists (select 1 from review_invitations i where i.purchase_id = p.id and i.requested_by = 'company') as requested,
+                (select count(*) from purchases q join leads l2 on l2.group_id = q.group_id and l2.is_primary
+                 where q.company_id = p.company_id and q.created_at > now() - make_interval(days => $2)
+                   and l2.email_hash is not null and l2.email_hash = l.email_hash) > 1 as repeat
+         from purchases p
+         join crm_records r on r.purchase_id = p.id
+         join lateral (select email_hash from leads where group_id = p.group_id and is_primary order by created_at limit 1) l on true
+         where p.company_id = $1 and p.refunded_at is null and p.created_at > now() - make_interval(days => $2)
+           and r.stage in ('booked', 'completed')`,
+        [companyId, INVITATION_AUDIT_WINDOW_DAYS],
+      );
+      await client.query("select set_config('app.company_id', '', true)");
+      const rows = base.rows;
+      const requested = rows.filter((r) => r.requested);
+      const other = rows.filter((r) => !r.requested);
+      const avg = (list: typeof rows) => {
+        const values = list.map((r) => r.estimated_value_cents).filter((v): v is number => v !== null && v > 0);
+        return values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
+      };
+      const metrics: InvitationAuditMetrics = {
+        eligible: rows.length,
+        requested: requested.length,
+        requestedAvgValueCents: avg(requested),
+        otherAvgValueCents: avg(other),
+        repeatRequested: requested.filter((r) => r.repeat).length,
+        repeatBase: rows.filter((r) => r.repeat).length,
+      };
+      const flags = invitationAuditFlags(metrics);
+      const pct = (num: number, den: number) => (den > 0 ? Math.round((100 * num) / den) : null);
+      let caseId: string | null = null;
+      let opened = false;
+      if (flags.length) {
+        const open = await client.query<{ id: string }>(
+          "select id from cases where company_id = $1 and case_type = 'review' and status not in ('resolved', 'closed') and description like $2 limit 1",
+          [companyId, `${INVITATION_AUDIT_CASE_MARK}%`],
+        );
+        caseId = open.rows[0]?.id ?? null;
+        if (!caseId) {
+          opened = true;
+          const description = [
+            `${INVITATION_AUDIT_CASE_MARK} Selective review-invitation pattern (last ${INVITATION_AUDIT_WINDOW_DAYS} days).`,
+            ...flags.map((f) => `- ${INVITATION_AUDIT_FLAGS[f]}`),
+            `Booked or completed purchases: ${metrics.eligible}; invitations requested: ${metrics.requested}.`,
+          ].join("\n");
+          const created = await client.query<{ id: string }>(
+            `insert into cases (case_type, company_id, description, sla_due_at) values ('review', $1, $2, now() + interval '7 days') returning id`,
+            [companyId, description],
+          );
+          caseId = created.rows[0]!.id;
+          await audit({ actorType: "system", actorId: "review_invitation_audit", companyId, action: "case.open", entity: "case", entityId: caseId, after: { flags } }, client);
+        }
+      }
+      await client.query(
+        `insert into review_invitation_audits (company_id, job_run_id, window_days, eligible_count, requested_count, coverage_pct,
+           requested_avg_value_cents, other_avg_value_cents, repeat_share_requested_pct, repeat_share_base_pct, flags, case_id)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::text[], $12)`,
+        [
+          companyId,
+          runId,
+          INVITATION_AUDIT_WINDOW_DAYS,
+          metrics.eligible,
+          metrics.requested,
+          pct(metrics.requested, metrics.eligible),
+          metrics.requestedAvgValueCents,
+          metrics.otherAvgValueCents,
+          pct(metrics.repeatRequested, metrics.requested),
+          pct(metrics.repeatBase, metrics.eligible),
+          flags,
+          caseId,
+        ],
+      );
+      return { flagged: flags.length > 0, opened };
+    });
+    if (outcome.flagged) flagged++;
+    if (outcome.opened) casesOpened++;
+  }
+  return { items: companies.rowCount ?? 0, details: { scored: companies.rowCount ?? 0, flagged, cases_opened: casesOpened } };
+}
+
+export interface InvitationAuditRow {
+  company_id: string;
+  legal_name: string;
+  eligible_count: number;
+  requested_count: number;
+  coverage_pct: number | null;
+  requested_avg_value_cents: number | null;
+  other_avg_value_cents: number | null;
+  repeat_share_requested_pct: number | null;
+  repeat_share_base_pct: number | null;
+  flags: InvitationAuditFlag[];
+  case_id: string | null;
+  created_at: Date;
+}
+
+/** The latest audit row per company, flagged companies first (admin reviews page). */
+export async function listInvitationAudits(db: Queryable = getPool()): Promise<InvitationAuditRow[]> {
+  const found = await db.query<InvitationAuditRow>(
+    `select distinct on (a.company_id) a.company_id, c.legal_name, a.eligible_count, a.requested_count, a.coverage_pct,
+            a.requested_avg_value_cents, a.other_avg_value_cents, a.repeat_share_requested_pct, a.repeat_share_base_pct, a.flags, a.case_id, a.created_at
+     from review_invitation_audits a join companies c on c.id = a.company_id
+     order by a.company_id, a.created_at desc, a.id desc`,
+  );
+  return found.rows.sort((x, y) => y.flags.length - x.flags.length || x.legal_name.localeCompare(y.legal_name));
+}
+
 // ================================================================== registry and runner
 
 export const JOBS: readonly JobDefinition[] = [
@@ -354,8 +642,10 @@ export const JOBS: readonly JobDefinition[] = [
   { name: "suspend_on_failed_recheck", slug: "suspend-on-failed-recheck", label: "Suspend on failed recheck", description: "Suspends approved companies whose recheck failed or whose credentials expired.", cronHourUtc: 7, run: () => suspendOnFailedRecheck() },
   { name: "schedule_review_invitations", slug: "schedule-review-invitations", label: "Schedule review invitations", description: "Creates quote-experience and move-experience invitations for purchases.", cronHourUtc: 15, run: () => scheduleReviewInvitations() },
   { name: "send_due_invitations", slug: "send-due-invitations", label: "Send review invitations", description: "Emails invitations whose send date has come, each with a single-use link.", cronHourUtc: 16, run: () => sendDueInvitations() },
-  { name: "deliver_outbox", slug: "deliver-outbox", label: "Deliver outbox", description: "Sends queued emails and texts (demo mode only marks them for the mailbox).", cronHourUtc: 17, run: () => deliverOutbox() },
+  { name: "deliver_outbox", slug: "deliver-outbox", label: "Deliver outbox", description: "Sends queued emails and texts every 15 minutes (demo mode only marks them for the mailbox); request handlers also deliver lazily.", cronHourUtc: 0, cronSchedule: "*/15 * * * *", run: () => deliverOutbox() },
   { name: "prune_rate_limits", slug: "prune-rate-limits", label: "Prune rate limits", description: "Deletes rate-limit counters older than a day.", cronHourUtc: 9, run: () => pruneRateLimitRows() },
+  { name: "reconcile_payments", slug: "reconcile-payments", label: "Reconcile payments", description: "Daily reconciliation report: purchases against the ledger, provider charges and refunds; issues are listed on the billing page.", cronHourUtc: 8, run: () => reconcilePayments() },
+  { name: "review_invitation_audit", slug: "review-invitation-audit", label: "Review invitation audit", description: "Flags companies whose requested review invitations skew toward high-value or repeat customers, or cover few of their moves; opens a case.", cronHourUtc: 18, run: () => reviewInvitationAudit() },
 ];
 
 export function jobBySlug(slug: string): JobDefinition | null {
