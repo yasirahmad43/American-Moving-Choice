@@ -1,0 +1,83 @@
+# Semrush phrase_questions, db=us, pulled 2026-10-28, sorted volume_desc. Intent codes: 0=commercial,1=informational,2=navigational,3=transactional (blank=unknown). Only rows with volume > 0 kept; zero-volume rows and off-topic rows (e.g. "howl's moving castle", "moving violation", shark quotes) dropped. Seeds and api_units: "moving leads" 17000; "moving broker" 20500; "moving quote" 18240; "moving insurance" 20200; "moving out of state" 20500. Seeds "moving", "long distance", "moving estimate" FAILED: ERROR 132 API UNITS BALANCE IS ZERO.
+seed;Keyword;Search Volume;CPC;Intent;Keyword Difficulty Index
+moving leads;how much do moving leads cost;880;0;1;10
+moving leads;how to generate moving leads;70;9.32;1;19
+moving leads;how to get leads for moving companies;70;19.7;1;10
+moving leads;how to get more moving leads;70;0;1;16
+moving leads;how to get moving leads;70;8.62;1;11
+moving leads;how much are moving leads;20;0;;0
+moving leads;how to get commercial moving leads;10;0;;0
+moving leads;how to get leads for moving company;10;0;;0
+moving broker;what is a moving broker;90;9.94;1,0;14
+moving broker;is mayflower moving a broker;40;15.42;1;24
+moving broker;is safe ship moving services a broker;30;200.83;;0
+moving broker;how much security bond does a moving broker need;20;0;;0
+moving broker;how to become a moving broker;20;0;;0
+moving broker;how to sue a moving broker;20;0;;0
+moving broker;is allied moving a broker;20;15.35;;0
+moving broker;is blvd moving a broker;20;9.78;;0
+moving broker;is coastal moving services a broker;20;20.89;;0
+moving broker;is jk moving a broker;20;0;;0
+moving broker;is nationwide moving services a broker;20;0;;0
+moving broker;is roadway moving a broker;20;11.16;;0
+moving broker;is safeway moving a broker;20;11.6;;0
+moving broker;is north american moving services a broker;10;0;;0
+moving broker;is safe ship moving a broker;10;0;;0
+moving broker;is safebound moving a broker;10;8.5;;0
+moving quote;what is a moving quote;50;12.2;1;32
+moving quote;what is included in an international moving quote;40;0;;0
+moving quote;how to compare international moving quotes;20;0;;0
+moving quote;how to get a moving quote;20;24.65;;0
+moving quote;how to get a moving quote in nyc;20;0;;0
+moving quote;how to get a quote from a moving company;20;25.9;;0
+moving quote;how to get moving quotes;20;24.65;;0
+moving quote;how to quote a moving job;20;2.47;;0
+moving quote;what is a free moving quote;20;0;;0
+moving quote;why is my moving quote so cheap;20;0;;0
+moving quote;how many moving quotes should i get;10;0;;0
+moving quote;how to compare moving company quotes effectively;10;0;;0
+moving quote;how to compare moving quotes without sacrificing quality;10;0;;0
+moving quote;how to get a free moving quote for cross-country relocation;10;0;;0
+moving quote;how to get accurate moving quotes for interstate moves;10;0;;0
+moving quote;what to know about moving quotes;10;0;;0
+moving quote;which moving companies offer instant price quotes;10;0;;0
+moving insurance;how to choose moving insurance;880;0;1;40
+moving insurance;does renters insurance cover moving;480;6.06;1;23
+moving insurance;how to get insurance on a interstate moving truck;320;0;1;15
+moving insurance;who insures my valuables moving;170;0;1;35
+moving insurance;do i need moving insurance;140;0;1;35
+moving insurance;does homeowners insurance cover moving damage;140;0;1;20
+moving insurance;does homeowners insurance cover moving;110;14.44;1;23
+moving insurance;does renters insurance cover moving damage;110;3.74;1;34
+moving insurance;is moving insurance worth it;90;0;1;35
+moving insurance;does insurance cover moving trucks;70;0;1;32
+moving insurance;does home insurance cover moving;50;14.44;1;32
+moving insurance;do you need moving insurance;40;0;;0
+moving insurance;how much does moving insurance cost;40;0;1;32
+moving insurance;how much is moving insurance;40;4;1;27
+moving insurance;what is a certificate of insurance for moving;40;0;1;14
+moving insurance;do i need insurance for moving truck rental;30;0;;0
+moving out of state;how to transport guns when moving out of state;90;0.26;1;19
+moving out of state;how to prepare moving out of state;70;2.66;1;15
+moving out of state;what states are people moving out of;50;0.27;1;34
+moving out of state;how to get a job out of state before moving;40;1.86;1,0;14
+moving out of state;how to get an apartment when moving out of state;30;0;;0
+moving out of state;how to get help moving out of state;30;4.33;1;19
+moving out of state;how to plan moving out of state;30;3.8;1;12
+moving out of state;how to prepare for moving out of state;30;1.58;;0
+moving out of state;what to do when moving out of state;30;3.25;1;13
+moving out of state;which company is best for moving out of state;30;0;;0
+moving out of state;can you break a lease if moving out of state;20;0;;0
+moving out of state;how do pods work for moving out of state;20;5.75;;0
+moving out of state;how much do pods cost for moving out of state;20;4.32;;0
+moving out of state;how much does a moving company cost out of state;20;11.51;;0
+moving out of state;how much is a moving company out of state;20;13.53;;0
+moving out of state;how much money to save before moving out of state;20;0;;0
+moving out of state;how much should i save before moving out of state;20;3.26;;0
+moving out of state;how to buy a house when moving out of state;20;4.43;;0
+moving out of state;how to change address when moving out of state;20;0;;0
+moving out of state;how to change car insurance when moving out of state;20;24.02;;0
+moving out of state;how to change car registration when moving out of state;20;0;;0
+moving out of state;how to change health insurance when moving out of state;20;0;;0
+moving out of state;how to find an apartment when moving out of state;20;0;;0
+moving out of state;how to find a job when moving out of state;20;0;;0
