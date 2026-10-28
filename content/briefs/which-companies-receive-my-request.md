@@ -10,7 +10,7 @@
 | Status | draft-v0 |
 | Date | 2026-10-28 |
 | Stored texts | ST-1b (money line, under the opening answer), ST-4a (under the count question, as the survey shows it), ST-4b (closing the limits section). Each is inserted exactly, after a key comment |
-| Tokens | `{{setting.max_movers}}`, `{{setting.sale_window_hours}}`, `{{setting.duplicate_window_days}}`, `{{setting.stop_propagation_target}}`, `{{org.support_email}}`, `{{org.support_phone}}`; `{{page.author}}` and `{{page.reviewer}}` in front matter |
+| Tokens | `{{setting.max_movers}}`, `{{setting.sale_window_hours}}`, `{{setting.duplicate_window_days}}`, `{{setting.stop_propagation_target}}`, `{{setting.quote_invite_delay_days}}`, `{{org.support_email}}`, `{{org.support_phone}}`; `{{page.author}}` and `{{page.reviewer}}` in front matter |
 | Author / reviewer | `{{page.author}}` / `{{page.reviewer}}`, named people still missing (brief §11 Q9) |
 | Data owner | n/a: the page has no data blocks |
 | Schema | `WebPage`, `BreadcrumbList` (site architecture §8.5). No `FAQPage` or `HowTo`, even though the page has a numbered step list |
@@ -20,7 +20,7 @@
 
 **Purpose.** This page is the one home (content README §9) for the request path, the count question, naming and removing movers, consent, notices after sending, time and duplicate limits, withdrawal, and who else handles a consumer's details. Site architecture §1.2 (Trust pages row) asks it to explain "the count question, the movers named at consent, removal, and that a request is never resold". Mover verification §7 asks for a "clear statement on every quote flow and confirmation page of which companies may receive the request and how many". MVP scope M11 lists the page among the launch trust pages, and M12 (an email naming each mover that received the details) is the promise it explains after sending. Implications §3.3 says the count screen, consent, confirmation and this page must all say the same four things; ST-4a and ST-4b carry them.
 
-Every surface that asks for or uses a consumer's details points here: How AMC makes money (three links), How we verify movers (withdrawal), Review methodology (how a mover comes to buy a request), the calculator method page (what happens if you continue) and, by design, the survey screens, the confirmation page and the purchase email. So each section has to answer its own question.
+Every surface that asks for or uses a consumer's details points here: How AMC makes money (three links), How we verify movers (withdrawal), Review methodology (how a mover comes to buy a request), Movers vs brokers (who can buy your request), the calculator method page (what happens if you continue), Moving costs and the moving cost calculator (who can receive your details) and, by design, the survey screens, the confirmation page and the purchase email. So each section has to answer its own question.
 
 **Readers.**
 1. A consumer inside the survey, at Your details, How many movers or Review and send, who wants to know exactly who gets their phone number before agreeing. They need short answers and a way back to the survey.
@@ -61,11 +61,11 @@ What this page gives a reader that the 11 reference sites did not, from `docs/re
 | The channel choice scopes the consent and binds buyers | MyGoodMovers asks for a channel, but the consent seen covers calls, texts and email | Matrix §3.2 (MyGoodMovers row), §4 "Channel choice"; implications §2.3, §3.1 |
 | What a mover sees before buying, and that contact details come only with a purchase | Not in matrix §3.2 or §3.3; no walk went past contact | Matrix §1 (limits); lead lifecycle §5 |
 | A notice for each purchase naming the mover, its USDOT number and profile, and saying it paid AMC; no timing promise | No walk reached a reference's confirmation page | Implications §2.5, §2.6; matrix §1 |
-| No calls from AMC to sell, qualify or transfer | CMR: "A specialist will call"; moveBuddha: a "relocation specialist" call. A direct call skips the count and named consent | Matrix §3.2, §5 item 7; implications §2.6, D5 |
+| No calls from AMC to sell, qualify, recommend or transfer (proposed; owner decision pending, §8) | CMR: "A specialist will call"; moveBuddha: a "relocation specialist" call. A direct call skips the count and named consent | Matrix §3.2, §5 item 7; implications §2.6, D5 |
 | A tag policy for the survey: no ad pixels, chat widgets or session recording, and no contact or move details in analytics or page addresses | At least 7 of 9 captured sites load replay-capable tools and all 9 load ad tags; HireAHelper's checkout URL carries ZIPs and dates | Matrix §3.3 (notes), §5 item 14; implications D12, §3.5 |
 | Who else handles details, by category and kept apart from movers, with no "never sell" line | CMR prints "We never sell your info."; Budget Van Lines' privacy policy and Terms conflict on sharing; Unpakt counts "its affiliates" as "we" | Matrix §3.3, §5 item 15; implications §3.7 |
 | "Only this company" on profile-started requests, inside the same consent and limits, with a notice if that mover doesn't buy | HireAHelper, moveBuddha's partner cards, HomeGuide's "Direct Lead" and Unpakt let the consumer pick one company | Matrix §4 "Pick one named company"; implications §2.3 item 3, §3.3 |
-| Time limits, late additions, purchase-time rechecks, repeat requests, withdrawal, opt-out propagation and a report path for unlisted companies, all stated to the consumer | No reference comparison is recorded for these; they come from AMC's own rules | Lead lifecycle §1, §3, §4; shared pricing §1; implications §2.6, §9.7 |
+| Time limits, late additions, purchase-time rechecks, repeat requests, withdrawal, opt-out propagation, per-mover and per-channel stops (proposed) and a report path for unlisted companies, all stated to the consumer | No reference comparison is recorded for these; they come from AMC's own rules | Lead lifecycle §1, §3, §4; shared pricing §1; implications §2.6, §9.7 |
 
 ## 5. Outline
 
@@ -78,8 +78,8 @@ What this page gives a reader that the 11 reference sites did not, from `docs/re
 - H2 What do you agree to when you send? (`#consent`)
 - H2 What happens after you send? (`#after-you-send`)
 - H2 Time limits and repeat requests (`#limits`; ST-4b)
-- H2 Can I change my mind? (`#changing-your-mind`)
-- H2 What if I started from a mover's profile? (`#profile-requests`)
+- H2 Can you change your mind? (`#changing-your-mind`)
+- H2 What if you started from a mover's profile? (`#profile-requests`)
 - H2 What we never do (`#what-we-never-do`)
 - H2 Who else handles your details? (`#who-else`)
 - H2 What if a company you weren't told about contacts you? (`#report`)
@@ -91,7 +91,7 @@ No H3s; bold lead-ins carry the sub-points. The order follows the consumer's pat
 
 | # | Must-cover item | Covered under | Notes |
 |---|---|---|---|
-| 1 | Answer first (40 to 60 words): only movers named on the review screen can receive the request, up to the number chosen, and any can be removed before sending | H1 answer | 58 words. It separates "receive" (named movers see the preview) from "buy it and get your contact details" (capped by the number), and adds that nothing is shared without consent |
+| 1 | Answer first (40 to 60 words): only movers named on the review screen can receive the request, up to the number chosen, and any can be removed before sending | H1 answer | 58 words. It names the Review and send screen by its step name and places it "just before you send", since Confirmation follows it (implications §2.1; README §4). It separates "receive" (named movers see the preview) from "buy it and get your contact details" (capped by the number), and adds that nothing is shared without consent |
 | 2 | The path in steps, with README §4 step names: coverage checked at What we found before any contact field, nothing asked when no mover serves the move; count question after Your details; then the review screen; then confirmation | How does your request reach movers? | Nine numbered steps. Also covers the vehicle-only and truck-rental information paths and step 2 entry on household-move pages |
 | 3 | What we found: the count, and names with USDOT number and check date, with `[Owner: names before contact — default shown (implications §11 Q1)]` | What we found: who serves your move | Marker as specified, plus a Counsel marker from implications §2.2. No prices or phones; the date isn't a matching input; the unmatched fallback |
 | 4 | The count question: ST-4a; nothing preselected; numbers above the available movers shown but disabled with the reason; table (1 means one mover ever; 2 or more means up to that many; never more than `{{setting.max_movers}}`) | How many movers can receive your details? | ST-4a inserted exactly; table; "never higher" than `{{setting.max_movers}}`; Owner marker (implications §11 Q4); Counsel marker on what 1 means |
