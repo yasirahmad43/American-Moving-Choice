@@ -5,6 +5,7 @@
 //   pnpm --filter @amc/server exec vitest run --root ../../apps/web --globals lib/content
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { parseFrontMatter } from "./front-matter.ts";
 import { renderMarkdown, wrapMarkers } from "./markdown.ts";
 import { createTokenResolver, resolveTokensInText } from "./tokens.ts";
 
@@ -136,5 +137,23 @@ describe("sanitization", () => {
     const { html } = renderMarkdown("Owner {{org.owner}}", { resolveToken: evil });
     expect(html).toContain("&#x3C;img");
     expect(html).not.toContain("<img");
+  });
+});
+
+describe("front matter", () => {
+  it("parses valid front matter without repair", () => {
+    const parsed = parseFrontMatter('---\nurl: /a/\nschema: [WebPage]\n---\nBody\n');
+    expect(parsed.repaired).toBe(false);
+    expect(parsed.data).toEqual({ url: "/a/", schema: ["WebPage"] });
+  });
+
+  it("repairs double-quoted items with unescaped quotes, every time it is called", () => {
+    const source = '---\nurl: /b/\ndepends_on:\n  - "Counsel: the line under "Where does it fit?", held"\n  - "plain"\n---\nBody\n';
+    for (let i = 0; i < 2; i += 1) {
+      const parsed = parseFrontMatter(source);
+      expect(parsed.repaired).toBe(true);
+      expect(parsed.data.url).toBe("/b/");
+      expect(parsed.data.depends_on).toEqual(['Counsel: the line under "Where does it fit?", held', "plain"]);
+    }
   });
 });
