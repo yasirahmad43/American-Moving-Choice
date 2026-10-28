@@ -68,7 +68,9 @@ export function ApplicationStepForm({
   const err = (name: string) => state.fieldErrors?.[name];
 
   return (
-    <form action={action} noValidate className="grid gap-6">
+    // Keyed by attempt: a fresh form after each response, so every control (selects included)
+    // shows the submitted values instead of React's automatic form reset.
+    <form key={state.attempt ?? 0} action={action} noValidate className="grid gap-6">
       <input type="hidden" name="step" value={step} />
       <FormMessage state={asFormState(state)} />
 
@@ -119,7 +121,7 @@ export function ApplicationStepForm({
           >
             <Input name="mc" autoComplete="off" className="tabular" defaultValue={one("mc")} aria-describedby="mc-explainer" />
           </Field>
-          <Alert tone="info" title={requireMc ? "Why we ask for an MC number" : "About MC numbers"}>
+          <Alert tone="info" role="none" title={requireMc ? "Why we ask for an MC number" : "About MC numbers"}>
             <p id="mc-explainer">
               {requireMc
                 ? "An MC number is our network's requirement, not a legal requirement for every moving business. Many local movers that only work inside one state legitimately have no MC number, and FMCSA plans to stop issuing new MC numbers. For now our network accepts companies with both a USDOT and an MC number; we review this rule before FMCSA's change takes effect."

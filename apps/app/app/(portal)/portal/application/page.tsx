@@ -63,7 +63,7 @@ export default async function ApplicationPage({ searchParams }: { searchParams: 
     return (
       <div className="grid gap-6">
         {header}
-        <Alert tone={view.status === "approved" ? "success" : "info"} title={view.status === "approved" ? "Your company is approved" : "Your application has been submitted"}>
+        <Alert role="none" tone={view.status === "approved" ? "success" : "info"} title={view.status === "approved" ? "Your company is approved" : "Your application has been submitted"}>
           <p>
             {view.status === "approved"
               ? "Your application is complete. To change your company details, numbers or credentials, contact us so a reviewer can check the change."
@@ -86,7 +86,7 @@ export default async function ApplicationPage({ searchParams }: { searchParams: 
     <div className="grid gap-6">
       {header}
       {view.status === "rejected" ? (
-        <Alert tone="error" title="Your application wasn't accepted">
+        <Alert tone="error" role="none" title="Your application wasn't accepted">
           <p>{view.latestReason ?? "A reviewer couldn't accept the application."}</p>
           <p className="mt-2">If the problem is fixed (for example the FMCSA record was corrected), update your answers and submit again.</p>
         </Alert>
@@ -137,7 +137,7 @@ export default async function ApplicationPage({ searchParams }: { searchParams: 
           {step === "review" ? (
             <div className="grid gap-6">
               {remaining.length ? (
-                <Alert tone="warning" title="A few steps are still open">
+                <Alert tone="warning" role="none" title="A few steps are still open">
                   <ul className="mt-1 grid gap-1">
                     {remaining.map((s) => (
                       <li key={s}>

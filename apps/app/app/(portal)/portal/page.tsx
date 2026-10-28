@@ -136,7 +136,7 @@ export default async function PortalDashboard({ searchParams }: { searchParams: 
       ) : null}
 
       {data.expiringCredentials.length ? (
-        <Alert tone="warning" title="Credentials expiring soon">
+        <Alert tone="warning" role="none" title="Credentials expiring soon">
           <ul className="mt-1 grid gap-1">
             {data.expiringCredentials.map((c) => (
               <li key={c.id}>

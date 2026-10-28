@@ -152,9 +152,10 @@ export function companyStepSchema(ctx: SchemaContext) {
       if (PO_BOX.test(value.addressLine2 ?? "")) {
         issue.addIssue({ code: "custom", path: ["addressLine2"], message: "Enter a physical address. We can't accept a PO box or mailbox." });
       }
+      if (typeof value.zip !== "string" || !/^\d{5}$/.test(value.zip)) return;
       const zipState = ctx.zipState(value.zip);
       if (!zipState) issue.addIssue({ code: "custom", path: ["zip"], message: "We don't recognize that ZIP code. Check it and try again." });
-      else if (zipState !== value.state) issue.addIssue({ code: "custom", path: ["zip"], message: `That ZIP code is in ${zipState}, not ${value.state}.` });
+      else if (isStateCode(String(value.state ?? "")) && zipState !== value.state) issue.addIssue({ code: "custom", path: ["zip"], message: `That ZIP code is in ${zipState}, not ${value.state}.` });
     });
 }
 
