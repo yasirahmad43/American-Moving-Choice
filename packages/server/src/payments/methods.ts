@@ -5,7 +5,7 @@
  */
 import { createHash } from "node:crypto";
 import { audit } from "../audit/audit";
-import { getPool, tx, type Queryable } from "../db/pool";
+import { getPool, isUuid, tx, type Queryable } from "../db/pool";
 import { assertCan, resolveActor, type CompanyActor } from "../marketplace/permissions";
 import { DEMO_CARD } from "./demo";
 import { idOf, type StripeClientLike } from "./stripe";
@@ -27,8 +27,8 @@ export interface AuthorizationText {
 /** The current card authorization text: the approved version if any, else the newest draft. */
 export async function getAuthorizationText(db: Queryable = getPool()): Promise<AuthorizationText> {
   const result = await db.query<{ id: string; status: AuthorizationText["status"]; body: string }>(
-    `select id, status, body from consent_text_versions
-     where kind = 'payment_authorization' and status <> 'retired'
+    `select id, status, body from payment_authorization_texts
+     where status <> 'retired'
      order by (status = 'approved') desc, effective_from desc nulls last, created_at desc limit 1`,
   );
   const row = result.rows[0];
@@ -129,7 +129,19 @@ interface SaveInput {
   expYear: number | null;
 }
 
-async function insertAuthorizedMethod(actor: CompanyActor, card: SaveInput, authorized: boolean, db: Queryable): Promise<string> {
+/**
+ * The time shown in the authorization text on the billing form. The stored text must be exactly
+ * what the user saw, so the form sends the time it displayed; it must be recent.
+ */
+export function authorizationShownAt(value: string | null | undefined, now = new Date()): Date | null {
+  if (!value) return null;
+  const shown = new Date(value);
+  const age = now.getTime() - shown.getTime();
+  if (Number.isNaN(shown.getTime()) || age < -60_000 || age > 60 * 60_000) return null;
+  return shown;
+}
+
+async function insertAuthorizedMethod(actor: CompanyActor, card: SaveInput, authorized: boolean, db: Queryable, shownAt?: Date | null): Promise<string> {
   if (!authorized) throw new PaymentMethodError("Tick the authorization box to save this payment method.");
   const text = await getAuthorizationText(db);
   const who = await db.query<{ full_name: string | null; email: string; legal_name: string }>(
@@ -142,7 +154,7 @@ async function insertAuthorizedMethod(actor: CompanyActor, card: SaveInput, auth
   const rendered = renderAuthorization(text.body, {
     userName: names.full_name?.trim() || names.email,
     companyLegalName: names.legal_name,
-    timestamp: formatAuthorizationTime(now),
+    timestamp: formatAuthorizationTime(shownAt ?? now),
   });
   await db.query("update payment_methods set is_default = false where company_id = $1 and is_default", [actor.companyId]);
   const inserted = await db.query<{ id: string }>(
@@ -172,7 +184,7 @@ async function insertAuthorizedMethod(actor: CompanyActor, card: SaveInput, auth
 }
 
 /** Saves the fictional demo card (demo mode). Owner and billing roles only. */
-export async function saveDemoCard(input: { userId: string; companyId: string; ip?: string | null; authorized: boolean }): Promise<string> {
+export async function saveDemoCard(input: { userId: string; companyId: string; ip?: string | null; authorized: boolean; shownAt?: Date | null }): Promise<string> {
   return tx(async (client) => {
     const actor = await resolveActor(client, input);
     assertCan(actor, "billing.manage", "Only the owner or a billing member can add payment methods.");
@@ -194,6 +206,7 @@ export async function saveDemoCard(input: { userId: string; companyId: string; i
       },
       input.authorized,
       client,
+      input.shownAt,
     );
   });
 }
@@ -242,7 +255,7 @@ export async function beginStripeSetup(
  */
 export async function completeStripeSetup(
   stripe: StripeClientLike,
-  input: { userId: string; companyId: string; ip?: string | null; setupIntentId: string; authorized: boolean },
+  input: { userId: string; companyId: string; ip?: string | null; setupIntentId: string; authorized: boolean; shownAt?: Date | null },
 ): Promise<string> {
   if (!/^seti_[A-Za-z0-9]+$/.test(input.setupIntentId)) throw new PaymentMethodError("The card confirmation is invalid.");
   const intent = await stripe.setupIntents.retrieve(input.setupIntentId);
@@ -281,12 +294,14 @@ export async function completeStripeSetup(
       },
       input.authorized,
       client,
+      input.shownAt,
     );
   });
 }
 
 /** Removes a payment method (stops future charges; purchases already made stand). */
 export async function removePaymentMethod(input: { userId: string; companyId: string; ip?: string | null; paymentMethodId: string }): Promise<void> {
+  if (!isUuid(input.paymentMethodId)) throw new PaymentMethodError("That payment method was not found.");
   await tx(async (client) => {
     const actor = await resolveActor(client, input);
     assertCan(actor, "billing.manage", "Only the owner or a billing member can remove payment methods.");

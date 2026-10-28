@@ -13,18 +13,42 @@
 
 -- ---------------------------------------------------------------- payment authorization text
 
-alter table consent_text_versions drop constraint consent_text_versions_kind_check;
-alter table consent_text_versions add constraint consent_text_versions_kind_check
-  check (kind in ('contact_consent', 'terms_privacy_ack', 'payment_authorization'));
+-- Kept apart from consent_text_versions (consumer consent): this is the mover's card
+-- authorization. A version cited by a saved payment method is never edited; a change is a new row.
+create table payment_authorization_texts (
+  id text primary key check (id ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
+  body text not null,
+  sha256 text not null,
+  status text not null default 'draft' check (status in ('draft', 'approved', 'retired')),
+  effective_from timestamptz,
+  approved_by text,                    -- counsel / Stripe sign-off reference
+  created_at timestamptz not null default now(),
+  check (sha256 = encode(sha256(convert_to(body, 'UTF8')), 'hex')),
+  check (status <> 'approved' or (approved_by is not null and effective_from is not null))
+);
+
+create function payment_authorization_texts_freeze() returns trigger language plpgsql
+set search_path from current as $$
+begin
+  if exists (select 1 from payment_methods m where m.authorization_text_version = old.id)
+     and (tg_op = 'DELETE' or new.body is distinct from old.body or new.id is distinct from old.id) then
+    raise exception 'payment_authorization_text_frozen: % is cited by a payment method', old.id using errcode = 'P0001';
+  end if;
+  return case when tg_op = 'DELETE' then old else new end;
+end $$;
+
+create trigger payment_authorization_texts_freeze
+  before update or delete on payment_authorization_texts
+  for each row execute function payment_authorization_texts_freeze();
 
 -- Consent draft §9, verbatim, with its placeholders. A draft for counsel and Stripe review: not
 -- approved for live billing (shared pricing §9).
-insert into consent_text_versions (id, kind, body, sha256, status)
-select t.id, t.kind, t.body, encode(sha256(convert_to(t.body, 'UTF8')), 'hex'), 'draft'
+insert into payment_authorization_texts (id, body, sha256, status)
+select t.id, t.body, encode(sha256(convert_to(t.body, 'UTF8')), 'hex'), 'draft'
 from (values
-  ('card-auth-v0-draft', 'payment_authorization',
+  ('card-auth-v0-draft',
    'I authorize American Moving Choice to save this payment method and charge it for the move requests I or members of my company purchase, in the amounts shown at the time of each purchase, and for any amounts owed under the Mover Terms. Account credits are applied before charging this payment method. I can remove this payment method at any time in Billing, which stops future charges but doesn''t cancel purchases already made. Authorized by {user_name} for {company_legal_name} on {timestamp}.')
-) as t(id, kind, body);
+) as t(id, body);
 
 alter table payment_methods
   add column authorization_rendered_text text,

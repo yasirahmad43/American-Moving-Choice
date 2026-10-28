@@ -53,6 +53,8 @@ export interface MarketplaceListing {
   moveType: MoveType | null;
   services: Service[];
   price: NextPrice;
+  /** The request's sharing-policy factors, for the credit-policy explanation. */
+  policyFactorsBp: number[];
   expiresAt: Date;
   /** Another company holds the in-flight reservation; Buy will ask to retry in a few seconds. */
   purchaseInProgress: boolean;
@@ -185,6 +187,7 @@ async function queryListings(db: Queryable, companyId: string, options: { groupI
       moveType: row.move_type,
       services: row.services,
       price: next,
+      policyFactorsBp: row.factors_bp,
       expiresAt: row.expires_at,
       purchaseInProgress: row.in_progress,
     });
