@@ -1,4 +1,4 @@
-import { listCompanies, listPurchases, orphanAttempts, reconciliation } from "@amc/server/admin";
+import { chargeReconciliation, listCompanies, listPurchases, orphanAttempts, reconciliation } from "@amc/server/admin";
 import { hasAdminRole, requireAdmin } from "@amc/server/auth";
 import { Alert, Money, PageHeader, Table } from "@amc/ui";
 import type { Metadata } from "next";
@@ -79,11 +79,31 @@ async function PurchaseList({ sp, filters, canRefund }: { sp: Record<string, str
 }
 
 async function Reconciliation({ filters }: { filters: { from: string; to: string } }) {
-  const [rows, orphans] = await Promise.all([reconciliation({ from: filters.from || null, to: filters.to || null }), orphanAttempts()]);
+  const [rows, orphans, charges] = await Promise.all([reconciliation({ from: filters.from || null, to: filters.to || null }), orphanAttempts(), chargeReconciliation({ onlyIssues: true })]);
   const issues = rows.filter((r) => r.issues.length);
   return (
     <div className="grid gap-6">
       {issues.length ? <Alert tone="warning">{issues.length} purchase{issues.length === 1 ? "" : "s"} need attention.</Alert> : <Alert tone="success">Every purchase matches its payment reference, ledger entries and disclosure.</Alert>}
+      {charges.length ? (
+        <Scroll label="Provider charge issues">
+          <Table
+            caption="Provider charges that need attention"
+            compact
+            rowKey={(r) => r.attempt_id}
+            rows={charges}
+            columns={[
+              { key: "at", header: "Attempted", cell: (r) => <When value={r.created_at} /> },
+              { key: "company", header: "Company", cell: (r) => r.legal_name },
+              { key: "card", header: "Card amount", numeric: true, cell: (r) => <Money cents={r.card_amount_cents} /> },
+              { key: "charge", header: "Charge", cell: (r) => (r.charge_status ? <span><Status value={r.charge_status} /> {r.charge_provider_ref ? <Mono>{r.charge_provider_ref}</Mono> : null}</span> : "None") },
+              { key: "refund", header: "Refund", cell: (r) => <Status value={r.refund_status} /> },
+              { key: "issues", header: "Issues", cell: (r) => r.issues.join("; ") },
+            ]}
+          />
+        </Scroll>
+      ) : (
+        <p className="type-small text-text-2">Every provider charge matches its purchase attempt. Retry failed provider refunds on <Link className="text-link underline" href="/admin/billing?tab=provider-refunds">Billing</Link>.</p>
+      )}
       {orphans.length ? (
         <Table
           caption="Payments without a purchase (each needs a refund)"

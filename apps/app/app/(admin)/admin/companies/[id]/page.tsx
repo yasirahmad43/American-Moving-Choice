@@ -42,6 +42,13 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
+const DONE: Record<string, string> = {
+  approved: "Approved. The badge is issued, the starting prices are set and the owner was emailed.",
+  rejected: "Application rejected. The owner was emailed the reason.",
+  suspended: "Company suspended. The badge is revoked and purchases are blocked.",
+  reinstated: "Company reinstated and the badge reissued.",
+};
+
 type Detail = NonNullable<Awaited<ReturnType<typeof getCompanyDetail>>>;
 
 const dollars = (cents: number | undefined) => (cents === undefined ? "" : (cents / 100).toFixed(2));
@@ -79,6 +86,11 @@ export default async function CompanyDetailPage({ params, searchParams }: { para
           </span>
         }
       />
+      {DONE[param(sp.done)] ? (
+        <Alert tone="success" role="status">
+          {DONE[param(sp.done)]}
+        </Alert>
+      ) : null}
       <LinkTabs label="Company sections" current={tab} items={TABS.map((t) => ({ id: t.id, label: t.label, href: `/admin/companies/${id}?tab=${t.id}` }))} />
       {tab === "overview" ? <Overview detail={detail} can={can} /> : null}
       {tab === "verification" ? <Verification detail={detail} canVerify={can.verify} /> : null}

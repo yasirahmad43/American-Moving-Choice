@@ -14,11 +14,18 @@ import {
   setCompanyPrice,
   suspendCompany,
 } from "@amc/server/admin";
+import { redirect } from "next/navigation";
 import type { FormState } from "@/lib/form";
 import { adminAction, field, idField } from "../_lib/action";
 import { ROLES } from "../_lib/roles";
 
 const paths = (companyId: string) => [`/admin/companies/${companyId}`, "/admin/companies", "/admin/verification", "/admin"];
+
+/** After a status change the decision panel disappears, so the result is shown on the page itself. */
+function afterStatusChange(state: FormState, companyId: string, done: string): FormState {
+  if (state.status === "success" && /^[0-9a-f-]{36}$/i.test(companyId)) redirect(`/admin/companies/${companyId}?tab=verification&done=${done}`);
+  return state;
+}
 
 function dollars(formData: FormData, name: string, label: string): number {
   const cents = parseDollarsToCents(field(formData, name, 20));
@@ -54,7 +61,7 @@ export async function callbackAction(previous: FormState, formData: FormData): P
 
 export async function approveAction(previous: FormState, formData: FormData): Promise<FormState> {
   const companyId = field(formData, "companyId", 64);
-  return adminAction(previous, ROLES.verification, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.verification, async ({ actor }) => {
     const result = await approveCompany(actor, idField(formData, "companyId"), {
       exclusiveCents: dollars(formData, "exclusive", "exclusive price"),
       sharedCents: dollars(formData, "shared", "shared price"),
@@ -63,30 +70,34 @@ export async function approveAction(previous: FormState, formData: FormData): Pr
     });
     return `Approved. The badge is issued and the profile is ${result.publicStatus === "live" ? "live" : "hidden until its description is approved"}.`;
   }, paths(companyId));
+  return afterStatusChange(state, companyId, "approved");
 }
 
 export async function rejectAction(previous: FormState, formData: FormData): Promise<FormState> {
   const companyId = field(formData, "companyId", 64);
-  return adminAction(previous, ROLES.verification, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.verification, async ({ actor }) => {
     await rejectCompany(actor, idField(formData, "companyId"), field(formData, "reason", 1000));
     return "Application rejected. The owner was emailed the reason.";
   }, paths(companyId));
+  return afterStatusChange(state, companyId, "rejected");
 }
 
 export async function suspendAction(previous: FormState, formData: FormData): Promise<FormState> {
   const companyId = field(formData, "companyId", 64);
-  return adminAction(previous, ROLES.verification, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.verification, async ({ actor }) => {
     await suspendCompany(actor, idField(formData, "companyId"), field(formData, "reason", 1000));
     return "Company suspended. The badge is revoked and purchases are blocked.";
   }, paths(companyId));
+  return afterStatusChange(state, companyId, "suspended");
 }
 
 export async function reinstateAction(previous: FormState, formData: FormData): Promise<FormState> {
   const companyId = field(formData, "companyId", 64);
-  return adminAction(previous, ROLES.verification, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.verification, async ({ actor }) => {
     await reinstateCompany(actor, idField(formData, "companyId"), field(formData, "reason", 1000));
     return "Company reinstated and the badge reissued.";
   }, paths(companyId));
+  return afterStatusChange(state, companyId, "reinstated");
 }
 
 export async function setPriceAction(previous: FormState, formData: FormData): Promise<FormState> {

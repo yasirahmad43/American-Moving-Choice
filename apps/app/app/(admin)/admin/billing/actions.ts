@@ -1,7 +1,7 @@
 "use server";
 
 /** Finance decisions: credit adjustments, refunds, quality claims and disputes. */
-import { AdminError, adjustCredit, approveClaim, createDispute, parseDollarsToCents, refundPurchase, rejectClaim, updateDispute } from "@amc/server/admin";
+import { AdminError, adjustCredit, approveClaim, createDispute, parseDollarsToCents, refundPurchase, rejectClaim, retryProviderRefund, updateDispute } from "@amc/server/admin";
 import type { FormState } from "@/lib/form";
 import { adminAction, field, idField } from "../_lib/action";
 import { ROLES } from "../_lib/roles";
@@ -75,5 +75,13 @@ export async function updateDisputeAction(previous: FormState, formData: FormDat
       restorePurchases: formData.get("restorePurchases") === "on",
     });
     return "Dispute updated.";
+  }, PATHS);
+}
+
+export async function retryProviderRefundAction(previous: FormState, formData: FormData): Promise<FormState> {
+  return adminAction(previous, ROLES.finance, async ({ actor }) => {
+    const ok = await retryProviderRefund(actor, idField(formData, "refundId"));
+    if (!ok) throw new AdminError("The payments provider refused the refund again. Check the error code and try later.");
+    return "Refund succeeded.";
   }, PATHS);
 }

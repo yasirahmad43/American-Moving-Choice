@@ -9,7 +9,8 @@ import { audit } from "../audit/audit";
 import { getPool, raisedMessage, tx, type Queryable } from "../db/pool";
 import { enqueueEmail } from "../outbox/outbox";
 import { AdminError, cleanText, companyContactEmails, formatCents, requireText, type AdminActor } from "./common";
-import { refundProviderFor, type RefundProvider } from "./refund-provider";
+import { refundUnhonoured } from "../marketplace/purchase";
+import { paymentsProviderFor, refundProviderFor, type RefundProvider } from "./refund-provider";
 
 export const LEDGER_KINDS = ["purchase_charge", "credit_spend", "sharing_credit", "quality_refund_credit", "cash_refund", "adjustment"] as const;
 export type LedgerKind = (typeof LEDGER_KINDS)[number];
@@ -124,6 +125,7 @@ export async function adjustCredit(
 
 interface PurchaseMoney {
   id: string;
+  attempt_id: string;
   company_id: string;
   group_id: string;
   charged_cents: number;
@@ -138,7 +140,7 @@ interface PurchaseMoney {
 async function purchaseMoney(db: Queryable, purchaseId: string, lock = false): Promise<PurchaseMoney> {
   if (lock) await db.query("select 1 from purchases where id = $1 for update", [purchaseId]);
   const found = await db.query<PurchaseMoney>(
-    `select p.id, p.company_id, p.group_id, p.charged_cents, p.refunded_at, a.card_amount_cents, a.credit_applied_cents, a.payment_ref,
+    `select p.id, p.attempt_id, p.company_id, p.group_id, p.charged_cents, p.refunded_at, a.card_amount_cents, a.credit_applied_cents, a.payment_ref,
             coalesce((select sum(amount_cents) from ledger_entries where purchase_id = p.id and kind = 'sharing_credit'), 0)::int as sharing_credits,
             (select reference_code from leads where group_id = p.group_id and is_primary order by created_at limit 1) as reference_code
      from purchases p join purchase_attempts a on a.id = p.attempt_id where p.id = $1`,
@@ -194,7 +196,7 @@ export async function refundPurchase(
   let ref: string | null = null;
   if (input.mode === "cash") {
     const provider = options.provider ?? refundProviderFor(quote.payment_ref);
-    const result = await provider.refund({ paymentRef: quote.payment_ref, amountCents: amount, idempotencyKey: `refund_${quote.id}` });
+    const result = await provider.refund({ attemptId: quote.attempt_id, paymentRef: quote.payment_ref, amountCents: amount });
     if (!result.ok) throw new AdminError(result.error, "provider_failed");
     ref = result.ref;
   }
@@ -418,7 +420,10 @@ export async function updateDispute(actor: AdminActor, disputeId: string, input:
        where id = $1`,
       [disputeId, input.status, outcome],
     );
-    if (input.restorePurchases) await client.query("update companies set billing_status = 'good' where id = $1 and billing_status = 'suspended'", [d.company_id]);
+    // Purchases resume when asked, or automatically once the company's last open dispute is won or closed.
+    const othersOpen = await client.query("select 1 from disputes where company_id = $1 and id <> $2 and status in ('open', 'evidence_submitted') limit 1", [d.company_id, disputeId]);
+    const autoRestore = (input.status === "won" || input.status === "closed") && !othersOpen.rowCount;
+    if (input.restorePurchases || autoRestore) await client.query("update companies set billing_status = 'good' where id = $1 and billing_status = 'suspended'", [d.company_id]);
     await audit(
       {
         actorType: "admin",
@@ -428,7 +433,7 @@ export async function updateDispute(actor: AdminActor, disputeId: string, input:
         entity: "dispute",
         entityId: disputeId,
         before: { status: d.status, outcome: d.outcome },
-        after: { status: input.status, outcome, restored_purchases: input.restorePurchases },
+        after: { status: input.status, outcome, restored_purchases: input.restorePurchases || autoRestore },
         ip: actor.ip ?? null,
       },
       client,
@@ -511,4 +516,108 @@ export async function orphanAttempts(db: Queryable = getPool()) {
      order by a.created_at desc limit 100`,
   );
   return found.rows;
+}
+
+// ================================================================== provider charges and refunds (slice S6 tables)
+
+export interface ProviderRefundRow {
+  id: string;
+  attempt_id: string;
+  company_id: string;
+  legal_name: string;
+  provider: string;
+  provider_ref: string;
+  provider_refund_id: string | null;
+  amount_cents: number;
+  reason: string;
+  status: "pending" | "succeeded" | "failed";
+  error_code: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+/**
+ * Provider refunds of charges whose purchase couldn't be honoured (payment_refunds, written by the
+ * purchase flow). Pending and failed rows need an admin to retry them.
+ */
+export async function listProviderRefunds(statuses: readonly string[] = ["pending", "failed"], db: Queryable = getPool()): Promise<ProviderRefundRow[]> {
+  const found = await db.query<ProviderRefundRow>(
+    `select r.id, r.attempt_id, r.company_id, c.legal_name, r.provider, r.provider_ref, r.provider_refund_id, r.amount_cents, r.reason, r.status,
+            r.error_code, r.created_at, r.updated_at
+     from payment_refunds r join companies c on c.id = r.company_id
+     where r.status = any($1::text[]) order by r.created_at desc limit 200`,
+    [statuses],
+  );
+  return found.rows;
+}
+
+/** Retries a pending or failed provider refund through the purchase flow's own refund path. */
+export async function retryProviderRefund(actor: AdminActor, refundId: string, options: { provider?: import("../payments/types").PaymentsProvider } = {}): Promise<boolean> {
+  const row = (await getPool().query<ProviderRefundRow>("select * from payment_refunds where id = $1", [refundId])).rows[0];
+  if (!row) throw new AdminError("Refund not found.", "not_found");
+  if (row.status === "succeeded") throw new AdminError("This refund already succeeded.", "bad_status");
+  const provider = options.provider ?? paymentsProviderFor(row.provider_ref);
+  const ok = await refundUnhonoured({ id: row.attempt_id, company_id: row.company_id, card_amount_cents: row.amount_cents }, row.provider_ref, provider);
+  await audit({
+    actorType: "admin",
+    actorId: actor.userId,
+    companyId: row.company_id,
+    action: "billing.provider_refund_retry",
+    entity: "payment_refund",
+    entityId: refundId,
+    before: { status: row.status, error_code: row.error_code },
+    after: { succeeded: ok },
+    ip: actor.ip ?? null,
+  });
+  return ok;
+}
+
+export interface ChargeReconciliationRow {
+  attempt_id: string;
+  company_id: string;
+  legal_name: string;
+  attempt_status: string;
+  card_amount_cents: number;
+  attempt_payment_ref: string | null;
+  charge_status: string | null;
+  charge_amount_cents: number | null;
+  charge_provider_ref: string | null;
+  purchase_id: string | null;
+  refund_status: string | null;
+  created_at: Date;
+  issues: string[];
+}
+
+/**
+ * Provider charges (payment_charges) next to their purchase attempts: card amounts without a charge
+ * row, references or amounts that disagree, succeeded charges with neither a purchase nor a
+ * succeeded refund, and charges stuck processing for over an hour.
+ */
+export async function chargeReconciliation(filters: { onlyIssues?: boolean } = {}, db: Queryable = getPool()): Promise<ChargeReconciliationRow[]> {
+  const found = await db.query<Omit<ChargeReconciliationRow, "issues">>(
+    `select a.id as attempt_id, a.company_id, c.legal_name, a.status as attempt_status, a.card_amount_cents, a.payment_ref as attempt_payment_ref,
+            ch.status as charge_status, ch.amount_cents as charge_amount_cents, ch.provider_ref as charge_provider_ref,
+            p.id as purchase_id, r.status as refund_status, a.created_at
+     from purchase_attempts a
+     join companies c on c.id = a.company_id
+     left join payment_charges ch on ch.attempt_id = a.id
+     left join purchases p on p.attempt_id = a.id
+     left join payment_refunds r on r.attempt_id = a.id
+     where a.card_amount_cents > 0 or ch.attempt_id is not null
+     order by a.created_at desc limit 500`,
+  );
+  const hour = 60 * 60 * 1000;
+  const rows = found.rows.map((r) => {
+    const issues: string[] = [];
+    // Purchases recorded before payment_charges existed (seed history) carry only payment_ref.
+    if (!r.charge_status && r.purchase_id && !r.attempt_payment_ref) issues.push("Card amount without a charge or payment reference");
+    if (!r.charge_status && !r.purchase_id && r.attempt_status === "succeeded") issues.push("Succeeded attempt without a charge");
+    if (r.charge_status && r.charge_amount_cents !== r.card_amount_cents) issues.push("Charge amount differs from the card amount");
+    if (r.charge_status === "succeeded" && r.purchase_id && r.charge_provider_ref !== r.attempt_payment_ref) issues.push("Provider reference differs from the attempt");
+    if (r.charge_status === "succeeded" && !r.purchase_id && r.refund_status !== "succeeded") issues.push("Charged without a purchase or a completed refund");
+    if (r.charge_status === "processing" && Date.now() - new Date(r.created_at).getTime() > hour) issues.push("Charge still processing after an hour");
+    if (r.purchase_id && r.charge_status && r.charge_status !== "succeeded") issues.push("Purchase whose charge did not succeed");
+    return { ...r, issues };
+  });
+  return filters.onlyIssues ? rows.filter((r) => r.issues.length > 0) : rows;
 }

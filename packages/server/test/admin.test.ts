@@ -2,7 +2,7 @@ import { buildSeedSql } from "@amc/db/seed/build";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { AdminError, parseDollarsToCents } from "../src/admin/common";
 import { approveCompany, getCompanyDetail, recordCallback, recordCheckDecision, reinstateCompany, rejectCompany, rerunChecks, reviewProfileDescription, setCompanyPrice, suspendCompany, verificationQueue } from "../src/admin/companies";
-import { adjustCredit, approveClaim, createDispute, reconciliation, refundCap, refundPurchase, rejectClaim, updateDispute } from "../src/admin/finance";
+import { adjustCredit, approveClaim, chargeReconciliation, createDispute, listProviderRefunds, retryProviderRefund, reconciliation, refundCap, refundPurchase, rejectClaim, updateDispute } from "../src/admin/finance";
 import { decideLead, getLeadDetail, listLeads } from "../src/admin/leads";
 import { dashboardStats, listAuditLog, listMailbox } from "../src/admin/overview";
 import {
@@ -240,6 +240,32 @@ describe("finance", () => {
     await expectAdminError(updateDispute(admin, id, { status: "won", restorePurchases: true }), "missing_text");
     await updateDispute(admin, id, { status: "won", outcome: "Evidence accepted by the bank.", restorePurchases: true });
     expect((await pool().query("select billing_status from companies where id = $1", [lonestar])).rows[0].billing_status).toBe("good");
+  });
+
+  it("restores purchases automatically when the last open dispute closes", async () => {
+    const id = await createDispute(admin, { companyId: lonestar, reason: "Second dispute", pausePurchases: true });
+    await updateDispute(admin, id, { status: "closed", outcome: "Withdrawn by the card holder.", restorePurchases: false });
+    expect((await pool().query("select billing_status from companies where id = $1", [lonestar])).rows[0].billing_status).toBe("good");
+  });
+
+  it("retries failed provider refunds and reconciles provider charges", async () => {
+    const attempt = (await pool().query(
+      `insert into purchase_attempts (group_id, company_id, idempotency_key, status, lead_type, position, price_row_id, list_price_cents, charge_cents, card_amount_cents, payment_ref, expires_at)
+       values ($1, $2, 'orphan-test', 'expired', 'shared', 2, (select id from company_prices where company_id = $2 order by id limit 1), 4000, 3200, 3200, 'demo_orphan', now())
+       returning id`,
+      [fixed("d0", 4), company(6)],
+    )).rows[0].id;
+    await pool().query("insert into payment_charges (attempt_id, company_id, provider, provider_ref, amount_cents, status) values ($1, $2, 'demo', 'demo_orphan', 3200, 'succeeded')", [attempt, company(6)]);
+    const refund = (await pool().query(
+      "insert into payment_refunds (attempt_id, company_id, provider, provider_ref, amount_cents, reason, status, error_code) values ($1, $2, 'demo', 'demo_orphan', 3200, 'slot_unavailable', 'failed', 'network_error') returning id",
+      [attempt, company(6)],
+    )).rows[0].id;
+    expect((await chargeReconciliation({ onlyIssues: true })).find((r) => r.attempt_id === attempt)?.issues).toEqual(["Charged without a purchase or a completed refund"]);
+    expect((await listProviderRefunds()).map((r) => r.id)).toContain(refund);
+    expect(await retryProviderRefund(admin, refund)).toBe(true);
+    expect((await pool().query("select status from payment_refunds where id = $1", [refund])).rows[0].status).toBe("succeeded");
+    expect((await chargeReconciliation({ onlyIssues: true })).find((r) => r.attempt_id === attempt)).toBeUndefined();
+    await expectAdminError(retryProviderRefund(admin, refund), "bad_status");
   });
 
   it("reconciles purchases with their ledger entries", async () => {

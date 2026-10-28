@@ -98,9 +98,9 @@ export async function scheduleReviewInvitations(db: Queryable = getPool()): Prom
   return { items: (quote.rowCount ?? 0) + (move.rowCount ?? 0), details: { quote_experience: quote.rowCount ?? 0, move_experience: move.rowCount ?? 0 } };
 }
 
-/** The review form link: /companies/<slug>/review/?t=<token> on the public site (slice S4's route). */
+/** The review form link: /companies/<slug>/review/?token=<token> on the public site (slice S4's route). */
 export function reviewLink(slug: string, token: string, base: string = env().WEB_URL): string {
-  return `${base}/companies/${encodeURIComponent(slug)}/review/?t=${encodeURIComponent(token)}`;
+  return `${base}/companies/${encodeURIComponent(slug)}/review/?token=${encodeURIComponent(token)}`;
 }
 
 export function invitationEmail(input: { reviewType: string; companyName: string; firstName: string | null; link: string; expiresAt: Date }) {

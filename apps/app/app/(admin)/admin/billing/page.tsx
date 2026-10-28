@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { DISPUTE_STATUSES, LEDGER_KINDS, LEDGER_KIND_LABELS, getRefundQuote, listClaims, listCompanies, listDisputes, listLedger, isAdminError } from "@amc/server/admin";
+import { DISPUTE_STATUSES, LEDGER_KINDS, LEDGER_KIND_LABELS, getRefundQuote, listClaims, listCompanies, listDisputes, listLedger, listProviderRefunds, isAdminError } from "@amc/server/admin";
 import { requireAdmin } from "@amc/server/auth";
 import { isUuid } from "@amc/server/db";
 import { Alert, Card, Field, Input, Money, PageHeader, Select, Table, Textarea } from "@amc/ui";
@@ -8,7 +8,7 @@ import Link from "next/link";
 import { ActionForm } from "@/components/admin/action-form";
 import { FilterBar, FilterInput, FilterSelect, LinkTabs, Mono, Pager, SectionTitle, ShortId, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
-import { adjustCreditAction, claimDecisionAction, createDisputeAction, refundAction, updateDisputeAction } from "./actions";
+import { adjustCreditAction, claimDecisionAction, createDisputeAction, refundAction, retryProviderRefundAction, updateDisputeAction } from "./actions";
 
 const item = adminNavItem("/admin/billing");
 
@@ -18,6 +18,7 @@ const TABS = [
   { id: "ledger", label: "Ledger" },
   { id: "adjust", label: "Credit adjustments" },
   { id: "refunds", label: "Refunds" },
+  { id: "provider-refunds", label: "Provider refunds" },
   { id: "claims", label: "Quality claims" },
   { id: "disputes", label: "Disputes" },
 ] as const;
@@ -38,6 +39,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
       {tab === "ledger" ? <LedgerTab sp={sp} /> : null}
       {tab === "adjust" ? <AdjustTab /> : null}
       {tab === "refunds" ? <RefundsTab sp={sp} /> : null}
+      {tab === "provider-refunds" ? <ProviderRefundsTab /> : null}
       {tab === "claims" ? <ClaimsTab sp={sp} /> : null}
       {tab === "disputes" ? <DisputesTab /> : null}
     </div>
@@ -331,6 +333,43 @@ async function DisputesTab() {
           </label>
         </ActionForm>
       </Card>
+    </div>
+  );
+}
+
+async function ProviderRefundsTab() {
+  const refunds = await listProviderRefunds(["pending", "failed", "succeeded"]);
+  return (
+    <div className="grid gap-4">
+      <SectionTitle description="Card payments that succeeded after their request could no longer be sold. No purchase exists, so these refunds are cash only and never touch the credit balance. Pending and failed ones need a retry.">
+        Provider refunds
+      </SectionTitle>
+      <Table
+        caption="Provider refunds"
+        hideCaption
+        compact
+        rowKey={(r) => r.id}
+        rows={refunds}
+        empty={<p className="text-text-2">No provider refunds.</p>}
+        columns={[
+          { key: "at", header: "Created", cell: (r) => <When value={r.created_at} /> },
+          { key: "company", header: "Company", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.company_id}`}>{r.legal_name}</Link> },
+          { key: "amount", header: "Amount", numeric: true, cell: (r) => <Money cents={r.amount_cents} /> },
+          { key: "charge", header: "Charge", cell: (r) => <Mono>{r.provider_ref}</Mono> },
+          { key: "status", header: "Status", cell: (r) => <Status value={r.status} /> },
+          { key: "error", header: "Error", cell: (r) => (r.error_code ? <Mono>{r.error_code}</Mono> : r.provider_refund_id ? <Mono>{r.provider_refund_id}</Mono> : null) },
+          {
+            key: "retry",
+            header: "Retry",
+            cell: (r) =>
+              r.status === "succeeded" ? null : (
+                <ActionForm action={retryProviderRefundAction} submitLabel="Retry refund" submitVariant="secondary" confirm={{ title: "Retry this refund?", description: "The payments provider is asked again with the same idempotency key, so it can't pay twice.", confirmLabel: "Retry" }}>
+                  <input type="hidden" name="refundId" value={r.id} />
+                </ActionForm>
+              ),
+          },
+        ]}
+      />
     </div>
   );
 }

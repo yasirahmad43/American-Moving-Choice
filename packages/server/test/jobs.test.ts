@@ -106,12 +106,12 @@ describe("review invitations", () => {
     expect(inv.sent_at).toBeInstanceOf(Date);
     const message = (await pool().query("select id, to_address, template, body_text, body_secret_enc from messages where related_id = $1", [inv.id])).rows[0];
     expect(message).toMatchObject({ to_address: "jordan.sample@demo.invalid", template: "review_invitation" });
-    expect(message.body_text).not.toMatch(/\?t=/);
+    expect(message.body_text).not.toMatch(/\?token=/);
     const body = decryptSecretBody(message.id, message.body_secret_enc);
-    const token = /review\/\?t=([A-Za-z0-9_-]{43})/.exec(body)?.[1];
+    const token = /review\/\?token=([A-Za-z0-9_-]{43})/.exec(body)?.[1];
     expect(token).toBeTruthy();
     expect(sha256Hex(token!)).toBe(inv.token_hash);
-    expect(body).toContain("/companies/demo-lone-star-relocation-co/review/?t=");
+    expect(body).toContain("/companies/demo-lone-star-relocation-co/review/?token=");
     expect((await sendDueInvitations()).details).toMatchObject({ sent: 0 });
 
     // A withdrawn request's invitation is cancelled, not sent.
@@ -120,8 +120,19 @@ describe("review invitations", () => {
     expect((await sendDueInvitations()).details).toMatchObject({ sent: 0, cancelled: 1 });
   });
 
+  it("sends a company-requested invitation with a fresh token, not the stored placeholder", async () => {
+    const before = (await pool().query(
+      `update review_invitations set requested_by = 'company', send_after = now() where purchase_id = $1 and review_type = 'move_experience' returning id, token_hash`,
+      [purchase(6)],
+    )).rows[0];
+    expect((await sendDueInvitations()).details).toMatchObject({ sent: 1 });
+    const after = (await pool().query("select token_hash, sent_at from review_invitations where id = $1", [before.id])).rows[0];
+    expect(after.sent_at).toBeInstanceOf(Date);
+    expect(after.token_hash).not.toBe(before.token_hash);
+  });
+
   it("builds the public review link", () => {
-    expect(reviewLink("demo-mover", "tok", "https://example.test")).toBe("https://example.test/companies/demo-mover/review/?t=tok");
+    expect(reviewLink("demo-mover", "tok", "https://example.test")).toBe("https://example.test/companies/demo-mover/review/?token=tok");
   });
 });
 

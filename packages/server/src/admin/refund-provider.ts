@@ -1,20 +1,18 @@
 /**
- * Cash refunds to the original payment method (shared pricing §2 kind 3, §6). With Stripe keys
- * and a Stripe PaymentIntent reference the refund goes through Stripe; otherwise (demo payments,
- * build plan §9) it succeeds at once with a demo_refund_ reference.
- *
- * Slice S6 owns the payments provider; once @amc/server/payments exposes a refund call, this
- * adapter should delegate to it.
+ * Cash refunds to the original payment method (shared pricing §2 kind 3, §6), through slice S6's
+ * payments provider: Stripe when configured and the purchase was charged through Stripe; the demo
+ * provider otherwise (build plan §9), which succeeds at once with a demo_refund_ reference.
  */
-import Stripe from "stripe";
-import { env } from "../env/env";
+import { demoPaymentsProvider } from "../payments/demo";
+import { paymentsProvider } from "../payments/provider";
+import type { PaymentsProvider } from "../payments/types";
 
 export interface RefundRequest {
+  /** The purchase attempt whose charge is refunded (the provider's idempotency key derives from it). */
+  attemptId: string;
   /** purchase_attempts.payment_ref of the original charge. */
   paymentRef: string | null;
   amountCents: number;
-  /** Stable per purchase, so a retried refund never pays twice. */
-  idempotencyKey: string;
 }
 
 export type RefundResult = { ok: true; provider: string; ref: string } | { ok: false; provider: string; error: string };
@@ -24,37 +22,26 @@ export interface RefundProvider {
   refund(request: RefundRequest): Promise<RefundResult>;
 }
 
-export const demoRefundProvider: RefundProvider = {
-  name: "demo",
-  async refund(request) {
-    return { ok: true, provider: "demo", ref: `demo_refund_${request.idempotencyKey.replace(/[^A-Za-z0-9_-]/g, "_")}` };
-  },
-};
-
-export function stripeRefundProvider(secretKey: string): RefundProvider {
-  const stripe = new Stripe(secretKey);
+/** Adapts an S6 PaymentsProvider to the admin refund call. */
+export function fromPaymentsProvider(provider: PaymentsProvider): RefundProvider {
   return {
-    name: "stripe",
+    name: provider.name,
     async refund(request) {
-      if (!request.paymentRef?.startsWith("pi_")) return { ok: false, provider: "stripe", error: "The purchase has no Stripe payment to refund." };
-      try {
-        const refund = await stripe.refunds.create(
-          { payment_intent: request.paymentRef, amount: request.amountCents, reason: "requested_by_customer" },
-          { idempotencyKey: request.idempotencyKey },
-        );
-        return { ok: true, provider: "stripe", ref: refund.id };
-      } catch (error) {
-        // Stripe's message describes the request (not the cardholder); keep only its type.
-        const type = error instanceof Stripe.errors.StripeError ? error.type : "network_error";
-        return { ok: false, provider: "stripe", error: `Stripe refused the refund (${type}).` };
-      }
+      if (!request.paymentRef) return { ok: false, provider: provider.name, error: "The purchase has no card payment to refund." };
+      const result = await provider.refund({ attemptId: request.attemptId, providerRef: request.paymentRef, amountCents: request.amountCents });
+      return result.status === "succeeded"
+        ? { ok: true, provider: provider.name, ref: result.refundId }
+        : { ok: false, provider: provider.name, error: `The payments provider refused the refund (${result.code}).` };
     },
   };
 }
 
-/** Stripe for Stripe references when keys are set; demo otherwise. */
+/** The provider that charged this reference: demo references always go to the demo provider. */
+export function paymentsProviderFor(paymentRef: string | null): PaymentsProvider {
+  if (!paymentRef || paymentRef.startsWith("demo_")) return demoPaymentsProvider;
+  return paymentsProvider();
+}
+
 export function refundProviderFor(paymentRef: string | null): RefundProvider {
-  const key = env().STRIPE_SECRET_KEY;
-  if (key && paymentRef?.startsWith("pi_")) return stripeRefundProvider(key);
-  return demoRefundProvider;
+  return fromPaymentsProvider(paymentsProviderFor(paymentRef));
 }
