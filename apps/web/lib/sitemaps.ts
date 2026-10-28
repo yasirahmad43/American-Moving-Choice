@@ -13,6 +13,8 @@ import { servedContentPages } from "@/lib/content/pages";
 import { listDirectory } from "@amc/server/profiles";
 
 export const SITEMAP_CHUNK = 1000;
+/** Must match ROUTES_HUB.perPage in app/(site)/routes/page.tsx. */
+export const ROUTES_PER_HUB_PAGE = 400;
 
 const STATIC_PAGES = [
   "/",
@@ -91,7 +93,10 @@ function urlset(entries: { url: string; lastmod?: Date }[]): string {
 export async function sitemapSegmentXml(name: string): Promise<string | null> {
   if (name === "core") {
     const { directoryPages } = await companyEntries();
-    const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url), ...directoryPages])];
+    // The routes hub paginates at ROUTES_PER_HUB_PAGE; pages 2..n are app-rendered hub pages, listed here.
+    const routeCount = (await indexableCounts()).get("route")?.count ?? 0;
+    const hubPages = Array.from({ length: Math.max(0, Math.ceil(routeCount / ROUTES_PER_HUB_PAGE) - 1) }, (_, i) => `/routes/page/${i + 2}/`);
+    const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url), ...directoryPages, ...hubPages])];
     return urlset(urls.map((url) => ({ url })));
   }
   if (name === "companies") {

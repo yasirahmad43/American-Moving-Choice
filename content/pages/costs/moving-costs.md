@@ -135,9 +135,8 @@ These ranges come from rate cards: what movers in our network tell us they charg
 
 [Counsel: approve ST-6, including its closing clause, since a non-binding estimate's final charges can be higher than the estimate; the method brief proposes "only a mover can price your move, in a written estimate" as a variant (site architecture §6.3 rule 3; method brief open item 21)]
 
-Like the calculator's ranges, these leave out charges a mover sets after seeing your home, such as for stairs or a long carry, charges for valuation coverage, and tips. [What a range includes](/moving-cost-calculator/method/#what-does-a-range-include) lists everything. Our guide to [tipping movers](/guides/how-much-to-tip-movers/) covers tips.
+Like the calculator's ranges, these leave out charges a mover sets after seeing your home, such as for stairs or a long carry, charges for valuation coverage, and tips. [What a range includes](/moving-cost-calculator/method/#what-does-a-range-include) lists everything.
 
-[Build: render the last sentence only once /guides/how-much-to-tip-movers/ is published, in Wave 2 (site architecture §5.3, §3.3 rule 2)]
 
 ## What affects the price of a move?
 
@@ -191,7 +190,7 @@ Get written estimates from more than one mover, each made after the mover sees y
 
 Only a mover can price your move, and it can price it accurately only once it knows what you're moving. For a move between states, the mover must survey your belongings before it gives you a written estimate, in person or by live or recorded video, unless you waive the survey in writing. The estimate must say whether it's binding or non-binding, and you both sign it ([49 CFR 375.103](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-A/section-375.103); [375.401](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401); [87 FR 24431](https://www.federalregister.gov/documents/2022/04/26/2022-08808/implementation-of-household-goods-working-group-recommendations)). For a local move, ask each mover to see your home, in person or by video, before it puts a price in writing.
 
-How movers charge explains [why a survey comes first](/moving-costs/how-movers-charge/#why-should-a-survey-come-before-the-estimate). [Our guide to moving estimates](/guides/moving-estimates-explained/) goes further.
+How movers charge explains [why a survey comes first](/moving-costs/how-movers-charge/#why-should-a-survey-come-before-the-estimate). [How to compare moving estimates](/questions/how-to-compare-moving-estimates/) goes further.
 
 [Verify: C1 (verified-excerpt); 49 CFR 375.401(a), (b), (h). C2 is contradicted as first worded (the 50-mile rule); this copy follows the claim as corrected, from 49 CFR 375.103 ("physical survey") and 375.401(a), as revised by 87 FR 24431 (April 26, 2022).] [Counsel: FMCSA's red-flag page speaks of an on-site inspection, while 49 CFR 375.103 counts video surveys as physical surveys. Decide how to word the survey here, in the answer under "How do you get an accurate price?" and in "Red flags around price", and how to note the difference (consumer-moving-rules note, counsel item 3)]
 
@@ -219,7 +218,7 @@ The Federal Motor Carrier Safety Administration (FMCSA) lists warning signs on i
 - a demand for cash, or for a large deposit, before the move;
 - a claim that you have more goods than the mover estimated.
 
-FMCSA doesn't say how large a deposit is too large. Its [tips for a successful move](https://www.fmcsa.dot.gov/protect-your-move/tips-for-success) also advise avoiding movers whose ads don't show a USDOT number. You can [check a mover's federal record](/verify-a-mover/) before you pay anything. [Our guide to avoiding moving scams](/guides/how-to-avoid-moving-scams/) covers other warning signs.
+FMCSA doesn't say how large a deposit is too large. Its [tips for a successful move](https://www.fmcsa.dot.gov/protect-your-move/tips-for-success) also advise avoiding movers whose ads don't show a USDOT number. You can [check a mover's federal record](/verify-a-mover/) before you pay anything. [How to spot a moving scam](/questions/how-to-spot-a-moving-scam/) covers other warning signs.
 
 [Verify: C14 (verified-excerpt); the four items are paraphrased from search excerpts of FMCSA's "Spot the Red Flags", so check each against the live page before quoting. The USDOT advice sits on FMCSA's tips page, not in the red-flag list (C14 notes). C17 (verified-excerpt): FMCSA gives no deposit threshold.] [Counsel: the same on-site wording question as in "Get written estimates after a survey" (consumer-moving-rules note, counsel item 3)]
 

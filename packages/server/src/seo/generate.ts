@@ -1003,6 +1003,34 @@ const ROUTE_QUESTION_TOPICS: { pattern: RegExp; topic: string; link: string }[] 
   { pattern: /phone|sight unseen|warning sign|scam|legitimate|trade association/i, topic: "red_flags", link: "/questions/how-to-spot-a-moving-scam/" },
 ];
 
+/**
+ * Cities of page size within `maxOffset` miles of the straight line between two points, with
+ * their along-track distance from the origin (planar approximation on the local tangent plane,
+ * adequate for a planning table) ordered from the origin.
+ */
+function citiesAlong(ctx: Context, a: { lat: number; lng: number }, b: { lat: number; lng: number }, length: number, skipA: number | null, skipB: number | null, maxOffset = 40, limit = 10): { city: CityRec; along: number; offset: number }[] {
+  if (length < 60) return [];
+  const rad = Math.PI / 180;
+  const kx = 69.172 * Math.cos(((a.lat + b.lat) / 2) * rad);
+  const ky = 69.172;
+  const vx = (b.lng - a.lng) * kx;
+  const vy = (b.lat - a.lat) * ky;
+  const len = Math.hypot(vx, vy) || 1;
+  const out: { city: CityRec; along: number; offset: number }[] = [];
+  for (const c of ctx.cities) {
+    if ((c.population ?? 0) < CITY_PAGE_MIN_POPULATION) break; // cities are sorted by population desc
+    if (c.id === skipA || c.id === skipB) continue;
+    const px = (c.lng - a.lng) * kx;
+    const py = (c.lat - a.lat) * ky;
+    const along = (px * vx + py * vy) / len;
+    if (along < 25 || along > len - 25) continue;
+    const offset = Math.abs(px * vy - py * vx) / len;
+    if (offset > maxOffset) continue;
+    out.push({ city: c, along, offset });
+  }
+  return out.sort((x, y) => x.along - y.along).filter((_, i, arr) => i === 0 || arr[i]!.along - arr[i - 1]!.along >= 1 || true).slice(0, limit);
+}
+
 function routeQuestions(ctx: Context, seed: number, interstate: boolean, count = 3): { question: string; topic: string; link: string; source: string; researchedOn: string | null }[] {
   const pool = ctx.questions
     .filter((q) => (q.intent === "informational" || q.intent === "commercial") && /long distance|interstate|->|national/i.test(q.geography ?? ""))
@@ -1048,8 +1076,11 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   const oCounty = oc?.countyFips ? ctx.counties.get(oc.countyFips) : undefined;
   const dCounty = dc?.countyFips ? ctx.counties.get(dc.countyFips) : undefined;
   const tzNote = isCity ? tzDifference(oCounty?.timeZone ?? null, dCounty?.timeZone ?? null, originShort, destShort, new Date(`${ctx.today}T12:00:00Z`)) : null;
+  const originPoint = isCity ? oc! : o;
+  const destPoint = isCity ? dc! : d;
+  const heading = compass(originPoint, destPoint);
   const dataPoints: DataPoint[] = [
-    { label: "Straight-line distance", value: milesText(route.distanceMiles), basis: `Haversine between ${isCity ? "city" : "state"} centroids (GeoNames)` },
+    { label: "Straight-line distance", value: `${milesText(route.distanceMiles)} ${heading}`, basis: `Haversine between ${isCity ? "city" : "state"} centroids (GeoNames)` },
     { label: "Estimated driving distance", value: `${n(transit.drivingMiles)} miles`, basis: TRANSIT_NOTE },
     { label: "Driving days", value: route.moveType === "local" ? "same day" : `${transit.drivingDays}`, basis: DRIVING_DAYS_NOTE },
     { label: "Classified as", value: `${typeShort(route.moveType)}${band ? ` (${band})` : ""}`, basis: "@amc/core classifyMove, 50-mile local radius" },
@@ -1061,32 +1092,46 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
     dataPoints.push({ label: "ZIP codes at each end", value: `${o.name} ${n(o.zipCount)}; ${d.name} ${n(d.zipCount)}`, basis: "GeoNames" });
   }
   const answer = pick(seed, 0, [
-    `Moving from ${originName} to ${destName} is ${typeWords[route.moveType]} of about ${milesText(route.distanceMiles)} in a straight line, roughly ${n(transit.drivingMiles)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles)}` : ""}${band ? `, which the cost model prices in the ${band} band` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this direction", originShort)}${route.moveType === "interstate" ? ", and FMCSA's interstate rules apply from the written estimate to delivery" : ""}.`,
-    `${originName} to ${destName} measures about ${milesText(route.distanceMiles)} between centroids (${driveText(route.distanceMiles)}), so it is ${typeWords[route.moveType]}${band ? ` in the ${band} band` : ""}${route.moveType !== "local" ? `, ${daysText(route.distanceMiles)} for the truck` : ""}. On ${ctx.today}, ${coverageSentence(coverage, "moves in this direction", originShort)}. The reverse direction has [its own page](${routeUrl(reverseSlug)}).`,
-    `About ${milesText(route.distanceMiles)} separate ${originName} and ${destName} in a straight line, ${driveText(route.distanceMiles)} by the transit model's estimate, making this ${typeWords[route.moveType]}${band ? ` (${band})` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this route", originShort)}.`,
+    `Moving from ${originName} to ${destName} is ${typeWords[route.moveType]} of about ${milesText(route.distanceMiles)} heading ${heading}, roughly ${n(transit.drivingMiles)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles)}` : ""}${band ? `, priced in the ${band} band` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this direction", originShort)}.`,
+    `${originName} to ${destName}: about ${milesText(route.distanceMiles)} ${heading} between centroids, ${driveText(route.distanceMiles)}, ${typeWords[route.moveType]}${band ? ` in the ${band} band` : ""}${route.moveType !== "local" ? `, ${daysText(route.distanceMiles)} for the truck` : ""}. On ${ctx.today}, ${coverageSentence(coverage, "moves in this direction", originShort)}; the reverse direction has [its own page](${routeUrl(reverseSlug)}).`,
+    `About ${milesText(route.distanceMiles)} separate ${originName} and ${destName} (${heading}), ${driveText(route.distanceMiles)} by the transit model's estimate, making this ${typeWords[route.moveType]}${band ? ` (${band})` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this route", originShort)}.`,
   ]);
-  // Route-specific data: the origin side's largest cities and their distance to the destination, and the destination's largest cities.
-  const originCities = (ctx.citiesByState.get(o.code) ?? []).filter((c) => c.id !== oc?.id).slice(0, 8);
-  const destCities = (ctx.citiesByState.get(d.code) ?? []).filter((c) => c.id !== dc?.id).slice(0, 8);
-  const matrixOrigins = (isCity ? [oc!, ...originCities] : originCities).slice(0, 6);
-  const matrixDests = (isCity ? [dc!, ...destCities] : destCities).slice(0, 4);
-  const matrixRows = matrixOrigins.map((a) => [`${a.name}, ${a.stateCode}`, ...matrixDests.map((b) => mi(distanceMiles(a, b)))]);
-  const destPoint = isCity ? dc! : d;
-  const originPoint = isCity ? oc! : o;
-  const originRows = originCities.map((c) => [`[${c.name}, ${c.stateCode}](${cityUrl(o, c)})`, c.population ? n(c.population) : "n/a", mi(distanceMiles(c, destPoint)), n(estimateTransit(distanceMiles(c, destPoint)).drivingMiles), bandShort(distanceMiles(c, destPoint))]);
-  const destRows = destCities.map((c) => [`[${c.name}, ${c.stateCode}](${cityUrl(d, c)})`, c.population ? n(c.population) : "n/a", n(c.zips.length), mi(distanceMiles(originPoint, c)), n(estimateTransit(distanceMiles(originPoint, c)).drivingMiles), bandShort(distanceMiles(originPoint, c))]);
-  const zipCityO = isCity ? oc! : originCities[0];
-  const zipCityD = isCity ? dc! : destCities[0];
-  const originZipRows = zipCityO ? zipCityO.zips.slice(0, 6).map((z) => { const loc = lookupZip(z)!; return [z, loc.city, mi(distanceMiles(loc, destPoint)), `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`]; }) : [];
-  const destZipRows = zipCityD ? zipCityD.zips.slice(0, 6).map((z) => { const loc = lookupZip(z)!; return [z, loc.city, mi(distanceMiles(originPoint, loc)), `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`]; }) : [];
+  // Corridor data relative to this route: cities around each end with their distance to the other end.
+  const originSide = isCity ? [oc!, ...nearestCities(ctx, oc!, 9, null).map((x) => x.city)] : (ctx.citiesByState.get(o.code) ?? []).slice(0, 10);
+  const destSide = isCity ? [dc!, ...nearestCities(ctx, dc!, 9, null).map((x) => x.city)] : (ctx.citiesByState.get(d.code) ?? []).slice(0, 10);
+  const cityLink = (c: CityRec) => ((c.population ?? 0) >= CITY_PAGE_MIN_POPULATION ? `[${c.name}, ${c.stateCode}](${cityUrl(ctx.stateByCode.get(c.stateCode)!, c)})` : `${c.name}, ${c.stateCode}`);
+  // Origin side: each city's trip to the destination (direction of travel, road miles, driving days).
+  const originRows = originSide.map((c) => {
+    const miles = distanceMiles(c, destPoint);
+    const t = classify(c.stateCode === d.code, miles);
+    return [cityLink(c), mi(miles), compass(c, destPoint), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", n(estimateTransit(miles).drivingMiles), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, t === "local" ? "0" : String(estimateTransit(miles).drivingDays)];
+  });
+  // Destination side: where each city lies from the origin, with its own size and ZIP count (a different cut from the reverse page's origin side).
+  const destRows = destSide.map((c) => {
+    const miles = distanceMiles(originPoint, c);
+    const dd = density(c.population, c.landAreaSqMi);
+    return [cityLink(c), mi(miles), compass(originPoint, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", dd !== null ? n(dd) : "n/a", n(c.zips.length), c.countyName ? `${c.countyName} County` : "n/a"];
+  });
+  // Cities along the way: within 40 miles of the straight line, ordered by distance from the origin.
+  const alongRows = citiesAlong(ctx, originPoint, destPoint, route.distanceMiles, oc?.id ?? null, dc?.id ?? null).map(({ city: c, along, offset }) => [cityLink(c), mi(along), (Math.round(offset * 10) / 10).toFixed(1), compass(originPoint, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", mi(distanceMiles(c, destPoint))]);
+  // The origin city's ZIP codes with their distance to the destination (this page only; the reverse page lists the other end's).
+  const zipCity = isCity ? oc! : (ctx.citiesByState.get(o.code) ?? [])[0];
+  const originZipRows = zipCity
+    ? zipCity.zips.slice(0, 10).map((z) => {
+        const loc = lookupZip(z)!;
+        const miles = distanceMiles(loc, destPoint);
+        return [z, mi(miles), compass(loc, destPoint), loc.city, `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`, n(estimateTransit(miles).drivingMiles)];
+      })
+    : [];
   const endRows: string[][] = isCity
     ? [
         ["Page", `[${originName}](${cityUrl(o, oc!)})`, `[${destName}](${cityUrl(d, dc!)})`],
         ["County", oc!.countyName ? `${oc!.countyName} County` : "n/a", dc!.countyName ? `${dc!.countyName} County` : "n/a"],
         ["Population", oc!.population ? `${n(oc!.population)}` : "n/a", dc!.population ? `${n(dc!.population)}` : "n/a"],
         ["Housing units", oc!.housingUnits ? n(oc!.housingUnits) : "n/a", dc!.housingUnits ? n(dc!.housingUnits) : "n/a"],
-        ["Density (people per sq mi)", density(oc!.population, oc!.landAreaSqMi) !== null ? n(density(oc!.population, oc!.landAreaSqMi)!) : "n/a", density(dc!.population, dc!.landAreaSqMi) !== null ? n(density(dc!.population, dc!.landAreaSqMi)!) : "n/a"],
+        ["Density (per sq mi)", density(oc!.population, oc!.landAreaSqMi) !== null ? n(density(oc!.population, oc!.landAreaSqMi)!) : "n/a", density(dc!.population, dc!.landAreaSqMi) !== null ? n(density(dc!.population, dc!.landAreaSqMi)!) : "n/a"],
         ["ZIP codes", n(oc!.zips.length), n(dc!.zips.length)],
+        ["Centroid", `${oc!.lat.toFixed(3)}, ${oc!.lng.toFixed(3)}`, `${dc!.lat.toFixed(3)}, ${dc!.lng.toFixed(3)}`],
         ["Time zone", oCounty?.timeZone ? tzLabel(oCounty.timeZone)! : "n/a", dCounty?.timeZone ? tzLabel(dCounty.timeZone)! : "n/a"],
       ]
     : [
@@ -1095,18 +1140,36 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
         ["ZIP codes", n(o.zipCount), n(d.zipCount)],
         ["Largest city", ctx.citiesByState.get(o.code)?.[0]?.name ?? "n/a", ctx.citiesByState.get(d.code)?.[0]?.name ?? "n/a"],
         ["Population (sum of counties)", n([...ctx.counties.values()].filter((c) => c.stateCode === o.code).reduce((s, c) => s + (c.population ?? 0), 0)), n([...ctx.counties.values()].filter((c) => c.stateCode === d.code).reduce((s, c) => s + (c.population ?? 0), 0))],
+        ["Housing units (sum of counties)", n([...ctx.counties.values()].filter((c) => c.stateCode === o.code).reduce((s, c) => s + (c.housingUnits ?? 0), 0)), n([...ctx.counties.values()].filter((c) => c.stateCode === d.code).reduce((s, c) => s + (c.housingUnits ?? 0), 0))],
+        ["Centroid", `${o.lat.toFixed(3)}, ${o.lng.toFixed(3)}`, `${d.lat.toFixed(3)}, ${d.lng.toFixed(3)}`],
       ];
   const sections: ContentSection[] = [
-    { id: "facts", heading: pick(seed, 2, [`${originShort} to ${destShort}: both ends in numbers`, `Route facts: ${originName} to ${destName}`, `What defines the ${originShort} to ${destShort} move`]), blocks: [{ type: "table", caption: isCity ? `${ACS_VINTAGE} population and housing units; ${GAZETTEER_VINTAGE} land area` : "Counts from GeoNames and the Census county table", columns: ["Fact", originShort, destShort], rows: endRows }, { type: "paragraph", text: `${originShort} to ${destShort} measures ${milesText(route.distanceMiles)} centroid to centroid; the transit model's estimate of driving distance is ${n(transit.drivingMiles)} miles (${TRANSIT_NOTE})${route.moveType !== "local" ? `, ${daysText(route.distanceMiles)} ${DRIVING_DAYS_NOTE}` : ""}. A route near a band edge may be priced in the next band.${tzNote ? ` ${tzNote}` : ""} The reverse route, [${destShort} to ${originShort}](${routeUrl(reverseSlug)}), has its own count.` }] },
-    ...(originZipRows.length && zipCityO && zipCityD ? [{ id: "zips", heading: pick(seed, 6, [`ZIP codes at each end: ${zipCityO.name} and ${zipCityD.name}`, `${zipCityO.name} and ${zipCityD.name} ZIP codes on this route`]), blocks: [{ type: "paragraph" as const, text: `${zipCityO.name} has ${plural(zipCityO.zips.length, "ZIP code")} and ${zipCityD.name} ${n(zipCityD.zips.length)}; the first six of each, with their straight-line distance to the other end.` }, { type: "table" as const, caption: `${zipCityO.name} ZIP codes`, columns: ["ZIP code", "Place", `To ${destShort} (mi)`, "Centroid"], rows: originZipRows }, { type: "table" as const, caption: `${zipCityD.name} ZIP codes`, columns: ["ZIP code", "Place", `From ${originShort} (mi)`, "Centroid"], rows: destZipRows }] }] : []),
-    ...(matrixDests.length && matrixRows.length ? [{ id: "matrix", heading: pick(seed, 8, [`City-to-city distances, ${o.name} to ${d.name}`, `${o.name} cities to ${d.name} cities, in miles`, `Distance table: ${o.name} origins, ${d.name} destinations`]), blocks: [{ type: "paragraph" as const, text: `Straight-line miles from the largest ${o.name} cities to the largest ${d.name} cities. ${matrixRows[0] ? `${matrixOrigins[0]!.name} to ${matrixDests[0]!.name} is ${matrixRows[0][1]}` : ""}${matrixRows.length > 1 && matrixDests.length > 1 ? `; ${matrixOrigins[matrixRows.length - 1]!.name} to ${matrixDests[matrixDests.length - 1]!.name} is ${matrixRows[matrixRows.length - 1]![matrixDests.length]}` : ""}.` }, { type: "table" as const, caption: "Straight-line miles", columns: ["From \\ to", ...matrixDests.map((b) => `${b.name}, ${b.stateCode}`)], rows: matrixRows }] }] : []),
-    ...(originRows.length || destRows.length ? [{ id: "cities", heading: pick(seed, 7, [`Other ${o.name} origins and ${d.name} destinations`, `Cities on the ${o.name} to ${d.name} corridor`, `Starting elsewhere in ${o.name}, arriving elsewhere in ${d.name}`]), blocks: [{ type: "paragraph" as const, text: `${originRows[0] ? `From ${originCities[0]!.name}, ${destShort} is ${milesText(distanceMiles(originCities[0]!, destPoint))}` : ""}${destRows[0] ? `; from ${originShort}, ${destCities[0]!.name} is ${milesText(distanceMiles(originPoint, destCities[0]!))}` : ""}. Each city has its own page with the movers that name its county.` }, ...(originRows.length ? [{ type: "table" as const, caption: `${o.name} cities and their distance to ${destShort}`, columns: ["Origin city", "Population", `To ${destShort} (mi)`, "Est. road (mi)", "Band (mi)"], rows: originRows }] : []), ...(destRows.length ? [{ type: "table" as const, caption: `${d.name} cities and their distance from ${originShort}`, columns: ["Destination city", "Population", "ZIP codes", `From ${originShort} (mi)`, "Est. road (mi)", "Band (mi)"], rows: destRows }] : [])] }] : []),
+    {
+      id: "facts",
+      heading: pick(seed, 2, [`${originShort} to ${destShort}: both ends in numbers`, `Route facts: ${originName} to ${destName}`, `What defines the ${originShort} to ${destShort} move`]),
+      blocks: [
+        { type: "table", caption: isCity ? `${ACS_VINTAGE} population and housing units; ${GAZETTEER_VINTAGE} land area` : `GeoNames counts; ${ACS_VINTAGE} county sums`, columns: ["Fact", originShort, destShort], rows: endRows },
+        { type: "paragraph", text: `${milesText(route.distanceMiles)} centroid to centroid heading ${heading}, an estimated ${n(transit.drivingMiles)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles)}` : ""}${band ? `; the ${band} band prices it, and a route near a band edge may fall in the next` : ""}.${tzNote ? ` ${tzNote}` : ""} The reverse route, [${destShort} to ${originShort}](${routeUrl(reverseSlug)}), has its own count.` },
+      ],
+    },
+    {
+      id: "corridor",
+      heading: pick(seed, 8, [`Around ${originShort} and ${destShort}: distances along the corridor`, `Starting near ${originShort}, arriving near ${destShort}`, `The ${originShort} to ${destShort} corridor in miles`]),
+      blocks: [
+        { type: "paragraph", text: `${isCity ? `The ten cities nearest ${originShort}` : `${o.name}'s ten largest cities`} and their trip to ${destShort}${originRows[1] ? ` (${originSide[1]!.name}: ${originRows[1][1]} mi heading ${originRows[1][2]})` : ""}; ${isCity ? `the ten nearest ${destShort}` : `${d.name}'s ten largest`} seen from ${originShort}${destRows[1] ? ` (${destSide[1]!.name}: ${destRows[1][1]} mi ${destRows[1][2]})` : ""}${alongRows.length ? `; and ${plural(alongRows.length, "city", "cities")} of ${n(CITY_PAGE_MIN_POPULATION)}+ people near the straight line between them` : ""}.` },
+        { type: "table", caption: `Origin side: the trip to ${destShort}`, columns: ["City", `To ${destShort} (mi)`, "Heading", "Population", "Housing units", "Est. road (mi)", "Classified as, band (mi)", "Driving days"], rows: originRows },
+        { type: "table", caption: `Destination side: where each lies from ${originShort}`, columns: ["City", `From ${originShort} (mi)`, "Direction", "Population", "Housing units", "Density (per sq mi)", "ZIP codes", "County"], rows: destRows },
+        ...(alongRows.length ? [{ type: "table" as const, caption: `Cities within 40 miles of the straight line, in order from ${originShort}`, columns: ["City", `From ${originShort} along the line (mi)`, "Off the line (mi)", "Direction", "Population", "Housing units", `To ${destShort} (mi)`], rows: alongRows }] : []),
+        ...(originZipRows.length ? [{ type: "table" as const, caption: `${zipCity!.name} ZIP codes and their distance to ${destShort}`, columns: ["ZIP code", `To ${destShort} (mi)`, "Heading", "Place", "Centroid (lat, lng)", "Est. road (mi)"], rows: originZipRows }] : []),
+        { type: "note", text: METHOD_NOTE },
+      ],
+    },
     {
       id: "movers",
       heading: pick(seed, 3, [`Movers covering ${originShort} to ${destShort}`, `Who can receive a ${originShort} to ${destShort} request`, `Directional coverage: ${originShort} → ${destShort}`]),
       blocks: coverage.matched.length
-        ? [{ type: "paragraph", text: `${coverageSentence(coverage, `${originShort} to ${destShort} moves`, originShort)} (rules are directional: ${o.name} origins to ${d.name} destinations, or between states from anywhere).` }, moversBlock(coverage, (m) => (m.basedIn ? `Based in ${m.basedIn.city}, ${m.basedIn.state}` : `Covers ${o.name} to ${d.name}`), "Listed movers")]
-        : [{ type: "paragraph", text: `As of ${ctx.today}, no mover in our network covers a 2-bedroom move from ${originName} to ${destName}; the survey checks your exact ZIP codes and sizes.` }],
+        ? [{ type: "paragraph", text: `${coverageSentence(coverage, `${originShort} to ${destShort} moves`, originShort)}; rules are directional (${o.name} origins to ${d.name} destinations, or between states from anywhere).` }, moversBlock(coverage, (m) => (m.basedIn ? `Based in ${m.basedIn.city}, ${m.basedIn.state}` : `Covers ${o.name} to ${d.name}`), "Listed movers")]
+        : [{ type: "paragraph", text: `As of ${ctx.today}, no network mover covers a 2-bedroom move from ${originName} to ${destName}; the survey checks your exact ZIP codes and sizes.` }],
     },
   ];
   const draft: Draft = {
@@ -1134,30 +1197,31 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   };
   draft._finish = async () => {
     const block = await costBlockFor(ctx.db, { originState: o.code, areaName: o.name, miles: route.distanceMiles, moveType: route.moveType, scope: `${typeWords[route.moveType]} from ${o.name} of about ${milesText(route.distanceMiles)} (${originShort} to ${destShort})` }, new Date(), ctx.cardCache);
-    draft.content.sections.push({ id: "costs", heading: pick(seed, 4, [`What ${originShort} to ${destShort} costs: rate-card ranges`, `Cost ranges for ${originShort} to ${destShort}`, `${originShort} to ${destShort} moving cost, from the data we have`]), blocks: [{ type: "paragraph", text: block.rows.length ? `${plural(block.rows[0]!.movers, "mover")} with active cards covering ${o.name} price the ${band ?? "local"} band; the 2-bedroom typical shipment is ${block.rows.find((r) => r.homeSize === "2 bedrooms")?.typical ?? block.rows[0]!.typical} (cost-model-v1, [method](/moving-cost-calculator/method/)). Planning figures, never a quote.` : `${ctx.cardMovers.get(o.code) ?? 0} of the five movers' rate cards a ${originShort} to ${destShort} range needs cover ${o.name}, so no figure is shown.` }, { type: "cost", block }] });
+    draft.content.sections.push({ id: "costs", heading: pick(seed, 4, [`What ${originShort} to ${destShort} costs: rate-card ranges`, `Cost ranges for ${originShort} to ${destShort}`, `${originShort} to ${destShort} moving cost, from the data we have`]), blocks: [{ type: "paragraph", text: block.rows.length ? `${plural(block.rows[0]!.movers, "mover")} with active cards covering ${o.name} price the ${band ?? "local"} band; the 2-bedroom typical shipment is ${block.rows.find((r) => r.homeSize === "2 bedrooms")?.typical ?? block.rows[0]!.typical} (cost-model-v1, [method](/moving-cost-calculator/method/)). Planning figures, never a quote.` : `${ctx.cardMovers.get(o.code) ?? 0} of the 5 rate cards a ${originShort} to ${destShort} range needs cover ${o.name}, so no figure is shown.` }, { type: "cost", block }] });
     const ruleBlocks: ContentBlock[] = [];
     if (route.moveType === "interstate") ruleBlocks.push({ type: "paragraph", text: `${o.name} to ${d.name} crosses a state line, so FMCSA's rules apply ([every document an interstate mover owes you](/questions/what-documents-should-a-mover-give-me/)); one in full:` }, factsBlock(national));
     else ruleBlocks.push({ type: "paragraph", text: `Both ends are in ${o.name}, so the state's rules apply rather than FMCSA's Part 375 (unless the route crosses another state).` }, factsBlock(national));
     if (originReg.length) ruleBlocks.push({ type: "paragraph", text: `Departure side (${o.name}):` }, factsBlock(originReg));
     if (destReg.length) ruleBlocks.push({ type: "paragraph", text: `Arrival side (${d.name}):` }, factsBlock(destReg));
-    if (!originReg.length && !destReg.length) ruleBlocks.push({ type: "note", text: `We have not yet verified the state regulators for ${o.name}${o.code !== d.code ? ` or ${d.name}` : ""}, so this page makes no claim about state licensing. Check any mover's USDOT record on [${FMCSA_LINKS.protectYourMove.label}](${FMCSA_LINKS.protectYourMove.url}).` });
+    if (!originReg.length && !destReg.length) ruleBlocks.push({ type: "note", text: `State regulators for ${o.name}${o.code !== d.code ? ` and ${d.name}` : ""} are not yet verified, so no state licensing claim is made; check any mover's USDOT record on [${FMCSA_LINKS.protectYourMove.label}](${FMCSA_LINKS.protectYourMove.url}).` });
     draft.content.sections.push({ id: "rules", heading: pick(seed, 5, [`Rules on a ${originShort} to ${destShort} move`, `Departure and arrival: what applies`, `Your rights moving from ${o.name} to ${d.name}`]), blocks: ruleBlocks });
-    // Questions people ask about long-distance routes, from the question library, answered with this route's figures and a sourced fact.
+    // Questions people ask about long-distance routes, from the question library: each answered with this route's figures and the page that holds the sourced rule.
     const questions = routeQuestions(ctx, seed, route.moveType === "interstate");
     const qFacts = questions.map((q) => ({ q, fact: factsFor(ctx, "national", [q.topic])[0] })).filter((x) => x.fact);
     if (qFacts.length) {
       draft.content.sections.push({
         id: "questions",
         heading: pick(seed, 9, [`Questions people ask about a ${originShort} to ${destShort} move`, `Before you book ${originShort} to ${destShort}`, `${originShort} to ${destShort}: the questions the research turned up`]),
-        blocks: qFacts.flatMap(({ q, fact }) => [
-          { type: "paragraph" as const, text: `${q.question} For ${originShort} to ${destShort} (${milesText(route.distanceMiles)}, ${driveText(route.distanceMiles)}${route.moveType !== "local" ? `, ${daysText(route.distanceMiles)}` : ""}): ${fact!.claim} ([${fact!.sourceLabel}](${fact!.sourceUrl}), read ${fact!.accessedOn}; more on [this page](${q.link}). Question from ${q.source}${q.researchedOn ? `, ${q.researchedOn}` : ""}.)` },
-        ]),
+        blocks: [
+          { type: "paragraph", text: `Three questions the research turned up for moves like ${originShort} to ${destShort} (${mi(route.distanceMiles)} mi, ${n(transit.drivingMiles)} road mi${route.moveType !== "local" ? `, ${transit.drivingDays} driving ${transit.drivingDays === 1 ? "day" : "days"}` : ""}), each answered on its own page from the rule cited there.` },
+          { type: "list", items: qFacts.map(({ q, fact }) => `[${q.question}](${q.link}) (${fact!.sourceLabel})`) },
+        ],
       });
       draft.sources.push(...sourcesOf(qFacts.map((x) => x.fact!)).filter((s) => !draft.sources.some((e) => e.url === s.url)));
     }
     draft.content.faq = [
-      { question: `How far is ${originShort} from ${destShort}?`, answer: `About ${milesText(route.distanceMiles)} centroid to centroid (${band ?? "local"} band), an estimated ${n(transit.drivingMiles)} road miles.` },
-      ...(route.moveType !== "local" ? [{ question: `How many days does a move from ${originShort} to ${destShort} take?`, answer: `${daysText(route.distanceMiles)} for the truck ${DRIVING_DAYS_NOTE}. The delivery spread an interstate mover commits to is written in the bill of lading; [what a delivery spread is](/questions/what-is-a-moving-delivery-spread/).` }] : []),
+      { question: `How far is ${originShort} from ${destShort}?`, answer: `About ${milesText(route.distanceMiles)} centroid to centroid heading ${heading} (${band ?? "local"} band), an estimated ${n(transit.drivingMiles)} road miles.` },
+      ...(route.moveType !== "local" ? [{ question: `How many days does a move from ${originShort} to ${destShort} take?`, answer: `${daysText(route.distanceMiles)} for the ${n(transit.drivingMiles)} road miles at up to 500 a day; the [delivery spread](/questions/what-is-a-moving-delivery-spread/) an interstate mover commits to is written in the bill of lading.` }] : []),
       { question: `How many movers cover ${originShort} to ${destShort}?`, answer: `${plural(coverage.matched.length, "mover")} as of ${ctx.today}${coverage.explicit.length ? `, ${coverage.explicit.length} naming ${o.name} explicitly` : ""}.` },
       { question: `What does a ${originShort} to ${destShort} move cost?`, answer: block.rows.length ? `From rate cards covering ${o.name}, as of ${block.asOf}: ${block.rows.map((r) => `${r.homeSize} ${r.low} to ${r.high}`).join("; ")}. Planning ranges, not quotes.` : `No range yet: ${ctx.cardMovers.get(o.code) ?? 0} of five movers' cards cover ${o.name}.` },
     ];
@@ -1169,7 +1233,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
       { heading: "Origin and destination", links: isCity ? [{ href: cityUrl(o, oc!), label: `Movers in ${originName}`, relation: "origin" }, { href: cityUrl(d, dc!), label: `Movers in ${destName}`, relation: "destination" }, { href: stateUrl(o), label: `Moving companies in ${o.name}`, relation: "origin_state" }, ...(o.code !== d.code ? [{ href: stateUrl(d), label: `Moving companies in ${d.name}`, relation: "destination_state" }] : [])] : [{ href: stateUrl(o), label: `Moving companies in ${o.name}`, relation: "origin_state" }, { href: stateUrl(d), label: `Moving companies in ${d.name}`, relation: "destination_state" }, { href: costStateUrl(o), label: `Moving costs in ${o.name}`, relation: "cost" }] },
       { heading: "Services and questions", links: [{ href: route.moveType === "interstate" ? "/services/interstate/" : route.moveType === "local" ? "/services/local/" : "/services/long-distance/", label: route.moveType === "interstate" ? "Interstate movers" : route.moveType === "local" ? "Local movers" : "Long-distance movers", relation: "service" }, { href: route.moveType === "local" ? "/moving-costs/local/" : "/moving-costs/long-distance/", label: route.moveType === "local" ? "Local moving costs" : "Long-distance moving costs", relation: "cost" }, { href: "/questions/what-is-a-moving-delivery-spread/", label: "What is a delivery spread?", relation: "question" }, { href: "/questions/what-is-the-110-percent-rule/", label: "What is the 110% rule?", relation: "question" }, { href: "/planning/moving-out-of-state-checklist/", label: "Moving out of state checklist", relation: "planning" }] },
     ];
-    draft.evidenceCount = dataPoints.length + endRows.length + national.length + originReg.length + destReg.length + (block.rows.length ? 1 : 0) + originRows.length + destRows.length + originZipRows.length + destZipRows.length + matrixRows.length * matrixDests.length + qFacts.length + (tzNote ? 1 : 0);
+    draft.evidenceCount = dataPoints.length + endRows.length + national.length + originReg.length + destReg.length + (block.rows.length ? 1 : 0) + originRows.length + destRows.length + alongRows.length + originZipRows.length + qFacts.length + (tzNote ? 1 : 0);
   };
   return draft;
 }

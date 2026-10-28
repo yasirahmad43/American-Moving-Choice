@@ -1,7 +1,7 @@
 /**
  * Small site crawler for the SEO checks (site architecture §3.3, §8; seo-technical skill).
  *
- *   pnpm seo:crawl [--base http://localhost:3500] [--out docs/seo/crawl-report.md] [--max 5000]
+ *   pnpm seo:crawl [--base http://localhost:3500] [--out docs/seo/crawl-report.md] [--max 5000] [--concurrency 6]
  *
  * Starts from / and the sitemap index, follows every same-origin <a href>, and reports: broken
  * links (non-200), redirect chains, duplicate titles and descriptions, missing or multiple H1s,
@@ -41,6 +41,7 @@ const BASE = opt("base", "http://localhost:3500").replace(/\/$/, "");
 // pnpm runs the script inside packages/server; the report path is relative to where the command was typed.
 const OUT = resolve(process.env.INIT_CWD ?? process.cwd(), opt("out", "docs/seo/crawl-report.md"));
 const MAX = Number(opt("max", "5000"));
+const CONCURRENCY = Math.max(1, Number(opt("concurrency", "6")));
 
 const attr = (tag: string, name: string): string | null => {
   const m = new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)')`, "i").exec(tag);
@@ -127,44 +128,60 @@ async function main(): Promise<void> {
   const sitemap = await sitemapUrls();
   for (const url of sitemap.urls.keys()) queue.push({ url, depth: 99, from: "sitemap" });
   const seen = new Set<string>();
-  while (queue.length && pages.size < MAX) {
-    const next = queue.shift()!;
-    if (seen.has(next.url)) {
-      const page = pages.get(next.url);
-      if (page) {
-        if (next.from && next.from !== "sitemap") page.inbound.add(next.from);
-        if (next.depth < page.depth) page.depth = next.depth;
+  // Workers share one queue (index pointer, never shift() on a long array); links found by one
+  // worker are queued for any worker. Inbound/depth bookkeeping is on the single thread.
+  let head = 0;
+  const started = Date.now();
+  let fetched = 0;
+  const work = async (): Promise<void> => {
+    for (;;) {
+      if (pages.size >= MAX) return;
+      while (head < queue.length && seen.has(queue[head]!.url)) {
+        const next = queue[head++]!;
+        const page = pages.get(next.url);
+        if (page) {
+          if (next.from && next.from !== "sitemap") page.inbound.add(next.from);
+          if (next.depth < page.depth) page.depth = next.depth;
+        }
       }
-      continue;
-    }
-    seen.add(next.url);
-    const { status, finalUrl, html, hops, xRobots } = await fetchPage(next.url);
-    if (hops) redirects.push({ from: next.url, to: finalUrl, hops });
-    const parsed = parse(html);
-    const info: PageInfo = {
-      url: next.url,
-      status,
-      finalUrl,
-      ...parsed,
-      depth: next.depth,
-      inbound: new Set(next.from && next.from !== "sitemap" ? [next.from] : []),
-      bytes: Buffer.byteLength(html),
-      xRobots,
-    };
-    pages.set(next.url, info);
-    if (status === 200 && html) {
-      for (const href of parsed.links) {
-        const target = normalize(href, finalUrl);
-        if (!target) continue;
-        if (seen.has(target)) {
-          const t = pages.get(target);
-          if (t) {
-            t.inbound.add(next.url);
-            if (next.depth + 1 < t.depth) t.depth = next.depth + 1;
-          }
-        } else queue.push({ url: target, depth: next.depth + 1, from: next.url });
+      if (head >= queue.length) return;
+      const next = queue[head++]!;
+      seen.add(next.url);
+      const { status, finalUrl, html, hops, xRobots } = await fetchPage(next.url);
+      if (hops) redirects.push({ from: next.url, to: finalUrl, hops });
+      const parsed = parse(html);
+      const info: PageInfo = {
+        url: next.url,
+        status,
+        finalUrl,
+        ...parsed,
+        depth: next.depth,
+        inbound: new Set(next.from && next.from !== "sitemap" ? [next.from] : []),
+        bytes: Buffer.byteLength(html),
+        xRobots,
+      };
+      pages.set(next.url, info);
+      if (++fetched % 500 === 0) console.log(`crawled ${fetched} pages, ${queue.length - head} queued (${Math.round((Date.now() - started) / 1000)}s)`);
+      if (status === 200 && html) {
+        for (const href of parsed.links) {
+          const target = normalize(href, finalUrl);
+          if (!target) continue;
+          if (seen.has(target)) {
+            const t = pages.get(target);
+            if (t) {
+              t.inbound.add(next.url);
+              if (next.depth + 1 < t.depth) t.depth = next.depth + 1;
+            }
+          } else queue.push({ url: target, depth: next.depth + 1, from: next.url });
+        }
       }
     }
+  };
+  // Drain with a pool; a worker that finds the queue empty retires, and the pool is restarted while
+  // other workers may still add links.
+  for (;;) {
+    await Promise.all(Array.from({ length: CONCURRENCY }, () => work()));
+    if (head >= queue.length || pages.size >= MAX) break;
   }
   // Second pass: depth via BFS from home over the crawled graph (sitemap entries started at 99).
   const depth = new Map<string, number>([[`${BASE}/`, 0]]);

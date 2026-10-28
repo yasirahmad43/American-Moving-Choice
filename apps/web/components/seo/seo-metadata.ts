@@ -58,9 +58,16 @@ export function pageLd(webUrl: string, page: SeoPageRecord) {
   return { ...base, "@type": page.content.schemaType };
 }
 
-/** FAQPage for the visible FAQ (no rich result since 2026-05-07; kept for answer engines, per the brief). */
+/**
+ * FAQPage JSON-LD switch (site architecture §8.5). OFF: Google has shown no FAQ rich result for
+ * sites like this one since 2026-05-07, and emitting markup for a result that cannot appear is
+ * noise for the schema lint. The visible FAQ stays; flip this to true to emit the markup again.
+ */
+export const FAQ_JSON_LD = false;
+
+/** FAQPage for the visible FAQ, only while FAQ_JSON_LD is on. */
 export function faqLd(page: SeoPageRecord) {
-  if (!page.content.faq.length) return null;
+  if (!FAQ_JSON_LD || !page.content.faq.length) return null;
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
