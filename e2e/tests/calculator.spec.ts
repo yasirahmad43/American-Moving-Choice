@@ -4,6 +4,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import { APP_URL, WEB_URL, seedLogin } from "./env";
+import { inDays } from "./helpers";
 
 const CALCULATOR = `${WEB_URL}/moving-cost-calculator/`;
 
@@ -74,17 +75,17 @@ test.describe("moving cost calculator", () => {
 
     await page.getByRole("button", { name: "See which movers cover this move" }).click();
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
-    const prefill = JSON.parse((await page.evaluate(() => sessionStorage.getItem("amc.survey.prefill"))) ?? "null");
-    expect(prefill).toEqual({
-      v: 1,
-      source: "cost-calculator",
-      originZip: "75201",
-      destinationZip: "77002",
-      moveSize: "2br",
-      services: ["packing"],
-      confirm: true,
-      modelVersion: "cost-model-v1",
-    });
+    // The survey reads the calculator's prefill once (then clears it) and shows every carried
+    // answer for confirmation, starting at Where.
+    await expect(page.getByText("Check the answers we carried over")).toBeVisible();
+    expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.prefill"))).toBeNull();
+    await expect(page.getByLabel("ZIP code you're moving from")).toHaveValue("75201");
+    await expect(page.getByLabel("ZIP code you're moving to")).toHaveValue("77002");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Move date").fill(inDays(30));
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByLabel("2 bedrooms")).toBeChecked();
+    await expect(page.getByLabel("Packing")).toBeChecked();
   });
 
   test("a Wyoming ZIP pair shows the not-enough-data state with the next step", async ({ page }) => {
