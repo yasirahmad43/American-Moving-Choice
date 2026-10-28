@@ -58,7 +58,7 @@ Two things to know about this rule:
 - Some legitimate local movers work only within one state. They hold state credentials instead and have no MC number, so this rule leaves them out for now. [Verify: intrastate-only movers hold no FMCSA operating authority and no MC number (compliance facts §1, search excerpts).]
 - FMCSA has [proposed no longer assigning MC numbers](https://www.fmcsa.dot.gov/faq/will-fmcsa-stop-issuing-mc-numbers). Any change would first go out as a proposed rule for public comment, and existing numbers won't change. For now, MC numbers are still issued. [Verify: FMCSA FAQ "Will FMCSA stop issuing MC Numbers?" and FMCSA "What's coming" (compliance facts §1, search excerpts); check federalregister.gov for a proposed rule published after 2026-09-24 (compliance facts open item 1).]
 
-So the requirement is a setting we can turn off. If we do, this page and our movers-only statement will change, and the changelog will record it. [Build: show this section, the MC table row and the MC profile row only while `{{setting.require_mc_number}}` is on.]
+That's why the requirement is a setting we can turn off. If we do, this page and our movers-only statement will change, and the changelog will record it. [Build: show this section, the MC table row and the MC profile row only while `{{setting.require_mc_number}}` is on.]
 
 ### Active household-goods carrier authority
 
@@ -209,7 +209,7 @@ Any change to the badge's name or meaning will be recorded in the changelog at t
 
 Our checks are our own. They aren't a license, a certification or a government approval.
 
-**What a pass tells you:** that on the date shown, the company met every requirement and passed every check on this page.
+**What a pass tells you:** that on the date shown, the company met every requirement on this page that applies to it.
 
 **What it can't tell you:**
 
@@ -246,7 +246,7 @@ For complaints about a move itself, see [Complaints](/complaints/), which also e
 
 ## Version and changes
 
-This page is the one place where we describe how we check movers. The badge explainer and the explanations of our checks on every profile render from the same versioned text, so they always match it. We record each change, with its date, in the changelog below.
+This page is the one place where we describe how we check movers. The badge explainer and the explanations of our checks on every profile render from the same versioned text, so they say the same thing. We record each change, with its date, in the changelog below.
 
 Version {{page.version}} · {{page.version_date}}
 
