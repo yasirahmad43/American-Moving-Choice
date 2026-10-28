@@ -1,0 +1,225 @@
+/*
+ * Content-page typography and review notes (build plan §8; VD §6, §7). Plain CSS on the design
+ * tokens, so Markdown output (which carries no Tailwind classes) gets the same look in light and
+ * dark mode.
+ */
+/* In the components layer, so Tailwind utilities (buttons and links inside a page body) still win. */
+@layer components {
+  .prose {
+    /* A grid child: without this, a wide table would widen the page instead of scrolling. */
+    min-width: 0;
+    max-width: 72ch;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .prose > * + * {
+    margin-top: 1rem;
+  }
+  .prose h2 {
+    margin-top: 2.75rem;
+    font-family: var(--ff-display);
+    font-weight: 800;
+    font-stretch: 85%;
+    font-size: clamp(1.5rem, 1.25rem + 0.9vw, 1.875rem);
+    line-height: 1.15;
+    scroll-margin-top: 1.5rem;
+  }
+  .prose h3 {
+    margin-top: 2rem;
+    font-family: var(--ff-display);
+    font-weight: 700;
+    font-size: 1.3125rem;
+    line-height: 1.25;
+    scroll-margin-top: 1.5rem;
+  }
+  .prose h4 {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    scroll-margin-top: 1.5rem;
+  }
+  .prose h2 + *,
+  .prose h3 + *,
+  .prose h4 + * {
+    margin-top: 0.75rem;
+  }
+  .prose a {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .prose a:hover {
+    text-decoration-thickness: 2px;
+  }
+  .prose a.heading-anchor {
+    display: inline-block;
+    min-width: 1.5rem;
+    padding-inline: 0.25rem;
+    color: var(--text-3);
+    text-decoration: none;
+    font-weight: 600;
+    opacity: 0.55;
+  }
+  .prose a.heading-anchor:hover,
+  .prose a.heading-anchor:focus-visible {
+    opacity: 1;
+    color: var(--link);
+  }
+  .prose strong {
+    font-weight: 700;
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5rem;
+  }
+  .prose ul {
+    list-style: disc;
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li + li {
+    margin-top: 0.375rem;
+  }
+  .prose li > ul,
+  .prose li > ol {
+    margin-top: 0.375rem;
+  }
+  .prose blockquote {
+    border-left: 4px solid var(--border-strong);
+    background: var(--surface-2);
+    border-radius: 0 var(--r-control) var(--r-control) 0;
+    padding: 0.875rem 1.125rem;
+  }
+  .prose blockquote > * + * {
+    margin-top: 0.75rem;
+  }
+  .prose code {
+    font-family: var(--ff-mono);
+    font-size: 0.875em;
+    background: var(--surface-3);
+    border-radius: var(--r-tag);
+    padding: 0.05em 0.3em;
+    overflow-wrap: anywhere;
+  }
+  .prose pre {
+    overflow-x: auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-control);
+    padding: 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+  .prose pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+  }
+  .prose hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin-block: 2rem;
+  }
+
+  /* Tables: a focusable scroll region so keyboard users can scroll wide tables (WCAG 2.1.1). */
+  .prose .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--r-control);
+    max-width: 100%;
+  }
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9688rem;
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+  }
+  .prose th,
+  .prose td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid var(--border);
+    min-width: 7rem;
+  }
+  .prose thead th {
+    background: var(--surface-2);
+    font-weight: 700;
+    border-bottom: 1.5px solid var(--border-strong);
+  }
+  .prose tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  /* Review notes: visible in the preview, never shipped (content/README.md §3). */
+  .review-note {
+    display: inline;
+    color: var(--text);
+    border-radius: var(--r-tag);
+    padding: 0.05em 0.35em;
+    font-size: 0.9375em;
+    line-height: 1.55;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    border-left: 3px solid var(--note-edge);
+    background: var(--note-bg);
+  }
+  .review-note .review-note__label {
+    font-weight: 700;
+    text-transform: none;
+  }
+  .review-note--counsel {
+    --note-bg: var(--error-bg);
+    --note-edge: var(--error);
+  }
+  .review-note--owner {
+    --note-bg: var(--warning-bg);
+    --note-edge: var(--warning);
+  }
+  .review-note--data {
+    --note-bg: var(--info-bg);
+    --note-edge: var(--info-text);
+  }
+  .review-note--verify {
+    --note-bg: var(--surface-3);
+    --note-edge: var(--border-strong);
+  }
+  .review-note--build {
+    --note-bg: var(--success-bg);
+    --note-edge: var(--success);
+  }
+  .review-note .review-note {
+    font-size: 1em;
+  }
+
+  /* Pending tokens: a dashed outline so a missing value is never mistaken for a real one. */
+  .token-pending {
+    display: inline-block;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--r-tag);
+    padding: 0 0.35em;
+    font-size: 0.875em;
+    font-weight: 600;
+    color: var(--text-2);
+    background: var(--surface);
+    line-height: 1.45;
+  }
+
+  /* Explicit anchors that don't sit before a heading. */
+  .prose > div[id]:empty {
+    margin: 0;
+  }
+
+  /* Components placed inside a page body (navigation, forms, calls to action) opt out. */
+  .prose .not-prose ul,
+  .prose .not-prose ol {
+    list-style: none;
+    padding-left: 0;
+  }
+  .prose .not-prose li + li {
+    margin-top: 0;
+  }
+}
