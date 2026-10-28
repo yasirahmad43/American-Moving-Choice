@@ -17,6 +17,7 @@ import "server-only";
  *
  * Replacing an asset means editing its manifest entry; no component changes.
  */
+import { resolvePageMedia } from "@amc/server/media";
 import manifestJson from "@/content/media/manifest.json";
 import type { MediaAsset, MediaCredit, MediaKind } from "./media-sources";
 
@@ -123,22 +124,8 @@ export function claimMediaById(page: string, id: string): MediaAsset {
  * that is missing from the manifest or reserved for another page is skipped with a logged
  * error rather than failing the page: the store and the manifest are reconciled by media-sync.
  */
-export function mediaForSeoPage(page: string, ids: string[]): MediaAsset[] {
-  const out: MediaAsset[] = [];
-  for (const id of ids) {
-    const asset = mediaById(id);
-    if (!asset) {
-      console.error(`media manifest: seo page "${page}" lists unknown asset "${id}"`);
-      continue;
-    }
-    const owner = claims.get(asset.id) ?? asset.usedOn[0];
-    if (owner && owner !== page) {
-      console.error(`media manifest: seo page "${page}" lists asset "${id}" that belongs to "${owner}"; skipped`);
-      continue;
-    }
-    out.push(claim(asset, page));
-  }
-  return out;
+export async function mediaForSeoPage(page: string, ids: string[]): Promise<MediaAsset[]> {
+  return (await resolvePageMedia(page, ids)).map(({ upload: _upload, rejected: _rejected, ...asset }) => asset);
 }
 
 /** The srcset attribute for an image asset, or undefined when it has one size. */

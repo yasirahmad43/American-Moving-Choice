@@ -4,7 +4,7 @@
  *
  *   tsx scripts/seo.ts import-geo
  *   tsx scripts/seo.ts import-research <csv> [<csv>...]
- *   tsx scripts/seo.ts generate <family> [--limit N] [--only slug,slug]
+ *   tsx scripts/seo.ts generate <family> [--limit N] [--only slug,slug] [--reasons metro_pair,state_pair] [--min-population N] [--chunk N]
  *   tsx scripts/seo.ts publish [--status ready] [--family x] [--limit N]
  *   tsx scripts/seo.ts review --reviewer "Name" [--family x]   (marks ready pages as reviewed)
  *   tsx scripts/seo.ts report
@@ -12,18 +12,16 @@
  * Media: if apps/web/content/media/manifest.json exists, its assets are offered to the generator
  * (one asset per page, never reused; apps/web/lib/media.ts reads the same manifest).
  */
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import pg from "pg";
 import { importGeo } from "../src/seo/geo-import";
 import { generateFamily } from "../src/seo/generate";
 import { pipelineCounts, publishPages } from "../src/seo/publish";
 import { importResearch } from "../src/seo/research";
 import { isSeoFamily } from "../src/seo/slugs";
-import type { MediaAsset } from "../src/seo/types";
+import { claimableMedia } from "../src/media/manifest";
+import { syncMediaManifest } from "../src/admin/content-media";
 
-const here = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_URL = "postgres://amc_app:amc_app@localhost:5432/amc_dev";
 
 function flags(args: string[]): { positional: string[]; options: Record<string, string> } {
@@ -37,14 +35,6 @@ function flags(args: string[]): { positional: string[]; options: Record<string, 
     } else positional.push(arg);
   }
   return { positional, options };
-}
-
-function loadMedia(): MediaAsset[] {
-  const path = join(here, "..", "..", "..", "apps", "web", "content", "media", "manifest.json");
-  if (!existsSync(path)) return [];
-  const parsed = JSON.parse(readFileSync(path, "utf8")) as { assets?: MediaAsset[] } | MediaAsset[];
-  // Assets the admin rejected (manifest `rejected`) are never offered to the generator.
-  return (Array.isArray(parsed) ? parsed : (parsed.assets ?? [])).filter((a) => !(a as { rejected?: unknown }).rejected);
 }
 
 async function main(): Promise<void> {
@@ -69,7 +59,15 @@ async function main(): Promise<void> {
       case "generate": {
         const family = positional[0] ?? "";
         if (!isSeoFamily(family)) throw new Error(`unknown family "${family}"`);
-        const summary = await generateFamily(pool, family, { limit: options.limit ? Number(options.limit) : undefined, only: options.only ? options.only.split(",") : undefined, media: loadMedia(), log });
+        const summary = await generateFamily(pool, family, {
+          limit: options.limit ? Number(options.limit) : undefined,
+          only: options.only ? options.only.split(",") : undefined,
+          reasons: options.reasons ? options.reasons.split(",") : undefined,
+          minPopulation: options["min-population"] ? Number(options["min-population"]) : undefined,
+          chunkSize: options.chunk ? Number(options.chunk) : undefined,
+          media: await claimableMedia(pool),
+          log,
+        });
         console.log(JSON.stringify(summary));
         break;
       }
@@ -88,23 +86,8 @@ async function main(): Promise<void> {
         break;
       }
       case "media-sync": {
-        // Writes the pages' claims (seo_pages.media_ids) into the manifest's usedOn, so `pnpm media:check` validates them.
-        const path = join(here, "..", "..", "..", "apps", "web", "content", "media", "manifest.json");
-        const manifest = JSON.parse(readFileSync(path, "utf8")) as { assets: { id: string; usedOn: string[] }[] };
-        const claims = await pool.query<{ url: string; media_ids: string[] }>("select url, media_ids from seo_pages where jsonb_array_length(media_ids) > 0");
-        const byAsset = new Map<string, string>();
-        for (const row of claims.rows) for (const id of row.media_ids) byAsset.set(id, row.url);
-        let changed = 0;
-        for (const asset of manifest.assets) {
-          const owner = byAsset.get(asset.id);
-          const next = owner ? [owner] : asset.usedOn.filter((u) => !/^\/(movers|routes|services|moving-costs|questions|planning)\//.test(u));
-          if (JSON.stringify(next) !== JSON.stringify(asset.usedOn)) {
-            asset.usedOn = next;
-            changed++;
-          }
-        }
-        writeFileSync(path, JSON.stringify(manifest, null, 2) + "\n");
-        console.log(`media-sync: ${byAsset.size} assets claimed by pages, ${changed} manifest entries updated`);
+        const result = await syncMediaManifest(pool);
+        console.log(`media-sync: ${result.claimed} assets claimed, ${result.changed} database manifest records updated`);
         break;
       }
       case "report": {

@@ -133,7 +133,7 @@ Before you sign the bill of lading, the contract for an interstate move, the mov
 
 [Counsel: the consumer-moving-rules note, counsel item 4, asks whether pages may describe "not-to-exceed" estimates, an industry term with no federal definition found (C7, unverified), and California's state-defined "Not to Exceed Price". The draft says nothing about either.]
 
-[Moving estimates explained](/guides/moving-estimates-explained/) goes further into binding and non-binding estimates.
+[How to compare moving estimates](/questions/how-to-compare-moving-estimates/) explains what to check when comparing written quotes.
 
 <a id="why-should-a-survey-come-before-the-estimate"></a>
 
@@ -243,11 +243,11 @@ List any item worth more than $100 a pound, such as jewelry or silverware, for t
 
 FMCSA lists a mover's claim that its insurance covers all your goods among its [red flags](https://www.fmcsa.dot.gov/protect-your-move/red-flags).
 
-If something is lost or damaged, file a claim with the mover. It can't give you less than 9 months to file one, and within 120 days of receiving your claim it must pay it, decline it or make a firm settlement offer in writing, or tell you in writing why it can't yet ([49 U.S.C. 14706](https://www.law.cornell.edu/uscode/text/49/14706); [49 CFR 370.9](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-370/section-370.9)). [Your rights when moving interstate](/guides/your-rights-when-moving-interstate/) explains claims and your other rights.
+If something is lost or damaged, file a claim with the mover. It can't give you less than 9 months to file one, and within 120 days of receiving your claim it must pay it, decline it or make a firm settlement offer in writing, or tell you in writing why it can't yet ([49 U.S.C. 14706](https://www.law.cornell.edu/uscode/text/49/14706); [49 CFR 370.9](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-370/section-370.9)). [What happens if goods are damaged?](/questions/what-happens-if-my-goods-are-damaged-in-a-move/) covers the claims questions to raise with your mover.
 
 [Verify: C10 (verified-excerpt); 49 U.S.C. 14706(f)(2), (f)(3); 49 CFR 375.201(b), (c); 375.401(g); 375.505; STB, RR 999 (Amendment No. 5). The page says nothing about whether valuation is insurance until research adds an excerpt from FMCSA's valuation page or Appendix A (brief SR-44). Appendix A for the released-value point. A5 (verified-excerpt); 49 CFR 375.203(b), (c). C14 (verified-excerpt) for the red flag, paraphrased. A4 (verified-excerpt); 49 U.S.C. 14706(e); 49 CFR 370.9. The section holding Part 370's 30-day acknowledgment rule wasn't confirmed, so the page leaves it out.] [Counsel: whether to state the 60-cents-per-pound limit and the full-value default as fixed figures, given that the STB order lets carriers index some figures and each tariff prices full value protection, and whether RR 999 (Amendment No. 5) is still current (consumer-moving-rules note, counsel item 5).]
 
-Valuation comes from the mover you hire, not from American Moving Choice: we don't sell valuation, insurance or any other coverage. [Owner: confirm that AMC offers no valuation, insurance or protection product — default shown (implications D5)] [Moving insurance and valuation](/guides/moving-insurance-and-valuation/) explains the options in more depth.
+Valuation comes from the mover you hire, not from American Moving Choice: we don't sell valuation, insurance or any other coverage. [Owner: confirm that AMC offers no valuation, insurance or protection product — default shown (implications D5)] Read [Does a mover need insurance?](/questions/does-a-mover-need-insurance/) for questions to ask before choosing coverage.
 
 **In-state moves:** these two levels and the claim rules come from federal law for interstate moves. For a move within one state, ask the mover which options it offers and how to file a claim, and check your state's rules.
 
@@ -276,7 +276,7 @@ Other red flags [FMCSA lists](https://www.fmcsa.dot.gov/protect-your-move/red-fl
 
 [Verify: C14 (verified-excerpt); items paraphrased from search excerpts of FMCSA's "Spot the Red Flags"; check each against the live page before quoting.]
 
-American Moving Choice never asks you for a deposit or any payment for your move. [Owner: no deposits or move payments through AMC, as a standing exclusion — default shown (implications D5; brief §4; the "Booking deposits and payments" add-on in MVP scope §5)] [How to avoid moving scams](/guides/how-to-avoid-moving-scams/) has more on deposits.
+American Moving Choice never asks you for a deposit or any payment for your move. [Owner: no deposits or move payments through AMC, as a standing exclusion — default shown (implications D5; brief §4; the "Booking deposits and payments" add-on in MVP scope §5)] [How to spot a moving scam](/questions/how-to-spot-a-moving-scam/) covers warning signs before you pay.
 
 ## What documents should you get?
 
@@ -304,7 +304,7 @@ Movers must give you both FMCSA publications with the written estimate ([49 CFR 
 
 Never sign a blank document, and keep a copy or photo of everything you sign ([FMCSA: Blank document warning](https://www.fmcsa.dot.gov/protect-your-move/blank-document-warning)). [Verify: C14 (verified-excerpt) lists a request to sign blank documents as a red flag; A8 (verified-excerpt) for the warning and for keeping copies.] [Counsel: FMCSA's blank-document warning rests on 2011 guidance about a section the 2022 rule removed; confirm it can be cited as current (consumer-moving-rules note, counsel item 10).]
 
-[Your rights when moving interstate](/guides/your-rights-when-moving-interstate/) explains these documents and your other rights in more detail.
+[What documents should a mover give me?](/questions/what-documents-should-a-mover-give-me/) explains the paperwork to check.
 
 **In-state moves:** these are the federal paperwork rules for interstate moves. For a move within one state, ask the mover which documents it will give you.
 

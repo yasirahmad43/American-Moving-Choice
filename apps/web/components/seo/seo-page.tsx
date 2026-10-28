@@ -10,41 +10,31 @@
  */
 import { env } from "@amc/server/env";
 import { publishedAmong, publishedRelated, type ContentBlock, type SeoPageRecord } from "@amc/server/seo";
-import { Breadcrumbs, Container, Counter, ExpandableCard, FlipCard, Icon3D, IdCardIcon, LedgerStrip, Reveal, RouteMark, SectionHeader, StatTile, StickyCta, Table, TiltCard, type Icon3DName } from "@amc/ui";
+import { Breadcrumbs, Container, ExpandableCard, FlipCard, IdCardIcon, LedgerStrip, Reveal, RouteMark, SectionHeader, StatTile, StickyCta, Table } from "@amc/ui";
 import Link from "next/link";
 import { MediaFrame } from "@/components/media/media-frame";
 import { JsonLd } from "@/components/site/json-ld";
 import { creditLine, mediaForSeoPage } from "@/lib/media";
-import { InlineText, stripLinks } from "./inline-text";
+import { InlineText as StoredInlineText, stripLinks } from "./inline-text";
 import { PREFILL_STORAGE_KEY, QuoteEntryButton } from "./quote-entry";
 import { breadcrumbLd, pageLd, type Crumb } from "./seo-metadata";
 import { publicSeoPage } from "./public-content";
 
-/** A 3D icon for a data-point label (origin pin for places, route for distances, and so on). */
-function iconForLabel(label: string): Icon3DName {
-  const l = label.toLowerCase();
-  if (/zip/.test(l)) return "pin";
-  if (/mover|carrier|compan/.test(l)) return "verified";
-  if (/population|people|resident/.test(l)) return "chart";
-  if (/county|counties/.test(l)) return "origin";
-  if (/distance|mile|route|drive/.test(l)) return "route";
-  if (/cost|price|range|\$/.test(l)) return "price";
-  if (/date|updated|as of|year/.test(l)) return "calendar";
-  if (/city|cities|metro|town/.test(l)) return "destination";
-  if (/service|packing|storage/.test(l)) return "box";
-  return "ledger";
+/** Presentation copy only: retain stored facts, assumptions and link destinations exactly. */
+function consumerText(text: string): string {
+  return text.split(/(\]\([^)]+\)|https?:\/\/[^\s<>]+)/g).map((part) => {
+    if (part.startsWith("](") || /^https?:\/\//.test(part)) return part;
+    return part
+      .replaceAll("@amc/core classifyMove", "distance classification")
+      .replaceAll("transit-model-v1 planning assumptions", "planning assumptions")
+      .replaceAll("transit-model-v1 planning assumption", "planning assumption")
+      .replaceAll("transit-model-v1", "route planning model")
+      .replaceAll("through rules that don't name it", "under their current service areas");
+  }).join("");
 }
 
-/** The integer in a plain count such as "95" or "3,884,307"; null for anything else (never money). */
-function numericValue(value: string): number | null {
-  const m = /^\s*(\d{1,3}(?:,\d{3})+|\d+)\s*([a-z%]*)\s*$/i.exec(value);
-  if (!m) return null;
-  const n = Number(m[1]!.replace(/,/g, ""));
-  return Number.isFinite(n) && n < 1e9 ? n : null;
-}
-function suffixOf(value: string): string {
-  const m = /^\s*(?:\d{1,3}(?:,\d{3})+|\d+)\s*([a-z%]*)\s*$/i.exec(value);
-  return m?.[1] ? ` ${m[1]}` : "";
+function InlineText(props: Parameters<typeof StoredInlineText>[0]) {
+  return <StoredInlineText {...props} text={consumerText(props.text)} />;
 }
 
 const NUMERIC_CELL = /^\s*[-$]?\d[\d,.]*\s*(%|mi|miles|lb|lbs|hours?|min|km|ft|sq ?ft)?\s*$/i;
@@ -193,10 +183,13 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
   const inlineHrefs = [...new Set((JSON.stringify(page.content).match(/\]\((\/[^)\s]*)\)/g) ?? []).map((m) => m.slice(2, -1)))];
   const live = await publishedAmong(inlineHrefs);
   const allow = (href: string) => live.has(href);
-  const media = mediaForSeoPage(page.url, page.mediaIds).find((m) => m.kind === "image") ?? null;
+  const media = (await mediaForSeoPage(page.url, page.mediaIds)).find((m) => m.kind === "image") ?? null;
   const trail = [{ label: "Home", href: "/" }, ...crumbs];
   const route = routeEnds(page);
   const quote = page.content.quote;
+  const displayHeading = page.family === "city" ? page.h1.replace(/: compare screened moving companies$/i, "") : page.h1;
+  const facts = page.content.intro.dataPoints;
+  const heroFacts = facts.filter((fact) => !/naming|named|classified as/i.test(fact.label)).slice(0, 4);
   const prefill = JSON.stringify({ entry: quote.entry, ...(quote.originZip ? { originZip: quote.originZip } : {}), ...(quote.destZip ? { destZip: quote.destZip } : {}) });
   return (
     <>
@@ -205,9 +198,9 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
 
       {/* Editorial header: breadcrumbs, H1, the first-screen answer, data points and the quote entry. */}
       <div className="mesh-light border-b border-border">
-        <Container className="grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,22rem)] lg:gap-12">
-          <div className="grid content-start gap-5">
-            <Breadcrumbs items={trail.map((c, i) => (i === trail.length - 1 ? { label: c.label } : c))} />
+        <Container className="grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,22rem)] lg:items-start lg:gap-12">
+          <div className="grid min-w-0 content-start gap-5">
+            <Breadcrumbs items={trail.map((c, i) => (i === trail.length - 1 ? { label: displayHeading } : c))} />
             {route ? (
               <p className="flex items-center gap-3 type-overline text-text-2">
                 <span>{route.from}</span>
@@ -215,24 +208,25 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
                 <span>{route.to}</span>
               </p>
             ) : null}
-            <h1 className="type-display-xl max-w-[18ch] text-text">{page.h1}</h1>
+            <h1 className="type-display-xl max-w-[22ch] text-balance text-text">{displayHeading}</h1>
             <p className="type-lede max-w-[60ch] text-text-2">
               <InlineText text={page.content.intro.answer} allow={allow} />
             </p>
-            {page.content.intro.dataPoints.length ? (
-              <dl className="grid grid-cols-2 gap-3 pt-2 lg:grid-cols-4" data-motion="stagger">
-                {page.content.intro.dataPoints.map((d, i) => (
-                  <TiltCard as="div" key={d.label} max={8} depth={16} padding="none" bodyClassName="grid h-full content-start gap-1 p-4">
-                    <Icon3D name={iconForLabel(d.label)} size={44} float delay={i * 0.7} className="tilt-layer-2 mb-1" />
-                    <dt className="type-small font-semibold text-text-2 tilt-layer">{d.label}</dt>
-                    <dd className="m-0 font-display text-[1.75rem] leading-none font-extrabold tabular text-text tilt-layer [font-stretch:85%]">{numericValue(d.value) !== null ? <Counter value={numericValue(d.value)!} suffix={suffixOf(d.value)} /> : d.value}</dd>
-                    <dd className="m-0 type-small text-text-3 tilt-layer">{d.basis}</dd>
-                  </TiltCard>
-                ))}
-              </dl>
+            {heroFacts.length ? (
+              <div className="grid gap-3 pt-1">
+                <dl className="grid grid-cols-2 gap-x-5 gap-y-4 border-y border-border py-4 sm:grid-cols-4">
+                  {heroFacts.map((fact) => (
+                    <div key={fact.label} className="grid min-w-0 content-start gap-1 [overflow-wrap:anywhere]">
+                      <dt className="type-small font-semibold text-text-2">{fact.label}</dt>
+                      <dd className="m-0 font-display text-xl font-extrabold leading-tight tabular text-text sm:text-2xl">{fact.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <a href="#facts-and-sources" className="link w-fit type-small">View facts and sources</a>
+              </div>
             ) : null}
           </div>
-          <aside aria-labelledby="quote-heading" className="lg:self-end">
+          <aside aria-labelledby="quote-heading" className="min-w-0 lg:self-start lg:pt-11">
             <div className="bezel">
               <div className="bezel-inner grid content-start gap-3 p-5 sm:p-6">
                 <h2 id="quote-heading" className="type-h3 text-text">
@@ -250,7 +244,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
       </div>
 
       <Container className="grid gap-12 pb-20 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,18rem)] lg:gap-16">
-        <div className="grid min-w-0 gap-12">
+        <div className="grid min-w-0 grid-cols-1 gap-12">
           {media ? (
             <Reveal as="figure" className="grid gap-2">
               <div className="zoom-media relative aspect-[21/9] overflow-hidden rounded-card ring-1 ring-border">
@@ -266,7 +260,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
           {page.content.sections.map((section, index) => {
             const flip = FLIP_SECTION.test(section.heading) && section.blocks.every((b) => b.type === "list") && section.blocks.some((b) => b.type === "list" && b.items.length >= 3);
             return (
-              <Reveal as="section" key={section.id} id={section.id} aria-labelledby={`${section.id}-h`} delay={Math.min(index, 3) * 40} className="scroll-mt-6">
+              <Reveal as="section" key={section.id} id={section.id} aria-labelledby={`${section.id}-h`} delay={Math.min(index, 3) * 40} className="min-w-0 scroll-mt-6">
                 <h2 id={`${section.id}-h`} className="type-display-l text-text">
                   {section.heading}
                 </h2>
@@ -309,6 +303,26 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
               </Reveal>
             );
           })}
+
+          {facts.length ? (
+            <section id="facts-and-sources" aria-labelledby="facts-and-sources-heading" className="grid min-w-0 gap-5 scroll-mt-24">
+              <div className="grid gap-2">
+                <h2 id="facts-and-sources-heading" className="type-display-l text-text">Facts and sources</h2>
+                <p className="type-small text-text-2">The complete figures and their sources, as of {page.content.dataAsOf}. Planning assumptions are identified below.</p>
+              </div>
+              <dl className="grid min-w-0 grid-cols-1 divide-y divide-border rounded-card border border-border bg-surface px-4 sm:px-5">
+                {facts.map((fact, i) => (
+                  <div key={`${fact.label}-${i}`} className="grid min-w-0 gap-1.5 py-4 sm:grid-cols-[minmax(8rem,0.8fr)_minmax(0,1.2fr)] sm:gap-x-6 [overflow-wrap:anywhere]">
+                    <dt className="type-small font-semibold text-text-2">{fact.label}</dt>
+                    <dd className="m-0 grid min-w-0 gap-1">
+                      <span className="font-semibold tabular text-text">{fact.value}</span>
+                      <span className="type-small text-text-3"><InlineText text={fact.basis} allow={allow} /></span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ) : null}
 
           {page.content.faq.length ? (
             <Reveal as="section" id="faq" aria-labelledby="faq-h" className="grid gap-6 scroll-mt-6">
@@ -364,6 +378,11 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
                     </a>
                   </li>
                 ))}
+                {facts.length ? (
+                  <li>
+                    <a href="#facts-and-sources" className="-ml-px block border-l-2 border-transparent py-1.5 pl-4 type-small font-semibold text-text-2 no-underline hover:border-brand-navy hover:text-text">Facts and sources</a>
+                  </li>
+                ) : null}
                 {page.content.faq.length ? (
                   <li>
                     <a href="#faq" className="-ml-px block border-l-2 border-transparent py-1.5 pl-4 type-small font-semibold text-text-2 no-underline hover:border-brand-navy hover:text-text">

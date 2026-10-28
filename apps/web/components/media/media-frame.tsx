@@ -5,7 +5,7 @@
  */
 import Image from "next/image";
 import { AmbientVideo } from "./ambient-video";
-import { isUnoptimizable, type MediaAsset } from "@/lib/media";
+import { isUnoptimizable, srcSetOf, type MediaAsset } from "@/lib/media";
 
 export interface MediaFrameProps {
   asset: MediaAsset;
@@ -24,6 +24,14 @@ export function MediaFrame({ asset, priority = false, sizes = "100vw", fit = "co
   const objectFit = fit === "cover" ? "object-cover" : "object-contain";
   if (asset.kind === "video") {
     return <AmbientVideo asset={asset} className={className} />;
+  }
+  // Runtime uploads already have optimized WebP tiers. Serve directly from their recorded
+  // public URL, so the web app needs no privileged Storage key or remote optimizer allowlist.
+  if (/^https?:\/\//.test(asset.src)) {
+    return <img src={asset.src} srcSet={srcSetOf(asset)} sizes={sizes} alt={alt ?? asset.alt}
+      width={asset.width} height={asset.height} loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined} decoding="async"
+      className={`block h-full w-full ${objectFit} ${className ?? ""}`} />;
   }
   return (
     <Image

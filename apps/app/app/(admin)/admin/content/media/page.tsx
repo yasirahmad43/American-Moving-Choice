@@ -1,4 +1,4 @@
-import { listMedia, uploadsFootprint, type MediaClaimState, type MediaFilters } from "@amc/server/admin";
+import { listMedia, mediaUploadAvailability, uploadsFootprint, type MediaClaimState, type MediaFilters } from "@amc/server/admin";
 import { hasAdminRole, requireAdmin } from "@amc/server/auth";
 import { env } from "@amc/server/env";
 import { Field, Input, PageHeader, Select, Textarea } from "@amc/ui";
@@ -35,7 +35,8 @@ export default async function MediaLibraryPage({ searchParams }: { searchParams:
   };
   const page = pageNumber(sp.page);
   const library = await listMedia({ ...filters, limit: PER_PAGE, offset: (page - 1) * PER_PAGE });
-  const footprint = uploadsFootprint();
+  const footprint = await uploadsFootprint();
+  const uploadStatus = mediaUploadAvailability();
   const webUrl = env().WEB_URL;
   const canAct = hasAdminRole(adminRole, ROLES.content);
   const query = { tag: filters.tag, family: filters.family, state: filters.state, kind: filters.kind, q: filters.q };
@@ -63,7 +64,7 @@ export default async function MediaLibraryPage({ searchParams }: { searchParams:
             {library.rows.map((a) => (
               <li key={a.id} className="grid content-start gap-2 rounded-card border border-border bg-surface p-3 shadow-e1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`${webUrl}${a.thumb}`} alt={a.alt} width={a.width} height={a.height} loading="eager" className="aspect-video w-full rounded-control bg-surface-2 object-cover" />
+                <img src={new URL(a.thumb, webUrl).href} alt={a.alt} width={a.width} height={a.height} loading="eager" className="aspect-video w-full rounded-control bg-surface-2 object-cover" />
                 <div className="flex flex-wrap items-center gap-2">
                   <Status value={STATE_TONE[a.state]} label={STATES.find((s) => s.value === a.state)?.label ?? a.state} />
                   <span className="type-small text-text-2">
@@ -148,12 +149,14 @@ export default async function MediaLibraryPage({ searchParams }: { searchParams:
                               <input type="hidden" name="mediaId" value={a.id} />
                             </ActionForm>
                           ) : null}
+                          {a.state === "static" ? <p className="text-sm text-text-3">This image is bundled with the website. Replacing it requires a site update.</p> : (
                           <ActionForm action={rejectMediaAction} submitLabel="Reject" submitVariant="danger" confirm={{ title: `Reject ${a.id}?`, description: "The asset is hidden from claims and taken off any page holding it. It can be restored later.", confirmLabel: "Reject" }}>
                             <input type="hidden" name="mediaId" value={a.id} />
                             <Field id={`reject-${a.id}`} label="Reason" required>
                               <Input name="reason" required minLength={3} maxLength={500} />
                             </Field>
                           </ActionForm>
+                          )}
                         </>
                       )}
                     </div>
@@ -169,11 +172,12 @@ export default async function MediaLibraryPage({ searchParams }: { searchParams:
       <Pager page={page} total={library.total} perPage={PER_PAGE} hrefFor={(p) => `/admin/content/media${qs({ ...query, page: p })}`} />
       {canAct ? (
         <section aria-labelledby="upload" className="grid gap-4 rounded-card border border-border bg-surface p-4">
-          <SectionTitle id="upload" description={`Stored under apps/web/public/media/uploads in the library's tiers (WebP at the capped native width and at 800px, plus a blur placeholder) and added to the manifest unclaimed. A file whose SHA-256 the library already holds is refused. Uploads so far: ${footprint.files} files, ${(footprint.bytes / 1048576).toFixed(1)} MB.`}>
+          <SectionTitle id="upload" description={`Saved to durable media storage as optimized WebP images and recorded in the media library. New images are unclaimed until assigned to a page. A file whose SHA-256 the library already holds is refused. Uploads so far: ${footprint.files} files, ${(footprint.bytes / 1048576).toFixed(1)} MB.`}>
             Upload an image
           </SectionTitle>
+          {!uploadStatus.available ? <p role="status" className="rounded-control border border-border bg-canvas p-4 text-sm text-text-2">{uploadStatus.reason}</p> : (
           <ActionForm action={uploadMediaAction} submitLabel="Upload" className="max-w-2xl">
-            <Field id="file" label="Image (PNG, JPEG or WebP, at least 800×450, up to 20 MB)" required>
+            <Field id="file" label="Image (PNG, JPEG or WebP, at least 800×450, up to 3 MB)" required>
               <Input name="file" type="file" accept="image/png,image/jpeg,image/webp" required />
             </Field>
             <Field id="alt" label="Alt text" required>
@@ -203,6 +207,7 @@ export default async function MediaLibraryPage({ searchParams }: { searchParams:
               <Textarea name="prompt" rows={2} maxLength={1000} />
             </Field>
           </ActionForm>
+          )}
         </section>
       ) : null}
     </div>

@@ -29,6 +29,16 @@ The MIT licences require the copyright and permission notice to accompany copies
 
 ## Known limits
 
-- Population covers only the 1,000 largest places; every other place has `null` and no page cites a population for it.
-- A ZIP is attached to a city by name match only; ZIPs whose place name matches no city row stay unattached (the ZIP table still holds them with their GeoNames place name).
+- The original `cities.json` population covers the top-1000 list only. The expansion described below replaces matched populations with a dated Census estimate; unmatched records keep the explicit `plotly` source or `null`.
+- ZIP attachment starts with the original name matches and adds an otherwise unattached ZIP's primary Census place when available. ZCTAs approximate postal delivery areas; their population is labelled as ZCTA population and is not treated as the city's population.
 - Distances are straight-line (haversine) between centroids, not driving distances.
+
+## Census expansion, verified 2026-10-28
+
+`places.json` (28,266 matched places), `counties.json` (3,144 counties/equivalents) and `zctas.json` (33,642 known ZIP tabulation areas) are derived from [bdurand/us_geo, commit b83ccde80d59d578df083df83fbecb1475841055](https://github.com/bdurand/us_geo/tree/b83ccde80d59d578df083df83fbecb1475841055/data/2020_dist), MIT, Copyright (c) 2019 Brian Durand. The full notice is retained in `US_GEO_LICENSE.txt`.
+
+The pinned publisher's [data-source constants](https://github.com/bdurand/us_geo/blob/b83ccde80d59d578df083df83fbecb1475841055/data/lib/us_geo_data.rb) identify **2023 ACS 5-year estimates** for population (`B01003_001E`) and housing units (`B25001_001E`), and the **2025 Census Gazetteer** for land area. The folder name `2020_dist` identifies the geography distribution; it does not date those estimates. County time zones use the publisher's county mapping, rather than a Census demographic variable. Earlier WIP comments incorrectly called the data 2022/2023; the generator now uses the verified vintages.
+
+`facts-sources.json` stores the upstream commit, input SHA-256 checksums, input/output counts and vintages. `build-seo-facts.ts` rejects different input checksums so a changed upstream file cannot silently retain these vintage labels. Reproduce by downloading `counties.csv`, `places.csv`, and `zctas.csv` from that commit into a scratch directory, then run `pnpm --filter @amc/server build:seo-facts -- <source-dir>`.
+
+Matching uses the same state and normalized place name, a centroid within 30 miles and at most one Census place per city. Incorporated places take precedence over census-designated places, followed by the recorded distance/population score. These are approximate place matches, not a claim that postal and Census boundaries coincide. Residents per housing unit and density are arithmetic from the cited estimates; no page infers housing style, parking, climate or local building access from density.

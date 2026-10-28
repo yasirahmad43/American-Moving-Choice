@@ -1,0 +1,32 @@
+{
+  "builtOn": "2026-10-28",
+  "upstream": {
+    "repository": "https://github.com/bdurand/us_geo",
+    "commit": "b83ccde80d59d578df083df83fbecb1475841055",
+    "directory": "data/2020_dist",
+    "demographics": "2023 ACS 5-year estimates",
+    "landArea": "2025 Census Gazetteer",
+    "timeZones": "bdurand/us_geo county time-zone mapping"
+  },
+  "files": {
+    "counties.csv": {
+      "sha256": "b36b6b7233eb4cf26ed4a9f3f8f1b84be448776fe346de2f11054b459ceefa0b",
+      "rows": 3235
+    },
+    "places.csv": {
+      "sha256": "62557f4e918be6f071b4b82896200fd5eaa8cb87b1fe43af2a1f7dbc80364220",
+      "rows": 116125
+    },
+    "zctas.csv": {
+      "sha256": "c5cd9ec01824f9f3b22275fd41f6e800e11a867d803e5976eea87fd015223f92",
+      "rows": 33791
+    }
+  },
+  "output": {
+    "places": 28266,
+    "counties": 3144,
+    "zctas": 33642,
+    "citiesWithoutPlace": 1373,
+    "placesMatchedButTaken": 0
+  }
+}

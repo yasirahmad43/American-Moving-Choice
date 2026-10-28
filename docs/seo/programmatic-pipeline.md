@@ -65,18 +65,18 @@ The CLI connects to `DATABASE_URL` (default `postgres://amc_app:amc_app@localhos
 | duplicate_content | SHA-256 of the main text is unique (unique index `seo_pages_content_hash_idx`) | `content_hash` |
 | duplicate_intent | normalized primary keyword + intent is unique (unique index `seo_pages_keyword_intent_idx`) | `primary_keyword_normalized`, `intent` |
 | keyword | measured (Semrush row) or hypothesis; never an invented volume | `gate_results.keyword.detail` |
-| zip gate | ≥3 movers name the ZIP or its county for local moves, parent city published | `blocked_reason` |
-| words | ≥300 words of main content (review trigger, not a block) | `gate_results.words` |
+| zip gate | ≥2 eligible movers name the exact ZIP for local moves, parent city published (HANDOFF decision) | `blocked_reason` |
+| words | ≥300 words of main content; shorter pages remain draft | `gate_results.words`, `blocked_reason` |
 
 A page that fails any blocking gate is written as `draft`, `indexable = false`, `blocked_reason = "blocked: …"`. `seo:publish` sets `published`, `indexable = (blocked_reason is null)`, `canonical_url = url`, and rebuilds `seo_links` from every published page's related modules and inline links, keeping only published targets. Human review (G9) is recorded separately with `seo:review`; the preview publishes without it and the report says so.
 
 ## What the templates render
 
-Breadcrumbs (published ancestors only) + `BreadcrumbList`; H1; the first-screen answer with its dated data points; sections (paragraph, list, table, sourced facts with read dates, cost blocks from cost-model-v1 with "planning range, not a quote", mover lists with the ST-3 paid line); the quote entry (sessionStorage `amc.survey.prefill` `{ entry, originZip, destZip }`, no ZIPs in URLs); FAQ (+ `FAQPage`, per the brief; Google shows no FAQ rich result since 2026-05-07); related links filtered to published pages; sources and dataset credits; `WebPage`/`CollectionPage`/`Article` JSON-LD and an `ItemList` of `MovingCompany` entities for listed movers. Published-but-not-indexable pages carry `noindex` and no canonical; indexable pages carry a self-canonical once `SITE_INDEXABLE=true`. Unknown and unpublished URLs are 404; two-letter state codes and uppercase slugs redirect (308 via `permanentRedirect`); `seo_redirects` holds 301 targets for renamed slugs.
+Breadcrumbs (published ancestors only) + `BreadcrumbList`; H1; the first-screen answer with dated data points; sections (paragraphs, lists, tables, sourced facts, cost blocks labelled "planning range, not a quote", and count-only coverage); the central quote entry (sessionStorage `amc.survey.prefill`, no ZIPs in URLs); visible FAQ; related links filtered to published pages; sources, credits and `WebPage`/`CollectionPage`/`Article` JSON-LD. FAQPage and public MovingCompany lists are disabled. Names are introduced when a company contacts the customer. Published-but-not-indexable pages carry `noindex` and no canonical; indexable pages carry a self-canonical once `SITE_INDEXABLE=true`. Unknown/unpublished URLs are 404; two-letter state codes and uppercase slugs redirect (308); recorded `/moving-routes/` compatibility URLs redirect to published `/routes/` guides.
 
 ## Known limits and decisions
 
-- Route URLs are `/routes/{origin}-to-{destination}/` as briefed; `site-architecture.md` §2.1 still says `/moving-routes/`. One of the two should be updated (a `seo_redirects` row covers a later move).
+- Route URLs are `/routes/{origin}-to-{destination}/`; `/moving-routes/` compatibility redirects are generated at publication. Route hubs paginate at 400 guides per page with distinct canonical metadata and sitemap entries.
 - ZIP pages exist in the store but none passes the gate with the demo network, matching the plan's "no indexable ZIP pages".
 - Climate/season facts have no sourced provider yet, so no page states them.
 - State regulator facts exist for TX, CA, FL and NY only; every other state page says the regulator has not been verified.

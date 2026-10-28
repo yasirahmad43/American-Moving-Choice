@@ -203,7 +203,7 @@ export default async function PublicationPage() {
                 </Field>
               </ActionForm>
             </Card>
-            <Card title={PIPELINE_STEP_LABELS.media_sync} titleAs="h3" description="Writes the pages' media claims into the manifest's usedOn so pnpm media:check validates them.">
+            <Card title={PIPELINE_STEP_LABELS.media_sync} titleAs="h3" description="Reconciles page media claims with the durable media manifest.">
               <ActionForm action={runStepAction} submitLabel="Run sync" submitVariant="secondary">
                 <input type="hidden" name="step" value="media_sync" />
               </ActionForm>

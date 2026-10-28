@@ -7,7 +7,7 @@ import { buildSeedSql } from "@amc/db/seed/build";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { AdminError } from "../src/admin/common";
 import {
   addRedirect,
@@ -33,11 +33,14 @@ import {
   transitionProblem,
 } from "../src/admin/content";
 import { claimableMedia, configureMediaRoot, getMediaAsset, largestTierWidth, listMedia, orientationTag, readManifest, reassignMedia, rejectMedia, restoreMedia, syncMediaManifest, uploadMedia } from "../src/admin/content-media";
+import { resolvePageMedia } from "../src/media/manifest";
 import { canManageContent, type ContentActor } from "../src/admin/content-roles";
 import { closePool, getPool } from "../src/db/pool";
 import { mainText, sha256 } from "../src/seo/text";
 import type { SeoContent } from "../src/seo/types";
 import { createUser, resetDatabase } from "./helpers";
+
+afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
 const pool = () => getPool();
 
@@ -361,14 +364,14 @@ describe("media: one asset, one page", () => {
     const austin = (await pool().query<{ id: string }>("select id::text from seo_pages where url = '/movers/texas/austin/'")).rows[0]!.id;
     expect(await reassignMedia(editor, "state-texas-hero", "/movers/texas/")).toEqual({ from: null, to: "/movers/texas/" });
     expect((await pageRow(texas)).media_ids).toEqual(["state-texas-hero"]);
-    expect(readManifest().assets.find((a) => a.id === "state-texas-hero")?.usedOn).toEqual(["/movers/texas/"]);
+    expect((await readManifest()).assets.find((a) => a.id === "state-texas-hero")?.usedOn).toEqual(["/movers/texas/"]);
     // Moving it to Austin takes it away from Texas; the primary key never holds two pages.
     expect(await reassignMedia(editor, "state-texas-hero", "/movers/texas/austin/")).toEqual({ from: "/movers/texas/", to: "/movers/texas/austin/" });
     expect((await pageRow(texas)).media_ids).toEqual([]);
     expect((await pageRow(austin)).media_ids).toEqual(["state-texas-hero"]);
     const usage = await pool().query<{ page_id: string }>("select page_id::text from seo_media_usage where media_id = 'state-texas-hero'");
     expect(usage.rows).toEqual([{ page_id: austin }]);
-    expect(readManifest().assets.find((a) => a.id === "state-texas-hero")?.usedOn).toEqual(["/movers/texas/austin/"]);
+    expect((await readManifest()).assets.find((a) => a.id === "state-texas-hero")?.usedOn).toEqual(["/movers/texas/austin/"]);
     // A direct second claim is refused by the database too.
     await expect(pool().query("insert into seo_media_usage (media_id, page_id) values ('state-texas-hero', $1)", [texas])).rejects.toThrow(/duplicate key/);
     // Static-page assets and unknown pages are refused.
@@ -377,7 +380,7 @@ describe("media: one asset, one page", () => {
     await expectAdminError(reassignMedia(editor, "state-texas-card", "/about/"), "bad_url");
     expect(await reassignMedia(editor, "state-texas-hero", null)).toEqual({ from: "/movers/texas/austin/", to: null });
     expect((await pageRow(austin)).media_ids).toEqual([]);
-    expect(readManifest().assets.find((a) => a.id === "state-texas-hero")?.usedOn).toEqual([]);
+    expect((await readManifest()).assets.find((a) => a.id === "state-texas-hero")?.usedOn).toEqual([]);
     expect(await auditCount("content.media.assign", "state-texas-hero")).toBe(2);
     expect(await auditCount("content.media.unclaim", "state-texas-hero")).toBe(1);
     const library = await listMedia({ tag: "state:TX" });
@@ -392,11 +395,11 @@ describe("media: one asset, one page", () => {
     await rejectMedia(editor, "state-texas-card", "Text visible on the truck");
     const texas = (await pool().query<{ id: string }>("select id::text from seo_pages where url = '/movers/texas/'")).rows[0]!.id;
     expect((await pageRow(texas)).media_ids).toEqual([]);
-    expect(claimableMedia().map((a) => a.id)).toEqual(["state-texas-hero", "home-hero-still"]);
+    expect((await claimableMedia()).map((a) => a.id)).toEqual(["state-texas-hero", "home-hero-still"]);
     expect((await getMediaAsset("state-texas-card"))?.state).toBe("rejected");
     await expectAdminError(reassignMedia(editor, "state-texas-card", "/movers/texas/"), "rejected");
     await restoreMedia(editor, "state-texas-card");
-    expect(claimableMedia()).toHaveLength(3);
+    expect(await claimableMedia()).toHaveLength(3);
     expect((await getMediaAsset("state-texas-card"))?.state).toBe("unclaimed");
     expect(await auditCount("content.media.reject", "state-texas-card")).toBe(1);
     expect(await auditCount("content.media.restore", "state-texas-card")).toBe(1);
@@ -407,20 +410,38 @@ describe("media: one asset, one page", () => {
     const credit = { creator: "Jamie Photographer", sourceUrl: "https://example.invalid/photo", license: "CC BY 4.0", attributionRequired: true };
     await expectAdminError(uploadMedia(editor, { fileName: "crew.png", mimeType: "image/png", bytes: png, alt: "A crew loading a truck", tags: ["route"], credit: { ...credit, creator: "" } }), "missing_text");
     await expectAdminError(uploadMedia(editor, { fileName: "crew.png", mimeType: "image/gif", bytes: png, alt: "A crew loading a truck", tags: ["route"], credit }), "bad_type");
+    vi.stubEnv("SUPABASE_URL", "https://media-project.supabase.co");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-server-key");
+    vi.stubEnv("SUPABASE_MEDIA_BUCKET", "amc-media");
+    const objects = new Map<string, Buffer>();
+    const fetcher = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+      const path = new URL(String(url)).pathname;
+      if (init?.method === "GET") return Response.json({ id: "amc-media", public: true });
+      if (init?.method === "POST") objects.set(path, Buffer.from(init.body as Uint8Array));
+      return Response.json({ Key: path });
+    });
+    vi.stubGlobal("fetch", fetcher);
+    const originalManifest = readFileSync(join(webRoot, "content", "media", "manifest.json"), "utf8");
     const asset = await uploadMedia(editor, { fileName: "Crew Loading.png", mimeType: "image/png", bytes: png, alt: "A crew loading a truck", tags: ["route", "theme:route"], credit, prompt: null });
-    expect(asset.id).toBe("upload-crew-loading");
+    expect(asset.id).toMatch(/^upload-crew-loading-[0-9a-f]{16}$/);
     expect(asset.width).toBe(1344);
     expect(asset.height).toBe(756);
     expect(asset.tags).toEqual(["route", "theme:route", "landscape"]);
     expect(asset.state).toBe("unclaimed");
     expect(asset.credit).toEqual({ creator: "Jamie Photographer", source_url: "https://example.invalid/photo", license: "CC BY 4.0", attribution_required: true });
-    const stored = readManifest().assets.find((a) => a.id === asset.id)!;
+    const stored = (await readManifest()).assets.find((a) => a.id === asset.id)!;
     expect(stored.srcset?.map((s) => s.width)).toEqual([1344, 800]);
     expect(stored.blurDataURL).toMatch(/^data:image\/webp;base64,/);
     expect(stored.upload?.sha256).toMatch(/^[0-9a-f]{64}$/);
     const sharp = (await import("sharp")).default;
-    expect((await sharp(join(webRoot, "public", "media", "uploads", "upload-crew-loading-800.webp")).metadata()).width).toBe(800);
-    expect(readFileSync(join(webRoot, "public", "media", "uploads", "upload-crew-loading-1600.webp")).length).toBeGreaterThan(0);
+    const small = objects.get(new URL(stored.srcset![1]!.src).pathname.replace("/object/public/", "/object/"))!;
+    expect((await sharp(small).metadata()).width).toBe(800);
+    expect(stored.src).toMatch(/^https:\/\/media-project.supabase.co\/storage\/v1\/object\/public\/amc-media\/uploads\//);
+    expect(objects.size).toBe(2);
+    expect(readFileSync(join(webRoot, "content", "media", "manifest.json"), "utf8")).toBe(originalManifest);
+    const durable = (await pool().query<{ origin: string; n: number }>("select origin, jsonb_array_length(storage_objects) as n from media_assets where id = $1", [asset.id])).rows[0]!;
+    expect(durable).toEqual({ origin: "upload", n: 2 });
     const dup = await expectAdminError(uploadMedia(editor, { fileName: "again.png", mimeType: "image/png", bytes: png, alt: "Same file again", tags: ["route"], credit }), "duplicate");
     expect(dup.message).toMatch(/upload-crew-loading/);
     // The library's own files count as known hashes too.
@@ -431,6 +452,48 @@ describe("media: one asset, one page", () => {
     expect(orientationTag(1000, 1000)).toBe("square");
     expect(orientationTag(900, 1200)).toBe("portrait");
     expect(await auditCount("content.media.upload", asset.id)).toBe(1);
+    await reassignMedia(editor, asset.id, "/movers/texas/");
+    expect((await resolvePageMedia("/movers/texas/", [asset.id]))[0]?.src).toBe(stored.src);
+    expect(await resolvePageMedia("/movers/florida/", [asset.id])).toEqual([]);
+    await rejectMedia(editor, asset.id, "Test editorial rejection");
+    expect(await resolvePageMedia("/movers/texas/", [asset.id])).toEqual([]);
+    await restoreMedia(editor, asset.id);
+    expect(await resolvePageMedia("/movers/texas/", [asset.id])).toEqual([]);
+    expect((await pool().query<{ origin: string }>("select origin from media_assets where id = $1", [asset.id])).rows[0]?.origin).toBe("upload");
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it("does not create a manifest entry on missing config, invalid bytes or a partial storage failure", async () => {
+    const png = await makePng(1200, 700, { r: 21, g: 133, b: 240 });
+    const input = { fileName: "failure.png", mimeType: "image/png", bytes: png, alt: "Crew beside a moving truck", tags: ["route"], credit: { creator: "AMC", license: "Owned", attributionRequired: false } };
+    const before = (await pool().query<{ n: number }>("select count(*)::int as n from media_assets where origin = 'upload'")).rows[0]!.n;
+    vi.stubEnv("SUPABASE_URL", "");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+    vi.stubEnv("SUPABASE_MEDIA_BUCKET", "");
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    await expectAdminError(uploadMedia(editor, input), "storage_not_configured");
+    expect(fetcher).not.toHaveBeenCalled();
+    vi.stubEnv("SUPABASE_URL", "https://media-project.supabase.co");
+    vi.stubEnv("SUPABASE_SECRET_KEY", "");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-server-key");
+    vi.stubEnv("SUPABASE_MEDIA_BUCKET", "amc-media");
+    await expectAdminError(uploadMedia(editor, { ...input, mimeType: "image/jpeg" }), "bad_file");
+    expect(fetcher).not.toHaveBeenCalled();
+    let writes = 0;
+    fetcher.mockImplementation(async (_url: string, init: RequestInit) => {
+      if (init.method === "GET") return Response.json({ public: true });
+      if (init.method === "POST" && ++writes === 2) return new Response("provider failure", { status: 503 });
+      return Response.json({});
+    });
+    await expectAdminError(uploadMedia(editor, input), "storage_upload_failed");
+    const cleanup = fetcher.mock.calls.find((call) => (call[1] as RequestInit).method === "DELETE");
+    // Only the first write succeeded. Never remove a key the provider explicitly rejected.
+    expect(JSON.parse((cleanup?.[1] as RequestInit).body as string).prefixes).toHaveLength(1);
+    expect((await pool().query<{ n: number }>("select count(*)::int as n from media_assets where origin = 'upload'")).rows[0]!.n).toBe(before);
+    expect(await auditCount("content.media.upload")).toBe(1);
   });
 });
 
@@ -463,7 +526,8 @@ describe("bulk actions, redirects and research", () => {
     await expectAdminError(addRedirect(editor, { sourceUrl: "/old/", targetUrl: "/routes/texas-to-georgia/", reason: "draft target" }), "bad_target");
     await expectAdminError(addRedirect(editor, { sourceUrl: "/routes/texas-to-florida/", targetUrl: "/routes/", reason: "live source" }), "live_source");
     await addRedirect(editor, { sourceUrl: "/old-routes/", targetUrl: "/routes/", reason: "Hub" });
-    const rows = await pool().query<{ source_url: string; target_url: string }>("select source_url, target_url from seo_redirects order by source_url");
+    // The generator also creates canonical-prefix redirects for other published fixtures.
+    const rows = await pool().query<{ source_url: string; target_url: string }>("select source_url, target_url from seo_redirects where source_url = any($1::text[]) order by source_url", [["/moving-routes/texas-to-florida/", "/old-routes/"]]);
     expect(rows.rows).toEqual([
       { source_url: "/moving-routes/texas-to-florida/", target_url: "/routes/texas-to-florida/" },
       { source_url: "/old-routes/", target_url: "/routes/" },
@@ -579,6 +643,6 @@ describe("pipeline jobs and dashboards", () => {
     // The manifest sync that the pipeline step wrote keeps every asset on one page at most.
     const synced = await syncMediaManifest();
     expect(synced.claimed).toBe(0);
-    for (const asset of readManifest().assets) expect(asset.usedOn.length).toBeLessThanOrEqual(1);
+    for (const asset of (await readManifest()).assets) expect(asset.usedOn.length).toBeLessThanOrEqual(1);
   });
 });

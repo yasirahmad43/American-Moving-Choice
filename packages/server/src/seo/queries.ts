@@ -150,3 +150,13 @@ export async function publishedStateUrls(db: Queryable = getPool()): Promise<{ u
   const result = await db.query<{ url: string; state_code: string; h1: string }>("select url, state_code, h1 from seo_pages where family = 'state' and status = 'published' order by h1");
   return result.rows.map((r) => ({ url: r.url, stateCode: r.state_code, h1: r.h1 }));
 }
+
+/** One page of a family's published pages (hub pagination), with the total so the hub can number its pages. */
+export async function publishedPagesPage(family: SeoFamily, page: number, perPage: number, db: Queryable = getPool()): Promise<{ pages: PageSummary[]; total: number }> {
+  const total = (await db.query<{ n: number }>("select count(*)::int as n from seo_pages where family = $1 and status = 'published'", [family])).rows[0]!.n;
+  const result = await db.query<{ url: string; title: string; h1: string; family: SeoFamily; state_code: string | null; updated_at: Date; indexable: boolean }>(
+    "select url, title, h1, family, state_code, updated_at, indexable from seo_pages where family = $1 and status = 'published' order by url limit $2 offset $3",
+    [family, perPage, Math.max(0, page - 1) * perPage],
+  );
+  return { pages: result.rows.map((r) => ({ url: r.url, title: r.title, h1: r.h1, family: r.family, stateCode: r.state_code, updatedAt: r.updated_at, indexable: r.indexable })), total };
+}

@@ -11,6 +11,10 @@ process.env.DATABASE_URL = serverTestDatabaseUrl(base);
 process.env.DATABASE_SSL = "disable";
 Object.assign(process.env, { NODE_ENV: "test" });
 for (const key of [
+  "SUPABASE_URL",
+  "SUPABASE_SECRET_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SUPABASE_MEDIA_BUCKET",
   "POSTMARK_SERVER_TOKEN",
   "TWILIO_ACCOUNT_SID",
   "TWILIO_AUTH_TOKEN",

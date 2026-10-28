@@ -34,6 +34,15 @@ Screenshots were captured at 1440px and 390px, covering home, quote entry, porta
 marketplace, and admin. Proof files are saved in the task's `outputs/design-pass-2` directory; they
 contain only fictional local demo data. The media inventory check passed for all 418 bundled assets.
 
+## Final integration check
+
+After integrating the SEO expansion and persistent media implementation, both clean production
+builds passed again against all 16 migrations. The complete browser suite passed **56 scenarios
+in one run**, with the same single intentionally skipped scenario. Screenshots were refreshed.
+Automated checks passed: core 81, UI 8, database 58, server 311, public content 29; six additional
+storage-probe regressions then passed (493 unique automated checks overall). Database and server
+typechecks also passed after the optional build-probe integration. Production proof is separate.
+
 ## Deployment boundary
 
 The public and company apps must receive the matching flow code and migration 200. These checks

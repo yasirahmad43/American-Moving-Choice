@@ -50,7 +50,7 @@ export async function uploadMediaAction(previous: FormState, formData: FormData)
   return adminAction(previous, ROLES.content, async (ctx) => {
     const file = formData.get("file");
     if (!(file instanceof File) || !file.size) throw new AdminError("Choose an image to upload.");
-    if (file.size > UPLOAD_MAX_BYTES) throw new AdminError("The file is larger than 20 MB.");
+    if (file.size > UPLOAD_MAX_BYTES) throw new AdminError("The file is larger than 3 MB.");
     const asset = await uploadMedia(actorOf(ctx), {
       fileName: file.name,
       mimeType: file.type,
@@ -60,6 +60,6 @@ export async function uploadMediaAction(previous: FormState, formData: FormData)
       credit: { creator: field(formData, "creator", 200), sourceUrl: field(formData, "sourceUrl", 500), license: field(formData, "license", 300), attributionRequired: field(formData, "attributionRequired", 5) === "true" },
       prompt: field(formData, "prompt", 1000),
     });
-    return `Uploaded as ${asset.id} (${asset.width}×${asset.height}, two WebP tiers). It is unclaimed until a page adopts it.`;
+    return `Uploaded as ${asset.id} (${asset.width}×${asset.height}, optimized WebP tiers). It is unclaimed until a page adopts it.`;
   }, PATHS);
 }

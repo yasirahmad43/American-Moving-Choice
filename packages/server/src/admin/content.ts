@@ -467,7 +467,7 @@ export async function regeneratePage(actor: ContentActor, id: string): Promise<{
   const only = regenerateKey(page.family, page.url);
   if (!only) throw new AdminError(`${page.family} pages regenerate as a family from the publication dashboard.`, "unsupported");
   const lines: string[] = [];
-  const summary = await generateFamily(db, page.family, { only: [only], limit: 1, media: claimableMedia(), log: (l) => lines.push(l) });
+  const summary = await generateFamily(db, page.family, { only: [only], limit: 1, media: await claimableMedia(db), log: (l) => lines.push(l) });
   const after = (await db.query<{ status: SeoStatus; blocked_reason: string | null; content_hash: string }>("select status, blocked_reason, content_hash from seo_pages where id = $1", [id])).rows[0];
   if (!after) throw new AdminError("The page no longer exists.", "not_found");
   if (!summary.written) throw new AdminError(`The generator wrote nothing: ${lines.join("; ") || "the page's brief produced no candidate"}.`, "not_written");
@@ -729,7 +729,7 @@ export function pipelineJob(input: PipelineStepInput, actorId: string): JobDefin
       }
       case "generate": {
         if (!family) throw new AdminError("Choose a family to generate.", "bad_family");
-        const summary = await generateFamily(db, family, { limit, media: claimableMedia(), log: push });
+        const summary = await generateFamily(db, family, { limit, media: await claimableMedia(db), log: push });
         return { items: summary.written, details: details({ ...summary }) };
       }
       case "publish": {

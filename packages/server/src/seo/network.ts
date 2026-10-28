@@ -13,6 +13,7 @@ import {
   matchCompany,
   type CompanyMatchProfile,
   type CostRange,
+  type CostRateCard,
   type CostResult,
   type CoverageRule,
   type HomeSize,
@@ -245,8 +246,12 @@ export interface CostRequest {
  * A cost block for a route shape, from the origin state's active rate cards: rows only for sizes
  * with a range (≥5 movers), and an honest noData line when none has one.
  */
-export async function costBlockFor(db: Queryable, request: CostRequest, now = new Date()): Promise<CostBlock> {
-  const cards = await loadAreaRateCards(request.originState, db);
+export async function costBlockFor(db: Queryable, request: CostRequest, now = new Date(), cache?: Map<string, CostRateCard[]>): Promise<CostBlock> {
+  let cards = cache?.get(request.originState);
+  if (!cards) {
+    cards = await loadAreaRateCards(request.originState, db);
+    cache?.set(request.originState, cards);
+  }
   const sizes = request.sizes ?? (["1br", "2br", "3br"] as HomeSize[]);
   const rows: CostBlock["rows"] = [];
   let asOf: string | null = null;
