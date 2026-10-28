@@ -8,7 +8,7 @@ import { parseSize, parseWhere, servicesForNeed, type FieldErrors } from "@amc/c
 import { checkRateLimit, rateLimitKey } from "../auth/rate-limit";
 import { hmacSecret } from "../env/env";
 import { getSettings } from "../settings/settings";
-import { checkCoverage, type CoverageResult } from "./coverage";
+import { anonymousCoverage, checkCoverage, type CoverageResult } from "./coverage";
 import { issueSurveyTicket } from "./quality";
 import { coverageRequestSchema } from "./schemas";
 import { activeConsent, type ActiveConsent } from "./submit";
@@ -43,11 +43,11 @@ export async function surveyCoverage(raw: unknown, meta: { ip: string | null }):
     destZip: where.value.destZip,
     moveSize: size.value.moveSize,
     services: servicesForNeed(input.need, size.value.services),
-    profileCompanyId: input.profileCompanyId,
+    profileCompanyId: null,
   });
   if (!coverage.ok) {
     return { ok: false, kind: "invalid", errors: coverage.reason === "unknown_origin" ? { originZip: "We don't recognize this ZIP code. Check it and try again." } : { destZip: "We don't recognize this ZIP code. Check it and try again." } };
   }
   const settings = await getSettings();
-  return { ok: true, coverage, ticket: issueSurveyTicket(hmacSecret()), consent: await activeConsent(), maxLimit: settings.max_sharing_limit };
+  return { ok: true, coverage: anonymousCoverage(coverage), ticket: issueSurveyTicket(hmacSecret()), consent: await activeConsent(), maxLimit: settings.max_sharing_limit };
 }

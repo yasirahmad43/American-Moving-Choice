@@ -7,28 +7,29 @@ import { NavLinks } from "./nav-links";
 /**
  * Static (not sticky) header (VD §9.10): wordmark, primary navigation with the growing underline,
  * the "How AMC makes money" link and the Get quotes button. Below 1024px the navigation folds
- * into a native disclosure menu that works without JavaScript.
+ * into a native disclosure menu that works without JavaScript. Pass 2: 64px tall, medium-weight
+ * nav, a hairline that fades into the page.
  */
 export function SiteHeader() {
   return (
-    <header className="relative z-10 border-b border-border bg-surface">
-      <div className="mx-auto flex min-h-[4.5rem] max-w-content items-center gap-x-6 gutter">
+    <header className="site-header relative z-10 border-b border-border/70 bg-surface">
+      <div className="mx-auto flex min-h-16 max-w-content items-center gap-x-5 gutter">
         <Wordmark href="/" />
-        <nav aria-label="Primary" className="ml-auto hidden lg:block">
+        <nav aria-label="Primary" className="ml-auto hidden xl:block">
           <NavLinks items={PRIMARY_NAV} />
         </nav>
-        <div className="ml-auto flex items-center gap-2 lg:ml-0 lg:gap-3">
-          <Link href={MONEY_LINK.href} className="hidden min-h-11 items-center px-2 type-small text-link underline underline-offset-[0.2em] sm:inline-flex">
+        <div className="ml-auto flex items-center gap-2 xl:ml-0 xl:gap-3">
+          <Link href={MONEY_LINK.href} className="hidden min-h-11 items-center px-2 type-small text-text-2 underline decoration-border-strong underline-offset-[0.25em] transition-colors duration-[var(--d1)] hover:text-link hover:decoration-link sm:inline-flex">
             {MONEY_LINK.label}
           </Link>
-          <HeaderCta />
-          <details className="group lg:hidden">
-            <summary className="inline-flex min-h-11 list-none items-center gap-1.5 rounded-control border-[1.5px] border-border-strong px-3 font-semibold text-text [&::-webkit-details-marker]:hidden">
+          <span className="hidden sm:block"><HeaderCta /></span>
+          <details className="group xl:hidden">
+            <summary className="inline-flex min-h-11 list-none items-center gap-1.5 rounded-control border-[1.5px] border-border-strong px-3 font-semibold text-text btn-soft [&::-webkit-details-marker]:hidden">
               <MenuIcon size={20} />
               Menu
               <ChevronDownIcon size={16} className="transition-transform duration-[var(--d2)] group-open:rotate-180" />
             </summary>
-            <nav aria-label="Primary (menu)" className="absolute inset-x-0 top-full border-b border-border bg-surface shadow-e2">
+            <nav aria-label="Primary (menu)" className="absolute inset-x-0 top-full border-b border-border bg-surface depth-2">
               <ul className="menu-panel mx-auto grid max-w-content gap-1 py-3 gutter">
                 {[GET_QUOTES, ...PRIMARY_NAV, MONEY_LINK].map((item) => (
                   <li key={item.href}>

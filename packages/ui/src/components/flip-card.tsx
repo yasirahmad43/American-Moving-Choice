@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * Flip card: a front face and a back face on a 3D turn. Fine pointers flip on hover; everyone
- * can flip with the "More" toggle (tap or keyboard). Both faces stay in the DOM and the hidden
+ * Flip card: a front face and a back face on a deliberate 3D turn. The explicit toggle works
+ * equally with mouse, touch and keyboard. Both faces stay in the DOM and the hidden
  * face is aria-hidden, so screen readers read one face at a time. Under prefers-reduced-motion
  * the faces crossfade instead of rotating (theme.css .flip).
  */
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { cx } from "../cx";
 import { ArrowRightIcon } from "../icons";
 
@@ -26,15 +26,33 @@ export interface FlipCardProps {
 export function FlipCard({ front, back, toggleLabel, toggleText = "Details", backToggleText = "Back", tone = "surface", className, minHeight = "15rem" }: FlipCardProps) {
   const [flipped, setFlipped] = useState(false);
   const backId = useId();
+  const frontToggle = useRef<HTMLButtonElement>(null);
+  const backToggle = useRef<HTMLButtonElement>(null);
+  const moveFocus = useRef(false);
+  const turn = (next: boolean) => {
+    moveFocus.current = true;
+    setFlipped(next);
+  };
+  useEffect(() => {
+    if (!moveFocus.current) return;
+    moveFocus.current = false;
+    (flipped ? backToggle : frontToggle).current?.focus({ preventScroll: true });
+  }, [flipped]);
   const faceBase = "flip-face grid content-between gap-4 rounded-card p-6";
   return (
-    <div className={cx("flip min-w-0", className)} data-flipped={flipped ? "true" : undefined} style={{ minHeight }}>
+    <div className={cx("flip min-w-0", className)} data-flipped={flipped ? "true" : undefined} style={{ minHeight }} onKeyDown={(event) => {
+      if (event.key === "Escape" && flipped) {
+        event.preventDefault();
+        turn(false);
+      }
+    }}>
       <div className="flip-inner h-full" style={{ minHeight }}>
         <div className={cx(faceBase, "flip-front border border-border bg-surface shadow-e1")} aria-hidden={flipped || undefined} inert={flipped || undefined}>
           <div className="min-w-0">{front}</div>
           <button
+            ref={frontToggle}
             type="button"
-            onClick={() => setFlipped(true)}
+            onClick={() => turn(true)}
             aria-expanded={flipped}
             aria-controls={backId}
             aria-label={toggleLabel}
@@ -56,8 +74,10 @@ export function FlipCard({ front, back, toggleLabel, toggleText = "Details", bac
         >
           <div className="min-w-0">{back}</div>
           <button
+            ref={backToggle}
             type="button"
-            onClick={() => setFlipped(false)}
+            onClick={() => turn(false)}
+            aria-label={`Back: ${toggleLabel}`}
             tabIndex={flipped ? 0 : -1}
             className={cx(
               "inline-flex min-h-11 w-max items-center rounded-pill px-4 font-semibold transition-colors duration-[var(--d1)]",

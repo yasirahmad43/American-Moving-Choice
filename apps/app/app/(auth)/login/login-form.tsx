@@ -13,11 +13,11 @@ export function LoginForm({ next }: { next: string }) {
     <form action={action} noValidate className="grid gap-5">
       <FormMessage state={state} />
       <input type="hidden" name="next" value={next} />
-      <Field id="email" label="Email" error={state.fieldErrors?.email}>
+      <Field floating id="email" label="Email" error={state.fieldErrors?.email}>
         <Input type="email" name="email" autoComplete="username" inputMode="email" defaultValue={state.values?.email} required />
       </Field>
       <div>
-        <Field id="password" label="Password" error={state.fieldErrors?.password}>
+        <Field floating id="password" label="Password" error={state.fieldErrors?.password}>
           <Input type="password" name="password" autoComplete="current-password" required />
         </Field>
         {/* Not the field's help text: it would become the input's description. 44px touch target. */}

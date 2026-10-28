@@ -265,7 +265,7 @@ export async function refundUnhonoured(attempt: Pick<AttemptRow, "id" | "company
 
 const LEAD_TYPE_LABEL = { exclusive: "exclusive", shared: "shared" } as const;
 
-/** The consumer notice (build plan §7.2 "Notices"): one email per purchase naming the mover. */
+/** The consumer notice (build plan §7.2 "Notices"): one anonymous email per purchase; the company identifies itself on contact. */
 export function purchaseNoticeText(input: {
   firstName: string;
   moverName: string;
@@ -273,20 +273,19 @@ export function purchaseNoticeText(input: {
   referenceCode: string;
   profileUrl: string | null;
 }): { subject: string; body: string } {
-  const usdot = input.usdot ? ` (USDOT ${input.usdot})` : "";
   const lines = [
     `Hi ${input.firstName},`,
     "",
-    `${input.moverName}${usdot} received your moving request ${input.referenceCode} through American Moving Choice and may contact you about your move.`,
+    `A participating moving company received your moving request ${input.referenceCode} through American Moving Choice and may contact you about your move.`,
     "",
-    `${input.moverName} paid American Moving Choice to receive your request. Movers pay us for the requests they choose to buy; you pay us nothing.`,
+    "The company will identify itself when it contacts you. Movers pay American Moving Choice to receive requests; you pay us nothing.",
   ];
-  if (input.profileUrl) lines.push("", `Mover profile: ${input.profileUrl}`);
+
   lines.push(
     "",
     "Changed your mind? Use the manage-request link in your confirmation email to stop new movers from receiving your request.",
   );
-  return { subject: `${input.moverName} received your moving request`, body: lines.join("\n") };
+  return { subject: "An update on your moving request", body: lines.join("\n") };
 }
 
 /**

@@ -322,7 +322,8 @@ describe("leads", () => {
     expect(list.total).toBeGreaterThan(0);
     expect(JSON.stringify(list.rows)).not.toMatch(/@demo\.invalid/);
     const detail = await getLeadDetail(admin, lead(1));
-    expect(detail?.consent?.rendered_text).toMatch(/participating movers/);
+    expect(detail?.consent?.rendered_text).toMatch(/participating moving compan/);
+      expect(detail?.consent?.rendered_text).not.toMatch(/USDOT|Demo Lone Star/);
     expect(detail?.consentCompanies.some((c) => !c.named)).toBe(true);
     expect(await auditCount("lead.view", lead(1))).toBe(1);
   });

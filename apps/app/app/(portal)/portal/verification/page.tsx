@@ -115,7 +115,7 @@ export default async function VerificationPage() {
       </section>
 
       <Card title="Credentials on file" titleAs="h2" description="Numbers you gave us and what we found. We never show documents here.">
-        <Table
+        <Table sortable
           caption="Credentials on file"
           hideCaption
           rowKey={(c) => c.id}

@@ -269,7 +269,7 @@ describe("seeded reference data", () => {
       claim_window_hours: 72,
       show_zip_in_preview: false,
       active_policy_version: POLICY,
-      active_consent_version: "consent-v0-draft",
+      active_consent_version: "contact-introduction-v1-draft",
     });
   });
 
@@ -293,8 +293,12 @@ describe("seeded reference data", () => {
 
   it("the draft consent text with the sha256 of its body, and the Terms acknowledgment as its own text", async () => {
     const { rows } = await pool.query("select * from consent_text_versions order by id");
-    expect(rows).toHaveLength(2);
-    const [v, terms] = rows;
+    expect(rows).toHaveLength(3);
+    const v = rows.find((r) => r.id === "consent-v0-draft");
+    const terms = rows.find((r) => r.id === "terms-ack-v0-draft");
+    const current = rows.find((r) => r.id === "contact-introduction-v1-draft");
+    expect(current).toMatchObject({ kind: "contact_consent", status: "draft" });
+    expect(current.body).toContain("{RECIPIENT_SCOPE}");
     expect(v).toMatchObject({ id: "consent-v0-draft", kind: "contact_consent", status: "draft", approved_by: null, effective_from: null });
     expect(v.body).toMatch(/^I agree that up to \{N\} of the movers listed above may contact me about my move/);
     expect(v.body).toContain("Consent isn't required to buy any goods or services.");

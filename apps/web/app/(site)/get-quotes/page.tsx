@@ -16,7 +16,7 @@ const PAGE = "/get-quotes/";
 export const metadata: Metadata = {
   title: "Request Quotes From Moving Companies",
   description:
-    "Tell us about your move, see which movers in our network serve it, choose how many can contact you, and send your request. Free to use; movers pay us.",
+    "Tell us about your move, check availability, choose how many can contact you, and send your request. Free to use; movers pay us.",
   alternates: { canonical: "/get-quotes/" },
 };
 
@@ -68,9 +68,9 @@ export default function GetQuotesPage() {
               </li>
             </ul>
           </header>
-          <div className="zoom-media relative hidden aspect-[16/9] overflow-hidden rounded-card ring-1 ring-border lg:block" aria-hidden="true">
-            <MediaFrame asset={art} sizes="(min-width: 1024px) 24rem, 100vw" />
-            <p className="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-pill bg-surface/90 px-3 py-1 type-small font-semibold text-text">
+          <div className="zoom-media relative hidden aspect-[16/9] overflow-hidden rounded-card ring-1 ring-border lg:block">
+            <MediaFrame asset={art} alt="" sizes="(min-width: 1024px) 24rem, 100vw" />
+            <p aria-hidden="true" className="pointer-events-none absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-pill bg-surface/90 px-3 py-1 type-small font-semibold text-text">
               <RouteMark size={12} /> Your move, one route
             </p>
           </div>
@@ -79,7 +79,7 @@ export default function GetQuotesPage() {
           <div className="bezel-inner p-5 sm:p-8">
             <Survey texts={texts} checkCoverage={checkCoverageAction} submitRequest={submitRequestAction} lookupZip={lookupZipAction} webUrl={env().WEB_URL} />
             <noscript>
-              <p className="text-text">The quote survey needs JavaScript. You can still browse the movers in our directory.</p>
+              <p className="text-text">The quote survey needs JavaScript. Please enable JavaScript to choose your contact preferences and send a request.</p>
             </noscript>
           </div>
         </div>

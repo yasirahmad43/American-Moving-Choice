@@ -16,7 +16,7 @@ export function NavLinks({ items }: { items: NavLink[] }) {
             <Link
               href={item.href}
               aria-current={current ? "page" : undefined}
-              className="nav-link inline-flex min-h-11 items-center rounded-control px-3 font-semibold text-text no-underline transition-colors duration-[var(--d1)] hover:text-brand-navy"
+              className="nav-link inline-flex min-h-11 items-center rounded-control px-3 text-[0.9375rem] font-medium tracking-[0.005em] text-text-2 no-underline transition-colors duration-[var(--d1)] hover:text-text aria-[current=page]:text-text"
             >
               {item.label}
             </Link>

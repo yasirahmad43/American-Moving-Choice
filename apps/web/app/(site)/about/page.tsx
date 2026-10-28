@@ -44,7 +44,7 @@ export default function AboutPage() {
           <Link href="/how-we-verify-movers/">How we verify movers</Link>
         </li>
         <li>
-          You choose how many movers can receive your details, and you see each one by name before you send.{" "}
+          You choose how many eligible movers can receive your details and how they may contact you. Companies introduce themselves when they contact you.{" "}
           <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link>
         </li>
         <li>

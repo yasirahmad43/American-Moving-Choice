@@ -13,7 +13,7 @@ export const coverageRequestSchema = z.object({
   moveSize: shortText(20),
   services: z.array(shortText(30)).max(10),
   need: z.enum(["household", "loading_help", "vehicle_only", "truck_rental"]).nullable(),
-  profileCompanyId: z.uuid().nullable(),
+  profileCompanyId: z.null(),
 });
 export type CoverageRequest = z.infer<typeof coverageRequestSchema>;
 
@@ -43,10 +43,10 @@ export const submissionSchema = z.object({
   limit: z.number().int().min(1).max(50),
   /** "Only this company" on a profile-started request (implications §11 Q3). */
   onlyProfileCompany: z.boolean(),
-  /** The movers the consumer saw, in the order shown, before removals. */
+  /** Opaque recipient snapshot IDs from the coverage response; company identities are not displayed. */
   shownCompanyIds: z.array(z.uuid()).min(1).max(200),
   removedCompanyIds: z.array(z.uuid()).max(200),
-  profileCompanyId: z.uuid().nullable(),
+  profileCompanyId: z.null(),
   consentChecked: z.boolean(),
   termsAccepted: z.boolean(),
   /** The consent version and the sha256 of the text the checkbox showed. */

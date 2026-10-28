@@ -11,6 +11,7 @@ import {
   SURVEY_FORM_VERSION,
   TAG_MANIFEST_VERSION,
   consentTextSha256,
+  CONTACT_INTRODUCTION_VERSION,
   generateReferenceCode,
   isSelectableCount,
   parseDetails,
@@ -30,7 +31,7 @@ import { getPool, isUniqueViolation, tx, type Queryable } from "../db/pool";
 import { env, hmacSecret } from "../env/env";
 import { enqueueEmail, type EnqueueOptions } from "../outbox/outbox";
 import { getSettings } from "../settings/settings";
-import { matchMovers, publicMover, type CoverageResult, type MatchedMover } from "./coverage";
+import { anonymousCoverage, matchMovers, type CoverageResult } from "./coverage";
 import { requestAvailableEmail, requestReceivedEmail, type RouteText } from "./messages";
 import {
   RISK_REVIEW_THRESHOLD,
@@ -69,7 +70,7 @@ export interface Confirmation {
   referenceCode: string;
   /** The group's maximum: the lowest number chosen across repeat requests. */
   limit: number;
-  /** The movers named in the consent, in the order shown. */
+  /** Legacy shape retained for compatibility; new consumer responses carry no company identities. */
   movers: ConfirmationMover[];
   route: RouteText;
   moveDate: string;
@@ -144,7 +145,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const size = parseSize(input);
   const details = parseDetails(input);
   for (const step of [where, when, size, details]) if (!step.ok) Object.assign(errors, step.errors);
-  if (!input.consentChecked) errors.consent = "To send your request, tick the box to agree to be contacted by the movers listed.";
+  if (!input.consentChecked) errors.consent = "To send your request, tick the box to agree to be contacted by participating moving companies matched to your move.";
   if (!input.termsAccepted) errors.terms = "To send your request, accept the Terms of Use and acknowledge the Privacy Policy.";
   if (!where.ok || !when.ok || !size.ok || !details.ok || Object.keys(errors).length) return { ok: false, kind: "invalid", errors };
 
@@ -155,7 +156,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     destZip: where.value.destZip,
     moveSize: size.value.moveSize,
     services,
-    profileCompanyId: input.profileCompanyId,
+    profileCompanyId: null,
   });
   if (!coverage.ok) {
     return { ok: false, kind: "invalid", errors: coverage.reason === "unknown_origin" ? { originZip: "We don't recognize this ZIP code." } : { destZip: "We don't recognize this ZIP code." } };
@@ -163,14 +164,15 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   if (coverage.movers.length === 0) return { ok: false, kind: "no_coverage" };
 
   const consent = await activeConsent();
+  if (consent.versionId !== CONTACT_INTRODUCTION_VERSION) return { ok: false, kind: "invalid", errors: { form: "Quote requests are temporarily unavailable while we update contact preferences. Please try again later." } };
   const changed = (): SubmitResult => ({
     ok: false,
     kind: "movers_changed",
-    coverage: { ...coverage, movers: coverage.movers.map(publicMover) },
+    coverage: anonymousCoverage(coverage),
     consent,
   });
 
-  // ---------------------------------------------------------------- who is named
+  // ---------------------------------------------------------------- eligibility snapshot (identities remain server-side)
   const eligible = new Map(coverage.movers.map((m) => [m.companyId, m]));
   const shown = [...new Set(input.shownCompanyIds)];
   const removed = new Set(input.removedCompanyIds.filter((id) => shown.includes(id)));
@@ -179,10 +181,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const shownEligible = shown.filter((id) => eligible.has(id)).map((id) => eligible.get(id)!);
   const named = shownEligible.filter((m) => !removed.has(m.companyId));
   const removedMovers = shownEligible.filter((m) => removed.has(m.companyId));
-  if (named.length === 0) return { ok: false, kind: "invalid", errors: { movers: "Keep at least one mover on the list to send your request." } };
-  if (input.onlyProfileCompany && !(input.profileCompanyId && named.length === 1 && named[0]!.companyId === input.profileCompanyId && input.limit === 1)) {
-    return { ok: false, kind: "invalid", errors: { limit: "Choose how many moving companies you'd like to hear from." } };
-  }
+  if (named.length === 0) return { ok: false, kind: "invalid", errors: { movers: "No participating company is available for this move. Check coverage again." } };
   if (!isSelectableCount(input.limit, named.length, settings.max_sharing_limit)) {
     return { ok: false, kind: "invalid", errors: { limit: "Choose how many moving companies you'd like to hear from." } };
   }
@@ -227,8 +226,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     services,
     channels,
     limit: input.limit,
-    only_profile_company: input.onlyProfileCompany,
-    shown: shownEligible.map((m) => m.companyId),
+    only_profile_company: false,
+    eligible_company_ids: shownEligible.map((m) => m.companyId),
+    recipient_disclosure_mode: "contact_introduction",
     removed: removedMovers.map((m) => m.companyId),
     consent_version: consent.versionId,
   });
@@ -291,7 +291,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
             coverage.move.origin.city, coverage.move.origin.state, coverage.move.origin.countyFips,
             coverage.move.destination.city, coverage.move.destination.state, coverage.move.destination.countyFips,
             coverage.move.distanceMiles, coverage.move.moveType, channels, emailHash, phoneHash, risk.score, source,
-            sha256Hex(manageToken), input.profileCompanyId && eligible.has(input.profileCompanyId) ? input.profileCompanyId : null,
+            sha256Hex(manageToken), null,
           ],
         );
         const leadId = lead.rows[0]!.id;
@@ -327,9 +327,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           `insert into consent_records (lead_id, consent_text_version_id, rendered_text, rendered_text_sha256, named_company_ids,
                                         removed_company_ids, selected_limit, channel_scope, checkbox_state, terms_version,
                                         terms_accepted, privacy_version, privacy_acknowledged, ip, user_agent, page_url,
-                                        form_version, form_state_sha256, ab_variant, phone_hash, email_hash, tag_manifest_version)
+                                        form_version, form_state_sha256, ab_variant, phone_hash, email_hash, tag_manifest_version, recipient_disclosure_mode)
            values ($1, $2, $3, $4, $5::uuid[], $6::uuid[], $7, $8::text[], true, $9, true, $10, true, $11, $12, $13,
-                   $14, $15, $16, $17, $18, $19)`,
+                   $14, $15, $16, $17, $18, $19, 'contact_introduction')`,
           [
             leadId, consent.versionId, renderedText, renderedSha, named.map((m) => m.companyId), removedMovers.map((m) => m.companyId),
             input.limit, channels, TERMS_VERSION, PRIVACY_VERSION, meta.ip, meta.userAgent, meta.pageUrl,
@@ -441,7 +441,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     confirmation: {
       referenceCode: outcome.referenceCode,
       limit: outcome.limit,
-      movers: named.map(confirmationMover),
+      movers: [],
       route,
       moveDate: when.value.moveDate,
       moveDateFlexible: when.value.flexible,
@@ -452,9 +452,6 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   };
 }
 
-function confirmationMover(m: MatchedMover): ConfirmationMover {
-  return { companyId: m.companyId, displayName: m.displayName, usdotNumber: m.usdotNumber, profileSlug: m.profileSlug, isDemo: m.isDemo };
-}
 
 function safeOrigin(value: string | null | undefined): string | null {
   if (!value) return null;

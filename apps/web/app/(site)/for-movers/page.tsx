@@ -19,11 +19,11 @@ export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 const REQUEST_STEPS = [
   { title: "A consumer enters their move", body: "We match it against each mover's coverage and capabilities, using published rules. Nothing is pre-sold." },
   {
-    title: "They choose who may contact them",
+    title: "They choose how many movers may contact them",
     body: (
       <>
-        The consumer sees the movers that serve the move, chooses the most who may contact them (1 to <Token k="setting.max_movers" />), and can remove any
-        mover before sending.
+        The consumer sees the number of eligible movers and chooses the most who may contact them (1 to <Token k="setting.max_movers" />).
+        Company names aren't displayed in the survey.
       </>
     ),
   },
@@ -31,12 +31,12 @@ const REQUEST_STEPS = [
     title: "You see a preview and decide",
     body: (
       <>
-        Only movers named on the consumer&apos;s Review and send screen can buy the lead. You see a preview without contact details, and you have{" "}
+        Only eligible movers recorded for the request can buy it, within the consumer&apos;s chosen limit. You see a preview without contact details, and you have{" "}
         <Token k="setting.sale_window_hours" /> hours to decide.
       </>
     ),
   },
-  { title: "You buy, and it's in your pipeline", body: "Contact details appear straight away and the lead lands in your pipeline, private to your company." },
+  { title: "You buy, introduce yourself, and follow up", body: "Contact details appear after purchase and the lead lands in your private pipeline. Clearly identify your company when you contact the consumer, using only their selected channels." },
 ];
 
 const VERIFY_STEPS = [
@@ -49,7 +49,7 @@ const VERIFY_STEPS = [
 const FAQ = [
   {
     q: "Can brokers or lead resellers join?",
-    a: "No. Companies with broker authority, including dual carrier and broker registrations, can't join, and no company can buy a ranking, a badge, reviews or a place in our directory.",
+    a: "No. Companies with broker authority, including dual carrier and broker registrations, can't join. Approval is based on our screening, not paid promotion.",
   },
   {
     q: "Do other movers see my prices?",
@@ -81,8 +81,8 @@ export default function ForMoversPage() {
       <MediaHero
         media={<MediaFrame asset={art} priority />}
         overline="For moving companies"
-        title="Moving leads from people who chose to hear from you"
-        lede="American Moving Choice is a network for movers only. Consumers tell us about their move, see which movers in our network serve it, and choose how many can contact them. You buy only the requests you want."
+        title="Moving leads. Matched to your coverage."
+        lede="Consumers tell us about their move and choose how many movers may contact them. We match requests to your approved coverage. Review the move, buy the requests you want, and introduce your company when you follow up."
         actions={
           <>
             <a href={`${APP_URL}/signup`} className="inline-flex min-h-12 items-center justify-center rounded-control bg-white px-6 font-semibold text-brand-navy no-underline transition-colors duration-[var(--d1)] hover:bg-on-band-2">
@@ -98,10 +98,8 @@ export default function ForMoversPage() {
             <p className="type-overline text-text-2">What you get</p>
             <ul className="grid gap-3 text-text">
               {[
-                "A public profile and a listing in our mover directory once you're approved.",
-                <>
-                  Our screening badge, <Token k="badge.name" />, which every approved mover gets and no mover can buy.
-                </>,
+                "Eligibility to purchase matching requests once your application is approved.",
+                "A screened, movers-only network with no paid rankings or public company showcases.",
                 "Move requests from consumers in the areas and move types you choose, shown to you before you buy.",
                 "A simple pipeline for the leads you buy, private to your company.",
               ].map((item, index) => (
@@ -144,9 +142,9 @@ export default function ForMoversPage() {
           <TrustStrip
             items={[
               { title: "Movers only", body: "Brokers and lead resellers can't join. Every member holds carrier authority and no broker authority." },
-              { title: "Consumer-chosen", body: "A lead reaches you only when the consumer kept you on their Review and send screen." },
+              { title: "Consumer-controlled", body: "Consumers choose the maximum number of movers and how they may be contacted. Every purchase respects those limits." },
               { title: "Private prices", body: "Your prices are set per company. No mover sees another's prices." },
-              { title: "Nothing to buy but leads", body: "No rankings, badges, reviews or directory places are for sale. Ever." },
+              { title: "Pay for requests", body: "Review a move preview before buying. Your spending doesn't buy a public promotion or change your screening result." },
             ]}
           />
         </Reveal>

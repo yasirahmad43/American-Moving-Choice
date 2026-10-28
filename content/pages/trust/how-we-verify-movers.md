@@ -15,7 +15,7 @@ reviewer: "{{page.reviewer}}"
 data_owner: n/a                          # no data blocks on this page
 ai_assisted: true
 ai_role: drafted
-stored_texts: [ST-2, ST-5, ST-8]
+stored_texts: [ST-2, ST-8]
 tokens: [badge.name, company.verified_date, setting.require_mc_number, setting.credential_alert_days, setting.new_to_network_days, org.support_email, org.support_phone, page.author, page.reviewer]
 depends_on:
   - "Owner: MC-number requirement vs a state-licensed local track (mover verification §9 decision 1; brief §11 Q4)"
@@ -46,7 +46,7 @@ last_updated: null
 
 # How we verify movers
 
-American Moving Choice accepts only moving carriers: companies that perform moves themselves. Before approval, we check each company's federal record for an active USDOT number, household-goods carrier authority, no broker authority and insurance filings, and a person reviews the file. We recheck that record weekly. If a check fails, the mover can't buy new requests and loses its badge.
+American Moving Choice accepts only moving carriers: companies that perform moves themselves. Before approval, we check each company's federal record for an active USDOT number, household-goods carrier authority, no broker authority and insurance filings, and a person reviews the file. We recheck that record weekly. If a check fails, the mover can't buy new requests.
 
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
@@ -91,7 +91,7 @@ A docket number alone doesn't show whether a company is a carrier, a broker or b
 Some movers work as agents of a national van line.
 
 <!-- ST-8 -->
-> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact.
+> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. We record its legal identity and van-line relationship during screening. The company must identify itself when it contacts you.
 
 [Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out a move bought through us under its own authority and bill of lading, given the term that the carrier that quotes your move is the carrier that does it (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5)] [Build: ST-8 renders from its record, as on Movers vs brokers (stored-texts ST-8, proposed)]
 
@@ -144,11 +144,11 @@ No company is approved automatically. After the automated and document checks, s
 
 Every check leaves a dated evidence record: where the data came from, a copy of what we retrieved, when we retrieved it, the result, and who reviewed it and what they decided. We add to these records but never edit them.
 
-Once approved, a company gets a public profile, a place in our mover directory and on our location pages for areas it actually serves, and the badge. If we turn a company down, we tell it why, and it can reapply once it has fixed the problem. [Build: the rejection reason goes to the applicant, and reapplication is allowed (mover verification §3)]
+Once approved, a company can purchase eligible requests that match its coverage and capabilities. We keep its company identity and screening evidence in our records; there is no public company showcase or individual quote button. If we turn a company down, we tell it why, and it can reapply once it has fixed the problem. [Build: the rejection reason goes to the applicant, and reapplication is allowed (mover verification §3)]
 
 ### Ties to our team
 
-Our application asks whether a company has any ties to people who own or work for American Moving Choice, and the review checks the answer. A mover with a tie can be listed, but the tie is disclosed on its profile, and the mover is never featured, ranked or compared. [Owner and Counsel: implications §11 Q10 — default shown: listed with the tie disclosed, never featured, ranked or compared; whether such a mover gets the badge is for the owner and counsel to decide (implications §4.3, §11 Q10).] How we handle related parties in general is on [How AMC makes money](/advertising-disclosure/).
+Our application asks about ties to people who own or work for American Moving Choice. Those ties are recorded for review and don't replace the screening checks. There are no public featured or preferred-mover placements.
 
 ## How often we recheck
 
@@ -167,15 +167,14 @@ Passing once isn't enough to stay in our network.
 If a check fails and we can't confirm that the mover still meets our rules:
 
 - it can't buy new requests (this happens automatically);
-- its badge comes off;
-- it comes off our directory and our location pages, and its profile shows a notice about its status; and
+- it becomes ineligible for new request purchases; and
 - we tell the company.
 
 [Owner: the wording of the profile notice, "Verification under review" (mover verification §3) or "not currently part of the American Moving Choice network" (site architecture §2.5), and whether it differs by the reason for suspension. Mover verification §3 also allows removal from the directory "per policy" instead of a notice; the copy follows site architecture §2.5, which removes every suspended company from the directory and location pages and keeps a notice on its profile.]
 
-The same happens when we suspend a mover for broker activity, fraud, reselling a request or unpaid charges. [Owner: confirmed resale suspends the company — default shown (implications §9.7)] If a weekly recheck finds broker authority on a mover's record, alone or beside carrier authority, the mover comes off our directory, our location pages and the lists of movers you see before sending a request.
+The same happens when we suspend a mover for broker activity, fraud, reselling a request or unpaid charges. [Owner: confirmed resale suspends the company — default shown (implications §9.7)] If a weekly recheck finds broker authority on a mover's record, alone or beside carrier authority, the mover becomes ineligible to purchase new requests.
 
-A suspended mover can't buy your request, even if it was among the movers listed when you sent it, because every purchase rechecks the mover's standing first. Requests it bought before the suspension stay with it, along with its records, its invoices and its access to our support team.
+A suspended mover can't buy your request, even if it was eligible when you sent it, because every purchase rechecks the mover's standing first. Requests it bought before the suspension stay with it, along with its records, its invoices and its access to our support team.
 
 If you're dealing with a mover that has been suspended, you can check its current federal record yourself (see below), [report a concern](/report-a-concern/), or [withdraw your request](/which-companies-receive-my-request/).
 
@@ -183,56 +182,25 @@ A suspended mover comes back only after it passes every check again.
 
 [Build: automatic suspension, profile status and directory removal (mover verification §3, §8; data model `company_profiles.public_status`; site architecture §2.5); broker authority found on a weekly recheck removes the mover from the directory, location pages and consent lists (implications §4.1).]
 
-## What does a mover's profile show?
+## Company identity and screening records
 
-Each profile shows the results of our checks as rows. Every row links to its source and gives the full date we last checked it, never "3 days ago".
+We keep the company's legal identity, coverage and dated screening evidence internally. Our public site doesn't display company profiles, preferred-mover cards or company review showcases. The quote flow shows coverage counts and lets you choose how many movers may contact you, without listing their names.
 
-| Row | What it shows | Source link |
-|---|---|---|
-| USDOT number | The number and its status | FMCSA company snapshot |
-| MC number | The number, if the company has one | FMCSA Licensing and Insurance record |
-| Authority | The type of authority, such as carrier, and whether it covers household goods | FMCSA Licensing and Insurance record |
-| No broker authority on record | That FMCSA shows no broker authority for the company | FMCSA Licensing and Insurance record |
-| Insurance filings | The federal filings on record | FMCSA Licensing and Insurance record |
-| State credential | Only a credential we've checked with the issuing state | That state's records |
-
-[Owner: show the MC row whenever the company has an MC number on record, or only while the MC rule is on? Mover verification §5, compliance facts §1 implication 6 and site architecture §8.5 ("and MC if present") show it when present; site architecture §1.2 lists "MC number while required" — default shown: whenever on record, so the visible page matches the JSON-LD identifier (site architecture §8.5).]
-
-We show what we checked and when, but not the documents themselves. A row without a source and a check date doesn't appear. [Build: a credential without `verified_at` and a source never renders (implications §4.2).]
-
-Anything a company tells us about itself, such as its description or photos, sits in a separate block marked as provided by the company, never under an FMCSA source line.
-
-Profiles also say plainly when a mover is new or has no reviews:
-
-- **New to our network** shows for the first {{setting.new_to_network_days}} days after approval.
-- **No customer reviews yet** shows until the mover has an eligible customer review, as our [Review methodology](/review-methodology/) defines it, and no rating appears until then.
-
-We don't give movers awards. We never show a rating, review count, years in business, number of moves, award or "top-rated" label without evidence behind it. [Build: empty states and no fabricated rating on profiles (mover verification §5, §6, §8).]
+Each company must identify itself when it contacts you. Before hiring, ask for its legal name, USDOT number, written estimate and relevant credentials, then check the records yourself using the sources below.
 
 <a id="badge"></a>
 
-## What does the badge mean?
+## Screening is a status, not a recommendation
 
-There is one badge, with no higher tiers. Every approved mover gets it. [Owner and Counsel: whether a mover with ties to our team gets the badge; if not, this sentence needs an exception (implications §4.3, §11 Q10).] We issue it only from the results of the checks on this page. It takes no input from reviews, ratings, how long a mover has been with us, or how much it buys or spends, so a mover with no reviews earns it exactly as any other mover does.
+Approval means a company met the checks that apply to it when they were performed. Spending more doesn't replace a failed check. Approval isn't a rating of work quality, a preferred placement, a government endorsement or a guarantee.
 
-The badge comes off automatically when we suspend a mover, whatever the reason: a failed check, broker activity, fraud, reselling a request or unpaid charges. It stays off until the mover is reinstated. Paying more never earns or keeps it. [Counsel: the badge and billing standing, beside the material-connection question (implications §5.4 Q5; mover verification §3, §4).]
-
-This is the explainer that sits next to every badge. Here it's an example, because this page isn't about one mover. On a profile, its date is the last date that mover's federal record passed our checks. [Owner: define `{{company.verified_date}}`, which no AMC document defines: the approval date, the last full re-verification or the latest weekly recheck — default shown: the latest date the mover's federal record passed a check, at approval or a weekly recheck. That matches the federal-record checks ST-5 lists and the "last-checked date" profiles show (mover verification §3, §5; VD §9.4).]
-
-**Example: the explainer next to a mover's badge**
-
-<!-- ST-5 -->
-> **{{badge.name}}** means this mover passed our screening on {{company.verified_date}}: an active USDOT registration, active household-goods carrier authority, no broker authority, the insurance filings federal rules require, and agreement to our movers-only terms. Those insurance filings are minimum amounts, not full coverage for your belongings. We recheck federal records every week, and the badge comes off if a check fails or the mover's account is suspended for any reason, including unpaid charges. The badge doesn't rate work quality, prices or crews, and it isn't a government endorsement or a guarantee. Every mover in our network pays us for the requests it buys, but the badge isn't sold, and buying more never earns or keeps it. Customer reviews are shown separately. [This mover's FMCSA record] · [How we verify movers]
-
-[Owner: badge name after counsel clearance and usability round 1; the token shows the working name "Preferred Mover · American Moving Choice" — default shown (implications §5.3, §11 Q6; site architecture §0 item 9).] [Counsel: ST-5 wording, including whether the badge needs a material-connection disclosure (implications §5.4 Q5; stored-texts ST-5 notes); whether its federal-record phrases hold (carrier-vs-broker note, counsel item 8(a) to (c)); and its example rendering on this page.] [Build: render ST-5 from its record, unchanged, in a box under the example label. With no single mover on this page, `{{company.verified_date}}` shows the visible placeholder "[the date shown on its profile]", and [This mover's FMCSA record] links to FMCSA's company snapshot search.] [Build: issue the badge only from passing checks (`badges.evidence_check_ids`); zero reviews plus passing checks earn it; suspension for any reason revokes it (implications §4.3; mover verification §3, §4; data model §3).]
-
-Any change to the badge's name or meaning will be recorded in the changelog at the end of this page. How we're paid, and what payment never changes, is on [How AMC makes money](/advertising-disclosure/).
+A suspended company can't buy new requests. It must pass the applicable checks again before reinstatement. [How AMC makes money](/advertising-disclosure/) explains how companies pay for requests.
 
 ## What our checks can and can't tell you
 
 Our checks are our own. They aren't a license, a certification or a government approval.
 
-**What a pass tells you:** that the company met every requirement on this page that applies to it when we approved it or last ran every check again, and that its federal record passed our latest weekly recheck. Each row on a mover's profile shows the date we checked it.
+**What a pass tells you:** that the company met every requirement on this page that applies to it when we approved it or last ran every check again, and that its federal record passed our latest weekly recheck. The underlying evidence records the date of each check.
 
 **What it can't tell you:**
 
@@ -262,7 +230,7 @@ Our [Verify a mover](/verify-a-mover/) tool explains USDOT and MC numbers and st
 
 ## How do I report a concern?
 
-If you think a mover in our network is acting as a broker, has credentials that look wrong, or has behaved badly, tell us through [Report a concern](/report-a-concern/). For example: a mover says another company will carry out your move; a company you weren't told about contacts you about your request; the USDOT number a mover gives you belongs to a different company; or a mover demands a large cash deposit. You can also email {{org.support_email}} or call {{org.support_phone}}.
+If you think a mover in our network is acting as a broker, has credentials that look wrong, or has behaved badly, tell us through [Report a concern](/report-a-concern/). For example: a mover says another company will carry out your move; a company contacts you without permission, outside your chosen channels or without identifying itself; the USDOT number a mover gives you belongs to a different company; or a mover demands a large cash deposit. You can also email {{org.support_email}} or call {{org.support_phone}}.
 
 Each report opens a case. Someone on our team is assigned to it, and it's closed with a recorded outcome. A report can prompt us to run every check on the mover again, or to suspend it.
 
@@ -272,7 +240,7 @@ For complaints about a move itself, see [Complaints](/complaints/), which also e
 
 ## Version and changes
 
-This page is the one place where we describe how we check movers. The badge explainer and the explanations of our checks on every profile render from the same versioned text, so they say the same thing. We record each change, with its date, in the changelog below.
+This page is the one place where we describe how we check movers. The public explanation and the screening records are maintained as part of the same verification process. We record each change, with its date, in the changelog below.
 
 | Version | Date | What changed |
 |---|---|---|

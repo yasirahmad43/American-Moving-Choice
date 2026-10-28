@@ -56,7 +56,7 @@ export default async function ContentInventoryPage({ searchParams }: { searchPar
         <FilterSelect id="reviewed" name="reviewed" label="Reviewed" value={filters.reviewed ?? ""} options={YES_NO} />
         <FilterSelect id="media" name="media" label="Has media" value={filters.media ?? ""} options={YES_NO} />
       </FilterBar>
-      <Table
+      <Table sortable
         caption={`Pages (${total})`}
         rowKey={(r) => r.id}
         rows={rows}

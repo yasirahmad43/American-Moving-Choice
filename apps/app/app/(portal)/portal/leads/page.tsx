@@ -1,6 +1,6 @@
 import { requireMembership } from "@amc/server/auth";
 import { CRM_STAGE_LABELS, CRM_STAGES, listRecords, parseCrmFilters, type CrmListItem } from "@amc/server/crm";
-import { AbsoluteDate, Button, Chip, EmptyState, Field, Input, LinkButton, Money, PageHeader, Select, Table } from "@amc/ui";
+import { AbsoluteDate, Button, Chip, EmptyState, Field, Input, LineIcon, LinkButton, Money, PageHeader, Select, Table } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FollowUpChip } from "@/components/portal/marketplace/follow-up-chip";
@@ -21,6 +21,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     <div className="grid gap-6">
       <PageHeader
         title={item.label}
+        overline="Customer workspace"
         description={
           membership.role === "agent"
             ? "Requests your company bought that are assigned to you, with the customer's contact details."
@@ -29,16 +30,16 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         size="portal"
         actions={
           <LinkButton href="/portal/pipeline" variant="secondary">
-            Pipeline view
+            <LineIcon name="route" size={16} />Pipeline view
           </LinkButton>
         }
       />
-      <p className="type-small text-text-2">Notes and activity are private to your company, even on shared requests.</p>
+      <p className="flex items-center gap-2 type-small text-text-2"><LineIcon name="lock" size={15} className="shrink-0" />Notes and activity are private to your company, even on shared requests.</p>
 
       <form method="get" action="/portal/leads" className="grid gap-4 rounded-card border border-border bg-surface p-5" aria-label="Search and filter purchased requests">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Field id="q" label="Search" help="Customer name, city or reference code">
-            <Input type="search" name="q" defaultValue={filters.q ?? ""} />
+        <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <Field id="q" label="Search requests">
+            <Input type="search" name="q" defaultValue={filters.q ?? ""} placeholder="Name, city or reference" />
           </Field>
           <Field id="stage" label="Stage">
             <Select name="stage" defaultValue={filters.stage ?? ""}>
@@ -85,9 +86,9 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
             </Select>
           </Field>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button type="submit" variant="secondary">
-            Apply
+        <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+          <Button type="submit">
+            <LineIcon name="filter" size={16} />Apply filters
           </Button>
           <LinkButton href="/portal/leads" variant="ghost">
             Clear
@@ -95,7 +96,8 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
         </div>
       </form>
 
-      <Table<CrmListItem>
+      <Table<CrmListItem> sortable
+        id="purchased-requests"
         caption={`${records.length} purchased ${records.length === 1 ? "request" : "requests"}`}
         rows={records}
         rowKey={(r) => r.recordId}

@@ -15,14 +15,14 @@ export type ButtonSize = "md" | "sm";
 // utilities by its own rules, not by their order in className.
 const base =
   "group inline-flex items-center justify-center gap-2.5 rounded-control border-[1.5px] font-semibold leading-none no-underline select-none " +
-  "transition-[background-color,border-color,color,transform] duration-[var(--d1)] ease-std active:translate-y-px " +
+  "transition-[background-color,border-color,color,transform,box-shadow] duration-[var(--d1)] ease-std " +
   "disabled:cursor-not-allowed disabled:border-border disabled:bg-surface-3 disabled:text-text-3 disabled:active:translate-y-0 " +
   "aria-disabled:cursor-not-allowed aria-disabled:border-border aria-disabled:bg-surface-3 aria-disabled:text-text-3";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "border-transparent bg-primary text-on-primary hover:bg-primary-hover",
-  cta: "border-transparent bg-cta text-on-cta hover:bg-cta-hover",
-  secondary: "border-border-strong bg-surface text-text hover:bg-surface-2",
+  primary: "btn-depth border-transparent bg-primary text-on-primary hover:bg-primary-hover",
+  cta: "btn-depth border-transparent bg-cta text-on-cta hover:bg-cta-hover",
+  secondary: "btn-soft border-border-strong bg-surface text-text hover:bg-surface-2",
   ghost: "border-transparent bg-transparent text-link underline underline-offset-[0.2em] hover:decoration-2",
   danger: "border-error bg-surface text-error hover:bg-error-bg",
 };

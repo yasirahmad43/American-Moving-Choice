@@ -237,3 +237,21 @@ export async function checkCoverage(input: CoverageInput, db: Queryable = getPoo
   if (!result.ok) return result;
   return { ...result, movers: result.movers.map(publicMover) };
 }
+
+/** Consumer boundary: retain opaque match IDs for the revalidated eligibility snapshot only.
+ * Real names, registration numbers, profile URLs and check metadata stay on the server. */
+export function anonymousCoverage(result: CoverageResult): CoverageResult {
+  if (!result.ok) return result;
+  return {
+    ...result,
+    profileCompany: null,
+    movers: result.movers.map((m) => ({
+      companyId: m.companyId,
+      displayName: "Participating moving company",
+      usdotNumber: null,
+      checkedAt: null,
+      profileSlug: null,
+      isDemo: m.isDemo,
+    })),
+  };
+}

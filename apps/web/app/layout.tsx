@@ -19,7 +19,7 @@ export function generateMetadata(): Metadata {
 }
 
 export const viewport: Viewport = {
-  colorScheme: "light dark",
+  colorScheme: "light",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#0a1222" },
@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
         <JsFlag />
       </head>

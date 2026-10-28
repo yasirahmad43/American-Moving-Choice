@@ -60,15 +60,15 @@ async function details(page: Page, email: string, phone: string, firstName = "Av
 }
 
 test.describe("quote survey", () => {
-  test("Dallas to Houston names the Texas demo movers, caps the count, asks again after removals and stores the request", async ({ page }) => {
+  test("Dallas to Houston checks availability without identities, honors contact preferences and stores accurate evidence", async ({ page }) => {
     test.setTimeout(90_000);
     const email = `avery.${Date.now()}@example.com`;
     await throughSize(page, "75201", "77002");
     await expect(page.getByRole("heading", { name: "5 movers in our network serve your move" })).toBeVisible();
-    for (const name of TEXAS_MOVERS) await expect(page.getByText(name, { exact: true })).toBeVisible();
-    await expect(page.getByText(/USDOT 900000\d/).first()).toBeVisible();
-    await expect(page.getByText(/Federal record checked/).first()).toBeVisible();
-    // No contact fields before the visitor knows who serves the move.
+    for (const name of TEXAS_MOVERS) await expect(page.getByText(name, { exact: true })).toHaveCount(0);
+    await expect(page.getByText(/USDOT 900000\d/)).toHaveCount(0);
+    expect(await page.content()).not.toContain("demo-lone-star-relocation-co");
+    // No contact fields before the visitor knows coverage and the contact model.
     await expect(page.locator('input[type="email"]')).toHaveCount(0);
     await expectNoAxeViolations(page, "what we found");
     await page.getByRole("button", { name: "Continue" }).click();
@@ -90,33 +90,18 @@ test.describe("quote survey", () => {
     const consentLabel = page.locator('label[for="consent"]');
     await expect(consent).not.toBeChecked();
     await expect(page.locator("#terms")).not.toBeChecked();
-    await expect(consentLabel).toContainText("Up to 3 of these movers may receive your details");
+    await expect(consentLabel).toContainText("up to 3 participating moving companies");
     await expect(consentLabel).not.toContainText("Terms of Use");
     await expect(consentLabel).not.toContainText("text message");
     await expectNoAxeViolations(page, "review");
 
-    // Remove three movers: two remain, fewer than the 3 chosen, so the count question returns.
-    const removeButtons = page.getByRole("button", { name: /^Remove / });
-    const removed: string[] = [];
-    for (let i = 0; i < 3; i++) {
-      removed.push((await removeButtons.first().textContent())!.replace(/^Remove\s*/, "").trim());
-      await removeButtons.first().click();
-    }
-    await expect(page.getByText("2 movers are left on the list, so choose again.")).toBeVisible();
-    await expect(page.locator('input[name="limit"]:disabled')).toHaveCount(3);
-    await expect(page.getByText("Only 2 movers in our network serve your move.").first()).toBeVisible();
-    await expect(consent).toBeDisabled();
-
-    // Without the consent box nothing is sent, and the profiles are offered instead.
-    await page.locator('label[for="limit-2"]').click();
+    await expect(page.getByRole("button", { name: /^Remove / })).toHaveCount(0);
     await page.locator("#terms").check();
     await page.getByRole("button", { name: "Send my request" }).click();
     await expect(page.getByText("To send your request, tick the box")).toBeVisible();
-    await expect(page.getByText("Prefer to contact a mover yourself?")).toBeVisible();
+    await expect(page.getByText("Your request has not been sent", { exact: true })).toBeVisible();
     await expect(consent).toBeFocused();
-
-    await expect(consentLabel).toContainText("Up to 2 of these movers");
-    for (const name of removed) await expect(consentLabel).not.toContainText(name);
+    for (const name of TEXAS_MOVERS) await expect(consentLabel).not.toContainText(name);
     await consent.check();
     await page.waitForTimeout(MIN_COMPLETION_MS);
     await page.getByRole("button", { name: "Send my request" }).click();
@@ -125,26 +110,26 @@ test.describe("quote survey", () => {
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/confirmation/`);
     const reference = (await page.locator("strong.tabular").first().textContent())!.trim();
     expect(reference).toMatch(/^AMC-[0-9A-Z]{4}-[0-9A-Z]{4}$/);
-    await expect(page.getByText("Up to 2 movers from this list can buy your request")).toBeVisible();
-    await expect(page.getByText("Choose 1 and only one mover can ever receive your details from us")).toBeVisible();
+    await expect(page.getByText("Up to 3 participating moving companies may receive your details")).toBeVisible();
+    await expect(page.getByText("Choose 1 and only one mover can receive your details from us")).toBeVisible();
     await expect(page.getByRole("link", { name: "report a concern", exact: true })).toBeVisible();
     await expectNoAxeViolations(page, "confirmation");
 
     await withDatabase(async (db) => {
       const lead = (await db.query("select id, group_id, status, selected_limit, channel_scope, move_type from leads where reference_code = $1", [reference])).rows[0];
-      expect(lead).toMatchObject({ status: "qualified", selected_limit: 2, channel_scope: ["call", "email"], move_type: "intrastate" });
+      expect(lead).toMatchObject({ status: "qualified", selected_limit: 3, channel_scope: ["call", "email"], move_type: "intrastate" });
       const consentRow = (
         await db.query(
-          "select cardinality(named_company_ids) as named, cardinality(removed_company_ids) as removed, rendered_text from consent_records where lead_id = $1",
+          "select cardinality(named_company_ids) as named, cardinality(removed_company_ids) as removed, recipient_disclosure_mode, rendered_text from consent_records where lead_id = $1",
           [lead.id],
         )
       ).rows[0];
-      expect(consentRow).toMatchObject({ named: 2, removed: 3 });
+      expect(consentRow).toMatchObject({ named: 5, removed: 0, recipient_disclosure_mode: "contact_introduction" });
+      expect(consentRow.rendered_text).not.toMatch(/Demo|USDOT/);
       expect(consentRow.rendered_text).not.toMatch(/text message|STOP/);
       const eligibility = await db.query("select named_in_consent, count(*)::int as n from lead_eligibility where group_id = $1 group by 1 order by 1", [lead.group_id]);
       expect(eligibility.rows).toEqual([
-        { named_in_consent: false, n: 3 },
-        { named_in_consent: true, n: 2 },
+        { named_in_consent: true, n: 5 },
       ]);
       const messages = await db.query("select distinct template from messages where related_id in ($1, $2)", [lead.id, lead.group_id]);
       expect(messages.rows.map((m) => m.template)).toContain("request_received");
@@ -189,7 +174,7 @@ test.describe("quote survey", () => {
     await page.evaluate(() => sessionStorage.clear());
     await send("2");
     await expect(page.getByText("We already had a request from you for this route")).toBeVisible();
-    await expect(page.getByText("Up to 2 movers from this list can buy your request")).toBeVisible();
+    await expect(page.getByText("Up to 2 participating moving companies may receive your details")).toBeVisible();
 
     const groupId = await withDatabase(async (db) => {
       const leads = (await db.query("select group_id from leads where email = $1 order by created_at", [email])).rows;
@@ -207,8 +192,8 @@ test.describe("quote survey", () => {
     await page.goto(`${WEB_URL}${new URL(manageHref!, WEB_URL).pathname}`);
     await expect(page.getByRole("heading", { name: /^Request AMC-/ })).toBeVisible();
     await expect(page.getByText("Open", { exact: true })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Movers that bought your request" })).toBeVisible();
-    await expect(page.getByText("Demo Lone Star Relocation Co.", { exact: true }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "What happens next" })).toBeVisible();
+    await expect(page.getByText("Demo Lone Star Relocation Co.", { exact: true })).toHaveCount(0);
     await expectNoAxeViolations(page, "manage");
     await page.getByRole("button", { name: "Withdraw my request" }).click();
     await expect(page.getByRole("dialog", { name: "Withdraw your request?" })).toBeVisible();
@@ -224,22 +209,21 @@ test.describe("quote survey", () => {
     });
   });
 
-  test("a request started from a company profile lists that company first and offers only that company", async ({ page }) => {
+  test("old profile session data cannot select or reveal a company", async ({ page }) => {
     await page.goto(`${WEB_URL}/`);
     await page.evaluate((companyId) => sessionStorage.setItem("amc.survey.profile", JSON.stringify({ companyId })), MESQUITE_TRAIL_ID);
     await page.goto(`${WEB_URL}/get-quotes/`);
     await expect(page.getByText("Step 1 of 7")).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.profile"))).toBeNull();
     await throughSize(page, "75201", "77002", false);
-    await expect(page.locator("ul li").filter({ hasText: "USDOT" }).first()).toContainText("Demo Mesquite Trail Movers");
+    for (const name of TEXAS_MOVERS) await expect(page.getByText(name, { exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Continue" }).click();
     await details(page, `profile.${Date.now()}@example.com`, uniquePhone());
-    await page.getByLabel("Only Demo Mesquite Trail Movers").check();
+    await expect(page.getByLabel(/^Only Demo /)).toHaveCount(0);
+    await page.locator('label[for="limit-1"]').click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.getByText("You chose only Demo Mesquite Trail Movers.")).toBeVisible();
-    await expect(page.locator('label[for="consent"]')).toContainText(
-      "Only 1 of these movers may receive your details and contact you: Demo Mesquite Trail Movers (USDOT 9000004).",
-    );
+    await expect(page.locator('label[for="consent"]')).toContainText("1 participating moving company");
+    expect(await page.content()).not.toMatch(/Demo Mesquite|9000004/);
   });
 
   test("tag policy: no third-party requests and nothing personal in any URL", async ({ page }) => {

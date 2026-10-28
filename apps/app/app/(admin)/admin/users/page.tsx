@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="grid gap-8">
       <PageHeader size="portal" title={item.label} description="Every admin must set up two-step verification at first sign-in and pass it on each new session." />
-      <Table
+      <Table sortable
         caption="Admins"
         rowKey={(u) => u.user_id}
         rows={users}
@@ -80,7 +80,7 @@ export default async function AdminUsersPage() {
             </Field>
           </ActionForm>
         </Card>
-        <Table
+        <Table sortable
           caption="Pending invitations"
           rowKey={(i) => i.id}
           rows={invitations}

@@ -3,6 +3,24 @@
 Written 2026-10-28 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### 2026-10-28 Codex continuation
+
+The owner's latest instruction supersedes the earlier named-mover acquisition flow:
+consumers send one central request, choose a contact limit and contact channels, and only learn
+company names when those companies contact them. Public company profiles and the directory now
+redirect to the central quote form. Survey responses, confirmations, management links, SEO content,
+and consumer notification templates do not publish the eligible company identities. Internal
+eligibility snapshots remain recorded, explicitly marked as internal rather than names displayed.
+See `docs/product/contact-introduction-flow.md`. Apply migration 200 before deploying this flow;
+historical consent text and evidence remain unchanged. Reviews require recorded contact evidence.
+
+Design pass 2 now has an editorial, quote-first home page, responsive portal/admin navigation,
+sortable React-managed tables with mobile cards, keyboard-accessible depth cards, and background
+video controls that respect reduced motion. The implementation and proof checks are recorded in
+`docs/design/pass-2-verification.md`. Production is still the deployed `main` until this work is
+integrated and rolled out; the SEO expansion and persistent media-upload work are separate next
+steps in progress, not completed by the design verification.
+
 ## 1. What this is
 
 AMC is a movers-only lead marketplace: consumers request quotes from verified moving carriers

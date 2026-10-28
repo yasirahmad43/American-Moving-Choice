@@ -115,7 +115,7 @@ export default async function BillingPage() {
         </Card>
       </div>
 
-      <Table<LedgerRow>
+      <Table<LedgerRow> sortable
         caption="Ledger"
         rows={overview.ledger}
         rowKey={(r) => r.id}
@@ -129,7 +129,7 @@ export default async function BillingPage() {
         ]}
       />
 
-      <Table<ReceiptRow>
+      <Table<ReceiptRow> sortable
         caption="Receipts"
         rows={overview.receipts}
         rowKey={(r) => r.purchaseId}
@@ -148,7 +148,7 @@ export default async function BillingPage() {
         ]}
       />
 
-      <Table<ClaimRow>
+      <Table<ClaimRow> sortable
         caption="Quality claims"
         rows={overview.claims}
         rowKey={(r) => r.id}
@@ -169,7 +169,7 @@ export default async function BillingPage() {
       />
 
       {overview.refunds.length ? (
-        <Table<RefundRow>
+        <Table<RefundRow> sortable
           caption="Automatic refunds"
           rows={overview.refunds}
           rowKey={(r) => r.attemptId}

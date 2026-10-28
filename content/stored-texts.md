@@ -14,19 +14,19 @@ It replaces the three role wordings in consent draft §1, site architecture §7.
 
 Renders on "How AMC makes money", inside the consent block, on the confirmation page, in the footer and in the Organization `description`.
 
-> American Moving Choice is an online service that connects people planning a move with moving companies in our network. We are not a moving company or a moving broker. We don't transport belongings, give estimates, or arrange or book moves. Movers in our network pay us for the move requests they choose to buy. What a mover pays never changes its screening result, its ratings, how its reviews are shown, or where it appears in our directory, on our location pages or in the list of movers you see before you send a request.
+> American Moving Choice is an online service that connects people planning a move with moving companies in our network. We are not a moving company or a moving broker. We don't transport belongings, give estimates, or arrange or book moves. Movers in our network pay us for the move requests they choose to buy. You choose the maximum number of movers who may contact you and the contact channels they may use. Companies introduce themselves when they contact you. A mover's spending doesn't change our screening standards or your chosen contact limit.
 
 ### ST-1b Money line
 
 The one line allowed between the lede and the first survey field, and under the first screen's call to action (implications §3.4, §8.2, §8.4). It links to `/advertising-disclosure/`. It also renders under the answer on "Which companies receive my request" and directly under the moving cost calculator's call to action (README §9).
 
-> Free to use. Movers in our network pay us for the requests they buy, and payment never changes their screening, ratings or order. [How AMC makes money]
+> Free to use. Movers in our network pay us for the requests they buy. You choose how many may contact you, and their spending doesn't change our screening standards or your contact limit. [How AMC makes money]
 
 ### ST-1c Meta description
 
 Only for the home, About and "How AMC makes money" pages (site architecture §8.2). 151 characters.
 
-> American Moving Choice is a service, not a mover or broker. Movers pay us for the requests they buy; payment never changes screening, ratings or order.
+> American Moving Choice is a service, not a mover or broker. Movers pay us for requests; you choose how many may contact you.
 
 ### ST-1d Role list for Movers vs brokers (proposed)
 
@@ -71,7 +71,7 @@ Renders on survey entry modules, the directory, profiles, `/how-we-verify-movers
 
 Sits inside the list block on directory, location (geo) and comparison pages, so a quoted list keeps it (implications §3.4; site architecture §7.4).
 
-> Every mover listed here pays American Moving Choice for the move requests it buys, and only movers with active accounts are listed. How much a mover buys or spends never affects whether or where it appears. [How this list is ordered]
+> Eligible movers pay American Moving Choice for the requests they buy. Your chosen maximum and contact permissions still apply. [How AMC makes money]
 
 **Notes**
 - "How this list is ordered" links to the published sort rule (site architecture §1.2, directory row).
@@ -92,7 +92,7 @@ Sits under "How many moving companies would you like to hear from?" It extends c
 
 For the Review and send screen, the confirmation page and "Which companies receive my request".
 
-> Choose 1 and only one mover can ever receive your details from us; choose more and up to that many can. Only movers named on the Review and send screen can buy your request. We never resell it, and every mover in our network agrees not to.
+> Choose 1 and only one mover can receive your details from us; choose more and up to that many can. Only eligible movers recorded for your request may buy it, within your chosen limit and contact permissions. Company names aren't shown before contact. We never resell your request beyond that limit, and every mover in our network agrees not to resell it.
 
 **Notes**
 - No option is preselected, every option gets equal weight, and no helper text favors any number, fewer movers or more (implications §2.3 item 4).
@@ -167,7 +167,7 @@ Labels every range from the cost model: in the calculator widget, its results vi
 
 Renders on How we verify movers ("Van-line agents") and Movers vs brokers ("What about van lines and their agents?"), which carried the rule as free text in two wordings (Movers vs brokers brief §10 item 23).
 
-> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact.
+> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. We record its legal identity and van-line relationship during screening. The company must identify itself when it contacts you.
 
 **Notes**
 - [Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out a move bought through us under its own authority and bill of lading, given the term that the carrier that quotes your move is the carrier that does it (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5)]

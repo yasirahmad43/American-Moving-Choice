@@ -77,3 +77,11 @@ export { StatRow, StatTile, type StatTileProps } from "./components/stat-tile";
 export { StickyCta, type StickyCtaProps } from "./components/sticky-cta";
 export { Timeline, type TimelineProps, type TimelineStep } from "./components/timeline";
 export { QuoteCard, TrustStrip, type TrustItem } from "./components/trust-strip";
+
+// Pass 2: 3D icons, tilt cards, the line-icon sprite, counters, split-line reveals, the scroll
+// progress line and the data table's inline charts.
+export { ICON_3D_NAMES, Icon3D, IconPlate, iconSrc, type Icon3DName, type Icon3DProps } from "./components/icon-3d";
+export { TiltCard, type TiltCardProps } from "./components/tilt-card";
+export { Counter, ScrollProgress, SplitLines } from "./components/scroll-progress";
+export { MiniBar, Sparkline } from "./components/table";
+export { IconSprite, LINE_ICON_NAMES, LineIcon, type LineIconName, type LineIconProps } from "./sprite";

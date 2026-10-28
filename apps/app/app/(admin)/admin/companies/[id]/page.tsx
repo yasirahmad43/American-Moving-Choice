@@ -195,7 +195,7 @@ function Overview({ detail, can }: { detail: Detail; can: { verify: boolean; pro
         ) : (
           <p className="text-text-2">No portal application on file.</p>
         )}
-        <Table
+        <Table sortable
           caption="Mover terms acceptances"
           className="mt-4"
           compact
@@ -213,7 +213,7 @@ function Overview({ detail, can }: { detail: Detail; can: { verify: boolean; pro
       </Card>
       {can.verify ? <StatusDecisions detail={detail} /> : null}
       <Card title="Outbox messages to this company" titleAs="h2">
-        <Table
+        <Table sortable
           caption="Messages"
           hideCaption
           compact
@@ -332,7 +332,7 @@ function RecordDiff({ detail }: { detail: Detail }) {
     { field: "Phone", application: detail.company.phone ?? "None", record: String(payload.phone_on_record ?? "None") },
   ];
   return (
-    <Table
+    <Table sortable
       caption="Application compared with the official record"
       compact
       rowKey={(r) => r.field}
@@ -372,7 +372,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
           <SectionTitle id="checklist" description="The newest evidence row of each check. A reviewer decision is a newer row; nothing is edited.">
             Evidence checklist
           </SectionTitle>
-          <Table
+          <Table sortable
             caption="Evidence checklist"
             hideCaption
             rowKey={(r) => r.type}
@@ -400,7 +400,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
           </div>
           <div className="min-w-0">
             <h3 className="mb-2 type-h4 text-text">Credentials</h3>
-            <Table
+            <Table sortable
               caption="Credentials"
               hideCaption
               compact
@@ -417,7 +417,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
           </div>
           <div className="min-w-0">
             <h3 className="mb-2 type-h4 text-text">Authority on record</h3>
-            <Table
+            <Table sortable
               caption="Authority"
               hideCaption
               compact
@@ -558,7 +558,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
 
       <section aria-labelledby="all-checks">
         <SectionTitle id="all-checks">Verification history</SectionTitle>
-        <Table
+        <Table sortable
           caption="Every verification check"
           hideCaption
           compact
@@ -584,7 +584,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
 function Members({ detail }: { detail: Detail }) {
   return (
     <div className="grid gap-6">
-      <Table
+      <Table sortable
         caption="Team members"
         rowKey={(r) => r.id}
         rows={detail.members}
@@ -599,7 +599,7 @@ function Members({ detail }: { detail: Detail }) {
           { key: "login", header: "Last sign-in", cell: (r) => <When value={r.last_login_at} /> },
         ]}
       />
-      <Table
+      <Table sortable
         caption="Invitations"
         rowKey={(r) => r.id}
         rows={detail.invitations}
@@ -671,7 +671,7 @@ function Coverage({ detail, canEdit }: { detail: Detail; canEdit: boolean }) {
           </div>
         ) : null}
       </Card>
-      <Table
+      <Table sortable
         caption="Coverage rules"
         rowKey={(r) => r.id}
         rows={detail.coverage}
@@ -768,7 +768,7 @@ function Prices({ detail, canPrice }: { detail: Detail; canPrice: boolean }) {
   const current = detail.prices[0];
   return (
     <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-      <Table
+      <Table sortable
         caption="Price history (append-only)"
         rowKey={(r) => r.id}
         rows={detail.prices}
@@ -802,7 +802,7 @@ function Prices({ detail, canPrice }: { detail: Detail; canPrice: boolean }) {
 
 function Rates({ detail }: { detail: Detail }) {
   return (
-    <Table
+    <Table sortable
       caption="Rate cards"
       rowKey={(r) => r.id}
       rows={detail.rateCards}
@@ -826,7 +826,7 @@ function Ledger({ detail, canFinance }: { detail: Detail; canFinance: boolean })
             <Money cents={detail.company.balance_cents} />
           </strong>
         </p>
-        <Table
+        <Table sortable
           caption="Ledger (latest 200)"
           compact
           rowKey={(r) => r.id}
@@ -865,7 +865,7 @@ function Ledger({ detail, canFinance }: { detail: Detail; canFinance: boolean })
 
 function Purchases({ detail, canFinance }: { detail: Detail; canFinance: boolean }) {
   return (
-    <Table
+    <Table sortable
       caption="Purchases (latest 200)"
       rowKey={(r) => r.id}
       rows={detail.purchases}
@@ -886,7 +886,7 @@ function Purchases({ detail, canFinance }: { detail: Detail; canFinance: boolean
 function History({ detail }: { detail: Detail }) {
   return (
     <div className="grid gap-6">
-      <Table
+      <Table sortable
         caption="Status history"
         rowKey={(r) => r.id}
         rows={detail.history}
@@ -898,7 +898,7 @@ function History({ detail }: { detail: Detail }) {
           { key: "by", header: "By", cell: (r) => r.changed_by_email ?? "System" },
         ]}
       />
-      <Table
+      <Table sortable
         caption="Badges"
         rowKey={(r) => r.id}
         rows={detail.badges}
@@ -916,7 +916,7 @@ function History({ detail }: { detail: Detail }) {
 
 function AuditTab({ detail }: { detail: Detail }) {
   return (
-    <Table
+    <Table sortable
       caption="Audit entries for this company (latest 200)"
       compact
       rowKey={(r) => r.id}

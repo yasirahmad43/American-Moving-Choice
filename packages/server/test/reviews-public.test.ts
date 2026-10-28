@@ -6,7 +6,7 @@
 import { buildSeedSql } from "@amc/db/seed/build";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { newToken, sha256Hex } from "../src/auth/tokens";
-import { closePool, getPool } from "../src/db/pool";
+import { closePool, getPool, withCompany } from "../src/db/pool";
 import { getProfile } from "../src/profiles/queries";
 import { parseReviewInput } from "../src/reviews-public/logic";
 import { getInvitation, submitReview } from "../src/reviews-public/reviews";
@@ -41,9 +41,11 @@ beforeAll(async () => {
     bcryptCost: 4,
   });
   await pool().query(seed.sql);
-  const purchase = await pool().query<{ id: string; company_id: string }>(
-    `select p.id, p.company_id from purchases p where not exists (select 1 from review_invitations i where i.purchase_id = p.id) limit 1`,
-  );
+  const ownerCompany = (await pool().query<{ company_id: string }>("select company_id from company_profiles where slug = 'demo-lone-star-relocation-co'")).rows[0]!.company_id;
+  const purchase = await withCompany(ownerCompany, (client) => client.query<{ id: string; company_id: string }>(
+    `select p.id, p.company_id from purchases p join crm_records r on r.purchase_id = p.id
+     where r.stage = 'contacted' and not exists (select 1 from review_invitations i where i.purchase_id = p.id) limit 1`,
+  ));
   purchaseId = purchase.rows[0]!.id;
   companyId = purchase.rows[0]!.company_id;
 });
@@ -76,6 +78,35 @@ describe("getInvitation", () => {
     expect((await getInvitation(expired)).status).toBe("expired");
     const early = await invite("quote_experience", { sendAfterHours: 48 });
     expect((await getInvitation(early)).status).toBe("invalid");
+  });
+
+  it("does not reveal a buyer through an old token until contact is recorded, and retains actual contact history", async () => {
+    const token = await invite("quote_experience");
+    await withCompany(companyId, async (client) => {
+      await client.query("delete from crm_activities where record_id in (select id from crm_records where purchase_id = $1)", [purchaseId]);
+      await client.query("update crm_records set stage = 'new' where purchase_id = $1", [purchaseId]);
+    });
+    expect(await getInvitation(token, { markOpened: true })).toEqual({ status: "invalid" });
+    expect(await submitReview(token, quoteInput)).toEqual({ ok: false, error: "invalid" });
+    const untouched = (await pool().query("select opened_at from review_invitations where token_hash = $1", [sha256Hex(token)])).rows[0];
+    expect(untouched.opened_at).toBeNull();
+    await withCompany(companyId, async (client) => {
+      await client.query("update crm_records set stage = 'lost', lost_reason = 'No response' where purchase_id = $1", [purchaseId]);
+    });
+    expect(await getInvitation(token)).toEqual({ status: "invalid" });
+    await withCompany(companyId, async (client) => {
+      await client.query("update crm_records set stage = 'contacted', lost_reason = null where purchase_id = $1", [purchaseId]);
+    });
+    expect((await getInvitation(token)).status).toBe("valid");
+    await withCompany(companyId, async (client) => {
+      await client.query("insert into crm_activities (record_id, company_id, type, body) select id, company_id, 'stage_change', 'Stage changed from Contacted to Lost.' from crm_records where purchase_id = $1", [purchaseId]);
+      await client.query("update crm_records set stage = 'lost', lost_reason = 'Chose another mover' where purchase_id = $1", [purchaseId]);
+    });
+    expect((await getInvitation(token)).status).toBe("valid");
+    await withCompany(companyId, (client) => client.query("update crm_records set stage = 'new', lost_reason = null where purchase_id = $1", [purchaseId]));
+    expect((await getInvitation(token)).status).toBe("valid");
+    // Later tests keep using this contacted customer's review link.
+    await withCompany(companyId, (client) => client.query("update crm_records set stage = 'contacted', lost_reason = null where purchase_id = $1", [purchaseId]));
   });
 });
 

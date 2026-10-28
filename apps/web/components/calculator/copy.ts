@@ -44,7 +44,7 @@ export const COPY = {
   "results.excludes.heading": "What the range leaves out",
   "results.changed": "You changed an answer. Calculate the range again to update it.",
 
-  "cta.button": "See which movers cover this move",
+  "cta.button": "Request moving quotes",
   "cta.help":
     "Opens our quote survey with your ZIP codes, move size and services filled in for you to check. Nothing reaches a mover unless you send a request.",
 
@@ -54,7 +54,7 @@ export const COPY = {
   "state.size_unpriced.heading": "No range for this kind of move",
   "state.size_unpriced.body":
     "Movers' rate cards cover homes from a studio to 4+ bedrooms. They don't cover office moves or moves of a few items, so there's no range for this move.",
-  "state.next.intro": "You can still see which movers cover this move and request quotes from them.",
+  "state.next.intro": "Check coverage for this move and choose how many movers may contact you.",
   "state.stale.heading": "No range for this area right now",
   "state.error.heading": "We couldn't load a range",
   "state.error.body": "Something went wrong. Nothing was shared with any mover, and your answers are still filled in.",

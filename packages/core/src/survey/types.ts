@@ -111,7 +111,7 @@ export interface SurveyProfileOrigin {
 }
 
 /** Form and consent-evidence versions recorded with each request (consent_records). */
-export const SURVEY_FORM_VERSION = "survey-v1";
+export const SURVEY_FORM_VERSION = "survey-v2-contact-introduction";
 /** Version of the quote pages' script inventory (site architecture §8.8): no third-party tags. */
 export const TAG_MANIFEST_VERSION = "tags-v1-none";
 export const AB_VARIANT_NONE = "none";

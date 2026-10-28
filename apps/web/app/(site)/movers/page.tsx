@@ -102,17 +102,17 @@ export default async function MoversIndexPage() {
             approved for it cap what its coverage can include.
           </li>
           <li>
-            <strong>Based in isn't the same as serves.</strong> A mover's profile shows where it's based apart from where it works, so a
-            mover based in one city isn't listed for another unless its coverage includes it.
+            <strong>Coverage follows your route.</strong> A company's home city alone doesn't decide whether it can receive your request.
+            Its approved coverage must include where your move starts and ends.
           </li>
           <li>
             <strong>Your answers decide who can receive your request.</strong> The quote survey checks your move against every mover's
-            coverage before it asks for contact details, names the movers that cover it, and asks how many may contact you, up to{" "}
+            coverage before it asks for contact details, shows the number of eligible movers, and asks how many may contact you, up to{" "}
             <span className="tabular">{settings.max_sharing_limit}</span>.
           </li>
           <li>
-            <strong>Only screened movers count.</strong> Every mover in a count or list is an approved moving carrier with no broker
-            authority.
+            <strong>Only screened movers count.</strong> Eligible companies are approved moving carriers with no broker authority.
+            Each company introduces itself when it contacts you; this site doesn't present a public list to browse.
           </li>
         </ul>
         <p className="flex flex-wrap gap-x-4 gap-y-1">
@@ -125,8 +125,8 @@ export default async function MoversIndexPage() {
           <Link href="/review-methodology/" className="link inline-flex min-h-11 items-center">
             How reviews work
           </Link>
-          <Link href="/directory/" className="link inline-flex min-h-11 items-center">
-            Mover directory
+          <Link href="/get-quotes/" className="link inline-flex min-h-11 items-center">
+            Start your quote request
           </Link>
         </p>
       </section>

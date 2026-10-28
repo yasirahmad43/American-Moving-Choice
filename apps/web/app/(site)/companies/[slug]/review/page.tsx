@@ -36,11 +36,11 @@ export default async function ReviewPage({ params, searchParams }: Props) {
             <h1 className="type-display-l text-text">Review {lookup.invitation.companyName}</h1>
             <p className="type-lede text-text-2">
               {lookup.invitation.reviewType === "move_experience"
-                ? "Tell other people how the move itself went with this mover."
-                : "Tell other people how this mover dealt with you before the move, from its first contact and estimate to the point you hired it, if you did. Please review it whether or not you hired it."}
+                ? "Tell our team how the move itself went with this mover."
+                : "Tell our team how this mover dealt with you, from its first contact and estimate to the point you hired it, if you did. Please give feedback whether or not you hired it."}
             </p>
           </div>
-          <ReviewForm token={token} reviewType={lookup.invitation.reviewType} companyName={lookup.invitation.companyName} slug={lookup.invitation.slug} />
+          <ReviewForm token={token} reviewType={lookup.invitation.reviewType} companyName={lookup.invitation.companyName} />
         </>
       ) : (
         <>

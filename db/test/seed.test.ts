@@ -208,7 +208,8 @@ describe("demo seed", () => {
     expect(messages.length).toBeGreaterThanOrEqual(3);
     expect(messages.every((m) => m.status === "demo")).toBe(true);
     const notice = await one("select body_text from messages where template = 'purchase_notice'");
-    expect(notice.body_text).toContain("http://localhost:3000/companies/demo-lone-star-relocation-co/");
+    expect(notice.body_text).not.toMatch(/Demo Lone Star|9000001|companies\//);
+    expect(notice.body_text).toContain("identifies itself when it contacts you");
   });
 
   it("keys email and phone hashes with the HMAC secret, never plain sha256", async () => {

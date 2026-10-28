@@ -5,6 +5,7 @@
  * by AMC (the review_invitations sweep), never by the company.
  */
 import { randomBytes, createHash } from "node:crypto";
+import { hasContactEvidence } from "../reviews-public/contact-evidence";
 import { audit } from "../audit/audit";
 import { getPool, isUuid, tx, withCompany, type Queryable } from "../db/pool";
 import { assertCan, resolveActor } from "../marketplace/permissions";
@@ -186,6 +187,7 @@ export async function requestMoveReview(input: { userId: string; companyId: stri
     const row = record.rows[0];
     if (!row) throw new ReviewToolsError("That purchased request was not found.");
     if (row.stage !== "booked" && row.stage !== "completed") throw new ReviewToolsError("Mark the request Booked or Completed before asking for a move review.");
+    if (!await hasContactEvidence(actor.companyId, purchaseId, client)) throw new ReviewToolsError("Record customer contact before asking for a move review.");
     if (row.withdrawn) throw new ReviewToolsError("The customer withdrew their request, so they won't be contacted for a review.");
     if (row.refunded) throw new ReviewToolsError("This purchase was refunded, so it can't be reviewed.");
     const placeholderHash = createHash("sha256").update(randomBytes(32)).digest("hex");

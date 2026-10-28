@@ -10,7 +10,6 @@ import "server-only";
 import { env } from "@amc/server/env";
 import { indexableCounts, sitemapEntries, type SeoFamily } from "@amc/server/seo";
 import { servedContentPages } from "@/lib/content/pages";
-import { listDirectory } from "@amc/server/profiles";
 
 export const SITEMAP_CHUNK = 1000;
 
@@ -31,7 +30,6 @@ const STATIC_PAGES = [
   "/get-quotes/",
   "/moving-cost-calculator/",
   "/verify-a-mover/",
-  "/directory/",
   "/movers/",
   "/routes/",
   "/services/",
@@ -52,23 +50,10 @@ const SEGMENTS: { name: string; family: SeoFamily; chunked: boolean }[] = [
 
 const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/** Live, listed company profiles and the directory's pages (owned by the directory slice; listed here so the index is complete). */
-async function companyEntries(): Promise<{ profiles: string[]; directoryPages: string[] }> {
-  const first = await listDirectory({ page: 1 });
-  if (!first) return { profiles: [], directoryPages: [] };
-  const profiles = first.listings.map((l) => `/companies/${l.slug}/`);
-  for (let page = 2; page <= first.totalPages; page++) {
-    const more = await listDirectory({ page });
-    if (more) profiles.push(...more.listings.map((l) => `/companies/${l.slug}/`));
-  }
-  const directoryPages = Array.from({ length: Math.max(0, first.totalPages - 1) }, (_, i) => `/directory/page/${i + 2}/`);
-  return { profiles, directoryPages };
-}
-
 export async function sitemapIndexXml(): Promise<string> {
   const { WEB_URL } = env();
   const counts = await indexableCounts();
-  const files: { loc: string; lastmod?: Date }[] = [{ loc: `${WEB_URL}/sitemaps/core.xml` }, { loc: `${WEB_URL}/sitemaps/companies.xml` }];
+  const files: { loc: string; lastmod?: Date }[] = [{ loc: `${WEB_URL}/sitemaps/core.xml` }];
   for (const seg of SEGMENTS) {
     const entry = counts.get(seg.family);
     if (!entry || entry.count === 0) continue;
@@ -90,13 +75,8 @@ function urlset(entries: { url: string; lastmod?: Date }[]): string {
 /** The XML for one segment file name ("core", "states", "cities-2"), or null for an unknown name. */
 export async function sitemapSegmentXml(name: string): Promise<string | null> {
   if (name === "core") {
-    const { directoryPages } = await companyEntries();
-    const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url), ...directoryPages])];
+    const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url)])];
     return urlset(urls.map((url) => ({ url })));
-  }
-  if (name === "companies") {
-    const { profiles } = await companyEntries();
-    return urlset(profiles.map((url) => ({ url })));
   }
   const match = /^([a-z]+)(?:-(\d+))?$/.exec(name);
   if (!match) return null;

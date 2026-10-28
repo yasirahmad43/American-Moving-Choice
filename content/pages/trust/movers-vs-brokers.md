@@ -221,7 +221,7 @@ We explain [every check we run and what happens when one fails](/how-we-verify-m
 ## What about van lines and their agents?
 
 <!-- ST-8 -->
-> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact.
+> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. We record its legal identity and van-line relationship during screening. The company must identify itself when it contacts you.
 
 [Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out a move bought through us under its own authority and bill of lading, given the term that the carrier that quotes your move is the carrier that does it (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5)] [Build: ST-8 renders from its record, as on How we verify movers (stored-texts ST-8, proposed)]
 
@@ -241,7 +241,7 @@ We don't:
 - negotiate prices or terms, for you or for any mover;
 - give estimates or quotes. [Counsel: stored-texts ST-1 notes ask whether the cost calculator's planning ranges fit this statement (compliance facts §2).]
 
-What we do is connect you with movers you choose to hear from, and those movers pay us for the move requests they choose to buy. Only movers named on your Review and send screen can buy your request, no more of them than the number you chose, and movers that buy it contact you directly. You pay us nothing.
+What we do is connect you with movers you choose to hear from, and those movers pay us for the move requests they choose to buy. Only eligible movers recorded for your request can buy it, within your chosen maximum and contact channels. Company names aren't shown before contact; movers introduce themselves when they contact you directly. You pay us nothing.
 
 [How AMC makes money](/advertising-disclosure/) explains how we're paid, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can buy your request.
 

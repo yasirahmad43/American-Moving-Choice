@@ -1,54 +1,86 @@
 /**
  * Renders a published programmatic page from its stored content (@amc/server/seo): breadcrumbs,
  * H1, the first-screen answer with its dated data points, the sections, the quote entry, FAQ,
- * related links (published targets only), sources, credits and JSON-LD. The stored content and
- * the JSON-LD are rendered verbatim; this file only skins them with the Route Ledger premium
+ * related links (published targets only), sources, credits and JSON-LD. Historical company
+ * listings and identity-first copy are removed before any content is rendered or passed to
+ * client components. This file skins the remaining content with the Route Ledger premium
  * system (packages/ui): editorial header, claimed media, stat tiles, ledger strips for sourced
  * facts, flip cards for cost factors, expandable FAQ cards, a related-links grid and the sticky
  * quote CTA on phones.
  */
 import { env } from "@amc/server/env";
 import { publishedAmong, publishedRelated, type ContentBlock, type SeoPageRecord } from "@amc/server/seo";
-import { Breadcrumbs, Container, ExpandableCard, FlipCard, IdCardIcon, LedgerStrip, Reveal, RouteMark, SectionHeader, StatTile, StickyCta } from "@amc/ui";
+import { Breadcrumbs, Container, Counter, ExpandableCard, FlipCard, Icon3D, IdCardIcon, LedgerStrip, Reveal, RouteMark, SectionHeader, StatTile, StickyCta, Table, TiltCard, type Icon3DName } from "@amc/ui";
 import Link from "next/link";
 import { MediaFrame } from "@/components/media/media-frame";
 import { JsonLd } from "@/components/site/json-ld";
 import { creditLine, mediaForSeoPage } from "@/lib/media";
-import { storedTextParts } from "@/lib/stored-texts";
 import { InlineText, stripLinks } from "./inline-text";
 import { PREFILL_STORAGE_KEY, QuoteEntryButton } from "./quote-entry";
-import { breadcrumbLd, faqLd, moverListLd, pageLd, type Crumb } from "./seo-metadata";
+import { breadcrumbLd, pageLd, type Crumb } from "./seo-metadata";
+import { publicSeoPage } from "./public-content";
 
-function PaidLine() {
-  // ST-3: the paid-relationship line sits inside the list block (site architecture §7.4).
-  return (
-    <p className="type-small text-text-2">
-      {storedTextParts("ST-3").map((part, index) =>
-        part.kind === "text" ? (
-          <span key={index}>{part.text}</span>
-        ) : (
-          <Link key={index} href="/directory/" className="link">
-            {part.label}
-          </Link>
-        ),
-      )}
-    </p>
-  );
+/** A 3D icon for a data-point label (origin pin for places, route for distances, and so on). */
+function iconForLabel(label: string): Icon3DName {
+  const l = label.toLowerCase();
+  if (/zip/.test(l)) return "pin";
+  if (/mover|carrier|compan/.test(l)) return "verified";
+  if (/population|people|resident/.test(l)) return "chart";
+  if (/county|counties/.test(l)) return "origin";
+  if (/distance|mile|route|drive/.test(l)) return "route";
+  if (/cost|price|range|\$/.test(l)) return "price";
+  if (/date|updated|as of|year/.test(l)) return "calendar";
+  if (/city|cities|metro|town/.test(l)) return "destination";
+  if (/service|packing|storage/.test(l)) return "box";
+  return "ledger";
 }
 
-/** Initials mark standing in for a company logo (VD §9.5). */
-function Monogram({ name }: { name: string }) {
-  const initials = name
-    .replace(/^Demo\s+/i, "")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]!.toUpperCase())
-    .join("");
+/** The integer in a plain count such as "95" or "3,884,307"; null for anything else (never money). */
+function numericValue(value: string): number | null {
+  const m = /^\s*(\d{1,3}(?:,\d{3})+|\d+)\s*([a-z%]*)\s*$/i.exec(value);
+  if (!m) return null;
+  const n = Number(m[1]!.replace(/,/g, ""));
+  return Number.isFinite(n) && n < 1e9 ? n : null;
+}
+function suffixOf(value: string): string {
+  const m = /^\s*(?:\d{1,3}(?:,\d{3})+|\d+)\s*([a-z%]*)\s*$/i.exec(value);
+  return m?.[1] ? ` ${m[1]}` : "";
+}
+
+const NUMERIC_CELL = /^\s*[-$]?\d[\d,.]*\s*(%|mi|miles|lb|lbs|hours?|min|km|ft|sq ?ft)?\s*$/i;
+
+/** A stored content table as the data table: sortable headers, numeric columns right-aligned. */
+function ContentTable({ caption, columns, rows, allow }: { caption?: string; columns: string[]; rows: string[][]; allow: (href: string) => boolean }) {
+  const numeric = columns.map((_, j) => rows.length > 0 && rows.every((r) => !r[j] || NUMERIC_CELL.test(r[j]!)));
+  const parse = (cell: string | undefined) => {
+    if (!cell) return null;
+    const n = Number(cell.replace(/[^\d.-]/g, ""));
+    return Number.isFinite(n) ? n : null;
+  };
+  const max = columns.map((_, j) => (numeric[j] ? Math.max(1, ...rows.map((r) => parse(r[j]) ?? 0)) : 1));
+  const barColumn = columns.findIndex((c, j) => numeric[j] && /distance|miles|population|movers|zip/i.test(c));
   return (
-    <span aria-hidden="true" className="inline-grid size-11 shrink-0 place-items-center rounded-control bg-surface-3 font-display text-[1.0625rem] font-extrabold text-brand-navy ring-1 ring-border [font-stretch:85%]">
-      {initials}
-    </span>
+    <div className="not-prose">
+      <Table<{ id: string; cells: string[] }>
+        caption={caption ?? "Table"}
+        hideCaption={!caption}
+        compact
+        densityToggle={rows.length > 8}
+        rowKey={(r) => r.id}
+        rows={rows.map((cells, i) => ({ id: String(i), cells }))}
+        maxHeight={rows.length > 14 ? "34rem" : undefined}
+        columns={columns.map((header, j) => ({
+          key: `c${j}`,
+          header,
+          primary: j === 0,
+          numeric: numeric[j],
+          sortable: rows.length > 2,
+          sortValue: (r) => (numeric[j] ? parse(r.cells[j]) ?? "" : r.cells[j] ?? ""),
+          bar: j === barColumn ? (r) => (parse(r.cells[j]) ?? 0) / max[j]! : undefined,
+          cell: (r) => <InlineText text={r.cells[j] ?? ""} allow={allow} />,
+        }))}
+      />
+    </div>
   );
 }
 
@@ -80,33 +112,7 @@ function Block({ block, allow }: { block: ContentBlock; allow: (href: string) =>
       );
     }
     case "table":
-      return (
-        <div className="table-wrap" tabIndex={0}>
-          <table>
-            {block.caption ? <caption className="px-3.5 py-2 text-left type-small text-text-2">{block.caption}</caption> : null}
-            <thead>
-              <tr>
-                {block.columns.map((c) => (
-                  <th key={c} scope="col">
-                    {c}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {block.rows.map((row, i) => (
-                <tr key={i}>
-                  {row.map((cell, j) => (
-                    <td key={j}>
-                      <InlineText text={cell} allow={allow} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
+      return <ContentTable caption={block.caption} columns={block.columns} rows={block.rows} allow={allow} />;
     case "facts":
       // Sourced facts as a ledger strip: the claim, its source and the date it was read.
       return (
@@ -139,34 +145,20 @@ function Block({ block, allow }: { block: ContentBlock; allow: (href: string) =>
           </div>
           {c.rows.length ? (
             <>
-              <div className="table-wrap" tabIndex={0}>
-                <table className="w-full type-small">
-                  <thead>
-                    <tr className="border-b border-border-strong text-left">
-                      <th scope="col" className="py-2 pr-3 font-bold uppercase tracking-[0.06em] text-text-2">
-                        Home size
-                      </th>
-                      <th scope="col" className="py-2 pr-3 font-bold uppercase tracking-[0.06em] text-text-2">
-                        Typical range
-                      </th>
-                      <th scope="col" className="py-2 font-bold uppercase tracking-[0.06em] text-text-2">
-                        Movers&apos; cards
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {c.rows.map((r) => (
-                      <tr key={r.homeSize} className="border-b border-border last:border-b-0">
-                        <td className="py-2.5 pr-3 font-semibold text-text">{r.homeSize}</td>
-                        <td className="py-2.5 pr-3 tabular text-text">
-                          {r.low} to {r.high}
-                        </td>
-                        <td className="py-2.5 tabular text-text-2">{r.movers}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table
+                caption={`Planning ranges: ${c.scope}`}
+                hideCaption
+                compact
+                densityToggle={false}
+                rowKey={(r) => r.homeSize}
+                rows={c.rows}
+                columns={[
+                  { key: "size", header: "Home size", primary: true, cell: (r) => <span className="font-semibold">{r.homeSize}</span> },
+                  { key: "range", header: "Typical range", numeric: true, nowrap: true, cell: (r) => `${r.low} to ${r.high}` },
+                  { key: "typical", header: "Typical job", cell: (r) => r.typical },
+                  { key: "movers", header: "Movers' cards", numeric: true, cell: (r) => r.movers, bar: (r) => r.movers / Math.max(1, ...c.rows.map((x) => x.movers)) },
+                ]}
+              />
               <p className="type-small text-text-2">
                 25th to 75th percentile, {c.modelVersion}, rate cards as of {c.asOf}. A planning range from movers&apos; rate cards, not a quote or estimate: movers set their own prices.
               </p>
@@ -178,28 +170,8 @@ function Block({ block, allow }: { block: ContentBlock; allow: (href: string) =>
       );
     }
     case "movers":
-      return (
-        <div className="not-prose grid gap-4">
-          {block.heading ? <h3 className="type-h3 text-text">{block.heading}</h3> : null}
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {block.items.map((m) => (
-              <li key={m.slug} className="lift relative flex gap-3 rounded-card border border-border bg-surface p-4 shadow-e1">
-                <Monogram name={m.name} />
-                <div className="min-w-0">
-                  <Link href={`/companies/${m.slug}/`} className="font-semibold text-text no-underline after:absolute after:inset-0 after:rounded-card hover:underline">
-                    {m.name}
-                  </Link>
-                  <p className="type-small text-text-2">
-                    {m.basedIn ? `Based in ${m.basedIn}. ` : ""}
-                    {m.coverageNote}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {block.paidLine ? <PaidLine /> : null}
-        </div>
-      );
+      // Defense in depth: even a caller that skips publicSeoPage cannot render a company list.
+      return null;
   }
 }
 
@@ -213,17 +185,15 @@ function routeEnds(page: SeoPageRecord): { from: string; to: string } | null {
 /** Sections whose heading names cost factors get flip cards; everything else stays prose. */
 const FLIP_SECTION = /cost factor|what (drives|affects) the (price|cost)|price factor/i;
 
-export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumbs: Crumb[] }) {
+export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageRecord; crumbs: Crumb[] }) {
+  const page = publicSeoPage(storedPage);
   const { WEB_URL } = env();
   const related = await publishedRelated(page);
   // Inline links to unpublished SEO pages render as plain text (no 404s, site architecture §3.3).
   const inlineHrefs = [...new Set((JSON.stringify(page.content).match(/\]\((\/[^)\s]*)\)/g) ?? []).map((m) => m.slice(2, -1)))];
   const live = await publishedAmong(inlineHrefs);
   const allow = (href: string) => live.has(href);
-  const movers = page.content.sections.flatMap((s) => s.blocks).flatMap((b) => (b.type === "movers" ? b.items : []));
   const media = mediaForSeoPage(page.url, page.mediaIds).find((m) => m.kind === "image") ?? null;
-  const faq = faqLd(page);
-  const moverList = moverListLd(WEB_URL, movers);
   const trail = [{ label: "Home", href: "/" }, ...crumbs];
   const route = routeEnds(page);
   const quote = page.content.quote;
@@ -232,8 +202,6 @@ export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumb
     <>
       <JsonLd data={breadcrumbLd(WEB_URL, trail)} />
       <JsonLd data={pageLd(WEB_URL, page)} />
-      {faq ? <JsonLd data={faq} /> : null}
-      {moverList ? <JsonLd data={moverList} /> : null}
 
       {/* Editorial header: breadcrumbs, H1, the first-screen answer, data points and the quote entry. */}
       <div className="mesh-light border-b border-border">
@@ -252,13 +220,14 @@ export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumb
               <InlineText text={page.content.intro.answer} allow={allow} />
             </p>
             {page.content.intro.dataPoints.length ? (
-              <dl className="grid grid-cols-2 gap-3 pt-2 lg:grid-cols-4">
-                {page.content.intro.dataPoints.map((d) => (
-                  <div key={d.label} className="grid content-start gap-1 rounded-card border border-border border-t-[3px] border-t-brand-navy bg-surface p-4 shadow-e1">
-                    <dt className="type-small font-semibold text-text-2">{d.label}</dt>
-                    <dd className="m-0 font-display text-[1.75rem] leading-none font-extrabold tabular text-text [font-stretch:85%]">{d.value}</dd>
-                    <dd className="m-0 type-small text-text-3">{d.basis}</dd>
-                  </div>
+              <dl className="grid grid-cols-2 gap-3 pt-2 lg:grid-cols-4" data-motion="stagger">
+                {page.content.intro.dataPoints.map((d, i) => (
+                  <TiltCard as="div" key={d.label} max={8} depth={16} padding="none" bodyClassName="grid h-full content-start gap-1 p-4">
+                    <Icon3D name={iconForLabel(d.label)} size={44} float delay={i * 0.7} className="tilt-layer-2 mb-1" />
+                    <dt className="type-small font-semibold text-text-2 tilt-layer">{d.label}</dt>
+                    <dd className="m-0 font-display text-[1.75rem] leading-none font-extrabold tabular text-text tilt-layer [font-stretch:85%]">{numericValue(d.value) !== null ? <Counter value={numericValue(d.value)!} suffix={suffixOf(d.value)} /> : d.value}</dd>
+                    <dd className="m-0 type-small text-text-3 tilt-layer">{d.basis}</dd>
+                  </TiltCard>
                 ))}
               </dl>
             ) : null}
@@ -417,7 +386,7 @@ export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumb
             </Reveal>
             <nav aria-label="Related pages" className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((group, index) => (
-                <Reveal key={group.heading} delay={index * 50} className="rounded-card border border-border bg-surface p-5 shadow-e1">
+                <Reveal key={group.heading} delay={index * 50} className="rounded-card border border-border bg-surface p-5 depth-1">
                   <h2 className="type-overline text-text-2">{group.heading}</h2>
                   <ul className="mt-3 grid gap-0.5">
                     {group.links.map((link) => (

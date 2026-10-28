@@ -47,6 +47,8 @@ export interface ManagedRequest {
   named: ConfirmationMover[];
   /** Movers that bought the request (and received the contact details). */
   buyers: BuyerView[];
+  /** Number of companies that received the request; identities are introduced by the companies. */
+  buyerCount: number;
   /** Another request from the consumer that this one joined, or that joined this one. */
   joined: boolean;
   canWithdraw: boolean;
@@ -120,21 +122,6 @@ const routeOf = (row: LeadRow): RouteText => ({
   destState: row.dest_state ?? "",
 });
 
-async function namedMovers(leadId: string, db: Queryable): Promise<ConfirmationMover[]> {
-  const result = await db.query<{ company_id: string; display_name: string; usdot_number: string | null; profile_slug: string | null; is_demo: boolean }>(
-    `select c.id as company_id, coalesce(p.display_name, c.dba_name, c.legal_name) as display_name, c.usdot_number,
-            case when p.public_status = 'live' then p.slug end as profile_slug, c.is_demo
-       from consent_records r
-       cross join lateral unnest(r.named_company_ids) with ordinality as n(company_id, position)
-       join companies c on c.id = n.company_id
-       left join company_profiles p on p.company_id = c.id
-      where r.lead_id = $1
-      order by n.position`,
-    [leadId],
-  );
-  return result.rows.map((r) => ({ companyId: r.company_id, displayName: r.display_name, usdotNumber: r.usdot_number, profileSlug: r.profile_slug, isDemo: r.is_demo }));
-}
-
 async function buyersOf(groupId: string, db: Queryable): Promise<(BuyerView & { companyId: string })[]> {
   const result = await db.query<{ company_id: string; display_name: string; usdot_number: string | null; profile_slug: string | null; is_demo: boolean; created_at: Date }>(
     `select c.id as company_id, coalesce(p.display_name, c.dba_name, c.legal_name) as display_name, c.usdot_number,
@@ -179,8 +166,9 @@ export async function getRequestByToken(token: string, meta: { ip: string | null
       moveSize: row.move_size,
       channels: row.channel_scope,
       limit: row.sharing_limit,
-      named: await namedMovers(row.id, db),
-      buyers: buyers.map(({ companyId: _companyId, ...rest }) => rest),
+      named: [],
+      buyers: [],
+      buyerCount: buyers.length,
       joined: row.group_size > 1,
       canWithdraw: status !== "withdrawn",
     },
@@ -199,7 +187,7 @@ export async function getConfirmationByToken(token: string, db: Queryable = getP
   return {
     referenceCode: row.reference_code,
     limit: row.sharing_limit,
-    movers: await namedMovers(row.id, db),
+    movers: [],
     route: routeOf(row),
     moveDate: row.move_date,
     moveDateFlexible: row.move_date_flexible,

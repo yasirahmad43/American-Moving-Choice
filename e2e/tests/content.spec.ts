@@ -56,13 +56,13 @@ test.describe("home page hand-off", () => {
     await page.goto(`${WEB_URL}/`);
     // On the home page the header's Get quotes link is secondary; the hero form is the main action.
     await expect(page.locator('header a[href="/get-quotes/"]').first()).toHaveClass(/bg-surface/);
-    await page.getByRole("button", { name: "See which movers cover your move" }).click();
+    await page.getByRole("button", { name: "Get my moving quotes" }).click();
     await expect(page.getByText("Enter the 5-digit ZIP code you're moving from.")).toBeVisible();
 
     await page.getByLabel("Moving from (ZIP code)").fill(" 02108-1234");
     await page.getByLabel("Moving to (ZIP code)").fill("10001");
     await expect(page.getByLabel("Moving from (ZIP code)")).toHaveValue("02108");
-    await page.getByRole("button", { name: "See which movers cover your move" }).click();
+    await page.getByRole("button", { name: "Get my moving quotes" }).click();
 
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
     // The home page's prefill shape ({ entry, originZip, destZip }) is read once and cleared.

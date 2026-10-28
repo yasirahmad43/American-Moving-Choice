@@ -49,7 +49,7 @@ async function PurchaseList({ sp, filters, canRefund }: { sp: Record<string, str
   return (
     <>
       <Scroll label="Purchases table">
-      <Table
+      <Table sortable
         caption={`Purchases (${total})`}
         compact
         rowKey={(r) => r.id}
@@ -91,7 +91,7 @@ async function Reconciliation({ filters }: { filters: { from: string; to: string
   return (
     <div className="grid gap-6">
       {issues.length ? <Alert tone="warning">{issues.length} purchase{issues.length === 1 ? "" : "s"} need attention.</Alert> : <Alert tone="success">Every purchase matches its payment reference, ledger entries and disclosure.</Alert>}
-      <Table
+      <Table sortable
         caption="Daily reconciliation reports (reconcile-payments job)"
         compact
         rowKey={(r) => r.id}
@@ -109,7 +109,7 @@ async function Reconciliation({ filters }: { filters: { from: string; to: string
       />
       {charges.length ? (
         <Scroll label="Provider charge issues">
-          <Table
+          <Table sortable
             caption="Provider charges that need attention"
             compact
             rowKey={(r) => r.attempt_id}
@@ -128,7 +128,7 @@ async function Reconciliation({ filters }: { filters: { from: string; to: string
         <p className="type-small text-text-2">Every provider charge matches its purchase attempt. Retry failed provider refunds on <Link className="text-link underline" href="/admin/billing?tab=provider-refunds">Billing</Link>.</p>
       )}
       {orphans.length ? (
-        <Table
+        <Table sortable
           caption="Payments without a purchase (each needs a refund)"
           compact
           rowKey={(r) => r.id}
@@ -143,7 +143,7 @@ async function Reconciliation({ filters }: { filters: { from: string; to: string
         />
       ) : null}
       <Scroll label="Reconciliation table">
-      <Table
+      <Table sortable
         caption={`Purchases and payment references (${rows.length})`}
         compact
         rowKey={(r) => r.purchase_id}

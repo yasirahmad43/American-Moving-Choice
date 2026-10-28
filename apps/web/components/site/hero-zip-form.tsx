@@ -104,7 +104,7 @@ export function HeroZipForm({ moneyLine }: { moneyLine: ReactNode }) {
       </p>
       <div className="grid gap-3">
         <Button type="submit" variant="cta" fullWidth loading={pending} loadingLabel="Opening the survey…" aria-describedby={ids.money}>
-          See which movers cover your move
+          Get my moving quotes
         </Button>
         <div id={ids.money} className="type-small text-text-2">
           {moneyLine}

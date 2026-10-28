@@ -16,6 +16,7 @@ import { REDACTED_LINK, deliverPending, enqueueEmail } from "../outbox/outbox";
 import { stripeClient } from "../payments/provider";
 import type { StripeClientLike } from "../payments/stripe";
 import { getSettings } from "../settings/settings";
+import { contactedPurchaseIds, hasContactEvidence } from "../reviews-public/contact-evidence";
 import { runAutomatedChecks } from "../verification/run";
 import { CHECK_LABELS, type CheckType } from "../verification/types";
 
@@ -105,23 +106,32 @@ export async function deliverOutbox(): Promise<JobResult> {
 /**
  * Creates the system's review invitations (mover verification §6; implications §4.4):
  * a quote-experience invitation quote_invite_delay_days after each purchase, and a move-experience
- * invitation post_move_invite_days after the stated move date, whatever the CRM stage. Refunded
+ * invitation post_move_invite_days after the stated move date, only after recorded CRM contact. Refunded
  * purchases and withdrawn requests get none. The token is set when the invitation is sent; until
  * then token_hash holds a random placeholder nobody has the preimage of.
  */
 export async function scheduleReviewInvitations(db: Queryable = getPool()): Promise<JobResult> {
   const settings = await getSettings(db);
+  const purchases = await db.query<{ id: string; company_id: string }>("select p.id, p.company_id from purchases p join lead_groups g on g.id = p.group_id where p.refunded_at is null and g.status <> 'withdrawn'");
+  const byCompany = new Map<string, string[]>();
+  for (const purchase of purchases.rows) {
+    const ids = byCompany.get(purchase.company_id) ?? [];
+    ids.push(purchase.id);
+    byCompany.set(purchase.company_id, ids);
+  }
+  const contacted: string[] = [];
+  for (const [companyId, ids] of byCompany) contacted.push(...await contactedPurchaseIds(companyId, ids));
   const placeholder = "encode(sha256(uuid_send(gen_random_uuid()) || uuid_send(gen_random_uuid())), 'hex')";
   const quote = await db.query(
     `insert into review_invitations (purchase_id, company_id, review_type, requested_by, token_hash, send_after, expires_at)
      select p.id, p.company_id, 'quote_experience', 'system', ${placeholder},
             p.created_at + make_interval(days => $1), p.created_at + make_interval(days => $1 + $2)
      from purchases p join lead_groups g on g.id = p.group_id
-     where p.refunded_at is null and g.status <> 'withdrawn'
+     where p.refunded_at is null and g.status <> 'withdrawn' and p.id = any($3::uuid[])
        and p.created_at + make_interval(days => $1 + $2) > now()
        and not exists (select 1 from review_invitations i where i.purchase_id = p.id and i.review_type = 'quote_experience')
      on conflict (purchase_id, review_type) do nothing`,
-    [settings.quote_invite_delay_days, INVITATION_VALID_DAYS],
+    [settings.quote_invite_delay_days, INVITATION_VALID_DAYS, contacted],
   );
   const move = await db.query(
     `insert into review_invitations (purchase_id, company_id, review_type, requested_by, token_hash, send_after, expires_at)
@@ -129,11 +139,11 @@ export async function scheduleReviewInvitations(db: Queryable = getPool()): Prom
             (l.move_date + $1::int)::timestamptz, (l.move_date + $1::int + $2::int)::timestamptz
      from purchases p join lead_groups g on g.id = p.group_id
      join lateral (select move_date from leads where group_id = p.group_id and is_primary and move_date is not null order by created_at limit 1) l on true
-     where p.refunded_at is null and g.status <> 'withdrawn'
+     where p.refunded_at is null and g.status <> 'withdrawn' and p.id = any($3::uuid[])
        and (l.move_date + $1::int + $2::int)::timestamptz > now()
        and not exists (select 1 from review_invitations i where i.purchase_id = p.id and i.review_type = 'move_experience')
      on conflict (purchase_id, review_type) do nothing`,
-    [settings.post_move_invite_days, INVITATION_VALID_DAYS],
+    [settings.post_move_invite_days, INVITATION_VALID_DAYS, contacted],
   );
   return { items: (quote.rowCount ?? 0) + (move.rowCount ?? 0), details: { quote_experience: quote.rowCount ?? 0, move_experience: move.rowCount ?? 0 } };
 }
@@ -151,9 +161,9 @@ export function invitationEmail(input: { reviewType: string; companyName: string
     [
       input.firstName ? `Hi ${input.firstName},` : "Hello,",
       "",
-      `You asked for moving quotes through American Moving Choice, and ${input.companyName} bought your request. Would you tell other people ${what}?`,
+      `You asked for moving quotes through American Moving Choice and have been in contact with ${input.companyName}. Would you tell us ${what}?`,
       "",
-      "American Moving Choice sends these invitations itself, to every customer, so movers can't pick who reviews them. There is no reward for leaving a review, and we never ask for a positive one.",
+      "American Moving Choice sends review invitations after recorded customer contact. There is no reward for leaving a review, and we never ask for a positive one.",
       "",
       `This link is just for you and works once, until ${until}:`,
       link,
@@ -178,12 +188,15 @@ export async function sendDueInvitations(): Promise<JobResult> {
   );
   let sent = 0;
   let cancelled = 0;
+  let deferred = 0;
   for (const { id } of due.rows) {
     const outcome = await tx(async (client) => {
       const row = (await client.query<{
         id: string;
         review_type: string;
         company_id: string;
+        purchase_id: string;
+        refunded_at: Date | null;
         expires_at: Date;
         group_status: string;
         email: string | null;
@@ -194,7 +207,7 @@ export async function sendDueInvitations(): Promise<JobResult> {
         display_name: string | null;
         lead_id: string | null;
       }>(
-        `select i.id, i.review_type, i.company_id, i.expires_at, g.status as group_status, l.email, l.first_name, l.email_hash, l.withdrawn_at,
+        `select i.id, i.review_type, i.company_id, i.purchase_id, p.refunded_at, i.expires_at, g.status as group_status, l.email, l.first_name, l.email_hash, l.withdrawn_at,
                 pr.slug, coalesce(pr.display_name, c.legal_name) as display_name, l.id as lead_id
          from review_invitations i
          join purchases p on p.id = i.purchase_id
@@ -209,6 +222,7 @@ export async function sendDueInvitations(): Promise<JobResult> {
       if (!row) return "skipped" as const;
       const suppressed =
         row.group_status === "withdrawn" ||
+        row.refunded_at !== null ||
         row.withdrawn_at !== null ||
         !row.email ||
         !row.slug ||
@@ -223,6 +237,8 @@ export async function sendDueInvitations(): Promise<JobResult> {
         await client.query("update review_invitations set expires_at = now() where id = $1", [row.id]);
         return "cancelled" as const;
       }
+      await client.query("select set_config('app.company_id', $1, true)", [row.company_id]);
+      if (!await hasContactEvidence(row.company_id, row.purchase_id, client)) return "deferred" as const;
       const token = newToken();
       await client.query("update review_invitations set token_hash = $2, sent_at = now() where id = $1", [row.id, sha256Hex(token)]);
       const email = invitationEmail({ reviewType: row.review_type, companyName: row.display_name ?? "your mover", firstName: row.first_name, link: reviewLink(row.slug!, token), expiresAt: row.expires_at });
@@ -231,8 +247,9 @@ export async function sendDueInvitations(): Promise<JobResult> {
     });
     if (outcome === "sent") sent++;
     if (outcome === "cancelled") cancelled++;
+    if (outcome === "deferred") deferred++;
   }
-  return { items: sent, details: { sent, cancelled, due: due.rowCount ?? 0 } };
+  return { items: sent, details: { sent, cancelled, deferred, due: due.rowCount ?? 0 } };
 }
 
 // ================================================================== credentials

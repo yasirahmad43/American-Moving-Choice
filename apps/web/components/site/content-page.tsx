@@ -94,7 +94,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
           ) : null}
           <div className="rounded-card mesh-navy p-5 text-on-band" data-band="">
             <p className="type-h4">Ready to compare movers?</p>
-            <p className="mt-1 text-on-band-2">See which movers in our network cover your route before you share any contact details.</p>
+            <p className="mt-1 text-on-band-2">Check coverage for your route, then choose how many movers may contact you.</p>
             <LinkButton href="/get-quotes/" variant="primary" size="sm" className="mt-4 !bg-white !text-brand-navy hover:!bg-on-band-2">
               Start a quote request
             </LinkButton>
