@@ -23,6 +23,10 @@
       "schedule": "5 7 * * *"
     },
     {
+      "path": "/api/cron/reconcile-payments",
+      "schedule": "20 8 * * *"
+    },
+    {
       "path": "/api/cron/prune-rate-limits",
       "schedule": "5 9 * * *"
     },
@@ -36,7 +40,11 @@
     },
     {
       "path": "/api/cron/deliver-outbox",
-      "schedule": "5 17 * * *"
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/review-invitation-audit",
+      "schedule": "20 18 * * *"
     }
   ]
 }

@@ -9,7 +9,7 @@ import { ActionForm } from "@/components/admin/action-form";
 import { Facts, Mono, ShortId, Status, When, humanize } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { ROLES } from "../../_lib/roles";
-import { leadDecisionAction } from "../actions";
+import { leadDecisionAction, rematchAction } from "../actions";
 
 const item = adminNavItem("/admin/leads");
 
@@ -172,6 +172,14 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           { key: "at", header: "Matched", cell: (r) => <When value={r.matched_at} /> },
         ]}
       />
+      {canDecide && group?.status === "available" && detail.eligibility.some((r) => r.named_in_consent) ? (
+        <Card title="Re-run matching" titleAs="h2" description="Refreshes the snapshots of the movers named in the consent against their current coverage, so a stale snapshot stops blocking their purchase. Movers the consumer removed stay removed, and no mover is ever added to a request it was not shown for.">
+          <ActionForm action={rematchAction} submitLabel="Re-run matching" submitVariant="secondary" inline>
+            <input type="hidden" name="leadId" value={lead.id} />
+            <input type="hidden" name="groupId" value={group.id} />
+          </ActionForm>
+        </Card>
+      ) : null}
 
       <Table
         caption="Purchases and buyers"

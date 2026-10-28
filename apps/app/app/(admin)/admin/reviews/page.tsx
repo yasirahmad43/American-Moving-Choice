@@ -1,6 +1,7 @@
 import { EVIDENCE_KIND_LABELS, EVIDENCE_LABELS, EVIDENCE_LEVELS, REJECTION_REASONS, listReports, listResponses, listReviews, supportedEvidenceLevel } from "@amc/server/admin";
 import { hasAdminRole, requireAdmin } from "@amc/server/auth";
 import { many } from "@amc/server/db";
+import { INVITATION_AUDIT_FLAGS, INVITATION_AUDIT_MIN_ELIGIBLE, INVITATION_AUDIT_WINDOW_DAYS, listInvitationAudits } from "@amc/server/jobs";
 import { Card, Field, PageHeader, Select, Table, Textarea } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -23,6 +24,7 @@ const TABS = [
   { id: "reports", label: "Reports" },
   { id: "responses", label: "Responses" },
   { id: "profiles", label: "Profile descriptions" },
+  { id: "invitations", label: "Invitation audit" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
@@ -51,6 +53,45 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Prom
       {tab === "reports" ? <Reports canModerate={canModerate} /> : null}
       {tab === "responses" ? <Responses canModerate={canModerate} /> : null}
       {tab === "profiles" ? <Profiles canModerate={hasAdminRole(adminRole, ROLES.profiles)} /> : null}
+      {tab === "invitations" ? <InvitationAudit /> : null}
+    </div>
+  );
+}
+
+/**
+ * Selective-invitation monitoring (mover verification §6; review-methodology "When a mover asks"):
+ * the latest review-invitation-audit row per company, flagged companies first, with the case the
+ * audit opened. The heuristic and its thresholds are documented on the job (jobs/jobs.ts).
+ */
+async function InvitationAudit() {
+  const rows = await listInvitationAudits();
+  const pct = (value: number | null) => (value === null ? "n/a" : `${value}%`);
+  return (
+    <div className="grid gap-4">
+      <p className="text-text-2">
+        Every {INVITATION_AUDIT_WINDOW_DAYS}-day window, per company: the moves it recorded as booked or completed (its purchase base) against the
+        move reviews it asked us to invite. A company is flagged, and a review case opened, when it asks about under half of those moves, when the
+        moves it asks about are worth 1.5× or more the ones it does not, or when its requests lean on repeat customers. Companies with fewer than{" "}
+        {INVITATION_AUDIT_MIN_ELIGIBLE} such moves are listed but not scored.
+      </p>
+      <Table
+        caption="Latest invitation audit per company"
+        compact
+        rowKey={(r) => r.company_id}
+        rows={rows}
+        empty={<p className="text-text-2">No audit has run yet. The review-invitation-audit job runs daily (Jobs page).</p>}
+        columns={[
+          { key: "company", header: "Company", cell: (r) => <Link className="text-link underline" href={`/admin/companies/${r.company_id}`}>{r.legal_name}</Link> },
+          { key: "base", header: "Booked or completed", numeric: true, cell: (r) => r.eligible_count },
+          { key: "requested", header: "Invitations requested", numeric: true, cell: (r) => r.requested_count },
+          { key: "coverage", header: "Coverage", numeric: true, cell: (r) => pct(r.coverage_pct) },
+          { key: "value", header: "Avg value: asked vs not", cell: (r) => `${r.requested_avg_value_cents === null ? "n/a" : `$${Math.round(r.requested_avg_value_cents / 100)}`} vs ${r.other_avg_value_cents === null ? "n/a" : `$${Math.round(r.other_avg_value_cents / 100)}`}` },
+          { key: "repeat", header: "Repeat share: asked vs base", cell: (r) => `${pct(r.repeat_share_requested_pct)} vs ${pct(r.repeat_share_base_pct)}` },
+          { key: "flags", header: "Flags", cell: (r) => (r.flags.length ? r.flags.map((f) => INVITATION_AUDIT_FLAGS[f]).join("; ") : <Status value="pass" label="None" />) },
+          { key: "case", header: "Case", cell: (r) => (r.case_id ? <Link className="text-link underline" href={`/admin/cases/${r.case_id}`}>Open case</Link> : "—") },
+          { key: "at", header: "Audited", cell: (r) => <When value={r.created_at} /> },
+        ]}
+      />
     </div>
   );
 }

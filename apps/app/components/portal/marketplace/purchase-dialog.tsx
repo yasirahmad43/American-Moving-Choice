@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { purchaseAction } from "@/app/(portal)/portal/marketplace/actions";
+import { requestAvailabilityRefresh } from "./live-availability";
 import { initialPurchaseState } from "./purchase-state";
 
 export interface PurchaseDialogProps {
@@ -50,7 +51,10 @@ export function PurchaseDialog(props: PurchaseDialogProps) {
     resultRef.current?.focus();
     // A failed attempt is closed in the database: the next try needs a new key.
     if (state.status === "error") setKey(crypto.randomUUID());
-  }, [state.attempt, state.status]);
+    // Every outcome changes what the live availability poller may see (a success, a sold-out
+    // refusal, a retry after purchase_in_progress): revalidate now rather than at the next tick.
+    requestAvailabilityRefresh(state.status === "success" || state.code === "already_purchased" ? props.groupId : undefined);
+  }, [state.attempt, state.status, state.code, props.groupId]);
 
   const openDialog = () => {
     setKey(crypto.randomUUID());

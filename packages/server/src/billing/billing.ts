@@ -5,9 +5,9 @@
  * ledger is written only by the 001 functions.
  */
 import { audit } from "../audit/audit";
-import { getPool, isUniqueViolation, isUuid, tx, type Queryable } from "../db/pool";
+import { getPool, isUniqueViolation, isUuid, tx, withCompany, type Queryable } from "../db/pool";
 import { getClaimWindowHours } from "../settings/settings";
-import { assertCan, resolveActor } from "../marketplace/permissions";
+import { assertCan, PermissionError, resolveActor } from "../marketplace/permissions";
 
 export class BillingError extends Error {
   constructor(message: string) {
@@ -113,7 +113,16 @@ export function maskRef(ref: string | null): string | null {
 
 const ROUTE_SQL = `coalesce(l.origin_city, '') || ', ' || coalesce(l.origin_state, '') || ' to ' || coalesce(l.dest_city, '') || ', ' || coalesce(l.dest_state, '')`;
 
-export async function getBillingOverview(input: { userId: string; companyId: string }, db: Queryable = getPool()): Promise<BillingOverview> {
+/**
+ * The billing page. Runs inside withCompany, so the 180 row-level security on purchases, ledger
+ * entries and payment methods applies behind the explicit company filters.
+ */
+export async function getBillingOverview(input: { userId: string; companyId: string }): Promise<BillingOverview> {
+  if (!isUuid(input.companyId)) throw new PermissionError();
+  return withCompany(input.companyId, (client) => billingOverview(input, client));
+}
+
+async function billingOverview(input: { userId: string; companyId: string }, db: Queryable): Promise<BillingOverview> {
   const actor = await resolveActor(db, input);
   assertCan(actor, "billing.view");
   const company = actor.companyId;

@@ -27,6 +27,28 @@ import {
   type LocationSetInput,
 } from "./schema";
 
+/**
+ * An admin editing a company's coverage on the company's behalf (admin/coverage.ts). The admin
+ * role and MFA were checked by requireAdmin; the audit rows record actor_type 'admin'.
+ */
+export interface AdminCoverageActor extends Actor {
+  admin: true;
+}
+
+export type CoverageActor = Actor | AdminCoverageActor;
+
+const isAdminActor = (actor: CoverageActor): actor is AdminCoverageActor => "admin" in actor && actor.admin === true;
+
+/** Who may edit: an owner or manager of the company (from the database), or an admin acting for it. */
+async function authorize(actor: CoverageActor, db: Queryable): Promise<{ userId: string; actorType: "user" | "admin" }> {
+  if (isAdminActor(actor)) {
+    if (!isUuid(actor.userId) || !isUuid(actor.companyId)) throw new PermissionError();
+    return { userId: actor.userId, actorType: "admin" };
+  }
+  const member = await loadActor(actor, COMPANY_MANAGERS, db);
+  return { userId: member.userId, actorType: "user" };
+}
+
 export const bundledGeo: GeoValidator = {
   countyState: (fips) => countyByFips(fips)?.state ?? null,
   zipExists: (zip) => lookupZip(zip) !== null,
@@ -111,8 +133,8 @@ export async function loadCapabilities(companyId: string, db: Queryable = getPoo
 }
 
 /** Coverage rules, capabilities and the current coverage_version (owners and managers). */
-export async function getCoverage(actor: Actor): Promise<CoverageOverview> {
-  await loadActor(actor, COMPANY_MANAGERS);
+export async function getCoverage(actor: CoverageActor): Promise<CoverageOverview> {
+  await authorize(actor, getPool());
   const db = getPool();
   const version = await db.query<{ coverage_version: number }>("select coverage_version from companies where id = $1", [actor.companyId]);
   return {
@@ -179,7 +201,7 @@ function ruleAuditView(rule: CoverageRuleInput) {
  * geography and the capability ceiling on the server.
  */
 export async function saveCoverageRule(
-  actor: Actor,
+  actor: CoverageActor,
   ruleId: string | null,
   input: unknown,
   meta: { ip?: string | null } = {},
@@ -193,7 +215,7 @@ export async function saveCoverageRule(
   if (ruleId !== null && !isUuid(ruleId)) return { ok: false, errors: ["That rule doesn't exist."] };
 
   return tx(async (client): Promise<SaveRuleResult> => {
-    const member = await loadActor(actor, COMPANY_MANAGERS, client);
+    const member = await authorize(actor, client);
     await client.query("select 1 from companies where id = $1 for update", [actor.companyId]);
     const problems = ruleCapabilityProblems(rule, await loadCapabilities(actor.companyId, client));
     if (problems.length) return { ok: false, errors: problems };
@@ -221,7 +243,7 @@ export async function saveCoverageRule(
     }
     await audit(
       {
-        actorType: "user",
+        actorType: member.actorType,
         actorId: member.userId,
         companyId: actor.companyId,
         action: ruleId === null ? "coverage.rule_created" : "coverage.rule_updated",
@@ -238,15 +260,15 @@ export async function saveCoverageRule(
 }
 
 /** Deletes one of the company's rules. */
-export async function deleteCoverageRule(actor: Actor, ruleId: string, meta: { ip?: string | null } = {}): Promise<boolean> {
+export async function deleteCoverageRule(actor: CoverageActor, ruleId: string, meta: { ip?: string | null } = {}): Promise<boolean> {
   if (!isUuid(ruleId)) return false;
   return tx(async (client) => {
-    const member = await loadActor(actor, COMPANY_MANAGERS, client);
+    const member = await authorize(actor, client);
     const existing = (await loadRules(actor.companyId, client)).find((r) => r.id === ruleId);
     if (!existing) return false;
     await client.query("delete from coverage_rules where id = $1 and company_id = $2", [ruleId, actor.companyId]);
     await audit(
-      { actorType: "user", actorId: member.userId, companyId: actor.companyId, action: "coverage.rule_deleted", entity: "coverage_rule", entityId: ruleId, before: ruleAuditView(existing), ip: meta.ip ?? null },
+      { actorType: member.actorType, actorId: member.userId, companyId: actor.companyId, action: "coverage.rule_deleted", entity: "coverage_rule", entityId: ruleId, before: ruleAuditView(existing), ip: meta.ip ?? null },
       client,
     );
     return true;
@@ -254,10 +276,10 @@ export async function deleteCoverageRule(actor: Actor, ruleId: string, meta: { i
 }
 
 /** Pauses or resumes one rule, or every rule when ruleId is null ("pause all coverage"). */
-export async function setRulesPaused(actor: Actor, ruleId: string | null, paused: boolean, meta: { ip?: string | null } = {}): Promise<number> {
+export async function setRulesPaused(actor: CoverageActor, ruleId: string | null, paused: boolean, meta: { ip?: string | null } = {}): Promise<number> {
   if (ruleId !== null && !isUuid(ruleId)) return 0;
   return tx(async (client) => {
-    const member = await loadActor(actor, COMPANY_MANAGERS, client);
+    const member = await authorize(actor, client);
     const updated = await client.query<{ id: string }>(
       `update coverage_rules set paused = $3 where company_id = $1 and ($2::uuid is null or id = $2) and paused <> $3 returning id`,
       [actor.companyId, ruleId, paused],
@@ -265,7 +287,7 @@ export async function setRulesPaused(actor: Actor, ruleId: string | null, paused
     if (updated.rowCount) {
       await audit(
         {
-          actorType: "user",
+          actorType: member.actorType,
           actorId: member.userId,
           companyId: actor.companyId,
           action: paused ? "coverage.paused" : "coverage.resumed",
@@ -295,7 +317,7 @@ export async function writeCapabilities(client: Queryable, companyId: string, ca
 }
 
 /** Updates what the company offers at all (the ceiling rules can't widen). */
-export async function updateCapabilities(actor: Actor, input: unknown, meta: { ip?: string | null } = {}): Promise<CapabilitiesResult> {
+export async function updateCapabilities(actor: CoverageActor, input: unknown, meta: { ip?: string | null } = {}): Promise<CapabilitiesResult> {
   const parsed = capabilitiesSchema.safeParse(input);
   if (!parsed.success) {
     const fieldErrors: Partial<Record<keyof Capabilities, string>> = {};
@@ -306,11 +328,11 @@ export async function updateCapabilities(actor: Actor, input: unknown, meta: { i
     return { ok: false, fieldErrors };
   }
   return tx(async (client) => {
-    const member = await loadActor(actor, COMPANY_MANAGERS, client);
+    const member = await authorize(actor, client);
     const before = await loadCapabilities(actor.companyId, client);
     await writeCapabilities(client, actor.companyId, parsed.data);
     await audit(
-      { actorType: "user", actorId: member.userId, companyId: actor.companyId, action: "coverage.capabilities_updated", entity: "company_capabilities", entityId: actor.companyId, before, after: parsed.data, ip: meta.ip ?? null },
+      { actorType: member.actorType, actorId: member.userId, companyId: actor.companyId, action: "coverage.capabilities_updated", entity: "company_capabilities", entityId: actor.companyId, before, after: parsed.data, ip: meta.ip ?? null },
       client,
     );
     return { ok: true, coverageVersion: await versionOf(client, actor.companyId) };

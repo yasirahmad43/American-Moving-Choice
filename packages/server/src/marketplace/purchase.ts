@@ -105,10 +105,15 @@ export async function purchase(
         if (existing.rows[0]) return fail("already_purchased", undefined, existing.rows[0].id);
         return fail(code);
       }
+      // The key was first used for another request (180): a client bug, never a success for the
+      // wrong lead. Nothing was reserved or charged.
+      if (code === "idempotency_key_reused") return fail("unknown");
       if (code && isPurchaseErrorCode(code)) return fail(code);
       throw error;
     }
   }
+  // Idempotency is scoped to (company, key, request): belt and braces behind the database check.
+  if (attempt.group_id !== input.groupId) return fail("unknown");
 
   // A replayed key returns the earlier attempt.
   if (attempt.status === "succeeded") {

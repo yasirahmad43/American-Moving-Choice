@@ -21,7 +21,10 @@ function mockStripe(overrides: Partial<{ [K in keyof StripeClientLike]: Partial<
       retrieve: vi.fn(async () => ({ id: "seti_123", status: "succeeded", usage: "off_session", customer: "cus_test123", payment_method: "pm_card_1", metadata: {} })),
     },
     paymentMethods: { retrieve: vi.fn(async () => ({ id: "pm_card_1", card: { brand: "visa", last4: "1881", exp_month: 4, exp_year: 2031 } })) },
-    paymentIntents: { create: vi.fn(async (params) => ({ id: "pi_test_1", status: "succeeded", amount: params.amount, currency: "usd", metadata: params.metadata })) },
+    paymentIntents: {
+      create: vi.fn(async (params) => ({ id: "pi_test_1", status: "succeeded", amount: params.amount, currency: "usd", metadata: params.metadata })),
+      retrieve: vi.fn(async (id) => ({ id, status: "succeeded", amount: 0, currency: "usd", metadata: {} })),
+    },
     refunds: { create: vi.fn(async () => ({ id: "re_test_1", status: "succeeded" })) },
     webhooks: { constructEvent: vi.fn() },
   };
