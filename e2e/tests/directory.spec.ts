@@ -18,15 +18,18 @@ async function expectNoSeriousAxeViolations(page: Page) {
 }
 
 test.describe("mover directory", () => {
-  test("lists the demo companies alphabetically with demo chips and badges, never the broker", async ({ page }) => {
+  test("lists the demo companies alphabetically with badges and no demo chips, never the broker", async ({ page }) => {
     const response = await page.goto(`${WEB_URL}/directory/`);
     expect(response?.status()).toBe(200);
     const list = page.locator("main ul.grid").first();
     const names = await list.locator("> li h3").allTextContents();
     expect(names).toHaveLength(12);
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "en-US", { sensitivity: "base" })));
-    await expect(list.locator("> li").first().getByText("Demo company: fictional")).toBeVisible();
+    // Public cards carry no "Demo company" chip: the one preview notice lives in the footer.
+    await expect(page.getByText("Demo company: fictional")).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "Preview notice" })).toContainText("fictional demo data");
     await expect(list.locator("> li").first().getByText(/Preferred Mover/).first()).toBeVisible();
+    expect(await page.locator("main").innerText()).not.toContain("name pending");
     await expect(page.getByText("Every mover listed here pays American Moving Choice")).toBeVisible();
     await expect(page.getByText("Demo Dual Authority Moving Group")).toHaveCount(0);
 
@@ -62,7 +65,7 @@ test.describe("company profile", () => {
   test("shows dated credential rows, the badge explainer, separate ratings with labels and responses", async ({ page }) => {
     await page.goto(`${WEB_URL}/companies/${LONE_STAR}/`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Demo Lone Star Relocation Co.");
-    await expect(page.getByText("Demo company: fictional").first()).toBeVisible();
+    await expect(page.getByText("Demo company: fictional")).toHaveCount(0);
     const credentials = page.locator("section", { has: page.getByRole("heading", { name: "Credentials and checks" }) });
     await expect(credentials.getByText("USDOT number")).toBeVisible();
     await expect(credentials.getByText("No broker authority on record")).toBeVisible();

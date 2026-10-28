@@ -30,7 +30,7 @@ export function FlipCard({ front, back, toggleLabel, toggleText = "Details", bac
   return (
     <div className={cx("flip min-w-0", className)} data-flipped={flipped ? "true" : undefined} style={{ minHeight }}>
       <div className="flip-inner h-full" style={{ minHeight }}>
-        <div className={cx(faceBase, "flip-front border border-border bg-surface shadow-e1")} aria-hidden={flipped || undefined}>
+        <div className={cx(faceBase, "flip-front border border-border bg-surface shadow-e1")} aria-hidden={flipped || undefined} inert={flipped || undefined}>
           <div className="min-w-0">{front}</div>
           <button
             type="button"
@@ -51,6 +51,7 @@ export function FlipCard({ front, back, toggleLabel, toggleText = "Details", bac
           id={backId}
           className={cx(faceBase, "flip-back", tone === "navy" ? "mesh-navy text-on-band" : "bg-surface-2 shadow-e2 ring-1 ring-border")}
           aria-hidden={!flipped || undefined}
+          inert={!flipped || undefined}
           data-band={tone === "navy" ? "" : undefined}
         >
           <div className="min-w-0">{back}</div>

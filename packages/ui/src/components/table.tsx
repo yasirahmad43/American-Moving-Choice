@@ -50,7 +50,7 @@ export function Table<Row>({ caption, hideCaption, columns, rows, rowKey, empty,
                 scope="col"
                 aria-sort={column.sort && column.sort !== "none" ? column.sort : undefined}
                 className={cx(
-                  "sticky top-0 bg-surface px-3 py-2.5 text-[0.8125rem] font-semibold text-text-2",
+                  "sticky top-0 bg-surface-2 px-3 py-2.5 text-[0.8125rem] font-bold uppercase tracking-[0.06em] text-text-2 first:rounded-l-control last:rounded-r-control",
                   (column.numeric || column.align === "right") && "text-right",
                   column.className,
                 )}
@@ -64,7 +64,7 @@ export function Table<Row>({ caption, hideCaption, columns, rows, rowKey, empty,
           {rows.map((row) => (
             <tr
               key={rowKey(row)}
-              className="border-b border-border align-top max-md:block max-md:rounded-card max-md:border max-md:bg-surface max-md:p-4 max-md:shadow-e1"
+              className="border-b border-border align-top transition-colors duration-[var(--d1)] md:hover:bg-surface-2/60 max-md:block max-md:rounded-card max-md:border max-md:bg-surface max-md:p-4 max-md:shadow-e1"
             >
               {columns.map((column) => {
                 const label = column.mobileLabel ?? (typeof column.header === "string" ? column.header : "");

@@ -395,9 +395,11 @@ export default async function CompanyProfilePage({ params }: { params: Params })
               We don&apos;t show movers&apos; phone numbers here. To hear from this mover, request a quote: you choose how many movers can contact you, and they
               contact you directly.
             </p>
-            <div>
-              <RequestQuoteButton companyId={p.companyId} slug={p.slug} displayName={p.displayName} label="Request a quote" />
-            </div>
+            <p>
+              <a href="#quote" className="link font-semibold">
+                Back to Request a quote
+              </a>
+            </p>
           </Reveal>
         </div>
       </Container>
