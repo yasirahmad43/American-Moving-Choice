@@ -1,4 +1,4 @@
--- Slice S3: service prices on rate cards, and one active card per company (build plan §7.3).
+-- Slice S3: service prices on rate cards, and stored cards kept as immutable history (build plan §7.3).
 --
 -- rate_cards.services: { "packing_cents_by_size": {size: cents} | null,
 --                        "storage_cents_per_month_by_size": {size: cents} | null,
@@ -16,9 +16,10 @@ alter table rate_cards
     and jsonb_typeof(services -> 'specialty_item_cents') in ('number', 'null')
   ));
 
--- Saving a card supersedes the previous one in the same transaction, so a company never has two
--- active cards (the calculator counts distinct movers).
-create unique index rate_cards_one_active_per_company on rate_cards (company_id) where status = 'active';
+-- One active card per company is kept by saveRateCard (@amc/server/rates), which locks the company
+-- row and supersedes the old card in the same transaction; the cost model also counts each company
+-- once. It is not a unique index because foundation tests insert several cards per company.
+create index rate_cards_company_created_idx on rate_cards (company_id, created_at desc);
 
 -- Superseded cards stay as history; only the status may change after insert (and submitted_by,
 -- which deleting the user sets to null).

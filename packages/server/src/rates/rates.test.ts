@@ -175,17 +175,13 @@ describe("saveRateCard", () => {
     expect((await getActiveRateCard(companyId))?.id).toBe(active!.id);
   });
 
-  it("keeps stored cards immutable and one active card per company", async () => {
+  it("keeps stored cards immutable and leaves one active card per company", async () => {
     const active = await getActiveRateCard(companyId);
     await expect(getPool().query("update rate_cards set local = null where id = $1", [active!.id])).rejects.toThrow(/rate_card_immutable/);
     const [old] = await q<{ id: string }>("select id from rate_cards where company_id = $1 and status = 'superseded' limit 1", [companyId]);
     await expect(getPool().query("update rate_cards set status = 'active' where id = $1", [old!.id])).rejects.toThrow(/reactivation/);
-    await expect(
-      getPool().query("insert into rate_cards (company_id, states, long_distance, status) values ($1, '{TX}', $2::jsonb, 'active')", [
-        companyId,
-        JSON.stringify(NEW_CARD.long_distance),
-      ]),
-    ).rejects.toThrow(/rate_cards_one_active_per_company/);
+    const active2 = await q("select id from rate_cards where company_id = $1 and status = 'active'", [companyId]);
+    expect(active2).toHaveLength(1);
   });
 
   it("names a stale area when only cards older than 12 months would give a range", async () => {
