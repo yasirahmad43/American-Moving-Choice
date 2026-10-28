@@ -66,6 +66,15 @@
   --sh-3: 0 28px 56px -20px rgba(6, 49, 103, 0.32);
   --backdrop: rgba(10, 18, 34, 0.55);
 
+  /* Depth (pass 2): layered shadows for 3D cards, glass bezels and edge lighting */
+  --sh-depth-1: 0 1px 1px rgba(6, 49, 103, 0.04), 0 2px 4px rgba(6, 49, 103, 0.05), 0 8px 16px -6px rgba(6, 49, 103, 0.1);
+  --sh-depth-2: 0 1px 2px rgba(6, 49, 103, 0.06), 0 6px 12px -4px rgba(6, 49, 103, 0.12), 0 24px 40px -16px rgba(6, 49, 103, 0.28);
+  --sh-depth-3: 0 2px 4px rgba(6, 49, 103, 0.08), 0 12px 24px -8px rgba(6, 49, 103, 0.18), 0 48px 80px -24px rgba(6, 49, 103, 0.4);
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(6, 49, 103, 0.06);
+  --glass: color-mix(in srgb, var(--surface) 72%, transparent);
+  --glass-edge: rgba(255, 255, 255, 0.55);
+  --glare: rgba(255, 255, 255, 0.55);
+
   /* Typography (VD §6). Fonts are self-hosted from @fontsource-variable (fonts.css). */
   --ff-display: "Archivo Variable", "Archivo", "Arial Narrow", "Helvetica Neue", system-ui, sans-serif;
   --ff-body: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -139,6 +148,13 @@
     --sh-2: 0 12px 28px -14px rgba(0, 0, 0, 0.6);
     --sh-3: 0 28px 56px -20px rgba(0, 0, 0, 0.7);
     --backdrop: rgba(0, 0, 0, 0.65);
+    --sh-depth-1: 0 1px 1px rgba(0, 0, 0, 0.3), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
+    --sh-depth-2: 0 6px 12px -4px rgba(0, 0, 0, 0.5), 0 24px 40px -16px rgba(0, 0, 0, 0.7);
+    --sh-depth-3: 0 12px 24px -8px rgba(0, 0, 0, 0.6), 0 48px 80px -24px rgba(0, 0, 0, 0.8);
+    --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+    --glass: color-mix(in srgb, var(--surface) 70%, transparent);
+    --glass-edge: rgba(255, 255, 255, 0.12);
+    --glare: rgba(190, 212, 255, 0.22);
   }
 }
 
@@ -178,4 +194,11 @@
   --sh-2: 0 12px 28px -14px rgba(0, 0, 0, 0.6);
   --sh-3: 0 28px 56px -20px rgba(0, 0, 0, 0.7);
   --backdrop: rgba(0, 0, 0, 0.65);
+  --sh-depth-1: 0 1px 1px rgba(0, 0, 0, 0.3), 0 8px 16px -6px rgba(0, 0, 0, 0.4);
+  --sh-depth-2: 0 6px 12px -4px rgba(0, 0, 0, 0.5), 0 24px 40px -16px rgba(0, 0, 0, 0.7);
+  --sh-depth-3: 0 12px 24px -8px rgba(0, 0, 0, 0.6), 0 48px 80px -24px rgba(0, 0, 0, 0.8);
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  --glass: color-mix(in srgb, var(--surface) 70%, transparent);
+  --glass-edge: rgba(255, 255, 255, 0.12);
+  --glare: rgba(190, 212, 255, 0.22);
 }

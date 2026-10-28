@@ -32,6 +32,8 @@ export interface FieldProps {
   optional?: boolean;
   /** Keeps the label for screen readers only. */
   hideLabel?: boolean;
+  /** Floating label (pass 2): the label sits inside the control until it has focus or a value. */
+  floating?: boolean;
   className?: string;
   /** One control element (it receives id and ARIA props), or a render function. */
   children: ReactElement<Record<string, unknown>> | ((control: ControlProps) => ReactNode);
@@ -50,7 +52,7 @@ export function FieldError({ id, children }: { id?: string; children: ReactNode 
   );
 }
 
-export function Field({ id, label, help, error, required, optional, hideLabel, className, children }: FieldProps) {
+export function Field({ id, label, help, error, required, optional, hideLabel, floating, className, children }: FieldProps) {
   const describedBy = [help ? helpId(id) : null, error ? errorId(id) : null].filter(Boolean).join(" ") || undefined;
   const control: ControlProps = {
     id,
@@ -63,18 +65,34 @@ export function Field({ id, label, help, error, required, optional, hideLabel, c
     rendered = children(control);
   } else if (isValidElement(children)) {
     const own = children.props["aria-describedby"];
+    const ownPlaceholder = children.props.placeholder;
     rendered = cloneElement(children, {
       ...control,
       "aria-describedby": [typeof own === "string" ? own : null, describedBy].filter(Boolean).join(" ") || undefined,
+      // A floating label needs :placeholder-shown, so the control always carries a placeholder.
+      ...(floating && children.props.placeholder === undefined ? { placeholder: " " } : {}),
+      ...(floating && typeof ownPlaceholder === "string" ? { placeholder: ownPlaceholder } : {}),
     });
   }
+  const labelNode = (
+    <label htmlFor={id} className={cx(floating ? "" : "text-[0.9375rem] font-semibold text-text", hideLabel && "sr-only")}>
+      {label}
+      {optional ? <span className="font-normal text-text-3"> (optional)</span> : null}
+    </label>
+  );
   return (
     <div className={cx("grid min-w-0 gap-1.5", className)}>
-      <label htmlFor={id} className={cx("text-[0.9375rem] font-semibold text-text", hideLabel && "sr-only")}>
-        {label}
-        {optional ? <span className="font-normal text-text-3"> (optional)</span> : null}
-      </label>
-      {rendered}
+      {floating && !hideLabel ? (
+        <div className="field-float">
+          {rendered}
+          {labelNode}
+        </div>
+      ) : (
+        <>
+          {labelNode}
+          {rendered}
+        </>
+      )}
       {help ? (
         <p id={helpId(id)} className="type-small text-text-3">
           {help}
