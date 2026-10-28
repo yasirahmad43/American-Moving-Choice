@@ -4,6 +4,8 @@
 
 The pipeline turns geo data, the facts registry, network coverage, rate cards and the research CSVs into the page families under `/movers/`, `/routes/`, `/services/`, `/moving-costs/`, `/questions/` and `/planning/`. Every figure on a page is read from a table or computed from one; nothing is typed by hand at render time, and a page whose brief lacks enough distinct facts is stored as `draft`, `indexable = false`, with `blocked_reason` set.
 
+The persisted uniqueness corpus uses one packed `integer[]` per page after migration 230, with bounded repair from saved content and checked two-pass scoring. The original hash semantics and 40% threshold are unchanged. See [compact-corpus verification and interrupted-bootstrap recovery](compact-corpus.md).
+
 ## Where things live
 
 | Piece | Path |

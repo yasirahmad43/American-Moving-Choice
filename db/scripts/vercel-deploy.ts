@@ -32,6 +32,28 @@ async function main(): Promise<void> {
     console.log("vercel-deploy: not a production build with DATABASE_URL; skipping migrations and seed");
     return;
   }
+  // Observe a fresh app-role backend before migration, without changing any settings or data.
+  // Transaction-pooler backends can differ: read-only observations are evidence, not a veto.
+  const preflight = new pg.Client(clientConfig(url));
+  try {
+    await preflight.connect();
+    const result = await preflight.query<{
+      transaction_read_only: "on" | "off";
+      default_transaction_read_only: "on" | "off";
+      database_bytes: string;
+      legacy_shingles_bytes: string;
+      compact_shingles_bytes: string;
+    }>(`select current_setting('transaction_read_only') as transaction_read_only,
+               current_setting('default_transaction_read_only') as default_transaction_read_only,
+               pg_database_size(current_database())::text as database_bytes,
+               coalesce(pg_total_relation_size(to_regclass('seo_shingles')), 0)::text as legacy_shingles_bytes,
+               coalesce(pg_total_relation_size(to_regclass('seo_page_shingles')), 0)::text as compact_shingles_bytes`);
+    const state = result.rows[0];
+    if (!state) throw new Error("Database preflight returned no metadata");
+    console.log(`vercel-deploy: preflight transaction_read_only=${state.transaction_read_only} default_transaction_read_only=${state.default_transaction_read_only} database_bytes=${state.database_bytes} legacy_shingles_bytes=${state.legacy_shingles_bytes} compact_shingles_bytes=${state.compact_shingles_bytes}`);
+  } finally {
+    await preflight.end();
+  }
   console.log(`vercel-deploy: migrating ${redactUrl(url)}`);
   const applied = await migrate(url);
   console.log(applied.length ? `vercel-deploy: ${applied.length} migration(s) applied` : "vercel-deploy: migrations up to date");

@@ -102,7 +102,7 @@ export function clampDescription(text: string, max = 158): string {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 40)).replace(/[,;:]$/, "")}…`;
 }
 
-/** 32-bit FNV-1a of a shingle, as a signed integer (the seo_shingles.h column). */
+/** 32-bit FNV-1a of a shingle, as a signed integer in the compact per-page corpus. */
 export function shingleHash(shingle: string): number {
   let h = 2166136261;
   for (let i = 0; i < shingle.length; i++) {

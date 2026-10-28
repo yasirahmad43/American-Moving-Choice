@@ -8,6 +8,8 @@ import { publishPages } from "../src/seo/publish";
 import { shingleHashes } from "../src/seo/text";
 import type { SeoContent } from "../src/seo/types";
 import { resetDatabase } from "./helpers";
+import { insertCorpusFixtures } from "./seo-fixtures";
+import { ensureShingleCorpus } from "../src/seo/shingle-corpus";
 
 beforeAll(async () => { await resetDatabase(); await importGeo(getPool(), { metroCount: 2, intrastatePerState: 2, topPerStateForCities: 0 }); });
 afterAll(closePool);
@@ -15,10 +17,11 @@ afterAll(closePool);
 describe("expanded SEO quality and deployment boundaries", () => {
   it("counts shared shingles against every family page, not only the requested batch", async () => {
     const db = getPool();
-    await db.query("insert into seo_shingles (family,page_url,h) values ('route','/routes/a/',1),('route','/routes/a/',2),('route','/routes/a/',3),('route','/routes/b/',2),('route','/routes/b/',4)");
+    await insertCorpusFixtures(db, [{ url: "/routes/a/", answer: "one two three four five six seven" }, { url: "/routes/b/", answer: "one two three four five delta" }]);
+    await ensureShingleCorpus(db);
     expect((await uniqueShares(db, "route", ["/routes/a/"])).get("/routes/a/")).toBeCloseTo(2 / 3);
     expect((await uniqueShares(db, "route", ["/routes/b/"])).get("/routes/b/")).toBe(0.5);
-    await db.query("delete from seo_shingles where family='route'");
+    await db.query("delete from seo_pages where family='route'");
     expect(shingleHashes("a b c d e a b c d e").length).toBe(5);
   });
 

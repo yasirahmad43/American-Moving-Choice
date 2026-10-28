@@ -5,10 +5,44 @@ import { APP_URL, WEB_URL } from "../tests/env";
 import { expectNoSeriousAxeViolations, inDays } from "../tests/helpers";
 
 const fixtureNames = /Demo Lone Star|Demo Bluebonnet|Demo Pecan Grove|Demo Mesquite|Demo Trinity River/;
+const pendingWithdrawals = new WeakMap<Page, string>();
+function sameOriginUrl(value: string): URL {
+  const url = new URL(value, WEB_URL);
+  expect(url.origin, "smoke navigation stays on the configured public site").toBe(new URL(WEB_URL).origin);
+  expect(url.username || url.password, "smoke URLs contain no credentials").toBe("");
+  return url;
+}
 async function anonymous(page: Page) {
   await expect(page.locator("#main")).not.toContainText(fixtureNames);
-  await expect(page.locator('a[href^="/companies/"],a[href^="/directory/"]')).toHaveCount(0);
+  expect(await page.content(), "company identities are absent from rendered HTML and serialized props").not.toMatch(fixtureNames);
+  const profiles = await page.locator("a[href]").evaluateAll((links) => links.flatMap((link) => {
+    try {
+      const url = new URL(link.getAttribute("href")!, document.baseURI);
+      return /^\/(?:companies|directory)(?:\/|$)/.test(url.pathname) ? [url.pathname] : [];
+    } catch { return []; }
+  }));
+  expect(profiles, "no relative or absolute company-profile/directory links").toEqual([]);
 }
+const withdrawnText = /Your request is withdrawn|Request withdrawn|You withdrew this request/;
+async function withdrawFictionalRequest(page: Page, manageUrl: string) {
+  await page.goto(manageUrl);
+  const withdraw = page.getByRole("button", { name: "Withdraw my request" });
+  const withdrawn = page.getByText(withdrawnText).first();
+  await expect(withdraw.or(withdrawn)).toBeVisible();
+  if (await withdraw.isVisible()) {
+    await withdraw.click();
+    await page.getByRole("button", { name: "Yes, withdraw it" }).click();
+  }
+  await expect(withdrawn).toBeVisible();
+}
+test.afterEach(async ({ page }, testInfo) => {
+  const manageUrl = pendingWithdrawals.get(page);
+  if (!manageUrl) return;
+  // Teardown has its own time allowance, so a timed-out assertion cannot consume cleanup's budget.
+  testInfo.setTimeout(30_000);
+  await withdrawFictionalRequest(page, manageUrl);
+  pendingWithdrawals.delete(page);
+});
 async function capture(page: Page, name: string) {
   if (!process.env.AMC_PROOF_DIR) return;
   await mkdir(process.env.AMC_PROOF_DIR, { recursive: true });
@@ -48,7 +82,7 @@ test("published SEO URLs render without company lists", async ({ page, request }
   expect(sitemap.ok()).toBe(true);
   const index = await sitemap.text();
   expect(index).not.toMatch(/companies\.xml|directory/);
-  const maps = [...index.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]!);
+  const maps = [...index.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => sameOriginUrl(m[1]!).href);
   const cityMaps = maps.filter((url) => /\/cities-\d+\.xml$/.test(url));
   expect(cityMaps.length, "city sitemaps are available after bootstrap").toBeGreaterThan(0);
   const seoMaps = maps.filter((url) => new URL(url).pathname !== "/sitemaps/core.xml");
@@ -61,7 +95,7 @@ test("published SEO URLs render without company lists", async ({ page, request }
   for (const url of seoMaps) {
     const segment = await request.get(url);
     expect(segment.ok()).toBe(true);
-    const entries = [...(await segment.text()).matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]!);
+    const entries = [...(await segment.text()).matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => sameOriginUrl(m[1]!).href);
     for (const entry of entries) urls.add(entry);
     const segmentName = /\/sitemaps\/([a-z]+)(?:-\d+)?\.xml$/.exec(new URL(url).pathname)?.[1];
     const family = segmentName ? families[segmentName] : undefined;
@@ -105,6 +139,7 @@ test("a demo consumer submits one anonymous request and withdraws it", async ({ 
   // Require the designated demo deployment and its visible demo disclosure before proceeding.
   test.skip(WEB_URL !== "https://amc-web-three.vercel.app" || APP_URL !== "https://amc-app-sable.vercel.app", "designated deployed demo only");
   await page.goto(WEB_URL + "/get-quotes/");
+  await expect(page).toHaveURL(WEB_URL + "/get-quotes/");
   await expect(page.getByText(/Requests and transactions use fictional demo data/)).toBeVisible();
   await page.getByLabel("Moving my home").check();
   await page.getByRole("button", { name: "Continue" }).click();
@@ -132,10 +167,15 @@ test("a demo consumer submits one anonymous request and withdraws it", async ({ 
   await page.locator("#terms").check();
   // Respect the real survey minimum-completion interval.
   await page.waitForTimeout(8_500);
+  await expect(page).toHaveURL(WEB_URL + "/get-quotes/");
   await page.getByRole("button", { name: "Send my request" }).click();
   await expect(page.getByRole("heading", { name: "Request sent" })).toBeVisible({ timeout: 20_000 });
   const manageHref = await page.getByRole("link", { name: "Manage your request" }).getAttribute("href");
   if (!manageHref) throw new Error("The sent request has no private manage link for withdrawal cleanup.");
+  const manage = sameOriginUrl(manageHref);
+  expect(manage.pathname, "cleanup targets only the newly returned private request link").toMatch(/^\/my-request\/[A-Za-z0-9_-]{43}\/?$/);
+  expect(manage.search || manage.hash, "private manage link has no query or fragment").toBe("");
+  pendingWithdrawals.set(page, manage.href);
   try {
     await anonymous(page);
     await capture(page, "production-request-confirmation");
@@ -143,13 +183,8 @@ test("a demo consumer submits one anonymous request and withdraws it", async ({ 
     await anonymous(page);
   } finally {
     // Withdraw even if the confirmation, privacy checks, or evidence capture failed.
-    await page.goto(new URL(manageHref, WEB_URL).toString());
-    const withdraw = page.getByRole("button", { name: "Withdraw my request" });
-    if (await withdraw.isVisible()) {
-      await withdraw.click();
-      await page.getByRole("button", { name: "Yes, withdraw it" }).click();
-    }
-    await expect(page.getByText(/Your request is withdrawn|Request withdrawn|You withdrew this request/).first()).toBeVisible();
+    await withdrawFictionalRequest(page, manage.href);
+    pendingWithdrawals.delete(page);
     await anonymous(page);
     await capture(page, "production-request-withdrawn");
   }

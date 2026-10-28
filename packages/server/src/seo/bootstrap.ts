@@ -13,6 +13,7 @@ import { generateFamily } from "./generate";
 import { pipelineCounts, publishPages, rebuildLinks } from "./publish";
 import { importResearch } from "./research";
 import type { SeoFamily } from "./slugs";
+import { ensureShingleCorpus } from "./shingle-corpus";
 
 export const SEO_BOOTSTRAP_VERSION = "census-contact-introduction-v1";
 export const SEO_BOOTSTRAP_MIN_PAGES = 2_000;
@@ -27,6 +28,7 @@ export async function bootstrapSeo(db: Queryable, options: { log?: (line: string
   const previous = (await db.query<{ completed_at: Date | null; completed_steps: string[] }>("select completed_at, completed_steps from seo_bootstrap_runs where version = $1", [version])).rows[0];
   // Existing editorial catalogues are never regenerated merely because another build ran.
   if (previous?.completed_at || (!previous && (await db.query("select 1 from seo_pages limit 1")).rowCount)) {
+    await ensureShingleCorpus(db, { log });
     const published = await count();
     log(`seo-bootstrap: catalogue already initialized (${published} published/indexable); no generation`);
     return { skipped: true, published, completedSteps: previous?.completed_steps ?? [] };
@@ -56,6 +58,9 @@ export async function bootstrapSeo(db: Queryable, options: { log?: (line: string
     await db.query("update seo_bootstrap_runs set completed_steps = $3::text[], updated_at = now() where version = $1 and owner_token = $2", [version, owner, [...completed]]);
   };
   try {
+    // Migration 230 discards only the derived index. Rebuild saved/checkpointed families too;
+    // a resume after 2,818 city drafts must include the earlier 51 published state pages.
+    await ensureShingleCorpus(db, { log, onProgress: heartbeat });
     await phase("geo", () => importGeo(db, { log }));
     await phase("research", async () => {
       const dir = join(root, "docs", "research");

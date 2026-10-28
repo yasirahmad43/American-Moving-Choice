@@ -7,8 +7,8 @@
  * blocked_reason set.
  *
  * Scale: candidates are drafted in chunks (never the whole family in memory). Each page's 5-word
- * shingles are hashed into seo_shingles; after the run, one query counts for every page of the
- * run the share of its shingles that no other page of the family holds (the uniqueness gate,
+ * shingles are packed into seo_page_shingles; after the run, two bounded array passes count each
+ * page's shingles that no other page of the family holds (the unchanged uniqueness gate,
  * site architecture §4.1 G7), and the status is set: `ready` when every automated gate passes,
  * else `draft`. Human review (G9) is recorded separately (reviewed_by, last_reviewed_at).
  */
@@ -34,6 +34,7 @@ import {
 import { loadResearch, researchForCity, researchForCityRoute, researchForState, researchForStateRoute, researchForUrl, stateDemand, type ResearchKeyword } from "./research";
 import { RESERVED_CITY_SLUGS, normalizeKeyword, slugify, type SeoFamily } from "./slugs";
 import { clampDescription, joinAnd, mainText, miles as milesText, n, pick, plural, seedOf, sha256, shingleHashes } from "./text";
+import { assertCorpusSnapshot, CorpusChangedError, ensureShingleCorpus, persistPageShingles, scoreShingleCorpus } from "./shingle-corpus";
 import type { ContentBlock, ContentSection, CostBlock, DataPoint, FaqItem, MediaAsset, RelatedGroup, SeoContent, SourceRef } from "./types";
 
 // ------------------------------------------------------------------ shared data
@@ -1512,62 +1513,12 @@ export interface GenerateSummary {
 
 export const UNIQUE_SHARE_MIN = 0.4;
 
-/**
- * The share of each listed page's shingles that no other page of the family holds, from the
- * seo_shingles index. Computed in memory with typed arrays (every hash of the family sorted once,
- * then the singletons kept as a sorted array for binary search), which stays fast and predictable
- * for tens of millions of rows where a grouped SQL join is at the planner's mercy.
- */
+/** Exact current hash semantics, with packed storage and a checked two-pass snapshot. */
 export async function uniqueShares(db: Queryable, family: SeoFamily, urls: string[], log: (line: string) => void = () => undefined): Promise<Map<string, number>> {
-  const started = Date.now();
-  const total = (await db.query<{ n: string }>("select count(*)::text as n from seo_shingles where family = $1", [family])).rows[0]!.n;
-  const all = new Int32Array(Number(total));
-  let filled = 0;
-  // Page by page so no single result set holds the whole family.
-  const pages = await db.query<{ page_url: string }>("select distinct page_url from seo_shingles where family = $1", [family]);
-  const batch = 500;
-  for (let i = 0; i < pages.rows.length; i += batch) {
-    const rows = await db.query<{ hs: number[] }>("select array_agg(h) as hs from seo_shingles where family = $1 and page_url = any($2::text[]) group by page_url", [family, pages.rows.slice(i, i + batch).map((r) => r.page_url)]);
-    for (const r of rows.rows) {
-      all.set(r.hs, filled);
-      filled += r.hs.length;
-    }
-  }
-  const sorted = all.subarray(0, filled).slice().sort();
-  const singles: number[] = [];
-  for (let i = 0; i < sorted.length; ) {
-    let j = i + 1;
-    while (j < sorted.length && sorted[j] === sorted[i]) j++;
-    if (j === i + 1) singles.push(sorted[i]!);
-    i = j;
-  }
-  const single = Int32Array.from(singles);
-  const isSingle = (h: number): boolean => {
-    let lo = 0;
-    let hi = single.length - 1;
-    while (lo <= hi) {
-      const mid = (lo + hi) >> 1;
-      const v = single[mid]!;
-      if (v === h) return true;
-      if (v < h) lo = mid + 1;
-      else hi = mid - 1;
-    }
-    return false;
-  };
-  const out = new Map<string, number>();
-  for (let i = 0; i < urls.length; i += batch) {
-    const rows = await db.query<{ page_url: string; hs: number[] }>("select page_url, array_agg(h) as hs from seo_shingles where family = $1 and page_url = any($2::text[]) group by page_url", [family, urls.slice(i, i + batch)]);
-    for (const r of rows.rows) {
-      let uniq = 0;
-      for (const h of r.hs) if (isSingle(h)) uniq++;
-      out.set(r.page_url, r.hs.length ? uniq / r.hs.length : 0);
-    }
-  }
-  log(`${family}: uniqueness over ${n(filled)} shingles of ${n(pages.rows.length)} pages (${Math.round((Date.now() - started) / 1000)}s)`);
-  return out;
+  return (await scoreShingleCorpus(db, family, urls, log)).shares;
 }
 
-export async function generateFamily(db: Queryable, family: SeoFamily, options: GenerateOptions = {}): Promise<GenerateSummary> {
+async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options: GenerateOptions = {}): Promise<GenerateSummary> {
   const ctx = await loadContext(db, options);
   const limit = options.limit ?? 50;
   const chunkSize = options.chunkSize ?? 250;
@@ -1580,11 +1531,7 @@ export async function generateFamily(db: Queryable, family: SeoFamily, options: 
   // Duplicate-content and duplicate-intent owners among pages outside this run.
   const existing = await db.query<{ url: string; content_hash: string; primary_keyword_normalized: string; intent: string; status: string; indexable: boolean }>("select url, content_hash, primary_keyword_normalized, intent, status, indexable from seo_pages");
   const previous = new Map(existing.rows.map((row) => [row.url, row]));
-  // Pages generated before migration 190 still participate in the uniqueness corpus.
-  const missing = await db.query<{ url: string; content: SeoContent }>(
-    "select url, content from seo_pages p where family = $1 and not exists (select 1 from seo_shingles s where s.page_url = p.url)", [family],
-  );
-  for (const page of missing.rows) await db.query("insert into seo_shingles (family, page_url, h) select $1, $2, unnest($3::int[])", [family, page.url, shingleHashes(mainText(page.content))]);
+  await ensureShingleCorpus(db, { family, log: ctx.log, onProgress: options.onProgress });
   const hashOwner = new Map(existing.rows.map((r) => [r.content_hash, r.url]));
   const keywordOwner = new Map(existing.rows.map((r) => [`${r.primary_keyword_normalized}|${r.intent}`, r.url]));
   const written: { url: string; evidence: { passed: boolean; detail: string }; blocked: string[] }[] = [];
@@ -1644,8 +1591,7 @@ export async function generateFamily(db: Queryable, family: SeoFamily, options: 
       for (const id of draft.mediaIds) {
         await db.query("insert into seo_media_usage (media_id, page_id) select $1, id from seo_pages where url = $2 on conflict (media_id) do nothing", [id, draft.url]);
       }
-      await db.query("delete from seo_shingles where page_url = $1", [draft.url]);
-      await db.query("insert into seo_shingles (family, page_url, h) select $1, $2, unnest($3::int[])", [family, draft.url, shingleHashes(text)]);
+      await persistPageShingles(db, [{ url: draft.url, family, content_hash: hash, hashes: shingleHashes(text) }]);
       written.push({ url: draft.url, evidence: gates.evidence, blocked });
       summary.written++;
     }
@@ -1654,10 +1600,11 @@ export async function generateFamily(db: Queryable, family: SeoFamily, options: 
   }
 
   // Uniqueness against every page of the family (this run and earlier ones), from the shingle index.
-  const allPages = await db.query<{ url: string; blocked_reason: string | null }>("select url, blocked_reason from seo_pages where family = $1", [family]);
-  const shares = written.length ? await uniqueShares(db, family, allPages.rows.map((w) => w.url), ctx.log) : new Map<string, number>();
+  const allPages = await db.query<{ url: string; blocked_reason: string | null; content_hash: string }>("select url, blocked_reason, content_hash from seo_pages where family = $1", [family]);
+  const scored = written.length ? await scoreShingleCorpus(db, family, allPages.rows.map((w) => w.url), ctx.log) : null;
+  const shares = scored?.shares ?? new Map<string, number>();
   const writtenByUrl = new Map(written.map((w) => [w.url, w]));
-  const decisions: { url: string; share: number; unique: object; reason: string | null; status: string; indexable: boolean }[] = [];
+  const decisions: { url: string; content_hash: string; share: number; unique: object; reason: string | null; status: string; indexable: boolean }[] = [];
   for (const page of written.length ? allPages.rows : []) {
     const w = writtenByUrl.get(page.url) ?? { url: page.url, blocked: page.blocked_reason && !page.blocked_reason.startsWith("blocked: below 40% unique content") ? [page.blocked_reason] : [] };
     const share = shares.get(w.url) ?? 0;
@@ -1667,7 +1614,7 @@ export async function generateFamily(db: Queryable, family: SeoFamily, options: 
     const reason = blocked[0] ?? null;
     const prior = previous.get(w.url);
     const status = reason ? "draft" : prior?.status === "published" ? "published" : "ready";
-    decisions.push({ url: w.url, share, unique, reason, status, indexable: !reason && prior?.status === "published" && prior.indexable });
+    decisions.push({ url: w.url, content_hash: page.content_hash, share, unique, reason, status, indexable: !reason && prior?.status === "published" && prior.indexable });
     if (!writtenByUrl.has(w.url)) continue;
     if (reason) {
       summary.draft++;
@@ -1675,13 +1622,27 @@ export async function generateFamily(db: Queryable, family: SeoFamily, options: 
     } else summary.ready++;
   }
   for (let i = 0; i < decisions.length; i += chunkSize) {
-    await db.query(`update seo_pages p set unique_share = d.share,
+    if (scored) await assertCorpusSnapshot(db, family, scored.snapshot);
+    const applied = await db.query(`update seo_pages p set unique_share = d.share,
       gate_results = gate_results || jsonb_build_object('unique', d."unique"), blocked_reason = d.reason,
       status = d.status, indexable = d.indexable from jsonb_to_recordset($1::jsonb)
-      as d(url text, share double precision, "unique" jsonb, reason text, status text, indexable boolean) where p.url = d.url`,
+      as d(url text, content_hash text, share double precision, "unique" jsonb, reason text, status text, indexable boolean) where p.url = d.url and p.content_hash = d.content_hash`,
     [JSON.stringify(decisions.slice(i, i + chunkSize))]);
+    if (applied.rowCount !== decisions.slice(i, i + chunkSize).length) throw new CorpusChangedError();
     await options.onProgress?.();
   }
+  if (scored) await assertCorpusSnapshot(db, family, scored.snapshot);
   ctx.log(`${family}: planned ${summary.planned}, written ${summary.written}, ready ${summary.ready}, draft ${summary.draft}${Object.keys(summary.blocked).length ? `, blocked: ${JSON.stringify(summary.blocked)}` : ""}`);
   return summary;
+}
+
+/** A changing corpus must not leave partial publication decisions approved. */
+export async function generateFamily(db: Queryable, family: SeoFamily, options: GenerateOptions = {}): Promise<GenerateSummary> {
+  try { return await generateFamilyUnchecked(db, family, options); }
+  catch (error) {
+    if (error instanceof CorpusChangedError) await db.query(
+      "update seo_pages set status='draft',indexable=false,unique_share=null,blocked_reason=coalesce(blocked_reason,'blocked: corpus changed; regenerate family'),gate_results=gate_results||jsonb_build_object('unique',jsonb_build_object('passed',false,'detail','Corpus changed while scoring; retry generation')) where family=$1", [family],
+    ).catch(() => undefined);
+    throw error;
+  }
 }

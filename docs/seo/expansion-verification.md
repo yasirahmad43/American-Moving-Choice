@@ -59,7 +59,7 @@ pnpm seo:report
 
 Focused regressions passed: four SEO integration cases (whole-family uniqueness, interrupted generation/count-only content, failed-flag publication refusal, deployment lease/resume, and noncontiguous transport scope) and six transit-model cases. Server, database and web TypeScript checks passed. Full application builds/browser validation are recorded separately by the parent integration pass.
 
-After production deployment, `/api/health` should report all **16 migrations** including 190, 200, 210 and 220. Verify the actual production counts; do not substitute the local counts for production evidence:
+After the compact-corpus recovery deployment, `/api/health` should report all **17 migrations** including 190, 200, 210, 220 and 230. Verify the actual production counts; do not substitute the local counts for production evidence. [Compact-corpus verification and recovery](compact-corpus.md) records the cache-only migration, unchanged page scores and saved-checkpoint repair:
 
 ```sql
 select family, status, count(*) from seo_pages group by family, status order by family, status;
