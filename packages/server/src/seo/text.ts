@@ -24,7 +24,7 @@ export function pick<T>(seed: number, slot: number, variants: readonly T[]): T {
 }
 
 export const n = (value: number): string => value.toLocaleString("en-US");
-export const miles = (value: number): string => `${n(Math.round(value))} miles`;
+export const miles = (value: number): string => `${n(Math.round(value))} ${Math.round(value) === 1 ? "mile" : "miles"}`;
 export const plural = (count: number, one: string, many = `${one}s`): string => `${n(count)} ${count === 1 ? one : many}`;
 
 export function joinAnd(items: readonly string[]): string {

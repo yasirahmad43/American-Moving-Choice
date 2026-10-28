@@ -257,7 +257,8 @@ export async function costBlockFor(db: Queryable, request: CostRequest, now = ne
     band = result.band;
     if (result.kind === "range") {
       const r = result as CostRange;
-      rows.push({ homeSize: HOME_SIZE_LABEL[size], low: dollars(r.lowCents), high: dollars(r.highCents), movers: r.moverCount });
+      const typical = r.typicalJob.moveType === "local" ? `${r.typicalJob.crew} movers, ${r.typicalJob.hours} hours` : `${Math.round(r.typicalJob.weightLbs).toLocaleString("en-US")} lb`;
+      rows.push({ homeSize: HOME_SIZE_LABEL[size], low: dollars(r.lowCents), high: dollars(r.highCents), movers: r.moverCount, typical });
       if (!asOf || r.asOf < asOf) asOf = r.asOf;
     } else if (!cause) cause = result;
   }
@@ -267,8 +268,8 @@ export async function costBlockFor(db: Queryable, request: CostRequest, now = ne
     const typeWords = request.moveType === "local" ? "local moves" : request.moveType === "intrastate" ? "in-state long-distance moves" : "interstate moves";
     noData =
       cause && cause.kind === "no_data" && cause.cause === "stale"
-        ? `Rate cards older than ${COST_MODEL_V1.maxDataAgeMonths} months don't count, and too few recent cards cover ${typeWords} starting in ${request.areaName}, so there is no range yet.`
-        : `A range needs rate cards from at least ${COST_MODEL_V1.minMovers} different movers covering ${typeWords} starting in ${request.areaName}; ${distinct === 0 ? "none are on file" : `only ${distinct} ${distinct === 1 ? "is" : "are"} on file`}, so we show no range rather than a figure resting on too few movers.`;
+        ? `Too few cards under ${COST_MODEL_V1.maxDataAgeMonths} months old cover ${typeWords} from ${request.areaName}: no range.`
+        : `${distinct} of the ${COST_MODEL_V1.minMovers} movers' rate cards needed cover ${typeWords} from ${request.areaName}: no range.`;
   }
   return {
     scope: request.scope + (band ? ` (${BAND_LABEL[band] ?? band})` : ""),

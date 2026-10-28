@@ -12,8 +12,8 @@
  * Media: if apps/web/content/media/manifest.json exists, its assets are offered to the generator
  * (one asset per page, never reused; apps/web/lib/media.ts reads the same manifest).
  */
-import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { importGeo } from "../src/seo/geo-import";
@@ -61,7 +61,8 @@ async function main(): Promise<void> {
       }
       case "import-research": {
         if (!positional.length) throw new Error("usage: import-research <csv> [<csv>...]");
-        for (const file of positional) await importResearch(pool, file, log);
+        // pnpm runs the script in packages/server; paths are relative to where the command was typed.
+        for (const file of positional) await importResearch(pool, resolve(process.env.INIT_CWD ?? process.cwd(), file), log);
         break;
       }
       case "generate": {
@@ -83,6 +84,26 @@ async function main(): Promise<void> {
         if (!options.reviewer) throw new Error("usage: review --reviewer \"Name\" [--family x]");
         const result = await pool.query("update seo_pages set reviewed_by = $1, last_reviewed_at = now() where status in ('ready', 'published') and ($2::text is null or family = $2)", [options.reviewer, options.family ?? null]);
         console.log(`reviewed ${result.rowCount} pages as ${options.reviewer}`);
+        break;
+      }
+      case "media-sync": {
+        // Writes the pages' claims (seo_pages.media_ids) into the manifest's usedOn, so `pnpm media:check` validates them.
+        const path = join(here, "..", "..", "..", "apps", "web", "content", "media", "manifest.json");
+        const manifest = JSON.parse(readFileSync(path, "utf8")) as { assets: { id: string; usedOn: string[] }[] };
+        const claims = await pool.query<{ url: string; media_ids: string[] }>("select url, media_ids from seo_pages where jsonb_array_length(media_ids) > 0");
+        const byAsset = new Map<string, string>();
+        for (const row of claims.rows) for (const id of row.media_ids) byAsset.set(id, row.url);
+        let changed = 0;
+        for (const asset of manifest.assets) {
+          const owner = byAsset.get(asset.id);
+          const next = owner ? [owner] : asset.usedOn.filter((u) => !/^\/(movers|routes|services|moving-costs|questions|planning)\//.test(u));
+          if (JSON.stringify(next) !== JSON.stringify(asset.usedOn)) {
+            asset.usedOn = next;
+            changed++;
+          }
+        }
+        writeFileSync(path, JSON.stringify(manifest, null, 2) + "\n");
+        console.log(`media-sync: ${byAsset.size} assets claimed by pages, ${changed} manifest entries updated`);
         break;
       }
       case "report": {

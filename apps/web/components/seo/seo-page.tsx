@@ -10,7 +10,7 @@ import { Breadcrumbs, Container } from "@amc/ui";
 import Link from "next/link";
 import { JsonLd } from "@/components/site/json-ld";
 import { storedTextParts } from "@/lib/stored-texts";
-import { mediaById } from "@/lib/media";
+import { creditLine, mediaById, srcSetOf } from "@/lib/media";
 import { InlineText } from "./inline-text";
 import { QuoteEntryButton } from "./quote-entry";
 import { breadcrumbLd, faqLd, moverListLd, pageLd, type Crumb } from "./seo-metadata";
@@ -217,8 +217,19 @@ export async function SeoPageView({ page, crumbs }: { page: SeoPageRecord; crumb
           {media ? (
             <figure className="grid gap-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={media.src} alt={media.alt} className="w-full rounded-card" loading="eager" fetchPriority="high" />
-              {media.credit ? <figcaption className="type-small text-text-3">{media.credit}</figcaption> : null}
+              <img
+                src={media.src}
+                srcSet={srcSetOf(media)}
+                sizes="(min-width: 1280px) 1200px, 100vw"
+                width={media.width}
+                height={media.height}
+                alt={media.alt}
+                className="w-full rounded-card"
+                loading="eager"
+                fetchPriority="high"
+                style={media.blurDataURL ? { backgroundImage: `url(${media.blurDataURL})`, backgroundSize: "cover" } : undefined}
+              />
+              {creditLine(media) ? <figcaption className="type-small text-text-3">{creditLine(media)}</figcaption> : null}
             </figure>
           ) : null}
         </div>

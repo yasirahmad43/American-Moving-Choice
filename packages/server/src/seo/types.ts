@@ -35,7 +35,7 @@ export interface CostBlock {
   scope: string;
   moveType: "local" | "intrastate" | "interstate";
   band: string | null;
-  rows: { homeSize: string; low: string; high: string; movers: number }[];
+  rows: { homeSize: string; low: string; high: string; movers: number; /** "3 movers, 5.5 hours" or "4,500 lb" */ typical: string }[];
   asOf: string;
   modelVersion: string;
   /** The honest reason when there is no range. */
@@ -129,15 +129,12 @@ export interface SeoPageRecord {
   canonicalUrl: string;
 }
 
-/** A media asset as apps/web/content/media/manifest.json lists it. */
+/** A media asset as apps/web/content/media/manifest.json lists it (only the fields the generator reads). */
 export interface MediaAsset {
   id: string;
   kind: "image" | "video";
   src: string;
-  poster?: string;
   alt: string;
-  credit?: string;
   tags: string[];
   usedOn?: string[];
-  placeholder?: string;
 }

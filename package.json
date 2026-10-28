@@ -29,7 +29,9 @@
     "seo:publish": "pnpm --filter @amc/server seo publish",
     "seo:review": "pnpm --filter @amc/server seo review",
     "seo:report": "pnpm --filter @amc/server seo report",
-    "seo:crawl": "tsx tools/seo-crawl.ts"
+    "seo:crawl": "tsx tools/seo-crawl.ts",
+    "media:check": "pnpm --filter @amc/web media:check",
+    "seo:media-sync": "pnpm --filter @amc/server seo media-sync"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
