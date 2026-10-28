@@ -2,7 +2,7 @@
 
 A moving research and review site that also runs lead paths [capture /moving-cost-calculator/; walk], on the list as a model for a no-contact calculator and data-led city pages [inference].
 
-**Reviewed:** 2026-10-27. **Evidence:** 14 of 14 pages captured; guided walks of the calculator, its results page, the Mover Marketplace first screen and one partner form up to its email step; Semrush US, October 2026; single-run web searches, not re-checked. **Confidence:** medium, because no consent wording, privacy policy or mover-facing page was seen.
+**Reviewed:** 2026-10-27. **Evidence:** 14 of 14 pages captured; guided walks of the calculator, results page, Mover Marketplace first screen and one partner form to its email step; Semrush US, October 2026; single-run web searches, not re-checked. **Confidence:** medium, because no consent wording, privacy policy or mover-facing page was seen.
 
 ## At a glance
 - It calls itself "a moving research and review platform" but runs partner forms, a "Mover Marketplace" and a bid path [capture /moving-cost-calculator/; walk /marketplace/].
@@ -27,10 +27,10 @@ A moving research and review site that also runs lead paths [capture /moving-cos
 - Inconsistent: for Atlanta 30303 to Miami 33101, freight topped out at $7,814 in the widget and $1,761 on the results page [walk /moving-cost-calculator/, /moving-cost-calculator-tool/].
 
 ## Mover side
-No captured page addresses movers, and the footer has no mover sign-up link, so joining, fees, caps and lead checks are unseen [capture]. Partner cards show toll-free numbers, unlike local movers' cards, and Safeway's is also the number its partner form offers [capture /movers/ri/; walk]. [inference] These are probably tracked lines; who answers is unknown.
+No captured page addresses movers, and the footer has no mover sign-up link, so joining, fees, caps and lead checks are unseen [capture, all 14 pages]. Partner cards show toll-free numbers, unlike local movers' cards, and Safeway's is also the number its partner form offers [capture /movers/ri/; walk]. [inference] These are probably tracked lines; who answers is unknown.
 
 ## Trust, verification and reviews
-- **Partner cards.** Safeway, American Van Lines and North American Van Lines appear on every captured city, state and route page under superlatives such as "best overall value", and Safeway tops the LA and Orlando interstate picks [capture /movers/ca/los-angeles/long-distance/, /movers/fl/orlando/long-distance/]. /about-us/ says partner content is labeled, but the text-only capture shows no label on the cards, and affiliate ties "may influence … why they're placed on our site" [capture /about-us/, /advertising-disclosure/]. v1's no-pay-for-ranking claim was not re-confirmed [v1 §2.2].
+- **Partner cards.** Safeway, American Van Lines and North American Van Lines appear on every captured city, state and route page under superlatives such as "best overall value", and Safeway tops the LA and Orlando interstate picks [capture /movers/ca/los-angeles/long-distance/, /movers/fl/orlando/long-distance/]. /about-us/ promises labels, but the text-only capture shows none on the cards, and affiliate ties "may influence … why they're placed on our site" [capture /about-us/, /advertising-disclosure/]. v1's no-pay-for-ranking claim was not re-confirmed [v1 §2.2].
 - **Non-movers and claims.** /movers/ca/ carries PODS and portable-storage cards, and cards make unsourced claims such as "Same-day estimates" [capture /movers/ca/, /movers/fl/orlando/long-distance/].
 - **Licensing.** USDOT numbers appear for the three national picks, unchecked against FMCSA here [capture /movers/ca/long-distance/]. Cards say only "licensed insured", though the method claims to confirm "broker vs. carrier status" and guides teach an FMCSA check [capture /blog/binding-vs-non-binding-estimates/, /blog/usdot-lookup/].
 - **Badges and protection.** "moveBuddha Certified" and "Our Verified program" overlap, and the evidence shows no recheck cadence or whether movers pay [capture /, /about-us/]. Choosing a Certified mover brings "an extra $1,000 in move coverage", framed as booking "through moveBuddha" [capture /movers/ri/, /]. [inference] That suggests a role beyond passing on leads; it is not a legal conclusion.
@@ -56,12 +56,12 @@ No captured page addresses movers, and the footer has no mover sign-up link, so 
 Every page's text starts with the header; where fold order was recorded (6 pages), desktop shows the disclosure link, "Get My Quote", logo, then topic buttons [capture, 6 pages]. The home hero pairs a four-field form with "As Seen On", long pages embed a one-field widget, and city pages open with a one-sentence answer [capture /, /blog/usdot-lookup/, /movers/ca/los-angeles/long-distance/]. Where the hero form lands on a phone is unknown [capture, mobile fold list].
 
 ## What AMC should adopt or adapt
-- **Ungated estimator** [walk; semrush]: live ranges that name missing fields, the full-service range first, container or freight figures labeled as general information, survey prefill, and one versioned model with a consistency test. Serves value before contact (site-architecture §5.3, §6.3).
+- **Ungated estimator** [walk; semrush]: live ranges naming missing fields, the full-service range first, container or freight figures labeled as general information, survey prefill, and one versioned model with a consistency test. Serves value before contact (site-architecture §5.3, §6.3).
 - **Header "How we make money" link** [capture]: repeat the model in definite words beside quote buttons and at consent. Serves trust pages (consent copy §1, §7).
 - **Sourced ranges** [capture /popular-routes/ca/fl/]: sample size, period, source and "data as of" on every range, from member rate cards or cited studies, with title, meta and body from one record. Serves the real-data rule (site-architecture §4.1, §6.3).
 - **Details before contact** [walk]: keep "not sure yet" answers and stages; at contact, say that participating movers, up to the number chosen, may receive the details and are named before submit. Serves named-seller consent (consent copy §3–§5).
 - **Public method and guides** [capture]: one versioned verification page, a ratings page separating computed numbers from judgment, and FMCSA-sourced check-a-mover guides. Serves trust pages (mover-verification §6, §7).
-- **Answer-first geo pages** [capture]: dated answers naming the population, picks computed per market, component columns, low scorers kept and one main call to action. Serves SEO and AI visibility (site-architecture §7.4; visual-direction §12).
+- **Answer-first geo pages** [capture; semrush]: dated answers naming the population, picks computed per market, component columns, low scorers kept and one main call to action; in Wave 1, low-difficulty long-distance terms first where coverage passes. Serves SEO and AI visibility (site-architecture §5.3, §7.4; visual-direction §12).
 - **USDOT on every card** [capture /movers/ca/long-distance/]: add MC, authority type and an FMCSA link; enforce movers-only by FMCSA fields, never names. Serves movers only (mover-verification §1, §3).
 
 ## What AMC should avoid
