@@ -338,7 +338,7 @@ export default async function ContentPageDetail({ params, searchParams }: { para
                 {media.map((m) => (
                   <li key={m.id} className="grid gap-1 rounded-card border border-border bg-surface p-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`${webUrl}${m.thumb}`} alt={m.alt} width={m.width} height={m.height} className="aspect-video w-full rounded-control object-cover" loading="eager" />
+                    <img src={new URL(m.thumb, webUrl).href} alt={m.alt} width={m.width} height={m.height} className="aspect-video w-full rounded-control object-cover" loading="eager" />
                     <Link href={`/admin/content/media?q=${encodeURIComponent(m.id)}`} className="font-mono text-[0.8125rem] text-link underline break-all">
                       {m.id}
                     </Link>

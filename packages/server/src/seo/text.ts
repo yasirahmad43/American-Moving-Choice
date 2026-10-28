@@ -101,3 +101,18 @@ export function clampDescription(text: string, max = 158): string {
   const cut = text.slice(0, max - 1);
   return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), 40)).replace(/[,;:]$/, "")}…`;
 }
+
+/** 32-bit FNV-1a of a shingle, as a signed integer (the seo_shingles.h column). */
+export function shingleHash(shingle: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < shingle.length; i++) {
+    h ^= shingle.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h | 0;
+}
+
+/** Distinct shingle hashes of a text, for the persisted uniqueness index. */
+export function shingleHashes(text: string, size = 5): number[] {
+  return [...new Set([...shingles(text, size)].map(shingleHash))];
+}

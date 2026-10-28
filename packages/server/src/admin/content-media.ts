@@ -1,17 +1,7 @@
-/**
- * Media library management for the admin (programmatic pipeline docs; docs/media/inventory.md).
- * The manifest (apps/web/content/media/manifest.json) is the source of truth for what an asset
- * is (credit, licence, prompt, tiers); seo_media_usage and seo_pages.media_ids are the source of
- * truth for which page holds it. One asset belongs to at most one page: the seo_media_usage
- * primary key enforces it in the database and syncMediaManifest writes the claims back into
- * usedOn (the same rule `pnpm seo:media-sync` and `pnpm media:check` apply).
- *
- * Writes to the manifest and to apps/web/public/media/uploads happen on the file system of the
- * server running the admin; they are meant for the local preview, where the repository is
- * checked out next to the running app. Every change is audited.
- */
+/** Administrative media decisions. Bundled media is read-only; runtime uploads and editorial
+ * overrides live in media_assets, with image bytes in a configured Supabase Storage bucket. */
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { audit } from "../audit/audit";
 import { getPool, tx, type Queryable } from "../db/pool";
@@ -22,82 +12,24 @@ import { assertContentRole, type ContentActor } from "./content-roles";
 
 // ------------------------------------------------------------------ manifest types and IO
 
-export interface ManifestCredit {
-  creator: string;
-  source_url: string;
-  license: string;
-  attribution_required: boolean;
-}
+export { claimableMedia, configureMediaRoot, readManifest } from "../media/manifest";
+export type { ManifestAsset, ManifestCredit, MediaManifest } from "../media/manifest";
+import { configuredMediaRoot, readManifest, type ManifestAsset, type ManifestCredit, type MediaManifest } from "../media/manifest";
+import { mediaStorageConfig, SupabaseMediaStorage, type StoredObject } from "../media/storage";
 
-export interface ManifestAsset {
-  id: string;
-  kind: "image" | "video";
-  src: string;
-  srcset?: { src: string; width: number }[];
-  sources?: { src: string; type: string; width?: number }[];
-  poster?: string;
-  width: number;
-  height: number;
-  alt: string;
-  credit: ManifestCredit;
-  tags: string[];
-  usedOn: string[];
-  placeholder?: boolean;
-  blurDataURL?: string;
-  generator?: { provider?: string; model?: string; prompt?: string; job_id?: string; generated_at?: string; matrix_key?: string };
-  /** Set by the admin: the asset is hidden from claims and never rendered. */
-  rejected?: { reason: string; by: string; at: string };
-  /** Set for admin uploads: who uploaded it, when, and the SHA-256 of the original file. */
-  upload?: { by: string; at: string; sha256: string; originalName: string };
-}
-
-export interface MediaManifest {
-  version: number;
-  notes?: string[];
-  assets: ManifestAsset[];
-}
-
-let configuredWebRoot: string | null = null;
-
-/** Points the module at another apps/web directory (tests use a temporary copy). */
-export function configureMediaRoot(webRoot: string | null): void {
-  configuredWebRoot = webRoot;
-}
-
-/** apps/web, found from AMC_WEB_ROOT, the configured root, or by walking up from the working directory. */
+/** Repository path is used only by editorial tools; runtime uploads never write here. */
 export function webRoot(): string {
-  if (configuredWebRoot) return configuredWebRoot;
-  if (process.env.AMC_WEB_ROOT) return process.env.AMC_WEB_ROOT;
+  const configured = configuredMediaRoot() ?? process.env.AMC_WEB_ROOT;
+  if (configured) return configured;
   let dir = process.cwd();
   for (let i = 0; i < 6; i++) {
-    if (basename(dir) === "web" && existsSync(join(dir, "content", "media", "manifest.json"))) return dir;
     const candidate = join(dir, "apps", "web");
     if (existsSync(join(candidate, "content", "media", "manifest.json"))) return candidate;
     const parent = dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
-  throw new AdminError("The media manifest (apps/web/content/media/manifest.json) is not reachable from this server. Set AMC_WEB_ROOT to the apps/web directory.", "no_manifest");
-}
-
-export const manifestPath = (): string => join(webRoot(), "content", "media", "manifest.json");
-export const publicDir = (): string => join(webRoot(), "public");
-
-export function readManifest(): MediaManifest {
-  const parsed = JSON.parse(readFileSync(manifestPath(), "utf8")) as MediaManifest | ManifestAsset[];
-  return Array.isArray(parsed) ? { version: 1, assets: parsed } : parsed;
-}
-
-function writeManifest(manifest: MediaManifest): void {
-  const path = manifestPath();
-  const tmp = `${path}.${process.pid}.tmp`;
-  writeFileSync(tmp, JSON.stringify(manifest, null, 2) + "\n");
-  renameSync(tmp, path);
-}
-
-/** The assets the generator may claim: images that are not rejected (what the pipeline runs receive). */
-export function claimableMedia(): ManifestAsset[] {
-  return readManifest().assets.filter((a) => !a.rejected);
+  throw new AdminError("Repository files are unavailable in this deployment.", "no_manifest");
 }
 
 // ------------------------------------------------------------------ library listing
@@ -186,7 +118,7 @@ export interface MediaLibrary {
 }
 
 export async function listMedia(filters: MediaFilters = {}, db: Queryable = getPool()): Promise<MediaLibrary> {
-  const manifest = readManifest();
+  const manifest = await readManifest(db);
   const claims = await claimsByAsset(db);
   const items = manifest.assets.map((a) => toItem(a, claims.get(a.id) ?? null));
   const counts: Record<MediaClaimState, number> = { unclaimed: 0, claimed: 0, static: 0, rejected: 0 };
@@ -213,7 +145,7 @@ export async function listMedia(filters: MediaFilters = {}, db: Queryable = getP
 
 /** One asset with its claim, or null. */
 export async function getMediaAsset(id: string, db: Queryable = getPool()): Promise<MediaLibraryItem | null> {
-  const asset = readManifest().assets.find((a) => a.id === id);
+  const asset = (await readManifest(db)).assets.find((a) => a.id === id);
   if (!asset) return null;
   const claims = await claimsByAsset(db);
   return toItem(asset, claims.get(id) ?? null);
@@ -222,7 +154,7 @@ export async function getMediaAsset(id: string, db: Queryable = getPool()): Prom
 /** Library items for a page's claimed ids, in the page's order (thumbnails on the detail page). */
 export async function mediaForPage(mediaIds: string[], db: Queryable = getPool()): Promise<MediaLibraryItem[]> {
   if (!mediaIds.length) return [];
-  const byId = new Map(readManifest().assets.map((a) => [a.id, a]));
+  const byId = new Map((await readManifest(db)).assets.map((a) => [a.id, a]));
   const claims = await claimsByAsset(db);
   return mediaIds.map((id) => byId.get(id)).filter((a): a is ManifestAsset => !!a).map((a) => toItem(a, claims.get(a.id) ?? null));
 }
@@ -237,21 +169,21 @@ const SEO_PATH = /^\/(movers|routes|services|moving-costs|questions|planning)\//
  * usedOn entries (the static pages that adopted it by hand). Same rule as `pnpm seo:media-sync`.
  */
 export async function syncMediaManifest(db: Queryable = getPool()): Promise<{ claimed: number; changed: number }> {
-  const manifest = readManifest();
-  const claims = await db.query<{ url: string; media_ids: string[] }>("select url, media_ids from seo_pages where jsonb_array_length(media_ids) > 0");
-  const byAsset = new Map<string, string>();
-  for (const row of claims.rows) for (const id of row.media_ids) byAsset.set(id, row.url);
+  const manifest = await readManifest(db);
+  const claims = await claimsByAsset(db);
   let changed = 0;
   for (const asset of manifest.assets) {
-    const owner = byAsset.get(asset.id);
-    const next = owner ? [owner] : asset.usedOn.filter((u) => !SEO_PATH.test(u));
-    if (JSON.stringify(next) !== JSON.stringify(asset.usedOn)) {
-      asset.usedOn = next;
-      changed++;
-    }
+    const result = await db.query(
+      "insert into media_assets (id, asset, origin) values ($1, $2::jsonb, 'bundled') on conflict (id) do update set asset = jsonb_set(media_assets.asset, '{usedOn}', excluded.asset->'usedOn'), updated_at = now() where media_assets.asset->'usedOn' is distinct from excluded.asset->'usedOn'",
+      [asset.id, JSON.stringify(asset)],
+    );
+    changed += result.rowCount ?? 0;
   }
-  writeManifest(manifest);
-  return { claimed: byAsset.size, changed };
+  return { claimed: claims.size, changed };
+}
+
+async function saveAsset(db: Queryable, asset: ManifestAsset): Promise<void> {
+  await db.query("insert into media_assets (id, asset, origin) values ($1, $2::jsonb, 'bundled') on conflict (id) do update set asset = excluded.asset, updated_at = now()", [asset.id, JSON.stringify(asset)]);
 }
 
 // ------------------------------------------------------------------ claims
@@ -269,18 +201,24 @@ async function removeClaim(client: Queryable, mediaId: string): Promise<{ pageId
  * leaves the page that held it, joins the new page's media_ids and seo_media_usage, and the
  * manifest's usedOn follows. Rejected assets and assets a static page adopted can't be assigned.
  */
+async function lockedAsset(client: Queryable, mediaId: string): Promise<ManifestAsset> {
+  await client.query("select pg_advisory_xact_lock(hashtext($1))", [`media:${mediaId}`]);
+  const asset = (await readManifest(client)).assets.find((a) => a.id === mediaId);
+  if (!asset) throw new AdminError("Unknown media asset.", "not_found");
+  return asset;
+}
+
 export async function reassignMedia(actor: ContentActor, mediaId: string, pageUrl: string | null): Promise<{ from: string | null; to: string | null }> {
   assertContentRole(actor);
-  const asset = readManifest().assets.find((a) => a.id === mediaId);
-  if (!asset) throw new AdminError("Unknown media asset.", "not_found");
-  if (pageUrl && asset.rejected) throw new AdminError("This asset is rejected. Restore it before assigning it to a page.", "rejected");
-  if (pageUrl && asset.kind !== "image") throw new AdminError("Only images can be assigned to programmatic pages.", "not_image");
-  const target = pageUrl ? pageUrl.trim() : null;
+  const target = pageUrl?.trim() || null;
   if (target && !isSeoUrl(target)) throw new AdminError("Enter the URL of a programmatic page, such as /movers/texas/.", "bad_url");
-  const result = await tx(async (client) => {
-    const from = await removeClaim(client, mediaId);
+  return tx(async (client) => {
+    const asset = await lockedAsset(client, mediaId);
+    if (target && asset.rejected) throw new AdminError("This asset is rejected. Restore it before assigning it to a page.", "rejected");
+    if (target && asset.kind !== "image") throw new AdminError("Only images can be assigned to programmatic pages.", "not_image");
     const staticUse = asset.usedOn.filter((u) => !SEO_PATH.test(u));
     if (target && staticUse.length) throw new AdminError(`This asset is used on ${staticUse.join(", ")}; an asset belongs to one page only.`, "static_use");
+    const from = await removeClaim(client, mediaId);
     let to: string | null = null;
     if (target) {
       const page = (await client.query<{ id: string; url: string }>("select id::text, url from seo_pages where url = $1 for update", [target])).rows[0];
@@ -289,49 +227,59 @@ export async function reassignMedia(actor: ContentActor, mediaId: string, pageUr
       await client.query("update seo_pages set media_ids = media_ids || to_jsonb($2::text) where id = $1 and not media_ids ? $2", [page.id, mediaId]);
       to = page.url;
     }
-    await audit({ actorType: "admin", actorId: actor.userId, action: target ? "content.media.assign" : "content.media.unclaim", entity: "media_asset", entityId: mediaId, before: { usedOn: from?.url ?? asset.usedOn }, after: { usedOn: to }, ip: actor.ip ?? null }, client);
+    const before = asset.usedOn;
+    asset.usedOn = to ? [to] : staticUse;
+    await saveAsset(client, asset);
+    await audit({ actorType: "admin", actorId: actor.userId, action: target ? "content.media.assign" : "content.media.unclaim", entity: "media_asset", entityId: mediaId, before: { usedOn: from?.url ?? before }, after: { usedOn: to }, ip: actor.ip ?? null }, client);
     return { from: from?.url ?? null, to };
   });
-  await syncMediaManifest();
-  return result;
 }
 
-/** Hides an asset from claims (and takes it off the page holding it). */
+/** Hides an asset from claims and removes the page assignment in one transaction. */
 export async function rejectMedia(actor: ContentActor, mediaId: string, reason: string | null | undefined): Promise<void> {
   assertContentRole(actor);
   const text = requireText(reason, "why the asset is rejected", 500);
-  const manifest = readManifest();
-  const asset = manifest.assets.find((a) => a.id === mediaId);
-  if (!asset) throw new AdminError("Unknown media asset.", "not_found");
-  if (asset.rejected) throw new AdminError("This asset is already rejected.", "bad_status");
   await tx(async (client) => {
+    const asset = await lockedAsset(client, mediaId);
+    if (asset.rejected) throw new AdminError("This asset is already rejected.", "bad_status");
+    // Hand-built pages import bundled assets synchronously. Do not pretend a DB override hides
+    // an image embedded in a deployed bundle; those replacements require an editorial deploy.
+    if (asset.usedOn.some((u) => !SEO_PATH.test(u))) throw new AdminError("This image is embedded in a bundled page. Replace it in the site library before rejecting it.", "static_use");
+    const before = asset.usedOn;
     const from = await removeClaim(client, mediaId);
-    await audit({ actorType: "admin", actorId: actor.userId, action: "content.media.reject", entity: "media_asset", entityId: mediaId, before: { usedOn: from?.url ?? asset.usedOn }, after: { rejected: true, reason: text }, ip: actor.ip ?? null }, client);
+    asset.rejected = { reason: text, by: actor.userId, at: new Date().toISOString() };
+    asset.usedOn = [];
+    await saveAsset(client, asset);
+    await audit({ actorType: "admin", actorId: actor.userId, action: "content.media.reject", entity: "media_asset", entityId: mediaId, before: { usedOn: from?.url ?? before }, after: { rejected: true, reason: text }, ip: actor.ip ?? null }, client);
   });
-  const fresh = readManifest();
-  const target = fresh.assets.find((a) => a.id === mediaId)!;
-  target.rejected = { reason: text, by: actor.userId, at: new Date().toISOString() };
-  target.usedOn = target.usedOn.filter((u) => !SEO_PATH.test(u));
-  writeManifest(fresh);
 }
 
-/** Makes a rejected asset claimable again. */
 export async function restoreMedia(actor: ContentActor, mediaId: string): Promise<void> {
   assertContentRole(actor);
-  const manifest = readManifest();
-  const asset = manifest.assets.find((a) => a.id === mediaId);
-  if (!asset) throw new AdminError("Unknown media asset.", "not_found");
-  if (!asset.rejected) throw new AdminError("This asset is not rejected.", "bad_status");
-  const before = asset.rejected;
-  delete asset.rejected;
-  writeManifest(manifest);
-  await audit({ actorType: "admin", actorId: actor.userId, action: "content.media.restore", entity: "media_asset", entityId: mediaId, before: { rejected: before }, after: { rejected: false }, ip: actor.ip ?? null });
+  await tx(async (client) => {
+    const asset = await lockedAsset(client, mediaId);
+    if (!asset.rejected) throw new AdminError("This asset is not rejected.", "bad_status");
+    const before = asset.rejected;
+    delete asset.rejected;
+    await saveAsset(client, asset);
+    await audit({ actorType: "admin", actorId: actor.userId, action: "content.media.restore", entity: "media_asset", entityId: mediaId, before: { rejected: before }, after: { rejected: false }, ip: actor.ip ?? null }, client);
+  });
 }
 
 // ------------------------------------------------------------------ uploads
 
-export const UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
+// Leave room for multipart metadata beneath Vercel's 4.5 MB request limit.
+export const UPLOAD_MAX_BYTES = 3 * 1024 * 1024;
 const UPLOAD_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+
+export function mediaUploadAvailability(): { available: boolean; reason: string | null } {
+  try {
+    mediaStorageConfig();
+    return { available: true, reason: null };
+  } catch {
+    return { available: false, reason: "Image uploads are unavailable until an administrator connects the media storage bucket. Your existing media library remains available." };
+  }
+}
 
 /** The library's tiers (docs/media/inventory.md): the native width capped per aspect ratio, and 800px. */
 export function largestTierWidth(width: number, height: number): number {
@@ -354,7 +302,11 @@ function knownHashes(manifest: MediaManifest): Set<string> {
   const out = new Set<string>();
   for (const asset of manifest.assets) {
     if (asset.upload?.sha256) out.add(asset.upload.sha256);
-    const file = join(publicDir(), asset.src.replace(/^\//, ""));
+    // Bundled files may be absent from the app serverless bundle; never fetch arbitrary URLs.
+    if (!asset.src.startsWith("/media/")) continue;
+    let root: string;
+    try { root = webRoot(); } catch { continue; }
+    const file = join(root, "public", asset.src.slice(1));
     if (existsSync(file)) out.add(sha256Of(readFileSync(file)));
   }
   return out;
@@ -371,15 +323,14 @@ export interface UploadInput {
 }
 
 /**
- * Stores a new image under apps/web/public/media/uploads in the library's tiers (WebP at the
- * capped native width and at 800px, plus a 24px blur placeholder), appends it to the manifest
- * unclaimed, and refuses a file whose SHA-256 the library already holds.
+ * Writes immutable WebP objects to Storage, then commits their manifest and audit together.
+ * Failed writes leave no library entry; fresh object keys are cleaned up on any later failure.
  */
 export async function uploadMedia(actor: ContentActor, input: UploadInput): Promise<MediaLibraryItem> {
   assertContentRole(actor);
   if (!UPLOAD_TYPES.has(input.mimeType)) throw new AdminError("Upload a PNG, JPEG or WebP image.", "bad_type");
   if (!input.bytes.length) throw new AdminError("The file is empty.", "bad_file");
-  if (input.bytes.length > UPLOAD_MAX_BYTES) throw new AdminError("The file is larger than 20 MB.", "too_large");
+  if (input.bytes.length > UPLOAD_MAX_BYTES) throw new AdminError("The file is larger than 3 MB. Export a smaller PNG, JPEG or WebP and try again.", "too_large");
   const alt = requireText(input.alt, "the alt text", 300);
   const creator = requireText(input.credit.creator, "the creator (credit)", 200);
   const license = requireText(input.credit.license, "the licence", 300);
@@ -389,38 +340,46 @@ export async function uploadMedia(actor: ContentActor, input: UploadInput): Prom
   if (!tags.length) throw new AdminError("Enter at least one tag (the first one is the family, such as state or route).", "missing_tags");
 
   const hash = sha256Of(input.bytes);
-  const manifest = readManifest();
+  const storage = new SupabaseMediaStorage(mediaStorageConfig());
+  const manifest = await readManifest();
   const duplicate = manifest.assets.find((a) => a.upload?.sha256 === hash);
   if (duplicate) throw new AdminError(`An identical file is already in the library as "${duplicate.id}".`, "duplicate");
   if (knownHashes(manifest).has(hash)) throw new AdminError("An identical file is already in the library.", "duplicate");
 
   const sharp = (await import("sharp")).default;
-  const source = sharp(Buffer.from(input.bytes), { failOn: "error" }).rotate();
-  const meta = await source.metadata();
+  let source: ReturnType<typeof sharp>;
+  let meta: Awaited<ReturnType<ReturnType<typeof sharp>["metadata"]>>;
+  try {
+    source = sharp(Buffer.from(input.bytes), { failOn: "error", limitInputPixels: 40_000_000 }).rotate();
+    meta = await source.metadata();
+    const expected = new Map([["image/png", "png"], ["image/jpeg", "jpeg"], ["image/webp", "webp"]]);
+    if (meta.format !== expected.get(input.mimeType) || (meta.pages ?? 1) > 1) throw new Error("Unsupported image");
+  } catch { throw new AdminError("The file is not a readable, single-frame PNG, JPEG or WebP image.", "bad_file"); }
   if (!meta.width || !meta.height) throw new AdminError("The image could not be read.", "bad_file");
-  if (meta.width < 800 || meta.height < 450) throw new AdminError("Upload an image at least 800 pixels wide and 450 pixels tall.", "too_small");
-  const largest = largestTierWidth(meta.width, meta.height);
+  if (meta.width * meta.height > 40_000_000) throw new AdminError("The image exceeds the 40 megapixel processing limit. Export a smaller image and try again.", "too_large");
+  // EXIF rotation can swap dimensions. Evaluate size and tiers after orientation is applied.
+  const rotated = [5, 6, 7, 8].includes(meta.orientation ?? 0);
+  const orientedWidth = rotated ? meta.height : meta.width;
+  const orientedHeight = rotated ? meta.width : meta.height;
+  if (orientedWidth < 800 || orientedHeight < 450) throw new AdminError("Upload an image at least 800 pixels wide and 450 pixels tall after rotation.", "too_small");
+  const largest = largestTierWidth(orientedWidth, orientedHeight);
   const stem = slugify(basename(input.fileName).replace(/\.[a-z0-9]+$/i, "")).slice(0, 48) || slugify(alt).slice(0, 48) || "upload";
-  let id = `upload-${stem}`;
-  const ids = new Set(manifest.assets.map((a) => a.id));
-  while (ids.has(id)) id = `upload-${stem}-${randomBytes(2).toString("hex")}`;
-  const dir = join(publicDir(), "media", "uploads");
-  mkdirSync(dir, { recursive: true });
+  const id = `upload-${stem}-${randomBytes(8).toString("hex")}`;
   const large = await source.clone().resize({ width: largest, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer({ resolveWithObject: true });
   const small = await source.clone().resize({ width: 800, withoutEnlargement: true }).webp({ quality: 70 }).toBuffer({ resolveWithObject: true });
   const blur = await source.clone().resize({ width: 24 }).blur(1).webp({ quality: 40 }).toBuffer();
-  const largeName = `${id}-1600.webp`;
-  const smallName = `${id}-800.webp`;
-  writeFileSync(join(dir, largeName), large.data);
-  writeFileSync(join(dir, smallName), small.data);
+  const largeName = `uploads/${id}/${large.info.width}.webp`;
+  const smallName = `uploads/${id}/800.webp`;
+  const objects: { path: string; data: Buffer }[] = [{ path: largeName, data: large.data }];
+  if (smallName !== largeName) objects.push({ path: smallName, data: small.data });
   const orientation = orientationTag(large.info.width, large.info.height);
   const asset: ManifestAsset = {
     id,
     kind: "image",
-    src: `/media/uploads/${largeName}`,
+    src: storage.publicUrl(largeName),
     srcset: [
-      { src: `/media/uploads/${largeName}`, width: large.info.width },
-      { src: `/media/uploads/${smallName}`, width: small.info.width },
+      { src: storage.publicUrl(largeName), width: large.info.width },
+      ...(smallName !== largeName ? [{ src: storage.publicUrl(smallName), width: small.info.width }] : []),
     ],
     width: large.info.width,
     height: large.info.height,
@@ -433,21 +392,38 @@ export async function uploadMedia(actor: ContentActor, input: UploadInput): Prom
     ...(cleanText(input.prompt, 1000) ? { generator: { provider: "upload", prompt: cleanText(input.prompt, 1000)! } } : {}),
     upload: { by: actor.userId, at: new Date().toISOString(), sha256: hash, originalName: basename(input.fileName).slice(0, 120) },
   };
-  const fresh = readManifest();
-  fresh.assets.push(asset);
-  writeManifest(fresh);
-  await audit({ actorType: "admin", actorId: actor.userId, action: "content.media.upload", entity: "media_asset", entityId: id, after: { sha256: hash, width: asset.width, height: asset.height, tags: asset.tags, creator, license }, ip: actor.ip ?? null });
+  await storage.assertPublicBucket();
+  const attempted: string[] = [];
+  try {
+    for (const object of objects) {
+      attempted.push(object.path); // Include ambiguous timeouts: the object may have been written.
+      try {
+        await storage.upload(object.path, object.data);
+      } catch (error) {
+        // An explicit rejection wrote nothing. In particular, an existing key must never be
+        // removed by cleanup when the provider refused an immutable upload to that key.
+        if (error instanceof AdminError && error.code === "storage_upload_failed") attempted.pop();
+        throw error;
+      }
+    }
+    const storedObjects: StoredObject[] = objects.map(({ path, data }) => ({ path, bytes: data.length }));
+    await tx(async (client) => {
+      await client.query("insert into media_assets (id, asset, origin, storage_bucket, storage_objects, sha256, total_bytes, created_by) values ($1, $2::jsonb, 'upload', $3, $4::jsonb, $5, $6, $7)",
+        [id, JSON.stringify(asset), storage.config.bucket, JSON.stringify(storedObjects), hash, storedObjects.reduce((n, o) => n + o.bytes, 0), actor.userId]);
+      await audit({ actorType: "admin", actorId: actor.userId, action: "content.media.upload", entity: "media_asset", entityId: id, after: { sha256: hash, width: asset.width, height: asset.height, tags: asset.tags, creator, license, bucket: storage.config.bucket, objects: storedObjects }, ip: actor.ip ?? null }, client);
+    });
+  } catch (error) {
+    await storage.remove(attempted);
+    if (error && typeof error === "object" && "code" in error && error.code === "23505") throw new AdminError("An identical file is already in the library. Refresh the library to find it.", "duplicate");
+    throw error;
+  }
   return toItem(asset, null);
 }
 
-/** Bytes on disk under public/media/uploads (for the library page's note). */
-export function uploadsFootprint(): { files: number; bytes: number } {
-  const dir = join(publicDir(), "media", "uploads");
-  if (!existsSync(dir)) return { files: 0, bytes: 0 };
-  let bytes = 0;
-  const files = readdirSync(dir);
-  for (const f of files) bytes += statSync(join(dir, f)).size;
-  return { files: files.length, bytes };
+/** Durable upload totals; bundled files are excluded. */
+export async function uploadsFootprint(db: Queryable = getPool()): Promise<{ files: number; bytes: number }> {
+  const row = (await db.query<{ files: string; bytes: string }>("select coalesce(sum(jsonb_array_length(storage_objects)), 0)::text as files, coalesce(sum(total_bytes), 0)::text as bytes from media_assets where origin = 'upload'")).rows[0]!;
+  return { files: Number(row.files), bytes: Number(row.bytes) };
 }
 
 export const resolveUnderRepo = (path: string): string => resolve(dirname(webRoot()), "..", path);

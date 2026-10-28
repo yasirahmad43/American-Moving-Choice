@@ -12,6 +12,8 @@ import pg from "pg";
 import { KNOWN_PASSWORDS, buildSeedSql, seedOptionsFromEnv } from "../seed/build";
 import { clientConfig, redactUrl } from "./lib";
 import { migrate } from "./migrate";
+import { bootstrapSeo } from "../../packages/server/src/seo/bootstrap";
+import { verifyMediaStorage } from "../../packages/server/src/media/storage-probe";
 
 async function main(): Promise<void> {
   let url = process.env.DATABASE_URL;
@@ -40,24 +42,24 @@ async function main(): Promise<void> {
     const admins = await client.query<{ n: number }>("select count(*)::int as n from admin_users");
     if (admins.rows[0]!.n > 0) {
       console.log("vercel-deploy: seed already loaded");
-      return;
-    }
-    if (!process.env.SEED_ADMIN_EMAIL) {
+    } else if (!process.env.SEED_ADMIN_EMAIL) {
       console.log("vercel-deploy: no SEED_* variables; leaving the database unseeded");
-      return;
+    } else {
+      const options = seedOptionsFromEnv();
+      const problems: string[] = [];
+      if (!options.adminTotpSecret || !options.encryptionKey) problems.push("SEED_ADMIN_TOTP_SECRET and APP_ENCRYPTION_KEY are required");
+      if (!options.hmacSecret) problems.push("HMAC_SECRET is required");
+      if (!options.webUrl || /^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/.test(options.webUrl)) problems.push("WEB_URL must be the public site");
+      if (KNOWN_PASSWORDS.includes(options.adminPassword) || KNOWN_PASSWORDS.includes(options.moverPassword)) {
+        problems.push("a SEED_* password is one written in the repository");
+      }
+      if (problems.length) throw new Error(`refusing to seed: ${problems.join("; ")}`);
+      const out = await buildSeedSql(options);
+      await client.query(out.sql); // the seed runs in one transaction
+      console.log("vercel-deploy: demo seed loaded");
     }
-    const options = seedOptionsFromEnv();
-    const problems: string[] = [];
-    if (!options.adminTotpSecret || !options.encryptionKey) problems.push("SEED_ADMIN_TOTP_SECRET and APP_ENCRYPTION_KEY are required");
-    if (!options.hmacSecret) problems.push("HMAC_SECRET is required");
-    if (!options.webUrl || /^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/.test(options.webUrl)) problems.push("WEB_URL must be the public site");
-    if (KNOWN_PASSWORDS.includes(options.adminPassword) || KNOWN_PASSWORDS.includes(options.moverPassword)) {
-      problems.push("a SEED_* password is one written in the repository");
-    }
-    if (problems.length) throw new Error(`refusing to seed: ${problems.join("; ")}`);
-    const out = await buildSeedSql(options);
-    await client.query(out.sql); // the seed runs in one transaction
-    console.log("vercel-deploy: demo seed loaded");
+    await bootstrapSeo(client);
+    await verifyMediaStorage();
   } finally {
     await client.end();
   }

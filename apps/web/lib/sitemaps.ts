@@ -10,6 +10,7 @@ import "server-only";
 import { env } from "@amc/server/env";
 import { indexableCounts, sitemapEntries, type SeoFamily } from "@amc/server/seo";
 import { servedContentPages } from "@/lib/content/pages";
+import { ROUTES_PER_HUB_PAGE } from "@/components/seo/routes-hub-spec";
 
 export const SITEMAP_CHUNK = 1000;
 
@@ -76,6 +77,8 @@ function urlset(entries: { url: string; lastmod?: Date }[]): string {
 export async function sitemapSegmentXml(name: string): Promise<string | null> {
   if (name === "core") {
     const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url)])];
+    const routes = (await indexableCounts()).get("route")?.count ?? 0;
+    for (let page = 2; page <= Math.ceil(routes / ROUTES_PER_HUB_PAGE); page++) urls.push(`/routes/page/${page}/`);
     return urlset(urls.map((url) => ({ url })));
   }
   const match = /^([a-z]+)(?:-(\d+))?$/.exec(name);

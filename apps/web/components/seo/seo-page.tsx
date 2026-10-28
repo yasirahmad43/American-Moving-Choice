@@ -193,7 +193,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
   const inlineHrefs = [...new Set((JSON.stringify(page.content).match(/\]\((\/[^)\s]*)\)/g) ?? []).map((m) => m.slice(2, -1)))];
   const live = await publishedAmong(inlineHrefs);
   const allow = (href: string) => live.has(href);
-  const media = mediaForSeoPage(page.url, page.mediaIds).find((m) => m.kind === "image") ?? null;
+  const media = (await mediaForSeoPage(page.url, page.mediaIds)).find((m) => m.kind === "image") ?? null;
   const trail = [{ label: "Home", href: "/" }, ...crumbs];
   const route = routeEnds(page);
   const quote = page.content.quote;

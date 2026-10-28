@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "build:zip-data": "tsx scripts/build-zip-data.ts",
     "build:seo-geo": "tsx scripts/build-seo-geo.ts",
+    "build:seo-facts": "tsx scripts/build-seo-facts.ts",
     "seo": "tsx scripts/seo.ts"
   },
   "dependencies": {
