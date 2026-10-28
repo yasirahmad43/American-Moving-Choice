@@ -337,6 +337,10 @@ describe("submitRequest", () => {
     expect(lead.risk_score).toBeGreaterThanOrEqual(50);
     const notices = await pool().query("select count(*)::int as n from messages where related_id = $1 and template = 'lead_available'", [lead.group_id]);
     expect(notices.rows[0].n).toBe(0);
+    const named = (await pool().query("select company_id from lead_eligibility where group_id = $1 and named_in_consent limit 1", [lead.group_id])).rows[0];
+    if (named) {
+      await expect(pool().query("select reserve_purchase($1, $2, 'held-for-review')", [named.company_id, lead.group_id])).rejects.toThrow(/lead_unavailable/);
+    }
   });
 
   it("joins a repeat request within the duplicate window to the original group and keeps the lowest limit", async () => {
