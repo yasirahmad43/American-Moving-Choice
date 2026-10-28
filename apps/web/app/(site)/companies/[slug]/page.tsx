@@ -1,4 +1,4 @@
-import { Alert, Breadcrumbs, Chip, Container, EmptyState, ExternalLinkIcon } from "@amc/ui";
+import { Alert, Breadcrumbs, Container, EmptyState, ExternalLinkIcon, IdCardIcon, Reveal, RouteMark, SectionHeader, StatTile, StickyCta } from "@amc/ui";
 import {
   FMCSA_LI_URL,
   MOVE_SIZE_LABELS,
@@ -21,11 +21,15 @@ import { CoverageSummary } from "@/components/directory/company-card";
 import { StoredText } from "@/components/directory/content";
 import { CredentialLedger } from "@/components/directory/credential-ledger";
 import { CompactRatings, RatingBlock } from "@/components/directory/ratings";
-import { RequestQuoteButton } from "@/components/directory/request-quote-button";
+import { PROFILE_ORIGIN_KEY, RequestQuoteButton } from "@/components/directory/request-quote-button";
 import { ReviewCard } from "@/components/directory/review-card";
 import { JsonLd, NOINDEX, absoluteUrl, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
+import { MediaFrame } from "@/components/media/media-frame";
+import { mediaFor } from "@/lib/media";
 
 type Params = Promise<{ slug: string }>;
+
+const PAGE = "/companies/[slug]/";
 
 const loadProfile = cache((slug: string) => getProfile(slug));
 
@@ -70,23 +74,18 @@ function movingCompanyJsonLd(p: Profile) {
   };
 }
 
-function SuspendedNotice({ displayName, isDemo, usdot }: { displayName: string; isDemo: boolean; usdot: string | null }) {
+function SuspendedNotice({ displayName, usdot }: { displayName: string; usdot: string | null }) {
   return (
     <Container size="reading" className="grid gap-6 section-pad">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Mover directory", href: "/directory/" }, { label: displayName }]} />
       <h1 className="type-display-l text-text">{displayName}</h1>
-      {isDemo ? (
-        <div>
-          <Chip tone="demo">Demo company: fictional</Chip>
-        </div>
-      ) : null}
       {/* [Owner: notice wording, "not currently part of…" (site architecture §2.5) or "Verification under review" (mover verification §3) — default shown] */}
       <Alert tone="info" role="none" title="Not currently part of the American Moving Choice network">
-        This company can't receive new requests through American Moving Choice, and it isn't listed in our directory. Its profile stays
-        online so links to it still explain its status.
+        This company can&apos;t receive new requests through American Moving Choice, and it isn&apos;t listed in our directory. Its profile stays online
+        so links to it still explain its status.
       </Alert>
       <div className="grid gap-3 text-text">
-        <p>If you're dealing with this company, you can:</p>
+        <p>If you&apos;re dealing with this company, you can:</p>
         <ul className="grid list-disc gap-2 pl-6">
           {usdot ? (
             <li>
@@ -112,17 +111,36 @@ function SuspendedNotice({ displayName, isDemo, usdot }: { displayName: string; 
   );
 }
 
+const ANCHORS = [
+  { href: "#overview", label: "Overview" },
+  { href: "#services", label: "Services" },
+  { href: "#coverage", label: "Where it works" },
+  { href: "#credentials", label: "Credentials and checks" },
+  { href: "#reviews", label: "Customer reviews" },
+  { href: "#contact", label: "Website and contact" },
+];
+
+function SectionTitle({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <h2 id={id} className="type-display-l text-text scroll-mt-6">
+      {children}
+    </h2>
+  );
+}
+
 export default async function CompanyProfilePage({ params }: { params: Params }) {
   const { slug } = await params;
   const result = await loadProfile(slug);
   if (!result) notFound();
-  if (result.kind === "suspended") return <SuspendedNotice displayName={result.displayName} isDemo={result.isDemo} usdot={result.usdot} />;
+  if (result.kind === "suspended") return <SuspendedNotice displayName={result.displayName} usdot={result.usdot} />;
   const p = result.profile;
   const path = `/companies/${p.slug}/`;
   const hasReviews = REVIEW_TYPES.some((t) => p.ratings[t].count > 0) || p.reviews.length > 0;
+  const cover = mediaFor(PAGE, "cover");
+  const checkedRows = p.credentials.length;
 
   return (
-    <Container className="grid gap-10 section-pad">
+    <>
       <JsonLd
         data={[
           breadcrumbJsonLd([
@@ -133,237 +151,264 @@ export default async function CompanyProfilePage({ params }: { params: Params })
           movingCompanyJsonLd(p),
         ]}
       />
-      <div className="grid gap-4">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Mover directory", href: "/directory/" }, { label: p.displayName }]} />
 
-        <header className="grid gap-6 rounded-card border border-border bg-surface p-5 shadow-e1 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]">
-          <div className="grid content-start gap-4">
-            <h1 className="type-display-l text-text">{p.displayName}</h1>
-            <StatusChips isDemo={p.isDemo} isNew={p.isNew} joinedAt={p.joinedAt} />
-            {p.badge ? <BadgeWithExplainer verifiedDate={p.badge.verifiedDate} usdot={p.usdot} idSuffix="profile" /> : null}
-            <CoverageSummary listing={p} limit={2} />
-          </div>
-          <div className="grid content-start gap-4">
-            <CompactRatings ratings={p.ratings} />
-            <div className="grid gap-2">
-              <div>
-                <RequestQuoteButton companyId={p.companyId} slug={p.slug} displayName={p.displayName} />
+      {/* Cover band + header card overlapping it (VD §13.6). */}
+      <div className="relative">
+        <div className="relative h-44 overflow-hidden sm:h-56 lg:h-64" aria-hidden="true">
+          <MediaFrame asset={cover} priority sizes="100vw" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(6,49,103,0.08),rgba(6,49,103,0.28))]" />
+        </div>
+        <Container className="relative -mt-20 grid gap-4 sm:-mt-24">
+          <header className="grid gap-6 rounded-card border border-border bg-surface p-5 shadow-e2 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]">
+            <div className="grid content-start gap-4">
+              <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Mover directory", href: "/directory/" }, { label: p.displayName }]} />
+              <h1 className="type-display-xl text-text">{p.displayName}</h1>
+              <StatusChips isNew={p.isNew} joinedAt={p.joinedAt} />
+              {p.badge ? <BadgeWithExplainer verifiedDate={p.badge.verifiedDate} usdot={p.usdot} idSuffix="profile" /> : null}
+              <div className="flex items-start gap-2">
+                <RouteMark size={12} className="mt-1 shrink-0" />
+                <CoverageSummary listing={p} limit={2} />
               </div>
-              <p className="type-small text-text-2">Uses our standard request form. You choose how many movers can contact you.</p>
             </div>
-            <ul className="grid gap-1 type-small">
-              <li>
-                <a href="#credentials" className="link">
-                  Credentials and checks
-                </a>
-              </li>
-              <li>
-                <a href="#reviews" className="link">
-                  Customer reviews
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="link">
-                  Website and contact
-                </a>
-              </li>
-            </ul>
-          </div>
-        </header>
-
-        {p.isDemo || p.checkSource === "fixture" ? (
-          <Alert tone="info" role="none" title="Demo company">
-            This company is fictional. Its checks ran against recorded demo records, not live FMCSA data, so the official links below won't
-            find it. Its reviews are sample data.
-          </Alert>
-        ) : null}
+            <div className="grid content-start gap-4 lg:border-l lg:border-border lg:pl-8">
+              <CompactRatings ratings={p.ratings} />
+              <div className="grid gap-2" id="quote">
+                <div>
+                  <RequestQuoteButton companyId={p.companyId} slug={p.slug} displayName={p.displayName} />
+                </div>
+                <p className="type-small text-text-2">Uses our standard request form. You choose how many movers can contact you.</p>
+              </div>
+              <ul className="flex flex-wrap gap-x-4 gap-y-1 type-small">
+                {ANCHORS.slice(3).map((a) => (
+                  <li key={a.href}>
+                    <a href={a.href} className="link">
+                      {a.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </header>
+        </Container>
       </div>
 
-      {p.noBrokerClaim ? (
-        <aside aria-label="Movers only" className="max-w-[75ch] rounded-card border border-border bg-surface-2 p-5 text-text">
-          <StoredText id="ST-2" links={{ "How we verify movers": { href: "/how-we-verify-movers/" } }} />
-        </aside>
-      ) : null}
-
-      <section aria-labelledby="overview" className="grid max-w-[75ch] gap-3">
-        <h2 id="overview" className="type-h3 text-text">
-          About {p.displayName}
-        </h2>
-        <div className="grid gap-2 rounded-card border border-dashed border-border-strong p-5">
-          <p className="type-overline text-text-2">Provided by the company</p>
-          <p className="whitespace-pre-line text-text">{p.description ?? "This company hasn't added a description yet."}</p>
-          <p className="type-small text-text-2">Company-written and moderated by us. We don't check claims made here; the checked facts are under Credentials and checks.</p>
-        </div>
-      </section>
-
-      <section aria-labelledby="services" className="grid gap-4">
-        <h2 id="services" className="type-h3 text-text">
-          Services and move sizes
-        </h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="grid content-start gap-2">
-            <h3 className="type-h4 text-text">Kinds of move</h3>
-            <ul className="grid list-disc gap-1 pl-5 text-text">
-              {p.moveTypes.map((t) => (
-                <li key={t}>{MOVE_TYPE_LABELS[t]}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="grid content-start gap-2">
-            <h3 className="type-h4 text-text">Services</h3>
-            <ul className="grid list-disc gap-1 pl-5 text-text">
-              {p.services.map((s) => (
-                <li key={s}>{SERVICE_LABELS[s]}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="grid content-start gap-2">
-            <h3 className="type-h4 text-text">Move sizes</h3>
-            <ul className="grid list-disc gap-1 pl-5 text-text">
-              {p.moveSizes.map((s) => (
-                <li key={s}>{MOVE_SIZE_LABELS[s]}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section aria-labelledby="coverage" className="grid max-w-[75ch] gap-3">
-        <h2 id="coverage" className="type-h3 text-text">
-          Where it works
-        </h2>
-        {p.basedIn ? (
-          <p className="text-text">
-            <strong>Based in</strong> {p.basedIn.city}, {p.basedIn.stateName}. Where a company is based isn't where it serves; its coverage is
-            below.
-          </p>
-        ) : null}
-        <h3 className="type-h4 text-text">Serves</h3>
-        {p.coverage.serves.length ? (
-          <ul className="grid list-disc gap-1 pl-5 text-text">
-            {p.coverage.serves.map((line) => (
-              <li key={line}>{line}</li>
+      <Container className="grid gap-12 section-pad lg:grid-cols-[minmax(10rem,13rem)_minmax(0,1fr)] lg:gap-16">
+        <nav aria-label="On this page" className="hidden lg:block lg:sticky lg:top-6 lg:self-start">
+          <p className="type-overline text-text-3">On this page</p>
+          <ul className="mt-3 grid gap-0.5 border-l border-border">
+            {ANCHORS.map((a) => (
+              <li key={a.href}>
+                <a href={a.href} className="-ml-px block border-l-2 border-transparent py-2 pl-4 type-small font-semibold text-text-2 no-underline hover:border-brand-navy hover:text-text">
+                  {a.label}
+                </a>
+              </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-text-2">No active coverage right now.</p>
-        )}
-        {p.coverage.excludes.length ? (
-          <>
-            <h3 className="type-h4 text-text">Doesn't serve</h3>
-            <ul className="grid list-disc gap-1 pl-5 text-text">
-              {p.coverage.excludes.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          </>
-        ) : null}
-        <p className="type-small text-text-2">
-          Coverage is what the company has set for requests it can receive. A request reaches only movers whose coverage includes it, up to the
-          number you choose.{" "}
-          <Link href="/which-companies-receive-my-request/" className="link">
-            Which companies receive my request
-          </Link>
-        </p>
-      </section>
+        </nav>
 
-      <section aria-labelledby="credentials" className="grid max-w-[75ch] gap-3">
-        <h2 id="credentials" className="type-h3 text-text">
-          Credentials and checks
-        </h2>
-        <p className="text-text-2">
-          Each row shows what we checked, where the record comes from and the date we last checked it. We show the results, not the documents.{" "}
-          <Link href="/how-we-verify-movers/" className="link">
-            How we verify movers
-          </Link>
-        </p>
-        <CredentialLedger rows={p.credentials} />
-        {p.usdot ? (
-          <p className="flex flex-wrap gap-x-4 gap-y-1 type-small">
-            <a href={fmcsaSnapshotUrl(p.usdot)} className="link inline-flex min-h-11 items-center gap-1" target="_blank" rel="noopener noreferrer">
-              FMCSA company snapshot (SAFER) <ExternalLinkIcon size={14} />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            <a href={FMCSA_LI_URL} className="link inline-flex min-h-11 items-center gap-1" target="_blank" rel="noopener noreferrer">
-              FMCSA Licensing and Insurance <ExternalLinkIcon size={14} />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-            <a href={PROTECT_YOUR_MOVE_URL} className="link inline-flex min-h-11 items-center gap-1" target="_blank" rel="noopener noreferrer">
-              Protect Your Move (complaint history) <ExternalLinkIcon size={14} />
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          </p>
-        ) : null}
-        <p className="type-small text-text-2">
-          Our checks don't rate work quality, prices or crews, and they aren't a government endorsement. A federal record can change between our
-          weekly rechecks, so check the date shown.
-        </p>
-      </section>
+        <div className="grid min-w-0 gap-14">
+          {p.noBrokerClaim ? (
+            <aside aria-label="Movers only" className="flex gap-4 rounded-card border border-border bg-surface-2 p-5 text-text">
+              <IdCardIcon size={22} className="mt-0.5 shrink-0 text-brand-navy" />
+              <p>
+                <StoredText id="ST-2" links={{ "How we verify movers": { href: "/how-we-verify-movers/" } }} />
+              </p>
+            </aside>
+          ) : null}
 
-      <section aria-labelledby="reviews" className="grid gap-5">
-        <div className="grid max-w-[75ch] gap-2">
-          <h2 id="reviews" className="type-h3 text-text">
-            Customer reviews
-          </h2>
-          <p className="text-text-2">
-            Only people whose request this mover bought through American Moving Choice can review it, by our invitation. Every mover in our
-            network pays us for the requests it buys; payment never changes which reviews we publish or how ratings are calculated. The two
-            experiences are rated separately and never blended.{" "}
-            <Link href="/review-methodology/" className="link">
-              How reviews work
-            </Link>
-          </p>
-        </div>
-        {hasReviews ? (
-          <>
-            <div className="grid gap-5 md:grid-cols-2">
-              {REVIEW_TYPES.map((type) => (
-                <RatingBlock key={type} summary={p.ratings[type]} headingId={`rating-${type}`} />
+          <Reveal as="section" aria-labelledby="overview" className="grid max-w-[75ch] gap-4">
+            <SectionTitle id="overview">About {p.displayName}</SectionTitle>
+            <div className="grid gap-2 rounded-card border border-dashed border-border-strong p-5 sm:p-6">
+              <p className="type-overline text-text-2">Provided by the company</p>
+              <p className="whitespace-pre-line text-text">{p.description ?? "This company hasn't added a description yet."}</p>
+              <p className="type-small text-text-2">Company-written and moderated by us. We don&apos;t check claims made here; the checked facts are under Credentials and checks.</p>
+            </div>
+          </Reveal>
+
+          <Reveal as="section" aria-labelledby="services" className="grid gap-5">
+            <SectionTitle id="services">Services and move sizes</SectionTitle>
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { title: "Kinds of move", items: p.moveTypes.map((t) => MOVE_TYPE_LABELS[t]) },
+                { title: "Services", items: p.services.map((s) => SERVICE_LABELS[s]) },
+                { title: "Move sizes", items: p.moveSizes.map((s) => MOVE_SIZE_LABELS[s]) },
+              ].map((group) => (
+                <div key={group.title} className="grid content-start gap-3 rounded-card border border-border bg-surface p-5 shadow-e1">
+                  <h3 className="type-h4 text-text">{group.title}</h3>
+                  <ul className="grid gap-1.5 text-text">
+                    {group.items.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 rounded-pill bg-brand-red" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
-            <div className="grid gap-4">
-              <h3 className="type-h4 text-text">{p.hasReviewsPage ? "Latest reviews" : "All reviews, newest first"}</h3>
-              {p.reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} companyName={p.displayName} headingLevel="h4" />
-              ))}
-              {p.hasReviewsPage ? (
-                <p>
-                  <Link href={`${path}reviews/`} className="link">
-                    See all <span className="tabular">{p.publishedReviewCount}</span> reviews of {p.displayName}
-                  </Link>
-                </p>
+          </Reveal>
+
+          <Reveal as="section" aria-labelledby="coverage" className="grid max-w-[75ch] gap-4">
+            <SectionTitle id="coverage">Where it works</SectionTitle>
+            {p.basedIn ? (
+              <p className="text-text">
+                <strong>Based in</strong> {p.basedIn.city}, {p.basedIn.stateName}. Where a company is based isn&apos;t where it serves; its coverage is below.
+              </p>
+            ) : null}
+            <div className="grid gap-4 rounded-card border border-border bg-surface-2 p-5">
+              <h3 className="flex items-center gap-2 type-h4 text-text">
+                <RouteMark size={12} /> Serves
+              </h3>
+              {p.coverage.serves.length ? (
+                <ul className="grid gap-1.5 text-text">
+                  {p.coverage.serves.map((line) => (
+                    <li key={line} className="flex items-start gap-2">
+                      <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 rounded-pill bg-brand-navy" />
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-text-2">No active coverage right now.</p>
+              )}
+              {p.coverage.excludes.length ? (
+                <>
+                  <h3 className="type-h4 text-text">Doesn&apos;t serve</h3>
+                  <ul className="grid gap-1.5 text-text">
+                    {p.coverage.excludes.map((line) => (
+                      <li key={line} className="flex items-start gap-2">
+                        <span aria-hidden="true" className="mt-2.5 size-1.5 shrink-0 rounded-pill bg-text-3" />
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                </>
               ) : null}
             </div>
-          </>
-        ) : (
-          <EmptyState
-            titleAs="h3"
-            title="No customer reviews yet"
-            description="Reviews appear here after people whose request this mover bought share feedback through our invitation. No rating is shown until then."
-          />
-        )}
-      </section>
+            <p className="type-small text-text-2">
+              Coverage is what the company has set for requests it can receive. A request reaches only movers whose coverage includes it, up to the number
+              you choose.{" "}
+              <Link href="/which-companies-receive-my-request/" className="link">
+                Which companies receive my request
+              </Link>
+            </p>
+          </Reveal>
 
-      <section aria-labelledby="contact" className="grid max-w-[75ch] gap-3">
-        <h2 id="contact" className="type-h3 text-text">
-          Website and contact
-        </h2>
-        {p.website ? (
-          <p className="text-text">
-            Website:{" "}
-            <a href={p.website} className="link" target="_blank" rel="noopener noreferrer nofollow">
-              {new URL(p.website).host}
-              <span className="sr-only"> (opens in a new tab)</span>
-            </a>
-          </p>
-        ) : (
-          <p className="text-text">No website on file.</p>
-        )}
-        <p className="text-text-2">
-          We don't show movers' phone numbers here. To hear from this mover, request a quote: you choose how many movers can contact you, and
-          they contact you directly.
-        </p>
-      </section>
-    </Container>
+          <Reveal as="section" aria-labelledby="credentials" className="grid gap-5">
+            <SectionHeader
+              id="credentials"
+              title="Credentials and checks"
+              lede={
+                <>
+                  Each row shows what we checked, where the record comes from and the date we last checked it. We show the results, not the documents.{" "}
+                  <Link href="/how-we-verify-movers/" className="link">
+                    How we verify movers
+                  </Link>
+                </>
+              }
+              action={<StatTile tone="plain" value={checkedRows} label={checkedRows === 1 ? "checked credential" : "checked credentials"} className="min-w-[10rem]" />}
+            />
+            <div className="rounded-card border border-border bg-surface px-5 shadow-e1 sm:px-6">
+              <CredentialLedger rows={p.credentials} />
+            </div>
+            {p.usdot ? (
+              <p className="flex flex-wrap gap-x-5 gap-y-1 type-small">
+                <a href={fmcsaSnapshotUrl(p.usdot)} className="link inline-flex min-h-11 items-center gap-1" target="_blank" rel="noopener noreferrer">
+                  FMCSA company snapshot (SAFER) <ExternalLinkIcon size={14} />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+                <a href={FMCSA_LI_URL} className="link inline-flex min-h-11 items-center gap-1" target="_blank" rel="noopener noreferrer">
+                  FMCSA Licensing and Insurance <ExternalLinkIcon size={14} />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+                <a href={PROTECT_YOUR_MOVE_URL} className="link inline-flex min-h-11 items-center gap-1" target="_blank" rel="noopener noreferrer">
+                  Protect Your Move (complaint history) <ExternalLinkIcon size={14} />
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </p>
+            ) : null}
+            <p className="type-small text-text-2">
+              Our checks don&apos;t rate work quality, prices or crews, and they aren&apos;t a government endorsement. A federal record can change between our
+              weekly rechecks, so check the date shown.
+            </p>
+          </Reveal>
+
+          <Reveal as="section" aria-labelledby="reviews" className="grid gap-6">
+            <SectionHeader
+              id="reviews"
+              title="Customer reviews"
+              lede={
+                <>
+                  Only people whose request this mover bought through American Moving Choice can review it, by our invitation. Payment never changes which
+                  reviews we publish or how ratings are calculated. The two experiences are rated separately and never blended.{" "}
+                  <Link href="/review-methodology/" className="link">
+                    How reviews work
+                  </Link>
+                </>
+              }
+            />
+            {hasReviews ? (
+              <>
+                <div className="grid gap-5 md:grid-cols-2">
+                  {REVIEW_TYPES.map((type) => (
+                    <RatingBlock key={type} summary={p.ratings[type]} headingId={`rating-${type}`} />
+                  ))}
+                </div>
+                <div className="grid gap-4">
+                  <h3 className="type-h4 text-text">{p.hasReviewsPage ? "Latest reviews" : "All reviews, newest first"}</h3>
+                  {p.reviews.map((review) => (
+                    <ReviewCard key={review.id} review={review} companyName={p.displayName} headingLevel="h4" />
+                  ))}
+                  {p.hasReviewsPage ? (
+                    <p>
+                      <Link href={`${path}reviews/`} className="link">
+                        See all <span className="tabular">{p.publishedReviewCount}</span> reviews of {p.displayName}
+                      </Link>
+                    </p>
+                  ) : null}
+                </div>
+              </>
+            ) : (
+              <EmptyState
+                titleAs="h3"
+                showMark
+                title="No customer reviews yet"
+                description="Reviews appear here after people whose request this mover bought share feedback through our invitation. No rating is shown until then."
+              />
+            )}
+          </Reveal>
+
+          <Reveal as="section" aria-labelledby="contact" className="grid max-w-[75ch] gap-4">
+            <SectionTitle id="contact">Website and contact</SectionTitle>
+            {p.website ? (
+              <p className="text-text">
+                Website:{" "}
+                <a href={p.website} className="link" target="_blank" rel="noopener noreferrer nofollow">
+                  {new URL(p.website).host}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </p>
+            ) : (
+              <p className="text-text">No website on file.</p>
+            )}
+            <p className="text-text-2">
+              We don&apos;t show movers&apos; phone numbers here. To hear from this mover, request a quote: you choose how many movers can contact you, and they
+              contact you directly.
+            </p>
+            <div>
+              <RequestQuoteButton companyId={p.companyId} slug={p.slug} displayName={p.displayName} label="Request a quote" />
+            </div>
+          </Reveal>
+        </div>
+      </Container>
+
+      <StickyCta
+        href="/get-quotes/"
+        label="Request a quote"
+        watch="quote"
+        note={p.displayName}
+        storage={{ key: PROFILE_ORIGIN_KEY, value: JSON.stringify({ companyId: p.companyId, slug: p.slug, displayName: p.displayName, savedAt: new Date().toISOString() }) }}
+      />
+    </>
   );
 }

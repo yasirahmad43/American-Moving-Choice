@@ -7,6 +7,7 @@ import "server-only";
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { CONTENT_RENDER_MODE } from "@/lib/review-mode";
 import { storedText } from "@/lib/stored-texts";
 import { parseFrontMatter } from "./front-matter";
 import { renderMarkdown, type RenderStats } from "./markdown";
@@ -162,7 +163,7 @@ function loadPage(dir: string, file: string): ContentPage {
     last_updated: data.last_updated == null ? null : asString(data.last_updated),
   };
   if (!/^\/([a-z0-9-]+\/)*$/.test(meta.url)) throw new Error(`content/pages/${file}: url must be lowercase, start and end with "/" (got "${meta.url}")`);
-  const rendered = renderMarkdown(parsed.content, { resolveToken: resolve, linkLabels: LINK_LABELS });
+  const rendered = renderMarkdown(parsed.content, { resolveToken: resolve, linkLabels: LINK_LABELS, mode: CONTENT_RENDER_MODE });
   return {
     file,
     meta,

@@ -1,0 +1,123 @@
+{
+  "$schema": "./manifest.schema.json",
+  "version": 1,
+  "notes": [
+    "Every image and video on the public site comes from this manifest (apps/web/lib/media.ts).",
+    "An asset id may be used on exactly one page (usedOn has one entry); the loader throws in development if a page asks for an asset another page owns.",
+    "Entries marked placeholder: true are generated abstract art under /media/placeholders/. Replace src, poster, width, height, alt and credit with the licensed asset; no code change is needed.",
+    "Photography rules: documentary, no staged stock, no landmarks that imply endorsement, releases on file; generated imagery only for abstract art (docs/design/visual-direction.md section 10)."
+  ],
+  "assets": [
+    {
+      "id": "home-hero-ambient",
+      "kind": "video",
+      "src": "/media/placeholders/home-ambient.mp4",
+      "sources": [{ "src": "/media/placeholders/home-ambient.mp4", "type": "video/mp4" }],
+      "poster": "/media/placeholders/home-hero.svg",
+      "width": 1280,
+      "height": 720,
+      "alt": "",
+      "autoplay": true,
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["hero", "ambient", "navy"],
+      "usedOn": ["/"],
+      "placeholder": true
+    },
+    {
+      "id": "home-costs-card",
+      "kind": "image",
+      "src": "/media/placeholders/costs-card.svg",
+      "width": 1200,
+      "height": 800,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["card", "costs", "light"],
+      "usedOn": ["/"],
+      "placeholder": true
+    },
+    {
+      "id": "home-ledger-card",
+      "kind": "image",
+      "src": "/media/placeholders/ledger-card.svg",
+      "width": 1200,
+      "height": 800,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["card", "ledger", "light"],
+      "usedOn": ["/"],
+      "placeholder": true
+    },
+    {
+      "id": "quotes-hero",
+      "kind": "image",
+      "src": "/media/placeholders/quotes-hero.svg",
+      "width": 1600,
+      "height": 900,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["hero", "light", "ledger"],
+      "usedOn": ["/get-quotes/"],
+      "placeholder": true
+    },
+    {
+      "id": "directory-band",
+      "kind": "image",
+      "src": "/media/placeholders/directory-band.svg",
+      "width": 1600,
+      "height": 900,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["hero", "navy", "boxes"],
+      "usedOn": ["/directory/"],
+      "placeholder": true
+    },
+    {
+      "id": "company-cover",
+      "kind": "image",
+      "src": "/media/placeholders/company-cover.svg",
+      "width": 1600,
+      "height": 600,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["cover", "light", "map"],
+      "usedOn": ["/companies/[slug]/"],
+      "placeholder": true
+    },
+    {
+      "id": "calculator-hero",
+      "kind": "image",
+      "src": "/media/placeholders/calculator-hero.svg",
+      "width": 1600,
+      "height": 900,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["hero", "navy", "bars"],
+      "usedOn": ["/moving-cost-calculator/"],
+      "placeholder": true
+    },
+    {
+      "id": "verify-hero",
+      "kind": "image",
+      "src": "/media/placeholders/verify-hero.svg",
+      "width": 1600,
+      "height": 900,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["hero", "navy", "records"],
+      "usedOn": ["/verify-a-mover/"],
+      "placeholder": true
+    },
+    {
+      "id": "for-movers-hero",
+      "kind": "image",
+      "src": "/media/placeholders/for-movers-hero.svg",
+      "width": 1920,
+      "height": 1080,
+      "alt": "",
+      "credit": { "creator": "American Moving Choice design", "source_url": "", "license": "Proprietary", "attribution_required": false },
+      "tags": ["hero", "navy", "network"],
+      "usedOn": ["/for-movers/"],
+      "placeholder": true
+    }
+  ]
+}

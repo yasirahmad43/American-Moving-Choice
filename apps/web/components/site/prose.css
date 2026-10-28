@@ -154,8 +154,22 @@
     border-bottom: 0;
   }
 
-  /* Review notes: visible in the preview, never shipped (content/README.md §3). */
-  .review-note {
+  /*
+   * Review notes, the draft banner and the legend are for reviewers only (lib/review-mode.ts):
+   * production builds never render them; development builds hide them until ?review=1 sets
+   * <html data-review="1">.
+   */
+  .review-note,
+  .review-only {
+    display: none;
+  }
+  :root[data-review="1"] .review-only {
+    display: block;
+  }
+  :root[data-review="1"] .review-only--flex {
+    display: flex;
+  }
+  :root[data-review="1"] .review-note {
     display: inline;
     color: var(--text);
     border-radius: var(--r-tag);
@@ -195,7 +209,12 @@
     font-size: 1em;
   }
 
-  /* Pending tokens: a dashed outline so a missing value is never mistaken for a real one. */
+  /* Public fallback for a value that isn't set yet (production builds): quiet, no box. */
+  .token-public {
+    color: var(--text-2);
+  }
+
+  /* Pending tokens (review builds): a dashed outline so a missing value is never mistaken for a real one. */
   .token-pending {
     display: inline-block;
     border: 1.5px dashed var(--border-strong);

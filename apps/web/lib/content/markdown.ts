@@ -128,6 +128,7 @@ const COMMENT = /^<!--[\s\S]*-->$/;
 function noteNode(kind: string, label: string): MdNode {
   return {
     type: "amcNote",
+    // prose.css keeps .review-note out of sight until ?review=1 reveals it (lib/review-mode.ts).
     data: { hName: "mark", hProperties: { className: ["review-note", `review-note--${kind}`] } },
     children: [
       { type: "amcLabel", data: { hName: "span", hProperties: { className: ["review-note__label"] } }, children: [{ type: "text", value: `${label}:` }] },
@@ -147,11 +148,25 @@ export interface RenderOptions {
   linkLabels?: Record<string, string>;
   /** Drop the first level-1 heading (the page renders its H1 from front matter). Default true. */
   dropFirstH1?: boolean;
+  /**
+   * "review" (default) renders markers as hidden <mark class="review-note"> notes and pending
+   * tokens as placeholders. "public" drops markers entirely and renders pending tokens as a
+   * neutral public-safe phrase (production builds; see lib/review-mode.ts).
+   */
+  mode?: "review" | "public";
+}
+
+/** What a pending token says to the public: never "pending", never a placeholder box. */
+export function publicTokenFallback(key: string): string {
+  if (key.startsWith("page.")) return "the American Moving Choice team";
+  if (/^(cost\.(hub|result|dataset)\.|company\.)/.test(key)) return "not yet available";
+  return "to be announced";
 }
 
 /** remark plugin: notes, comments, anchors, tokens and label links. */
 function remarkAmc(options: RenderOptions & { stats: RenderStats }) {
-  const { resolveToken, linkLabels = {}, stats, dropFirstH1 = true } = options;
+  const { resolveToken, linkLabels = {}, stats, dropFirstH1 = true, mode = "review" } = options;
+  const publicMode = mode === "public";
 
   const splitText = (value: string): MdNode[] => {
     const nodes: MdNode[] = [];
@@ -164,11 +179,11 @@ function remarkAmc(options: RenderOptions & { stats: RenderStats }) {
         if (resolved.kind === "value") nodes.push({ type: "text", value: resolved.text });
         else {
           stats.pendingTokens.push(resolved.key);
-          nodes.push({
-            type: "amcPending",
-            data: { hName: "span", hProperties: { className: ["token-pending"] } },
-            children: [{ type: "text", value: resolved.text }],
-          });
+          nodes.push(
+            publicMode
+              ? { type: "amcPending", data: { hName: "span", hProperties: { className: ["token-public"] } }, children: [{ type: "text", value: publicTokenFallback(resolved.key) }] }
+              : { type: "amcPending", data: { hName: "span", hProperties: { className: ["token-pending"] } }, children: [{ type: "text", value: resolved.text }] },
+          );
         }
         last = match.index + match[0].length;
       }
@@ -196,6 +211,7 @@ function remarkAmc(options: RenderOptions & { stats: RenderStats }) {
   const transformChildren = (children: MdNode[]): MdNode[] => {
     const out: MdNode[] = [];
     const stack: MdNode[] = [];
+    // In public mode a note and everything inside it is dropped: the sink swallows its children.
     const target = () => (stack.length ? stack[stack.length - 1]!.children! : out);
     for (const node of children) {
       if (node.type === "html") {
@@ -209,7 +225,7 @@ function remarkAmc(options: RenderOptions & { stats: RenderStats }) {
         }
         if (NOTE_CLOSE.test(value)) {
           const note = stack.pop();
-          if (note) target().push(note);
+          if (note && !publicMode) target().push(note);
           continue;
         }
         if (COMMENT.test(value) || ANCHOR_CLOSE.test(value)) continue;
@@ -232,10 +248,10 @@ function remarkAmc(options: RenderOptions & { stats: RenderStats }) {
       if (node.children) node.children = transformChildren(node.children);
       target().push(node);
     }
-    // An unclosed note keeps what it collected.
+    // An unclosed note keeps what it collected (and is dropped like any note in public mode).
     while (stack.length) {
       const note = stack.pop()!;
-      target().push(note);
+      if (!publicMode) target().push(note);
     }
     return out;
   };
@@ -332,7 +348,7 @@ const schema: SanitizeSchema = {
   attributes: {
     ...defaultSchema.attributes,
     mark: [["className", "review-note", /^review-note--(counsel|owner|data|verify|build)$/]],
-    span: [["className", "review-note__label", "token-pending"]],
+    span: [["className", "review-note__label", "token-pending", "token-public"]],
     div: [...(defaultSchema.attributes?.div ?? []), ["className", "table-wrap"], ["role", "region"], "ariaLabel", "tabIndex"],
     // One className rule per tag: the default's footnote class plus the heading anchor.
     a: [...(defaultSchema.attributes?.a ?? []).filter((rule) => !(Array.isArray(rule) && rule[0] === "className")), ["className", "heading-anchor", "data-footnote-backref"]],

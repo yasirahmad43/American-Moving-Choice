@@ -56,7 +56,7 @@ describe("tokens", () => {
   it("resolves settings from the platform defaults and fixed values", () => {
     const { html } = render("Up to {{setting.max_movers}} movers, {{setting.local_radius_miles}} miles. Badge: {{badge.name}}. [Directory]({{directory.url}}).");
     expect(html).toContain("Up to 5 movers, 50 miles.");
-    expect(html).toContain("Preferred Mover · American Moving Choice (name pending)");
+    expect(html).toContain("Badge: Preferred Mover.");
     expect(html).toContain('<a href="/directory/">Directory</a>');
   });
 
