@@ -3,14 +3,15 @@
 /**
  * Ambient background video: poster first, `preload="none"`, muted and silent, no controls. The
  * file loads and plays only when the element is in view, only when the manifest marks the asset
- * `autoplay`, and never under prefers-reduced-motion (the poster stays). Decorative: aria-hidden.
+ * `autoplay`, and never under prefers-reduced-motion (the poster stays). Narrow viewports get the
+ * smaller encoding tier. Decorative: aria-hidden.
  */
 import { useEffect, useRef, useState } from "react";
-import type { MediaAsset } from "@/lib/media";
+import { videoSourcesFor, type MediaAsset, type MediaSource } from "@/lib/media";
 
 export function AmbientVideo({ asset, className }: { asset: MediaAsset; className?: string }) {
   const ref = useRef<HTMLVideoElement>(null);
-  const [ready, setReady] = useState(false);
+  const [sources, setSources] = useState<MediaSource[] | null>(null);
 
   useEffect(() => {
     const video = ref.current;
@@ -18,17 +19,23 @@ export function AmbientVideo({ asset, className }: { asset: MediaAsset; classNam
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (reduced.matches) return;
     let observer: IntersectionObserver | undefined;
+    let armed = true;
+    const start = () => {
+      if (!armed) return;
+      setSources(videoSourcesFor(asset, window.innerWidth));
+      armed = false;
+    };
     const idle = (cb: () => void) => ("requestIdleCallback" in window ? (window as Window & { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(cb) : setTimeout(cb, 600));
     idle(() => {
       if (typeof IntersectionObserver === "undefined") {
-        setReady(true);
+        start();
         return;
       }
       observer = new IntersectionObserver(
         ([entry]) => {
           if (!entry) return;
           if (entry.isIntersecting) {
-            setReady(true);
+            start();
             void video.play().catch(() => undefined);
           } else {
             video.pause();
@@ -46,7 +53,15 @@ export function AmbientVideo({ asset, className }: { asset: MediaAsset; classNam
       observer?.disconnect();
       reduced.removeEventListener("change", onChange);
     };
-  }, [asset.autoplay]);
+  }, [asset]);
+
+  // Once the sources exist, load and play (the element ignores sources added after the first load).
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || !sources) return;
+    video.load();
+    void video.play().catch(() => undefined);
+  }, [sources]);
 
   return (
     <video
@@ -65,9 +80,7 @@ export function AmbientVideo({ asset, className }: { asset: MediaAsset; classNam
       disablePictureInPicture
       disableRemotePlayback
     >
-      {ready
-        ? (asset.sources ?? [{ src: asset.src, type: "video/mp4" }]).map((source) => <source key={source.src} src={source.src} type={source.type} />)
-        : null}
+      {sources ? sources.map((source) => <source key={source.src} src={source.src} type={source.type} />) : null}
     </video>
   );
 }

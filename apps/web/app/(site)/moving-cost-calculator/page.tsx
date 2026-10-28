@@ -4,7 +4,7 @@ import { Calculator } from "@/components/calculator/calculator";
 import { calculatorPageContent, renderTokens } from "@/components/calculator/content";
 import { COPY, MOVING_COSTS } from "@/components/calculator/copy";
 import { MediaFrame } from "@/components/media/media-frame";
-import { mediaFor } from "@/lib/media";
+import { mediaById } from "@/lib/media";
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 
 const PAGE = "/moving-cost-calculator/";
@@ -29,7 +29,8 @@ const proseClasses =
  */
 export default function MovingCostCalculatorPage() {
   const page = calculatorPageContent();
-  const art = mediaFor(PAGE, "hero");
+  // Distance drives most of a long-distance price: the aerial highway loop.
+  const art = mediaById(PAGE, "long-distance-hero-aerial-highway-dawn");
   const tokenCopy = {
     "form.services.storage.help": renderTokens("Storage for {{cost.method.storage_assumption}}."),
     "form.services.specialty_items.help": renderTokens("Covers {{cost.method.specialty_items}}."),

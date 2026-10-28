@@ -1,0 +1,343 @@
+# Semrush resource_organic (organic keywords per domain), db=us, pulled 2026-10-28, sorted volume_desc. Intent codes: 0=commercial,1=informational,2=navigational,3=transactional (blank=unknown).
+# Filters: movebuddha.com / hireahelper.com / moving.com = keyword contains "mov", volume>90, position<21, limit 200 (api_units 18900 / 18900 / 14000). homeguide.com/moving-companies/ (subfolder) = volume>90, position<21, limit 200 (api_units 18240): only 24 rows exist. budgetvanlines.com and consumermovingreviews.com = position<31, limit 100 (api_units 20200 / 18240); rows shown are the non-brand/non-navigational subset (brand-name and company-name navigational rows omitted for brevity; both sites are almost entirely brand/entity traffic).
+# Where a domain ranks with several URLs for one keyword, only the best position is kept here.
+domain;keyword;position;volume;cpc;url;traffic;kd;intent
+movebuddha.com;long distance moving companies;13;74000;38.27;https://www.movebuddha.com/movers/fl/orlando/long-distance/;222;65;0
+movebuddha.com;best long distance moving companies;9;60500;25.01;https://www.movebuddha.com/movers/in/indianapolis/long-distance/;786;23;0
+movebuddha.com;long distance movers;20;40500;38.25;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;60;52;0
+movebuddha.com;moving pods;11;22200;7.87;https://www.movebuddha.com/blog/what-is-a-moving-pod/;66;54;2
+movebuddha.com;long distance moving company;12;14800;38.27;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;44;63;0
+movebuddha.com;long distance moving;13;12100;38.25;https://www.movebuddha.com/movers/ga/long-distance/;18;54;0
+movebuddha.com;interstate moving companies;18;9900;37.87;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;14;57;0
+movebuddha.com;pods moving cost;13;9900;5.82;https://www.movebuddha.com/blog/pods-cost/;5;38;1
+movebuddha.com;full service moving company;8;9900;23.54;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;128;42;0
+movebuddha.com;long distance moving services;11;9900;38.27;https://www.movebuddha.com/movers/in/indianapolis/long-distance/;49;47;0,1
+movebuddha.com;cross country moving services;13;8100;36.87;https://www.movebuddha.com/movers/fl/orlando/long-distance/;24;63;1
+movebuddha.com;residential moving companies;18;6600;16.79;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;9;22;0
+movebuddha.com;moving pods cost;10;6600;5.82;https://www.movebuddha.com/blog/pods-cost/;9;39;1
+movebuddha.com;pod moving companies cost;10;6600;5.82;https://www.movebuddha.com/blog/pods-cost/;26;38;1
+movebuddha.com;last minute movers;15;5400;10.90;https://www.movebuddha.com/blog/best-last-minute-moving-companies/;8;25;3
+movebuddha.com;moving costs;8;5400;6.37;https://www.movebuddha.com/moving-cost-calculator/;102;50;1
+movebuddha.com;long distance moving companies near me;9;5400;35.33;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;37;44;3
+movebuddha.com;long distance moving near me;8;5400;36.41;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;70;41;3
+movebuddha.com;moving cost calculator;3;5400;6.22;https://www.movebuddha.com/moving-cost-calculator/;237;48;1
+movebuddha.com;best moving companies near me;8;5400;13.20;https://www.movebuddha.com/movers/mi/ann-arbor/;27;25;3
+movebuddha.com;state to state movers;14;5400;37.37;https://www.movebuddha.com/movers/fl/orlando/long-distance/;8;56;0
+movebuddha.com;moving cost estimator;3;4400;6.22;https://www.movebuddha.com/moving-cost-calculator/;154;45;1
+movebuddha.com;moving companies long distance;8;4400;38.27;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;96;58;0,1
+movebuddha.com;moving estimate;3;4400;17.69;https://www.movebuddha.com/moving-cost-calculator/;286;45;2
+movebuddha.com;state to state moving companies;19;4400;37.37;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;6;47;0
+movebuddha.com;professional moving companies;17;3600;14.10;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;5;52;0
+movebuddha.com;brooklyn movers;13;3600;25.24;https://www.movebuddha.com/movers/ny/brooklyn/;10;39;0
+movebuddha.com;full service long distance movers;13;3600;34.73;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;10;52;0
+movebuddha.com;how much does it cost to move;6;3600;4.34;https://www.movebuddha.com/moving-cost-calculator/;86;52;1
+movebuddha.com;moving container companies;11;3600;12.60;https://www.movebuddha.com/blog/california-moving-container-companies/;10;67;0
+movebuddha.com;denver colorado moving;16;3600;0.00;https://www.movebuddha.com/movers/co/denver/;5;50;0
+movebuddha.com;moving companies that move long distance;14;3600;38.27;https://www.movebuddha.com/movers/fl/orlando/long-distance/;5;61;0
+movebuddha.com;how much are movers;6;3600;5.11;https://www.movebuddha.com/moving-cost-calculator/ct/;79;13;1
+movebuddha.com;how much does it cost to move a mobile home;18;3600;1.78;https://www.movebuddha.com/blog/cost-to-move-a-mobile-home/;5;22;1
+movebuddha.com;cheapest moving company;19;2900;11.23;https://www.movebuddha.com/blog/best-cheap-moving-companies/;4;39;0
+movebuddha.com;long distance mover;13;2900;38.25;https://www.movebuddha.com/movers/pa/pittsburgh/long-distance/;8;51;0
+movebuddha.com;california to denver movers;4;2900;0.00;https://www.movebuddha.com/popular-routes/ca/co/;101;9;1
+movebuddha.com;moving companies cross country;17;2900;36.87;https://www.movebuddha.com/movers/fl/orlando/long-distance/;4;53;1
+movebuddha.com;container moving companies;18;2900;11.11;https://www.movebuddha.com/blog/texas-moving-container-companies/;4;21;0
+movebuddha.com;long distance moving and storage;3;2900;28.44;https://www.movebuddha.com/movers/fl/orlando/long-distance/;69;10;0
+movebuddha.com;moving price calculator;3;2900;6.22;https://www.movebuddha.com/moving-cost-calculator/;127;54;2,3
+movebuddha.com;top moving companies;18;2900;15.10;https://www.movebuddha.com/movers/ga/;4;48;0
+movebuddha.com;white glove moving company;9;2900;10.15;https://www.movebuddha.com/blog/white-glove-moving/;14;26;1
+movebuddha.com;moving insurance;10;2900;6.79;https://www.movebuddha.com/blog/moving-insurance/;14;60;1
+movebuddha.com;long distance moving service near me;10;2400;35.33;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;12;40;3
+movebuddha.com;interstate moving services;7;2400;37.87;https://www.movebuddha.com/movers/in/indianapolis/long-distance/;45;27;0
+movebuddha.com;white glove moving;10;2400;10.15;https://www.movebuddha.com/blog/white-glove-moving/;9;31;1
+movebuddha.com;best long distance moving company;18;2400;25.01;https://www.movebuddha.com/movers/il/long-distance/;3;38;
+movebuddha.com;moving services out of state;19;2400;39.44;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;3;42;3
+movebuddha.com;moving companies for long distance;13;2400;38.27;https://www.movebuddha.com/movers/ca/long-distance/;7;54;0
+movebuddha.com;military movers;13;2400;10.91;https://www.movebuddha.com/blog/best-military-movers/;7;38;2
+movebuddha.com;how much is a moving company;14;2400;5.11;https://www.movebuddha.com/moving-cost-calculator/mo/;3;30;1
+movebuddha.com;moving companies with storage;15;2400;17.72;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;3;26;0
+movebuddha.com;approximate moving cost calculator;3;2400;3.98;https://www.movebuddha.com/moving-cost-calculator/;84;57;1
+movebuddha.com;movers quote;3;2400;0.00;https://www.movebuddha.com/moving-cost-calculator/in/indianapolis/;84;7;1
+movebuddha.com;moving companies in maryland;9;2400;16.15;https://www.movebuddha.com/movers/md/;21;19;0
+movebuddha.com;moving cost estimate;3;2400;6.22;https://www.movebuddha.com/moving-cost-calculator/;105;45;1
+movebuddha.com;white glove movers;8;2400;10.15;https://www.movebuddha.com/blog/white-glove-moving/;4;37;2
+movebuddha.com;tampa movers;2;1900;28.35;https://www.movebuddha.com/movers/fl/tampa/;66;16;0
+movebuddha.com;white glove moving service;7;1900;12.80;https://www.movebuddha.com/blog/white-glove-moving/;17;14;0
+movebuddha.com;moving company across states;7;1900;38.84;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;45;34;0
+movebuddha.com;moving company long distance;17;1900;38.27;https://www.movebuddha.com/movers/pa/long-distance/;2;57;0,1
+movebuddha.com;moving companies marietta ga;20;1900;16.41;https://www.movebuddha.com/movers/ga/marietta/;2;39;0
+movebuddha.com;small moves;4;1900;9.68;https://www.movebuddha.com/blog/small-moves/;41;40;0
+movebuddha.com;full service long distance moving companies;10;1900;34.73;https://www.movebuddha.com/movers/in/indianapolis/long-distance/;9;26;0
+movebuddha.com;moving cost;4;1900;6.37;https://www.movebuddha.com/moving-cost-calculator/;66;45;1
+movebuddha.com;interstate moving service;19;1900;37.87;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;2;45;0
+movebuddha.com;long distance moving company near me;5;1900;35.33;https://www.movebuddha.com/movers/fl/orlando/long-distance/;45;12;3
+movebuddha.com;moving company estimate;3;1900;17.69;https://www.movebuddha.com/moving-cost-calculator/;83;53;1
+movebuddha.com;top long distance moving companies;10;1900;25.01;https://www.movebuddha.com/movers/in/indianapolis/long-distance/;13;34;0
+movebuddha.com;moving calculator;3;1900;5.20;https://www.movebuddha.com/moving-cost-calculator/;155;49;1
+movebuddha.com;moving prices;3;1900;6.37;https://www.movebuddha.com/moving-cost-calculator/;66;50;3
+movebuddha.com;moving companies in south carolina;18;1600;21.81;https://www.movebuddha.com/movers/sc/all/;2;27;0
+movebuddha.com;estimating moving costs;3;1600;7.07;https://www.movebuddha.com/moving-cost-calculator/pa/hazleton/;56;44;1
+movebuddha.com;relocation moving companies;11;1600;22.61;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;6;51;0
+movebuddha.com;moving companies in florida;6;1600;18.70;https://www.movebuddha.com/movers/fl/;30;34;
+movebuddha.com;long distance movers nyc;9;1600;31.92;https://www.movebuddha.com/movers/ny/long-distance/;8;39;0
+movebuddha.com;san diego moving company;14;1600;21.00;https://www.movebuddha.com/movers/ca/san-diego/;2;47;0
+movebuddha.com;moving estimates;3;1600;18.89;https://www.movebuddha.com/moving-cost-calculator/;70;50;0
+movebuddha.com;moving companies in pennsylvania;20;1600;29.67;https://www.movebuddha.com/movers/pa/;2;17;0
+movebuddha.com;cross country movers near me;9;1600;49.16;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;11;42;3
+movebuddha.com;moving nyc;19;1600;3.14;https://www.movebuddha.com/movers/ny/new-york-city/;2;76;0
+movebuddha.com;moving companies in michigan;20;1600;0.00;https://www.movebuddha.com/popular-routes/wi/mi/;2;40;0
+movebuddha.com;moving companies florida;12;1300;22.71;https://www.movebuddha.com/movers/fl/;5;30;0
+movebuddha.com;moving companies that move from state to state;10;1300;43.18;https://www.movebuddha.com/movers/in/indianapolis/long-distance/;11;37;1
+movebuddha.com;utah moving company;10;1300;23.46;https://www.movebuddha.com/movers/ut/;6;49;0
+movebuddha.com;interstate movers near me;7;1300;0.00;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;24;28;
+movebuddha.com;reputable moving companies;14;1300;21.91;https://www.movebuddha.com/movers/ca/los-angeles/long-distance/;0;42;0
+movebuddha.com;moving companies omaha;20;1300;12.30;https://www.movebuddha.com/movers/ne/omaha/;1;42;0
+movebuddha.com;cheapest way to move across country;19;1300;10.11;https://www.movebuddha.com/blog/the-cheapest-ways-to-move-cross-country/;1;30;1
+movebuddha.com;movers cost estimate;4;1300;7.07;https://www.movebuddha.com/moving-cost-calculator/;39;43;1
+movebuddha.com;how much does it cost to move home;17;1300;3.18;https://www.movebuddha.com/blog/cost-to-move-2000-sq-ft-house/;1;25;1
+movebuddha.com;long distance moving quote;16;1300;49.57;https://www.movebuddha.com/moving-cost-calculator/;3;58;1
+movebuddha.com;flat rate moving;18;1300;17.26;https://www.movebuddha.com/blog/best-flat-fee-movers/;0;50;
+hireahelper.com;moving companies;10;165000;18.53;https://www.hireahelper.com/movers/los-angeles_ca/;1155;37;0
+hireahelper.com;moving companies near me;12;110000;13.98;https://www.hireahelper.com/movers/chandler_az/;330;50;3
+hireahelper.com;movers;9;110000;14.19;https://www.hireahelper.com/movers/mesa_az/;990;61;0
+hireahelper.com;movers near me;10;110000;13.98;https://www.hireahelper.com/movers/riverside_ca/;550;35;3
+hireahelper.com;moving company near me;1;74000;14.78;https://www.hireahelper.com/services/moving-companies/;3256;18;3
+hireahelper.com;local movers;4;74000;10.76;https://www.hireahelper.com/movers/los-angeles_ca/;1628;32;0
+hireahelper.com;moving containers;6;60500;11.11;https://www.hireahelper.com/advice/moving-storage-containers/;1149;71;0
+hireahelper.com;local moving company;3;60500;10.76;https://www.hireahelper.com/movers/los-angeles_ca/;1815;47;0
+hireahelper.com;local moving companies;3;60500;10.76;https://www.hireahelper.com/movers/gilbert_az/;1452;35;0
+hireahelper.com;moving help;4;60500;6.48;https://www.hireahelper.com/;363;64;3
+hireahelper.com;moving local moving;4;27100;10.76;https://www.hireahelper.com/movers/oklahoma-city_ok/;650;50;0
+hireahelper.com;local moving companies near me;2;22200;9.97;https://www.hireahelper.com/services/moving-companies/;777;19;3
+hireahelper.com;local movers near me;1;22200;9.97;https://www.hireahelper.com/movers/carmel_in/;777;16;3
+hireahelper.com;mover;1;14800;14.19;https://www.hireahelper.com/movers/chandler_az/;518;31;0
+hireahelper.com;local moving company near me;1;14800;9.97;https://www.hireahelper.com/movers/toledo_oh/;651;19;3
+hireahelper.com;movers moving services;5;14800;15.32;https://www.hireahelper.com/services/moving-companies/;281;30;0
+hireahelper.com;moving company movers;3;14800;18.53;https://www.hireahelper.com/movers/los-angeles_ca/;518;55;0
+hireahelper.com;professional movers;1;12100;11.60;https://www.hireahelper.com/movers/central_sc/;786;27;0
+hireahelper.com;furniture movers;5;12100;7.43;https://www.hireahelper.com/services/moving-companies/;108;30;0
+hireahelper.com;moving helper;3;9900;6.48;https://www.hireahelper.com/movers/atlanta_ga/;643;17;0
+hireahelper.com;chicago il moving;9;9900;20.60;https://www.hireahelper.com/movers/chicago_il/;69;58;0
+hireahelper.com;moving companies moving;4;9900;18.53;https://www.hireahelper.com/services/moving-companies/;188;47;0
+hireahelper.com;moving new york;13;9900;28.77;https://www.hireahelper.com/movers/new-york_ny/;29;82;0
+hireahelper.com;pods moving cost;4;9900;5.82;https://www.hireahelper.com/advice/how-much-does-pods-moving-cost/;59;38;1
+hireahelper.com;full service moving companies;2;9900;23.54;https://www.hireahelper.com/services/moving-companies/;346;35;0
+hireahelper.com;mover near me;5;9900;13.98;https://www.hireahelper.com/movers/chandler_az/;217;43;3
+hireahelper.com;full service movers;3;9900;23.54;https://www.hireahelper.com/services/moving-companies/;237;33;
+hireahelper.com;residential movers;4;9900;16.79;https://www.hireahelper.com/services/moving-companies/;237;48;0
+hireahelper.com;full service moving company;3;9900;23.54;https://www.hireahelper.com/services/moving-companies/;297;42;0
+hireahelper.com;long distance movers near me;15;9900;36.41;https://www.hireahelper.com/services/moving-companies/;14;37;3
+hireahelper.com;residential movers near me;8;8100;13.82;https://www.hireahelper.com/movers/glen-burnie_md/;72;36;3
+hireahelper.com;moving services near me;8;8100;12.44;https://www.hireahelper.com/movers/baton-rouge_la/;72;34;
+hireahelper.com;moving and storage companies;13;8100;17.10;https://www.hireahelper.com/movers/chandler_az/;12;54;0
+hireahelper.com;moving service;7;8100;15.32;https://www.hireahelper.com/movers/baton-rouge_la/;105;38;0
+hireahelper.com;moving san diego ca;16;6600;20.66;https://www.hireahelper.com/movers/san-diego_ca/;9;55;0
+hireahelper.com;hire movers;1;6600;10.26;https://www.hireahelper.com/movers/cincinnati_oh/;541;16;0
+hireahelper.com;moving and storage service;13;6600;15.64;https://www.hireahelper.com/services/moving-companies/;19;52;0
+hireahelper.com;cheap movers near me;8;6600;8.30;https://www.hireahelper.com/movers/los-angeles_ca/;46;45;3
+hireahelper.com;atlanta georgia moving;6;6600;15.38;https://www.hireahelper.com/movers/atlanta_ga/;125;30;0
+hireahelper.com;movers and packers;18;6600;15.27;https://www.hireahelper.com/movers/jersey-city_nj/;9;31;0
+hireahelper.com;affordable movers;11;6600;10.71;https://www.hireahelper.com/movers/los-angeles_ca/;5;65;0
+hireahelper.com;cheap movers;6;6600;11.23;https://www.hireahelper.com/movers/odessa_tx/;125;16;0
+hireahelper.com;residential moving companies;3;6600;16.79;https://www.hireahelper.com/services/moving-companies/;158;22;0
+hireahelper.com;moving pods cost;2;6600;5.82;https://www.hireahelper.com/advice/how-much-does-pods-moving-cost/;66;39;1
+hireahelper.com;pod moving companies cost;6;6600;5.82;https://www.hireahelper.com/advice/how-much-does-pods-moving-cost/;85;38;1
+hireahelper.com;commercial movers near me;8;5400;20.58;https://www.hireahelper.com/movers/glen-burnie_md/;48;13;3
+hireahelper.com;local moving services;3;5400;9.61;https://www.hireahelper.com/movers/los-angeles_ca/;129;47;0
+hireahelper.com;moving helpers;5;5400;6.48;https://www.hireahelper.com/movers/atlanta_ga/;102;29;0
+hireahelper.com;flat rate movers;16;5400;17.67;https://www.hireahelper.com/movers/houston_tx/houston-flat-rate-movers/;1;50;2
+hireahelper.com;moving costs;20;5400;6.37;https://www.hireahelper.com/moving-cost-calculator/;8;50;1
+hireahelper.com;movers austin;15;5400;21.29;https://www.hireahelper.com/movers/austin_tx/;16;46;0
+hireahelper.com;long distance moving companies near me;11;5400;35.33;https://www.hireahelper.com/services/moving-companies/;21;44;3
+hireahelper.com;inexpensive moving company;11;5400;11.23;https://www.hireahelper.com/movers/los-angeles_ca/;16;32;0
+hireahelper.com;long distance moving near me;16;5400;36.41;https://www.hireahelper.com/services/moving-companies/;8;41;3
+hireahelper.com;moving cost calculator;13;5400;6.22;https://www.hireahelper.com/moving-cost-calculator/;21;48;1
+hireahelper.com;best movers near me;1;5400;13.20;https://www.hireahelper.com/movers/scottsdale_az/;189;15;3
+hireahelper.com;best moving companies near me;3;5400;13.20;https://www.hireahelper.com/movers/towson_md/;118;25;3
+hireahelper.com;furniture movers near me;8;5400;6.34;https://www.hireahelper.com/movers/riverside_ca/;37;40;3
+hireahelper.com;local moving;3;5400;10.76;https://www.hireahelper.com/movers/oklahoma-city_ok/;129;30;0
+hireahelper.com;moving cost estimator;13;4400;6.22;https://www.hireahelper.com/moving-cost-calculator/;13;45;1
+hireahelper.com;residential moving;5;4400;16.79;https://www.hireahelper.com/services/moving-companies/;105;51;0
+hireahelper.com;movers atlanta ga;15;4400;15.38;https://www.hireahelper.com/movers/atlanta_ga/;13;66;0
+hireahelper.com;business moving companies near me;5;4400;14.78;https://www.hireahelper.com/services/moving-companies/;105;21;3
+hireahelper.com;household movers;1;4400;10.46;https://www.hireahelper.com/movers/los-angeles_ca/;114;24;1
+hireahelper.com;moving estimate;15;4400;17.69;https://www.hireahelper.com/moving-cost-calculator/;13;45;2
+hireahelper.com;moving companies atlanta;20;4400;15.38;https://www.hireahelper.com/movers/atlanta_ga/;6;41;0
+hireahelper.com;movers chicago;9;4400;20.60;https://www.hireahelper.com/movers/chicago_il/;39;60;
+hireahelper.com;movers los angeles;6;4400;24.62;https://www.hireahelper.com/movers/los-angeles_ca/;96;40;0
+hireahelper.com;movers and storage;6;4400;17.72;https://www.hireahelper.com/movers/los-angeles_ca/;96;53;0
+hireahelper.com;movers services;1;3600;15.32;https://www.hireahelper.com/movers/north-las-vegas_nv/;126;25;0
+hireahelper.com;corporate moving service;8;3600;20.92;https://www.hireahelper.com/services/moving-companies/;46;29;0
+hireahelper.com;local mover;4;3600;10.76;https://www.hireahelper.com/movers/minneapolis_mn/;79;54;0
+hireahelper.com;professional moving companies;4;3600;14.10;https://www.hireahelper.com/movers/baton-rouge_la/;86;52;0
+hireahelper.com;brooklyn movers;14;3600;25.24;https://www.hireahelper.com/movers/brooklyn_ny/;10;39;0
+hireahelper.com;moving near me;5;3600;0.19;https://www.hireahelper.com/movers/chandler_az/;86;22;3
+hireahelper.com;moving companies chicago;10;3600;20.60;https://www.hireahelper.com/movers/chicago_il/;18;52;0
+hireahelper.com;denver movers;11;3600;23.51;https://www.hireahelper.com/movers/denver_co/;18;43;0
+hireahelper.com;dc movers;9;3600;15.24;https://www.hireahelper.com/movers/washington_dc/;46;35;0
+hireahelper.com;moving company los angeles;4;3600;24.62;https://www.hireahelper.com/movers/los-angeles_ca/;86;44;
+hireahelper.com;moving labor;4;3600;7.60;https://www.hireahelper.com/;21;56;0
+hireahelper.com;moving companies near me local;3;3600;9.97;https://www.hireahelper.com/movers/los-angeles_ca/;108;36;3
+hireahelper.com;packing and moving services;8;3600;12.74;https://www.hireahelper.com/movers/fort-lauderdale_fl/;68;27;0
+hireahelper.com;commercial moving companies;6;3600;22.53;https://www.hireahelper.com/movers/california_md/;46;9;0
+hireahelper.com;los angeles ca movers;6;3600;24.62;https://www.hireahelper.com/movers/los-angeles_ca/;79;19;0
+hireahelper.com;cheap moving companies near me;4;3600;10.51;https://www.hireahelper.com/movers/oklahoma-city_ok/;86;35;3
+hireahelper.com;moving and storage near me;11;3600;13.14;https://www.hireahelper.com/movers/glen-burnie_md/;18;11;3
+hireahelper.com;moving help near me;5;3600;7.12;https://www.hireahelper.com/movers/albuquerque_nm/;18;51;3
+hireahelper.com;moving companies charlotte nc;13;3600;15.34;https://www.hireahelper.com/movers/charlotte_nc/;10;28;0
+hireahelper.com;help moving;4;3600;6.48;https://www.hireahelper.com/movers/denver_co/;21;62;0
+hireahelper.com;affordable movers near me;4;3600;10.51;https://www.hireahelper.com/movers/glen-burnie_md/;79;40;3
+hireahelper.com;full service moving;3;3600;23.54;https://www.hireahelper.com/services/moving-companies/;36;47;0
+hireahelper.com;seattle movers;18;3600;21.57;https://www.hireahelper.com/movers/seattle_wa/;5;34;0
+hireahelper.com;movers atlanta;8;2900;15.38;https://www.hireahelper.com/movers/atlanta_ga/;37;47;0
+hireahelper.com;cheapest moving company;14;2900;11.23;https://www.hireahelper.com/movers/detroit_mi/;4;39;0
+hireahelper.com;moving locally;9;2900;10.76;https://www.hireahelper.com/movers/wichita_ks/;20;45;0
+moving.com;long distance moving companies;12;74000;38.27;https://www.moving.com/best-out-of-state-moving-companies/;222;65;0
+moving.com;moving services;6;60500;15.32;https://www.moving.com/;1149;63;0
+moving.com;moving;1;60500;9.52;https://www.moving.com/;2117;83;2
+moving.com;moving checklist;6;49500;1.19;https://www.moving.com/move-planner/;1188;53;1
+moving.com;moving local moving;2;27100;10.76;https://www.moving.com/;948;50;0
+moving.com;moving pods;18;22200;7.87;https://www.moving.com/moving-containers/;33;54;2
+moving.com;mover;18;14800;14.19;https://www.moving.com/;22;31;0
+moving.com;moving company movers;6;14800;18.53;https://www.moving.com/;355;55;0
+moving.com;moving quotes;9;12100;28.54;https://www.moving.com/;84;53;0
+moving.com;how much do movers cost;3;12100;5.11;https://www.moving.com/movers/moving-cost-calculator.asp;532;24;1
+moving.com;cross country moving companies;18;9900;36.87;https://www.moving.com/best-out-of-state-moving-companies/;14;69;0
+moving.com;interstate moving companies;16;9900;37.87;https://www.moving.com/best-out-of-state-moving-companies/;14;57;0
+moving.com;out of state movers;8;9900;39.44;https://www.moving.com/best-out-of-state-moving-companies/;89;48;0
+moving.com;out of state moving companies;9;9900;39.44;https://www.moving.com/best-out-of-state-moving-companies/;69;47;0
+moving.com;full service moving companies;9;9900;23.54;https://www.moving.com/best-out-of-state-moving-companies/;89;35;0
+moving.com;long distance movers near me;12;9900;36.41;https://www.moving.com/best-out-of-state-moving-companies/;29;37;3
+moving.com;long distance moving services;19;9900;38.27;https://www.moving.com/best-out-of-state-moving-companies/;14;47;0,1
+moving.com;best long distance movers;5;6600;25.01;https://www.moving.com/best-long-distance-moving-companies/;125;50;0
+moving.com;national moving companies;10;6600;28.73;https://www.moving.com/best-out-of-state-moving-companies/;26;89;0
+moving.com;best moving company;3;5400;15.62;https://www.moving.com/best-out-of-state-moving-companies/;129;23;
+moving.com;moving costs;1;5400;6.37;https://www.moving.com/movers/moving-cost-calculator.asp;442;50;1
+moving.com;best rated long distance movers;2;5400;25.01;https://www.moving.com/best-long-distance-moving-companies/;237;42;0
+moving.com;long distance moving companies near me;8;5400;35.33;https://www.moving.com/best-out-of-state-moving-companies/;48;44;3
+moving.com;moving cost calculator;1;5400;6.22;https://www.moving.com/movers/moving-cost-calculator.asp;442;48;1
+moving.com;state to state movers;11;5400;37.37;https://www.moving.com/best-out-of-state-moving-companies/;16;56;0
+moving.com;where to get free moving boxes;16;5400;1.63;https://www.moving.com/tips/where-to-find-free-moving-boxes/;8;20;3
+moving.com;moving cost estimator;1;4400;6.22;https://www.moving.com/movers/moving-cost-calculator.asp;360;45;1
+moving.com;moving quote;9;4400;28.54;https://www.moving.com/;57;53;1
+moving.com;residential moving;7;4400;16.79;https://www.moving.com/;83;51;0
+moving.com;moving company cost;1;4400;6.37;https://www.moving.com/movers/moving-cost-calculator.asp;360;33;1
+moving.com;moving estimate;1;4400;17.69;https://www.moving.com/movers/moving-cost-calculator.asp;580;45;2
+moving.com;state to state moving companies;8;4400;37.37;https://www.moving.com/best-out-of-state-moving-companies/;39;47;0
+moving.com;moving container;9;4400;11.11;https://www.moving.com/tips/moving-containers/;13;37;0
+moving.com;how much does a moving company cost;2;4400;5.11;https://www.moving.com/movers/moving-cost-calculator.asp;193;36;1
+moving.com;nationwide moving companies;16;3600;28.46;https://www.moving.com/best-moving-companies/;5;88;0
+moving.com;how much does it cost to move;1;3600;4.34;https://www.moving.com/movers/moving-cost-calculator.asp;295;52;1
+moving.com;how much are movers;10;3600;5.11;https://www.moving.com/movers/moving-cost-calculator.asp;18;13;1
+moving.com;moving tips;14;2900;0.47;https://www.moving.com/tips/;4;35;1
+moving.com;best cross country movers;13;2900;30.35;https://www.moving.com/best-long-distance-moving-companies/;8;38;0
+moving.com;cross state movers;9;2900;36.00;https://www.moving.com/best-out-of-state-moving-companies/;20;50;0
+moving.com;moving price calculator;1;2900;6.22;https://www.moving.com/movers/moving-cost-calculator.asp;719;54;2,3
+moving.com;top moving companies;11;2900;15.10;https://www.moving.com/best-out-of-state-moving-companies/;11;48;0
+moving.com;movers cost;2;2900;6.37;https://www.moving.com/movers/moving-cost-calculator.asp;237;21;1
+moving.com;long distance moving service near me;11;2400;35.33;https://www.moving.com/best-out-of-state-moving-companies/;9;40;3
+moving.com;how much does it cost for movers to move;2;2400;4.34;https://www.moving.com/movers/moving-cost-calculator.asp;105;26;1
+moving.com;cost of movers;2;2400;6.37;https://www.moving.com/movers/moving-cost-calculator.asp;105;25;1
+moving.com;how much does it cost to move a house;4;2400;2.91;https://www.moving.com/movers/moving-cost-calculator.asp;57;22;1
+moving.com;moving out of state checklist;1;2400;2.42;https://www.moving.com/tips/your-checklist-for-moving-to-another-state/;196;22;1
+moving.com;moving services out of state;6;2400;39.44;https://www.moving.com/best-out-of-state-moving-companies/;57;42;3
+moving.com;moving companies for long distance;14;2400;38.27;https://www.moving.com/best-out-of-state-moving-companies/;3;54;0
+moving.com;how much is a moving company;2;2400;5.11;https://www.moving.com/movers/moving-cost-calculator.asp;105;30;1
+moving.com;approximate moving cost calculator;1;2400;3.98;https://www.moving.com/movers/moving-cost-calculator.asp;196;57;1
+moving.com;moving cost estimate;1;2400;6.22;https://www.moving.com/movers/moving-cost-calculator.asp;196;45;1
+moving.com;moving company across states;19;1900;38.84;https://www.moving.com/;2;34;0
+moving.com;moving company long distance;15;1900;38.27;https://www.moving.com/best-out-of-state-moving-companies/;5;57;0,1
+moving.com;moving out of state movers;8;1900;39.44;https://www.moving.com/best-out-of-state-moving-companies/;17;40;0
+moving.com;local movers cost;2;1900;7.04;https://www.moving.com/movers/moving-cost-calculator.asp;83;26;1
+moving.com;moving companies from state to state;9;1900;39.73;https://www.moving.com/best-out-of-state-moving-companies/;17;48;0
+moving.com;small moves;15;1900;9.68;https://www.moving.com/tips/the-best-ways-to-handle-a-small-move/;2;40;0
+moving.com;moving company prices;1;1900;6.89;https://www.moving.com/movers/moving-cost-calculator.asp;155;31;2,3
+moving.com;full service long distance moving companies;12;1900;34.73;https://www.moving.com/best-out-of-state-moving-companies/;7;26;0
+moving.com;moving cost;1;1900;6.37;https://www.moving.com/movers/moving-cost-calculator.asp;250;45;1
+moving.com;long distance moving company near me;6;1900;35.33;https://www.moving.com/best-out-of-state-moving-companies/;41;12;3
+moving.com;state to state moving;16;1900;37.37;https://www.moving.com/best-out-of-state-moving-companies/;2;38;0
+moving.com;moving company estimate;2;1900;17.69;https://www.moving.com/movers/moving-cost-calculator.asp;123;53;1
+moving.com;top long distance moving companies;3;1900;25.01;https://www.moving.com/best-long-distance-moving-companies/;66;34;0
+moving.com;moving calculator;1;1900;5.20;https://www.moving.com/movers/moving-cost-calculator.asp;471;49;1
+moving.com;moving prices;1;1900;6.37;https://www.moving.com/movers/moving-cost-calculator.asp;155;50;3
+moving.com;estimating moving costs;12;1600;7.07;https://realtor.moving.com/movers/moving-cost-calculator.asp;8;44;1
+moving.com;best cross country moving companies;16;1600;31.01;https://www.moving.com/best-long-distance-moving-companies/;2;38;0
+moving.com;moving to alaska;15;1600;2.08;https://www.moving.com/tips/reasons-to-move-to-alaska/;2;17;1
+moving.com;moving companies that move out of state;14;1600;43.11;https://www.moving.com/best-out-of-state-moving-companies/;2;47;0
+moving.com;move out cleaning checklist;9;1600;0.98;https://www.moving.com/tips/your-easy-move-out-cleaning-checklist/;30;20;1
+moving.com;moving estimates;2;1600;18.89;https://www.moving.com/movers/moving-cost-calculator.asp;104;50;0
+moving.com;mover company;2;1600;19.43;https://www.moving.com/;56;75;0
+moving.com;moving service quote;7;1600;28.70;https://www.moving.com/;20;48;1
+moving.com;moving expenses;13;1600;6.73;https://www.moving.com/movers/moving-cost-calculator.asp;6;54;1
+moving.com;moving quotes online;11;1300;27.22;https://www.moving.com/;9;41;1
+moving.com;moving companies that move from state to state;8;1300;43.18;https://www.moving.com/best-out-of-state-moving-companies/;28;37;1
+moving.com;interstate movers near me;15;1300;0.00;https://www.moving.com/best-out-of-state-moving-companies/;3;28;
+moving.com;how much do moving companies charge;3;1300;4.43;https://www.moving.com/movers/moving-cost-calculator.asp;31;23;1
+moving.com;cost of movers for local move;2;1300;5.43;https://www.moving.com/movers/moving-cost-calculator.asp;57;21;1
+moving.com;average cost of moving company;2;1300;5.00;https://www.moving.com/movers/moving-cost-calculator.asp;84;31;1
+moving.com;reputable moving companies;6;1300;21.91;https://www.moving.com/best-out-of-state-moving-companies/;7;42;0
+moving.com;moving company nationwide;17;1300;38.73;https://www.moving.com/best-moving-companies/;1;77;0
+moving.com;movers cost estimate;1;1300;7.07;https://www.moving.com/movers/moving-cost-calculator.asp;171;43;1
+moving.com;how much does it cost to move home;2;1300;3.18;https://www.moving.com/movers/moving-cost-calculator.asp;84;25;1
+moving.com;long distance moving quote;15;1300;49.57;https://www.moving.com/;3;58;1
+moving.com;top rated cross country movers;7;1300;31.01;https://www.moving.com/best-long-distance-moving-companies/;28;35;0
+moving.com;movers from state to state;2;1300;39.73;https://www.moving.com/best-out-of-state-moving-companies/;57;33;3
+moving.com;how much to hire movers;2;1300;4.76;https://www.moving.com/movers/moving-cost-calculator.asp;57;30;1
+moving.com;mobile home moving cost calculator;8;1300;1.70;https://www.moving.com/movers/moving-cost-calculator.asp;28;13;1
+moving.com;average cost of movers;2;1300;5.27;https://www.moving.com/movers/moving-cost-calculator.asp;57;15;1
+moving.com;movers in my area;16;1300;11.53;https://www.moving.com/;1;35;0
+moving.com;office move checklist;3;1300;2.00;https://www.moving.com/tips/11-tips-for-when-youre-moving-to-a-new-office-space/;57;17;1
+moving.com;out of state movers near me;6;1300;43.50;https://www.moving.com/best-out-of-state-moving-companies/;11;49;3
+moving.com;moving rates;1;1300;6.93;https://www.moving.com/movers/moving-cost-calculator.asp;171;42;1
+moving.com;state moving companies;8;1300;39.89;https://www.moving.com/;11;63;0
+moving.com;estimate moving costs;1;1300;6.22;https://www.moving.com/movers/moving-cost-calculator.asp;322;41;1
+moving.com;moving companies prices;1;1300;6.89;https://www.moving.com/movers/moving-cost-calculator.asp;106;33;3
+moving.com;out of state moving companies near me;7;1300;46.19;https://www.moving.com/best-out-of-state-moving-companies/;24;42;3
+moving.com;good moving companies;18;1300;19.56;https://www.moving.com/best-out-of-state-moving-companies/;1;50;0
+moving.com;cheapest way to move cross country;20;1300;10.11;https://www.moving.com/tips/cheap-ways-to-move-cross-country/;1;31;1
+moving.com;movers across states;16;1300;36.00;https://www.moving.com/best-out-of-state-moving-companies/;0;59;0
+moving.com;cross country move;13;1300;40.00;https://www.moving.com/tips/guide-for-moving-cross-country/;5;46;0
+moving.com;moving into a new house checklist;2;1300;0.56;https://www.moving.com/tips/the-ultimate-new-home-checklist/;84;28;1
+moving.com;cross state moving company;10;1300;38.91;https://www.moving.com/best-out-of-state-moving-companies/;3;50;0
+homeguide.com/moving-companies;moving labor near me;19;1300;7.88;https://homeguide.com/moving-companies;0;49;3
+homeguide.com/moving-companies;hire movers near me;14;1300;10.00;https://homeguide.com/moving-companies;1;45;3
+homeguide.com/moving-companies;furniture moving services near me;18;880;6.42;https://homeguide.com/moving-companies;1;38;3
+homeguide.com/moving-companies;movers by the hour near me;17;480;8.44;https://homeguide.com/moving-companies;1;24;3
+homeguide.com/moving-companies;hiring movers near me;16;480;10.22;https://homeguide.com/moving-companies;0;40;3
+homeguide.com/moving-companies;moving guys near me;18;320;9.30;https://homeguide.com/moving-companies;0;28;3
+homeguide.com/moving-companies;moving company close to me;11;320;15.16;https://homeguide.com/moving-companies;2;28;0
+homeguide.com/moving-companies;mover with truck near me;17;320;9.57;https://homeguide.com/moving-companies;0;44;3
+homeguide.com/moving-companies;local movers with truck;18;320;7.54;https://homeguide.com/moving-companies;0;44;0
+homeguide.com/moving-companies;furniture shipping companies near me;15;260;12.09;https://homeguide.com/moving-companies;0;24;3
+homeguide.com/moving-companies;best rated moving company;16;260;19.69;https://homeguide.com/moving-companies;0;36;0
+homeguide.com/moving-companies;local moving quote;19;210;17.23;https://homeguide.com/moving-companies;0;41;0
+homeguide.com/moving-companies;full service moving company near me;20;210;29.04;https://homeguide.com/moving-companies;0;45;3
+homeguide.com/moving-companies;moving crew near me;20;210;9.59;https://homeguide.com/moving-companies;0;38;3
+homeguide.com/moving-companies;professional house movers;17;170;10.90;https://homeguide.com/moving-companies;0;42;0
+homeguide.com/moving-companies;furniture moving company near me;14;170;6.34;https://homeguide.com/moving-companies;0;16;3
+homeguide.com/moving-companies;office moving services near me;15;170;24.69;https://homeguide.com/moving-companies;0;16;3
+homeguide.com/moving-companies;insured movers near me;19;170;16.39;https://homeguide.com/moving-companies;0;39;3
+homeguide.com/moving-companies;unloading help near me;15;140;6.90;https://homeguide.com/moving-companies;0;31;3
+homeguide.com/moving-companies;moving helper near me;14;140;7.19;https://homeguide.com/moving-companies;0;32;3
+homeguide.com/moving-companies;moving company near me prices;13;110;13.01;https://homeguide.com/moving-companies;0;37;3
+homeguide.com/moving-companies;movers for heavy items near me;17;110;8.29;https://homeguide.com/moving-companies;0;24;3
+budgetvanlines.com;budget van lines;1;1900;10.12;https://www.budgetvanlines.com/;1520;51;2
+budgetvanlines.com;budget van lines reviews;5;880;9.22;https://www.budgetvanlines.com/;5;31;0
+budgetvanlines.com;van lines movers;18;720;17.27;https://www.budgetvanlines.com/;1;80;3
+budgetvanlines.com;van line;6;480;13.09;https://www.budgetvanlines.com/;10;68;1
+budgetvanlines.com;is budget van lines legit;5;90;9.01;https://www.budgetvanlines.com/budget-van-lines-reviews;2;22;1
+budgetvanlines.com;moving van cost;30;90;5.20;https://www.budgetvanlines.com/999moving;0;49;1
+budgetvanlines.com;moving van quotes;13;40;22.26;https://www.budgetvanlines.com/;0;33;1
+budgetvanlines.com;what is a van line;27;40;8.05;https://www.budgetvanlines.com/;0;5;1
+budgetvanlines.com;budget van lines lawsuit;9;40;4.52;https://www.budgetvanlines.com/budget-van-lines-reviews;0;23;1
+budgetvanlines.com;van line services;23;30;20.19;https://www.budgetvanlines.com/;0;45;0
+consumermovingreviews.com;best interstate moving;29;590;25.61;https://www.consumermovingreviews.com/best-interstate-moving-companies/;0;32;0
+consumermovingreviews.com;moving box estimate;14;320;2.97;https://www.consumermovingreviews.com/moving-box-calculator/;0;34;1
+consumermovingreviews.com;moving quote calculator;18;320;10.90;https://www.consumermovingreviews.com/moving-cost-calculator/;0;50;1
+consumermovingreviews.com;moving to nola;25;260;2.70;https://www.consumermovingreviews.com/new-orleans-la-moving-guide/;0;18;1
+consumermovingreviews.com;quote for movers;20;260;7.82;https://www.consumermovingreviews.com/request-a-quote/;0;50;1
+consumermovingreviews.com;moving to baltimore;15;210;3.21;https://www.consumermovingreviews.com/baltimore-md-moving-guide/;0;6;1
+consumermovingreviews.com;estimate moving boxes;16;170;3.40;https://www.consumermovingreviews.com/moving-box-calculator/;0;21;1
+consumermovingreviews.com;certified moving companies;20;140;11.97;https://www.consumermovingreviews.com/companies/;0;19;1
+consumermovingreviews.com;reviews of cross country movers;30;110;15.22;https://www.consumermovingreviews.com/best-cross-country-movers/;0;21;0
+consumermovingreviews.com;top interstate moving companies;29;110;31.40;https://www.consumermovingreviews.com/best-interstate-moving-companies/;0;45;0
+consumermovingreviews.com;state to state movers bozeman;22;110;0.00;https://www.consumermovingreviews.com/bozeman-mt-moving-guide/;0;11;0

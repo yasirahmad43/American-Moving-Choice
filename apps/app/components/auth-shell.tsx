@@ -12,8 +12,9 @@ const POINTS = [
 /**
  * Branded split layout for sign-in, sign-up, reset, invitation and two-step pages: a navy media
  * panel with the brand's route art on the left, the form on the right. On phones the panel is a
- * compact band above the form. The media file is the app's own placeholder art until licensed
- * photography replaces it (public/media/placeholders/auth-panel.svg).
+ * compact band above the form. The panel still is a copy of the media library's
+ * for-movers-crew-briefing-beside-trucks-in (apps/web/content/media/manifest.json); the app has
+ * no access to the web app's public folder, so it ships its own copy at public/media/auth-panel.webp.
  */
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
@@ -22,7 +23,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
       <div className="grid flex-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <aside data-band="" className="relative isolate overflow-hidden mesh-navy text-on-band" aria-label="About the company portal">
           <div className="absolute inset-0 -z-10" aria-hidden="true">
-            <Image src="/media/placeholders/auth-panel.svg" alt="" width={1200} height={1600} unoptimized priority className="h-full w-full object-cover opacity-80" />
+            <Image src="/media/auth-panel.webp" alt="" width={1344} height={752} priority sizes="(min-width: 1024px) 45vw, 100vw" className="h-full w-full object-cover opacity-70" />
             <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(4,37,79,0.35),rgba(4,37,79,0.75))]" />
             <div className="absolute -bottom-20 -right-24 h-[28rem] w-[40rem] opacity-50 [mask-image:radial-gradient(closest-side,black,transparent)]">
               <RouteMapArt />

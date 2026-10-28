@@ -6,7 +6,7 @@ import { MediaFrame } from "@/components/media/media-frame";
 import { Survey } from "@/components/survey/survey";
 import { StoredTextLine, type SurveyTexts } from "@/components/survey/texts";
 import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
-import { mediaFor } from "@/lib/media";
+import { mediaById } from "@/lib/media";
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 import { checkCoverageAction, submitRequestAction } from "./actions";
 import { lookupZipAction } from "./zip-action";
@@ -36,7 +36,8 @@ export default function GetQuotesPage() {
     st4a: storedText("ST-4a"),
     st4b: storedText("ST-4b"),
   };
-  const art = mediaFor(PAGE, "hero");
+  // The local-move loop: a sofa through an apartment door, the kind of move the survey starts with.
+  const art = mediaById(PAGE, "local-hero-sofa-apartment-door");
   const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;
   return (
     <div className="mesh-light">

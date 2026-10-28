@@ -25,7 +25,7 @@ import { PROFILE_ORIGIN_KEY, RequestQuoteButton } from "@/components/directory/r
 import { ReviewCard } from "@/components/directory/review-card";
 import { JsonLd, NOINDEX, absoluteUrl, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
 import { MediaFrame } from "@/components/media/media-frame";
-import { mediaFor } from "@/lib/media";
+import { claimMedia } from "@/lib/media";
 
 type Params = Promise<{ slug: string }>;
 
@@ -136,7 +136,8 @@ export default async function CompanyProfilePage({ params }: { params: Params })
   const p = result.profile;
   const path = `/companies/${p.slug}/`;
   const hasReviews = REVIEW_TYPES.some((t) => p.ratings[t].count > 0) || p.reviews.length > 0;
-  const cover = mediaFor(PAGE, "cover");
+  // One cover still for every profile page: the picture is generic (no real company is shown).
+  const cover = claimMedia(PAGE, ["directory", "theme:profile", "landscape"]);
   const checkedRows = p.credentials.length;
 
   return (

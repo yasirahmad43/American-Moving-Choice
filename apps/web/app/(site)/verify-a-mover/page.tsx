@@ -5,7 +5,7 @@ import Link from "next/link";
 import { JsonLd, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
 import { MediaFrame } from "@/components/media/media-frame";
 import { Note } from "@/components/site/review-notes";
-import { mediaFor } from "@/lib/media";
+import { claimMedia } from "@/lib/media";
 import { LookupForm } from "./lookup-form";
 
 const PAGE = "/verify-a-mover/";
@@ -29,7 +29,7 @@ function External({ href, children }: { href: string; children: React.ReactNode 
 
 /** Verify a mover (site architecture §1.2): the landing page indexes; lookup results are never URLs. */
 export default function VerifyAMoverPage() {
-  const art = mediaFor(PAGE, "hero");
+  const art = claimMedia(PAGE, ["trust", "theme:safety", "landscape"]);
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Verify a mover", path: "/verify-a-mover/" }])} />

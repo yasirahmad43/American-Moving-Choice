@@ -6,7 +6,7 @@ import { ApplyCta, ForMoversNav } from "@/components/site/for-movers";
 import { JsonLd, breadcrumbListLd, webPageLd } from "@/components/site/json-ld";
 import { pageMetadata } from "@/components/site/page-meta";
 import { Note, Token } from "@/components/site/review-notes";
-import { mediaFor } from "@/lib/media";
+import { claimMedia } from "@/lib/media";
 import { storedTextParts } from "@/lib/stored-texts";
 
 const URL = "/for-movers/";
@@ -68,7 +68,7 @@ const FAQ = [
 export default function ForMoversPage() {
   const { WEB_URL, APP_URL } = env();
   const moversOnly = storedTextParts("ST-2");
-  const art = mediaFor(URL, "hero");
+  const art = claimMedia(URL, ["for-movers", "theme:fleet", "landscape"]);
   const crumbs = [
     { label: "Home", href: "/" },
     { label: "For movers", href: URL },

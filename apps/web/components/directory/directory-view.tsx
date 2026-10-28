@@ -2,7 +2,7 @@ import { Breadcrumbs, Button, Container, EmptyState, ExpandableCard, IdCardIcon,
 import { DIRECTORY_PAGE_SIZE, type DirectoryPage, type DirectorySort } from "@amc/server/profiles";
 import Link from "next/link";
 import { MediaFrame } from "@/components/media/media-frame";
-import { mediaFor } from "@/lib/media";
+import { claimMedia } from "@/lib/media";
 import { CompanyCard } from "./company-card";
 import { StoredText, badgeName, token } from "./content";
 import { JsonLd, absoluteUrl, breadcrumbJsonLd } from "./seo";
@@ -32,7 +32,7 @@ export function DirectoryView({ data }: { data: DirectoryPage }) {
   const directoryName = token("directory.name") ?? "Mover directory";
   const first = (page - 1) * DIRECTORY_PAGE_SIZE + 1;
   const last = first + listings.length - 1;
-  const art = mediaFor(DIRECTORY_PATH, "hero");
+  const art = claimMedia(DIRECTORY_PATH, ["directory", "theme:profile", "landscape"]);
   return (
     <>
       <JsonLd

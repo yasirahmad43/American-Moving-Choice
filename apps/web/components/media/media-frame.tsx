@@ -1,7 +1,7 @@
 /**
- * Renders a manifest asset: images through next/image (sized, lazy below the fold, priority when
- * it is the LCP element) and videos through the lazy ambient player with a poster. The frame
- * covers its box, so callers decide the aspect ratio.
+ * Renders a manifest asset: stills through next/image (sized, blurred preview from the manifest,
+ * lazy below the fold, priority when it is the LCP element) and videos through the lazy ambient
+ * player with a poster. The frame covers its box, so callers decide the aspect ratio.
  */
 import Image from "next/image";
 import { AmbientVideo } from "./ambient-video";
@@ -15,10 +15,12 @@ export interface MediaFrameProps {
   sizes?: string;
   /** Cover the box (default) or keep the asset's own aspect ratio. */
   fit?: "cover" | "contain";
+  /** Override the manifest alt (e.g. "" when a captioned frame already describes the picture). */
+  alt?: string;
   className?: string;
 }
 
-export function MediaFrame({ asset, priority = false, sizes = "100vw", fit = "cover", className }: MediaFrameProps) {
+export function MediaFrame({ asset, priority = false, sizes = "100vw", fit = "cover", alt, className }: MediaFrameProps) {
   const objectFit = fit === "cover" ? "object-cover" : "object-contain";
   if (asset.kind === "video") {
     return <AmbientVideo asset={asset} className={className} />;
@@ -26,7 +28,7 @@ export function MediaFrame({ asset, priority = false, sizes = "100vw", fit = "co
   return (
     <Image
       src={asset.src}
-      alt={asset.alt}
+      alt={alt ?? asset.alt}
       width={asset.width}
       height={asset.height}
       sizes={sizes}
@@ -34,6 +36,8 @@ export function MediaFrame({ asset, priority = false, sizes = "100vw", fit = "co
       fetchPriority={priority ? "high" : undefined}
       loading={priority ? "eager" : "lazy"}
       unoptimized={isUnoptimizable(asset)}
+      placeholder={asset.blurDataURL ? "blur" : "empty"}
+      blurDataURL={asset.blurDataURL}
       className={`block h-full w-full ${objectFit} ${className ?? ""}`}
     />
   );

@@ -27,7 +27,7 @@ import { JsonLd, organizationId } from "@/components/site/json-ld";
 import { MoneyLine } from "@/components/site/money-line";
 import { Note } from "@/components/site/review-notes";
 import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
-import { mediaFor } from "@/lib/media";
+import { claimMedia, mediaById } from "@/lib/media";
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 
 const PAGE = "/";
@@ -156,9 +156,11 @@ const SAMPLE_LEDGER = [
 export default function HomePage() {
   const { WEB_URL } = env();
   const moversOnly = storedTextParts("ST-2");
-  const hero = mediaFor(PAGE, "hero");
-  const costsArt = mediaFor(PAGE, "costs");
-  const ledgerArt = mediaFor(PAGE, "ledger");
+  // Media claims (lib/media.ts): the home hero loop, the how-it-works loop, a quotes still and a costs still.
+  const hero = mediaById(PAGE, "home-hero-crew-loading-golden-hour");
+  const howItWorksArt = mediaById(PAGE, "how-it-works-laptop-boxes");
+  const ledgerArt = claimMedia(PAGE, ["home", "comparison"]);
+  const costsArt = claimMedia(PAGE, ["costs", "theme:pricing", "landscape"]);
   const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;
 
   return (
@@ -177,15 +179,7 @@ export default function HomePage() {
 
       {/* Hero: Editorial Split over full-bleed media; the survey entry is the one job on screen (VD §13.1). */}
       <MediaHero
-        media={
-          <>
-            <MediaFrame asset={hero} priority />
-            {/* The poster's route art stays legible over the ambient loop. */}
-            {hero.poster ? (
-              <img src={hero.poster} alt="" aria-hidden="true" width={hero.width} height={hero.height} className="absolute inset-0 h-full w-full object-cover opacity-90 mix-blend-lighten" />
-            ) : null}
-          </>
-        }
+        media={<MediaFrame asset={hero} priority />}
         overline="Movers only · No brokers"
         title="Request quotes from moving companies, not brokers"
         lede="Tell us where you're moving. We show you which movers in our network cover your route, you choose how many can contact you, and you see every mover's name before you send anything."
@@ -231,6 +225,12 @@ export default function HomePage() {
           </Reveal>
           <Reveal delay={80}>
             <Timeline steps={STEPS} />
+          </Reveal>
+          <Reveal delay={120} className="zoom-media relative aspect-[21/9] overflow-hidden rounded-card ring-1 ring-border lg:aspect-[3/1]">
+            <MediaFrame asset={howItWorksArt} sizes="(min-width: 1280px) 75rem, 100vw" />
+            <p className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-pill bg-surface/90 px-3 py-1.5 type-small font-semibold text-text">
+              <RouteMark size={12} /> Start with where you&apos;re moving. Nothing is sent until the last stop.
+            </p>
           </Reveal>
         </div>
       </Section>

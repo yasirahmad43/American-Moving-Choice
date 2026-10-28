@@ -7,6 +7,8 @@ import { env } from "@amc/server/env";
 import { Container, LinkButton } from "@amc/ui";
 import type { NoteKind } from "@/lib/content/markdown";
 import type { ContentPage } from "@/lib/content/pages";
+import { MediaFrame } from "@/components/media/media-frame";
+import { optionalMedia } from "@/lib/media";
 import { DraftBanner } from "./draft-banner";
 import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
 import { EditorialHeader } from "./page-frame";
@@ -43,6 +45,9 @@ export function ContentPageView({ page }: { page: ContentPage }) {
   const hasData = page.meta.data_owner !== null && page.meta.data_owner !== "n/a";
   const headings = headingsOf(page.html);
   const updated = formatUpdated(page.meta.last_updated);
+  // A 4:3 still from the page's family (trust, costs), claimed once per page; none if the family has no spare.
+  const family = page.meta.family.toLowerCase().includes("cost") ? "costs" : "trust";
+  const still = optionalMedia(page.meta.url, [family, "standard"]);
   return (
     <>
       {schema.includes("BreadcrumbList") ? <JsonLd data={breadcrumbListLd(WEB_URL, page.breadcrumbs)} /> : null}
@@ -65,6 +70,11 @@ export function ContentPageView({ page }: { page: ContentPage }) {
           <article className="prose" dangerouslySetInnerHTML={{ __html: page.html }} />
         </div>
         <aside className="grid content-start gap-5 lg:sticky lg:top-6 lg:self-start">
+          {still ? (
+            <figure className="zoom-media relative aspect-[4/3] overflow-hidden rounded-card ring-1 ring-border">
+              <MediaFrame asset={still} sizes="(min-width: 1024px) 18rem, 100vw" />
+            </figure>
+          ) : null}
           {headings.length ? (
             <nav aria-label="On this page" className="rounded-card border border-border bg-surface p-5 shadow-e1">
               <p className="type-overline text-text-3">On this page</p>
