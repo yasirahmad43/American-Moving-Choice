@@ -26,7 +26,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyMove, distanceBandFor, estimateTransit, isStateCode, type ResolvedLocation } from "@amc/core";
+import { classifyMove, distanceBandFor, estimateRoadTransit, isStateCode, type ResolvedLocation } from "@amc/core";
 import type { Queryable } from "../db/pool";
 import { distanceMiles } from "../geo/geo";
 import { NATIONAL_FACTS, STATE_FACTS, type FactSeed } from "./facts";
@@ -193,7 +193,7 @@ export async function importGeo(db: Queryable, options: ImportGeoOptions = {}): 
     seen.add(slug);
     const miles = Math.round(distanceMiles(a, b) * 10) / 10;
     const moveType = classifyMove(loc(a), loc(b), miles, localMax);
-    routes.push(["city", slug, a.state_code, b.state_code, a.id, b.id, miles, moveType, moveType === "local" ? null : distanceBandFor(miles), reason, estimateTransit(miles).drivingMiles]);
+    routes.push(["city", slug, a.state_code, b.state_code, a.id, b.id, miles, moveType, moveType === "local" ? null : distanceBandFor(miles), reason, estimateRoadTransit(miles, a.state_code, b.state_code)?.drivingMiles ?? null]);
   };
   const metros = cityRows.rows.slice(0, metroCount);
   for (const a of metros) for (const b of metros) if (a.id !== b.id && a.state_code !== b.state_code) addCityPair(a, b, "metro_pair");
@@ -219,7 +219,7 @@ export async function importGeo(db: Queryable, options: ImportGeoOptions = {}): 
       if (seen.has(slug)) continue;
       seen.add(slug);
       const miles = Math.round(distanceMiles(a, b) * 10) / 10;
-      routes.push(["state", slug, a.code, b.code, null, null, miles, "interstate", distanceBandFor(miles), "state_pair", estimateTransit(miles).drivingMiles]);
+      routes.push(["state", slug, a.code, b.code, null, null, miles, "interstate", distanceBandFor(miles), "state_pair", estimateRoadTransit(miles, a.code, b.code)?.drivingMiles ?? null]);
     }
   }
   await batchInsert(

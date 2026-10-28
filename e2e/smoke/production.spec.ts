@@ -43,6 +43,7 @@ for (const width of [1440, 390]) test("deployed home and quote form at " + width
 });
 
 test("published SEO URLs render without company lists", async ({ page, request }) => {
+  test.setTimeout(180_000);
   const sitemap = await request.get(WEB_URL + "/sitemap.xml");
   expect(sitemap.ok()).toBe(true);
   const index = await sitemap.text();
@@ -51,25 +52,52 @@ test("published SEO URLs render without company lists", async ({ page, request }
   const cityMaps = maps.filter((url) => /\/cities-\d+\.xml$/.test(url));
   expect(cityMaps.length, "city sitemaps are available after bootstrap").toBeGreaterThan(0);
   const seoMaps = maps.filter((url) => new URL(url).pathname !== "/sitemaps/core.xml");
+  const families: Record<string, string> = {
+    states: "state", cities: "city", routes: "route", services: "service",
+    costs: "cost", questions: "question", planning: "planning",
+  };
   const urls = new Set<string>();
-  let citySample: string | undefined;
+  const samples = new Map<string, string>();
   for (const url of seoMaps) {
     const segment = await request.get(url);
     expect(segment.ok()).toBe(true);
     const entries = [...(await segment.text()).matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1]!);
     for (const entry of entries) urls.add(entry);
-    if (!citySample && cityMaps.includes(url)) citySample = entries[0];
+    const segmentName = /\/sitemaps\/([a-z]+)(?:-\d+)?\.xml$/.exec(new URL(url).pathname)?.[1];
+    const family = segmentName ? families[segmentName] : undefined;
+    if (family) {
+      expect(entries.length, `${family} sitemap contains published URLs`).toBeGreaterThan(0);
+      if (!samples.has(family)) samples.set(family, entries[0]!);
+    }
   }
   expect(urls.size, "published SEO URLs across all families").toBeGreaterThanOrEqual(2_000);
-  expect(citySample, "a published city URL is available to render").toBeTruthy();
-  const response = await page.goto(citySample!);
-  expect(response?.status(), "published city URL returns HTTP 200").toBe(200);
-  const heading = page.getByRole("heading", { level: 1 });
-  await expect(heading).toBeVisible();
-  await expect(heading).not.toHaveText("We can't find that page");
-  await anonymous(page);
-  await expectNoSeriousAxeViolations(page);
-  await capture(page, "production-seo-city");
+  expect([...samples.keys()].sort(), "published samples cover all seven SEO families").toEqual(Object.values(families).sort());
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [family, url] of samples) {
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: width > 1000 ? 1000 : 844 });
+      const response = await page.goto(url);
+      expect(response?.status(), `${family} URL returns HTTP 200 at ${width}px`).toBe(200);
+      const heading = page.getByRole("heading", { level: 1 });
+      await expect(heading).toBeVisible();
+      await expect(heading).not.toHaveText("We can't find that page");
+      const canonical = page.locator('head link[rel="canonical"]');
+      await expect(canonical).toHaveCount(1);
+      await expect(canonical).toHaveAttribute("href", /\S/);
+      const canonicalHref = await canonical.getAttribute("href");
+      expect(new URL(canonicalHref!, page.url()).href, `${family} canonical matches the rendered URL at ${width}px`).toBe(new URL(page.url()).href);
+      if (width === 1440) {
+        await expect(page.locator('aside[aria-labelledby="quote-heading"]')).toBeInViewport({ ratio: 0.5 });
+      }
+      await anonymous(page);
+      await expectNoSeriousAxeViolations(page, `${family} at ${width}px`);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),
+        `${family} has no horizontal overflow at ${width}px`,
+      ).toBeLessThanOrEqual(1);
+      await capture(page, `production-seo-${family}-${width}`);
+    }
+  }
 });
 
 test("a demo consumer submits one anonymous request and withdraws it", async ({ page }) => {

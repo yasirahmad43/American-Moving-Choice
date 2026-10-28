@@ -12,7 +12,7 @@
  * site architecture §4.1 G7), and the status is set: `ready` when every automated gate passes,
  * else `draft`. Human review (G9) is recorded separately (reviewed_by, last_reviewed_at).
  */
-import { TRANSIT_MODEL_V1, estimateTransit, type CostRateCard, type MoveType } from "@amc/core";
+import { TRANSIT_MODEL_V1, estimateRoadTransit, type CostRateCard, type MoveType } from "@amc/core";
 import type { Queryable } from "../db/pool";
 import { countyByFips, distanceMiles, lookupZip } from "../geo/geo";
 import { STATES, type StateInfo } from "../geo/states";
@@ -168,8 +168,8 @@ const CREDITS = {
 
 const CENSUS_BASIS = `U.S. Census Bureau, ${ACS_VINTAGE} (via bdurand/us_geo, MIT)`;
 const GAZ_BASIS = `U.S. Census Bureau, ${GAZETTEER_VINTAGE} (via bdurand/us_geo, MIT)`;
-const TRANSIT_NOTE = `${TRANSIT_MODEL_V1.drivingDistanceFactor}× the straight-line distance (transit-model-v1 planning assumption)`;
-const METHOD_NOTE = `Distances are straight-line miles between centroids; road miles are ${TRANSIT_MODEL_V1.drivingDistanceFactor}× that and driving days allow up to ${n(TRANSIT_MODEL_V1.milesPerDrivingDay)} road miles a day (transit-model-v1 planning assumptions, not a delivery window). Coverage counts are recomputed when movers change their rules.`;
+const TRANSIT_NOTE = `${TRANSIT_MODEL_V1.drivingDistanceFactor}× the straight-line distance for contiguous-US endpoints only (transit-model-v1 planning assumption); AK/HI transport is not modeled`;
+const METHOD_NOTE = `Distances are straight-line miles between centroids. For two contiguous-US endpoints, road miles are ${TRANSIT_MODEL_V1.drivingDistanceFactor}× that and driving days allow up to ${n(TRANSIT_MODEL_V1.milesPerDrivingDay)} road miles a day (planning assumptions, not a delivery window). Alaska/Hawaii pairs need mode-specific transport data: road miles and transport days are not modeled; ask your mover. Coverage counts are recomputed when movers change their rules.`;
 const DRIVING_DAYS_NOTE = `at up to ${n(TRANSIT_MODEL_V1.milesPerDrivingDay)} road miles a day (transit-model-v1 planning assumption; loading, unloading and the delivery spread are extra)`;
 
 /** Exact distance ordering: degree-grid shortcuts misrank nearby places at high latitudes. */
@@ -302,10 +302,22 @@ function compass(a: { lat: number; lng: number }, b: { lat: number; lng: number 
   return ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(deg / 45) % 8]!;
 }
 const bandShort = (miles: number) => (miles <= 250 ? "0-250" : miles <= 500 ? "250-500" : miles <= 1000 ? "500-1,000" : miles <= 1500 ? "1,000-1,500" : "1,500+");
-const driveText = (miles: number) => `about ${n(estimateTransit(miles).drivingMiles)} road miles`;
-const daysText = (miles: number) => {
-  const d = estimateTransit(miles).drivingDays;
-  return `${d} driving ${d === 1 ? "day" : "days"}`;
+const ROAD_UNMODELED = "Not modeled; ask mover";
+const roadMiles = (miles: number, origin: string, destination: string, decimal = false): string => {
+  const estimate = estimateRoadTransit(miles, origin, destination);
+  return estimate ? (decimal ? (Math.round(miles * TRANSIT_MODEL_V1.drivingDistanceFactor * 10) / 10).toFixed(1) : n(estimate.drivingMiles)) : ROAD_UNMODELED;
+};
+const roadDays = (miles: number, origin: string, destination: string, local = false): string => {
+  const estimate = estimateRoadTransit(miles, origin, destination);
+  return estimate ? (local ? "Confirm with mover" : String(estimate.drivingDays)) : ROAD_UNMODELED;
+};
+const driveText = (miles: number, origin: string, destination: string): string => {
+  const estimate = estimateRoadTransit(miles, origin, destination);
+  return estimate ? `about ${n(estimate.drivingMiles)} road miles` : "road distance not modeled; ask your mover";
+};
+const daysText = (miles: number, origin: string, destination: string): string => {
+  const estimate = estimateRoadTransit(miles, origin, destination);
+  return estimate ? `${estimate.drivingDays} driving ${estimate.drivingDays === 1 ? "day" : "days"}` : "transport time not modeled; ask your mover";
 };
 const density = (population: number | null, landArea: number | null): number | null => (population !== null && landArea && landArea > 0 ? Math.round(population / landArea) : null);
 const perUnit = (population: number | null, units: number | null): string | null => (population !== null && units ? (population / units).toFixed(2) : null);
@@ -529,7 +541,7 @@ function stateDraft(ctx: Context, state: StateRec): Draft {
       heading: pick(seed, 9, [`Distances from ${largest.name} across ${state.name}`, `How far apart ${state.name}'s cities are`, `${largest.name} to the rest of ${state.name}`]),
       blocks: [
         { type: "paragraph", text: `Straight-line miles between city centroids, the figure that decides whether a move counts as local (50 miles or less) or in-state long distance; road miles are estimated at ${TRANSIT_NOTE}. ${others[0] ? `${others[0].city.name} is ${milesText(others[0].miles)} from ${largest.name}` : ""}${others.length > 1 ? `; ${others[others.length - 1]!.city.name} is ${milesText(others[others.length - 1]!.miles)}` : ""}.` },
-        { type: "table", columns: [`From ${largest.name} to`, "Straight line", "Est. road miles", "Classified as"], rows: others.map(({ city: c, miles }) => [`[${c.name}](${cityUrl(state, c)})`, milesText(miles), n(estimateTransit(miles).drivingMiles), typeShort(classify(true, miles))]) },
+        { type: "table", columns: [`From ${largest.name} to`, "Straight line", "Est. road miles", "Classified as"], rows: others.map(({ city: c, miles }) => [`[${c.name}](${cityUrl(state, c)})`, milesText(miles), roadMiles(miles, state.code, state.code), typeShort(classify(true, miles))]) },
       ],
     });
   }
@@ -543,8 +555,8 @@ function stateDraft(ctx: Context, state: StateRec): Draft {
         ]
       : [{ type: "paragraph", text: `As of ${ctx.today}, no mover in our network lists ${state.name} as a place its moves can start, and this page says so rather than list movers based elsewhere. A request from a ${state.name} ZIP code tells you before any contact details whether that has changed.` }],
   });
-  const routeRows = [...nearest, ...farBig].map(({ state: s, miles }) => [`[${state.name} to ${s.name}](${routeUrl(`${state.slug}-to-${s.slug}`)})`, milesText(miles), n(estimateTransit(miles).drivingMiles), bandOf(miles), daysText(miles), `[${s.name} to ${state.name}](${routeUrl(`${s.slug}-to-${state.slug}`)})`]);
-  const cityRouteRows = largest ? metroOut.map(({ city: c, miles }) => [`[${largest.name} to ${c.name}, ${c.stateCode}](${routeUrl(cityRouteSlug(largest, c))})`, milesText(miles), n(estimateTransit(miles).drivingMiles), bandOf(miles), daysText(miles), `[${c.name} to ${largest.name}](${routeUrl(cityRouteSlug(c, largest))})`]) : [];
+  const routeRows = [...nearest, ...farBig].map(({ state: s, miles }) => [`[${state.name} to ${s.name}](${routeUrl(`${state.slug}-to-${s.slug}`)})`, milesText(miles), roadMiles(miles, state.code, s.code), bandOf(miles), daysText(miles, state.code, s.code), `[${s.name} to ${state.name}](${routeUrl(`${s.slug}-to-${state.slug}`)})`]);
+  const cityRouteRows = largest ? metroOut.map(({ city: c, miles }) => [`[${largest.name} to ${c.name}, ${c.stateCode}](${routeUrl(cityRouteSlug(largest, c))})`, milesText(miles), roadMiles(miles, state.code, c.stateCode), bandOf(miles), daysText(miles, state.code, c.stateCode), `[${c.name} to ${largest.name}](${routeUrl(cityRouteSlug(c, largest))})`]) : [];
   sections.push({
     id: "routes",
     heading: pick(seed, 4, [`Routes out of and into ${state.name}`, `Moving between ${state.name} and other states`, `${state.name} state-to-state routes`]),
@@ -610,8 +622,8 @@ function finishStateDraft(ctx: Context, state: StateRec, seed: number, kw: Retur
         id: "intrastate",
         heading: pick(seed, 10, [`Major moves within ${state.name}`, `The busiest city pairs inside ${state.name}`, `In-state routes between ${state.name}'s largest cities`]),
         blocks: [
-          { type: "paragraph", text: `The ${plural(intra.length, "pair")} of ${state.name}'s largest cities by combined population; each direction has its own page. ${intra[0] ? `${intra[0].o.name} to ${intra[0].d.name} is ${milesText(intra[0].distance_miles)} in a straight line (${driveText(intra[0].distance_miles)}), ${typeShort(intra[0].move_type)}` : ""}.` },
-          { type: "table", columns: ["Route", "Straight line", "Est. road miles", "Classified as", "Driving days", "Reverse"], rows: intra.map((r) => [`[${r.o.name} to ${r.d.name}](${routeUrl(r.slug)})`, milesText(r.distance_miles), n(estimateTransit(r.distance_miles).drivingMiles), typeShort(r.move_type), r.move_type === "local" ? "same day" : daysText(r.distance_miles), `[${r.d.name} to ${r.o.name}](${routeUrl(cityRouteSlug(r.d, r.o))})`]) },
+          { type: "paragraph", text: `The ${plural(intra.length, "pair")} of ${state.name}'s largest cities by combined population; each direction has its own page. ${intra[0] ? `${intra[0].o.name} to ${intra[0].d.name} is ${milesText(intra[0].distance_miles)} in a straight line (${driveText(intra[0].distance_miles, state.code, state.code)}), ${typeShort(intra[0].move_type)}` : ""}.` },
+          { type: "table", columns: ["Route", "Straight line", "Est. road miles", "Classified as", "Driving days", "Reverse"], rows: intra.map((r) => [`[${r.o.name} to ${r.d.name}](${routeUrl(r.slug)})`, milesText(r.distance_miles), roadMiles(r.distance_miles, state.code, state.code), typeShort(r.move_type), roadDays(r.distance_miles, state.code, state.code, r.move_type === "local"), `[${r.d.name} to ${r.o.name}](${routeUrl(cityRouteSlug(r.d, r.o))})`]) },
         ],
       });
     }
@@ -636,7 +648,7 @@ function finishStateDraft(ctx: Context, state: StateRec, seed: number, kw: Retur
       { question: `How many ZIP codes and counties does ${state.name} have?`, answer: `${n(state.zipCount)} ZIP codes and ${n(state.countyCount)} counties in the GeoNames postal dataset (built 2026-10-28)${counties[0] ? `; ${counties[0].name} County alone has ${n(counties[0].zips)}` : ""}.` },
       { question: `How do I check moving coverage in ${state.name}?`, answer: coverage.interstate.matched.length || coverage.local.matched.length ? `As of ${ctx.today}: ${coverageSentence(coverage.local, "local moves", state.name)}, and ${coverageSentence(coverage.interstate, "moves between states", state.name)}. The survey checks your exact ZIP codes, shows the eligible count and lets you choose how many movers may contact you.` : `None as of ${ctx.today}. The survey will tell you so before asking for contact details.` },
     ];
-    if (largest && second && distLargest !== null) faq.push({ question: `Is a move from ${largest.name} to ${second.name} a local move?`, answer: `${distLargest <= 50 ? "Yes: " : "No: "}the two centroids are ${milesText(distLargest)} apart (${driveText(distLargest)}), so it counts as ${typeWords[classify(true, distLargest)]}${distLargest > 50 ? ", priced by weight and distance rather than by the hour" : ""}.` });
+    if (largest && second && distLargest !== null) faq.push({ question: `Is a move from ${largest.name} to ${second.name} a local move?`, answer: `${distLargest <= 50 ? "Yes: " : "No: "}the two centroids are ${milesText(distLargest)} apart (${driveText(distLargest, state.code, state.code)}), so it counts as ${typeWords[classify(true, distLargest)]}${distLargest > 50 ? ", priced by weight and distance rather than by the hour" : ""}.` });
     faq.push({ question: `Who licenses movers for moves within ${state.name}?`, answer: regulator[0] ? `${regulator[0].claim} (Source: ${regulator[0].sourceLabel}, read ${regulator[0].accessedOn}.)` : `We have not verified a ${state.name} regulator yet and won't guess. Interstate moves starting or ending in ${state.name} fall under FMCSA's rules; check the mover's USDOT record before hiring.` });
     faq.push({ question: `Is there a cost range for ${state.name}?`, answer: hasRange ? `Yes, for the move types shown above, from at least five movers' active rate cards (as of ${costs.find((c) => c.rows.length)!.asOf}).` : `Not yet: ${cards} of the five movers' active rate cards a range needs cover ${state.name}.` });
     draft.content.faq = faq;
@@ -682,7 +694,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
   if (city.housingUnits) dataPoints.push({ label: "Housing units", value: n(city.housingUnits), basis: CENSUS_BASIS });
   if (dens !== null) dataPoints.push({ label: "Density", value: `${n(dens)} per sq mi (${n(Math.round(city.landAreaSqMi! * 10) / 10)} sq mi)`, basis: GAZ_BASIS });
   if (countyRec?.timeZone) dataPoints.push({ label: "Time zone", value: tzLabel(countyRec.timeZone)!, basis: `${county} (bdurand/us_geo, MIT)` });
-  if (toLargest !== null) dataPoints.push({ label: `Distance to ${largestInState!.name}`, value: `${milesText(toLargest)} (${driveText(toLargest)})`, basis: `Haversine between centroids; road miles ${TRANSIT_NOTE}` });
+  if (toLargest !== null) dataPoints.push({ label: `Distance to ${largestInState!.name}`, value: `${milesText(toLargest)} (${driveText(toLargest, state.code, state.code)})`, basis: `Haversine between centroids; road miles ${TRANSIT_NOTE}` });
 
   const answer = pick(seed, 0, [
     `${city.name} sits in ${county}, ${state.name}, with ${plural(city.zips.length, "ZIP code")}${city.population ? ` and a population of ${n(city.population)}` : ""}${city.housingUnits ? ` in ${n(city.housingUnits)} housing units` : ""}${city.rank ? ` (${ordinal(city.rank)} largest in the state by population)` : ""}. As of ${ctx.today}, ${coverageSentence(coverage.local, "local moves", county)}, and ${coverageSentence(coverage.interstate, "moves between states", state.name)}.`,
@@ -694,7 +706,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
     const same = c.stateCode === city.stateCode;
     const t = classify(same, miles);
     const dd = density(c.population, c.landAreaSqMi);
-    return [`[${c.name}, ${c.stateCode}](${cityUrl(ctx.stateByCode.get(c.stateCode)!, c)})`, mi(miles), compass(city, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", n(estimateTransit(miles).drivingMiles), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, dd !== null ? n(dd) : "n/a"];
+    return [`[${c.name}, ${c.stateCode}](${cityUrl(ctx.stateByCode.get(c.stateCode)!, c)})`, mi(miles), compass(city, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", roadMiles(miles, state.code, c.stateCode), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, dd !== null ? n(dd) : "n/a"];
   });
   const localCount = nearby.filter(({ city: c, miles }) => c.stateCode === city.stateCode && miles <= 50).length;
   const sections: ContentSection[] = [];
@@ -770,7 +782,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
         heading: pick(seed, 7, [`ZIP codes just outside ${city.name}`, `Neighbouring ZIP codes around ${city.name}`, `${city.name}'s nearest ZIP codes in other places`]),
         blocks: [
           { type: "paragraph", text: `${nearbyZips[0]!.zip} (${nearbyZips[0]!.place}) is the nearest ZIP code listed under another place, ${milesText(nearbyZips[0]!.miles)} from the ${city.name} centroid${nearbyZips.length > 1 ? `; ${nearbyZips[nearbyZips.length - 1]!.zip} (${nearbyZips[nearbyZips.length - 1]!.place}) is ${milesText(nearbyZips[nearbyZips.length - 1]!.miles)}` : ""}. A county rule covers those in ${county}; a ZIP rule covers only the ZIP codes it lists.` },
-          { type: "table", columns: ["ZIP code", "From centroid (mi)", "Direction", "Place", "County", "Population", "Est. road (mi)", "Housing units", "Land (sq mi)"], rows: nearbyZips.map((z) => [z.zip, (Math.round(z.miles * 10) / 10).toFixed(1), compass(city, z), z.place, countyLabel(z.countyFips)?.replace(/, [A-Z]{2}$/, "") ?? "n/a", z.population !== null ? n(z.population) : "n/a", (Math.round(z.miles * TRANSIT_MODEL_V1.drivingDistanceFactor * 10) / 10).toFixed(1), z.housingUnits !== null ? n(z.housingUnits) : "n/a", z.landAreaSqMi !== null ? z.landAreaSqMi.toFixed(2) : "n/a"]) },
+          { type: "table", columns: ["ZIP code", "From centroid (mi)", "Direction", "Place", "County", "Population", "Est. road (mi)", "Housing units", "Land (sq mi)"], rows: nearbyZips.map((z) => [z.zip, (Math.round(z.miles * 10) / 10).toFixed(1), compass(city, z), z.place, countyLabel(z.countyFips)?.replace(/, [A-Z]{2}$/, "") ?? "n/a", z.population !== null ? n(z.population) : "n/a", roadMiles(z.miles, state.code, state.code, true), z.housingUnits !== null ? n(z.housingUnits) : "n/a", z.landAreaSqMi !== null ? z.landAreaSqMi.toFixed(2) : "n/a"]) },
         ],
       });
     }
@@ -778,7 +790,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
       id: "nearby",
       heading: pick(seed, 3, [`Nearest cities to ${city.name} with their own pages`, `How far is ${city.name} from nearby cities?`, `Around ${city.name}: the ten nearest cities`]),
       blocks: [
-        { type: "paragraph", text: `${localCount ? `${plural(localCount, "city", "cities")} of ${n(CITY_PAGE_MIN_POPULATION)}+ people within ${city.name}'s 50-mile local radius in ${state.name}` : `No city of ${n(CITY_PAGE_MIN_POPULATION)}+ people within ${city.name}'s 50-mile local radius in ${state.name}`}${nearby[0] ? `; nearest is ${nearby[0].city.name}, ${nearby[0].city.stateCode} at ${milesText(nearby[0].miles)} (${driveText(nearby[0].miles)})` : ""}${nearestOther ? `; nearest out of state, ${nearestOther.city.name}, ${nearestOther.city.stateCode} at ${milesText(nearestOther.miles)} (${bandOf(nearestOther.miles)} band)` : ""}.` },
+        { type: "paragraph", text: `${localCount ? `${plural(localCount, "city", "cities")} of ${n(CITY_PAGE_MIN_POPULATION)}+ people within ${city.name}'s 50-mile local radius in ${state.name}` : `No city of ${n(CITY_PAGE_MIN_POPULATION)}+ people within ${city.name}'s 50-mile local radius in ${state.name}`}${nearby[0] ? `; nearest is ${nearby[0].city.name}, ${nearby[0].city.stateCode} at ${milesText(nearby[0].miles)} (${driveText(nearby[0].miles, state.code, nearby[0].city.stateCode)})` : ""}${nearestOther ? `; nearest out of state, ${nearestOther.city.name}, ${nearestOther.city.stateCode} at ${milesText(nearestOther.miles)} (${bandOf(nearestOther.miles)} band)` : ""}.` },
         { type: "table", caption: "Straight-line miles between city centroids, estimated road miles, and how the move is classified", columns: ["City", "Straight line (mi)", "Direction", "Population", "Housing units", "Est. road (mi)", "Classified as, band (mi)", "Density (per sq mi)"], rows: nearbyRows },
       ],
     });
@@ -791,7 +803,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
         heading: pick(seed, 9, [`${county}: the places around ${city.name}`, `Other places in ${county}`, `${city.name}'s county neighbours`]),
         blocks: [
           { type: "paragraph", text: `${county}${countyRec.population ? ` has ${n(countyRec.population)} residents${countyRec.housingUnits ? ` in ${n(countyRec.housingUnits)} housing units` : ""}` : ""}${countyRec.landAreaSqMi ? ` on ${n(Math.round(countyRec.landAreaSqMi))} sq mi${countyDens !== null ? ` (${n(countyDens)} per sq mi)` : ""}` : ""}; county-based coverage rules can include the places below; the survey checks exact route eligibility. ${countyMates[0] ? `${countyMates[0].name} is the largest other place at ${n(countyMates[0].population!)}, ${milesText(distanceMiles(city, countyMates[0]))} from ${city.name}` : ""}.` },
-          { type: "table", columns: ["Place", `From ${city.name} (mi)`, "Direction", "Population", "Housing units", "Est. road (mi)", "Density", "ZIP codes"], rows: countyMates.map((c) => [(c.population ?? 0) >= CITY_PAGE_MIN_POPULATION ? `[${c.name}](${cityUrl(state, c)})` : c.name, (Math.round(distanceMiles(city, c) * 10) / 10).toFixed(1), compass(city, c), n(c.population!), c.housingUnits ? n(c.housingUnits) : "n/a", (Math.round(distanceMiles(city, c) * TRANSIT_MODEL_V1.drivingDistanceFactor * 10) / 10).toFixed(1), density(c.population, c.landAreaSqMi) !== null ? n(density(c.population, c.landAreaSqMi)!) : "n/a", n(c.zips.length)]) },
+          { type: "table", columns: ["Place", `From ${city.name} (mi)`, "Direction", "Population", "Housing units", "Est. road (mi)", "Density", "ZIP codes"], rows: countyMates.map((c) => [(c.population ?? 0) >= CITY_PAGE_MIN_POPULATION ? `[${c.name}](${cityUrl(state, c)})` : c.name, (Math.round(distanceMiles(city, c) * 10) / 10).toFixed(1), compass(city, c), n(c.population!), c.housingUnits ? n(c.housingUnits) : "n/a", roadMiles(distanceMiles(city, c), state.code, c.stateCode, true), density(c.population, c.landAreaSqMi) !== null ? n(density(c.population, c.landAreaSqMi)!) : "n/a", n(c.zips.length)]) },
         ],
       });
     }
@@ -801,8 +813,8 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
     const tracked = new Set(routes.map((x) => x.d.id));
     const bigMetros = ctx.cities.filter((c) => c.id !== city.id && !tracked.has(c.id)).slice(0, Math.max(0, 14 - routes.length)).map((c) => ({ city: c, miles: distanceMiles(city, c) }));
     const routeRows = [
-      ...routes.map(({ r, d }) => [`[${d.name}, ${d.stateCode}](${routeUrl(r.slug)})`, mi(r.distanceMiles), compass(city, d), d.population ? n(d.population) : "n/a", d.housingUnits ? n(d.housingUnits) : "n/a", n(estimateTransit(r.distanceMiles).drivingMiles), r.moveType === "local" ? "local" : `${r.moveType}, ${bandShort(r.distanceMiles)}`, r.moveType === "local" ? "0" : String(estimateTransit(r.distanceMiles).drivingDays)]),
-      ...bigMetros.map(({ city: c, miles }) => [`${c.name}, ${c.stateCode}`, mi(miles), compass(city, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", n(estimateTransit(miles).drivingMiles), c.stateCode === city.stateCode && miles <= 50 ? "local" : `${classify(c.stateCode === city.stateCode, miles)}, ${bandShort(miles)}`, c.stateCode === city.stateCode && miles <= 50 ? "0" : String(estimateTransit(miles).drivingDays)]),
+      ...routes.map(({ r, d }) => [`[${d.name}, ${d.stateCode}](${routeUrl(r.slug)})`, mi(r.distanceMiles), compass(city, d), d.population ? n(d.population) : "n/a", d.housingUnits ? n(d.housingUnits) : "n/a", roadMiles(r.distanceMiles, state.code, d.stateCode), r.moveType === "local" ? "local" : `${r.moveType}, ${bandShort(r.distanceMiles)}`, roadDays(r.distanceMiles, state.code, d.stateCode, r.moveType === "local")]),
+      ...bigMetros.map(({ city: c, miles }) => [`${c.name}, ${c.stateCode}`, mi(miles), compass(city, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", roadMiles(miles, state.code, c.stateCode), c.stateCode === city.stateCode && miles <= 50 ? "local" : `${classify(c.stateCode === city.stateCode, miles)}, ${bandShort(miles)}`, roadDays(miles, state.code, c.stateCode, c.stateCode === city.stateCode && miles <= 50)]),
     ];
     const cardsHere = ctx.cardMovers.get(state.code) ?? 0;
     if (routeRows.length) {
@@ -810,7 +822,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
         id: "routes",
         heading: pick(seed, 8, [`Routes from ${city.name}: the largest destinations`, `Moving from ${city.name} to the biggest cities`, `Where ${city.name} moves go: distance, band and driving days`]),
         blocks: [
-          { type: "paragraph", text: `The ${plural(routes.length, "largest destination")} by population among the routes tracked from ${city.name}, each with a page in both directions${bigMetros.length ? `, then the largest US cities for scale` : ""}; ${cardsHere >= 5 ? `${state.name} rate cards support a range on each route page` : `${cardsHere} of the 5 ${state.name} rate cards a route range needs exist`}. ${routes[0] ? `${routes[0].d.name}, ${routes[0].d.stateCode}: ${milesText(routes[0].r.distanceMiles)}, ${driveText(routes[0].r.distanceMiles)}${routes[0].r.moveType !== "local" ? `, ${daysText(routes[0].r.distanceMiles)}` : ""}` : ""}${routes.length > 1 ? `; ${routes[routes.length - 1]!.d.name}, ${routes[routes.length - 1]!.d.stateCode}: ${milesText(routes[routes.length - 1]!.r.distanceMiles)}` : ""}.` },
+          { type: "paragraph", text: `The ${plural(routes.length, "largest destination")} by population among the routes tracked from ${city.name}, each with a page in both directions${bigMetros.length ? `, then the largest US cities for scale` : ""}; ${cardsHere >= 5 ? `${state.name} rate cards support a range on each route page` : `${cardsHere} of the 5 ${state.name} rate cards a route range needs exist`}. ${routes[0] ? `${routes[0].d.name}, ${routes[0].d.stateCode}: ${milesText(routes[0].r.distanceMiles)}, ${driveText(routes[0].r.distanceMiles, state.code, routes[0].d.stateCode)}${routes[0].r.moveType !== "local" ? `, ${daysText(routes[0].r.distanceMiles, state.code, routes[0].d.stateCode)}` : ""}` : ""}${routes.length > 1 ? `; ${routes[routes.length - 1]!.d.name}, ${routes[routes.length - 1]!.d.stateCode}: ${milesText(routes[routes.length - 1]!.r.distanceMiles)}` : ""}.` },
           { type: "table", columns: ["Destination", "Straight line (mi)", "Direction", "Population", "Housing units", "Est. road (mi)", "Classified as, band (mi)", "Driving days"], rows: routeRows },
           { type: "note", text: METHOD_NOTE },
         ],
@@ -851,11 +863,11 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
       ],
     });
     draft.content.faq = [
-      ...(nearby[0] ? [{ question: `Is moving from ${city.name} to ${nearby[0].city.name} a local move?`, answer: `${nearby[0].city.stateCode === city.stateCode && nearby[0].miles <= 50 ? "Yes" : "No"}: the centroids are ${milesText(nearby[0].miles)} apart (${driveText(nearby[0].miles)}), ${typeWords[classify(nearby[0].city.stateCode === city.stateCode, nearby[0].miles)]}${nearby[0].city.stateCode === city.stateCode && nearby[0].miles <= 50 ? ", priced by the hour" : ", priced by weight and distance"}.` }] : []),
+      ...(nearby[0] ? [{ question: `Is moving from ${city.name} to ${nearby[0].city.name} a local move?`, answer: `${nearby[0].city.stateCode === city.stateCode && nearby[0].miles <= 50 ? "Yes" : "No"}: the centroids are ${milesText(nearby[0].miles)} apart (${driveText(nearby[0].miles, state.code, nearby[0].city.stateCode)}), ${typeWords[classify(nearby[0].city.stateCode === city.stateCode, nearby[0].miles)]}${nearby[0].city.stateCode === city.stateCode && nearby[0].miles <= 50 ? ", priced by the hour" : ", priced by weight and distance"}.` }] : []),
       { question: `How many ZIP codes does ${city.name} have?`, answer: `${plural(city.zips.length, "ZIP code")} in the GeoNames dataset, ${city.zips[0]}${city.zips.length > 1 ? ` to ${city.zips[city.zips.length - 1]}` : ""}${biggestZip?.population ? `; ${biggestZip.zip} holds the most people (${n(biggestZip.population)}, ${ACS_VINTAGE})` : ""}.` },
       ...(city.population && city.housingUnits ? [{ question: `How many homes are there in ${city.name}?`, answer: `${n(city.housingUnits)} housing units for ${n(city.population)} residents (${ACS_VINTAGE}), ${ppu} per unit${dens !== null ? `, at ${n(dens)} people per square mile` : ""}.` }] : []),
       { question: `How many movers cover local moves in ${county}?`, answer: coverage.local.explicit.length ? `As of ${ctx.today}, ${plural(coverage.local.explicit.length, "mover")} include ${county} or a ${city.name} ZIP code for local moves. Check your exact route in the survey and choose your contact limit. Company names are introduced during contact.` : `None names ${county} for local moves as of ${ctx.today}. ${coverage.interstate.matched.length ? `${plural(coverage.interstate.matched.length, "mover")} cover moves between states starting in ${state.name}.` : "The survey will say so before asking for contact details."}` },
-      ...(routes[0] ? [{ question: `How long does a move from ${city.name} to ${routes[0].d.name} take?`, answer: `${milesText(routes[0].r.distanceMiles)} straight line, ${driveText(routes[0].r.distanceMiles)}, ${routes[0].r.moveType === "local" ? "classified as local; confirm scheduling and access with the mover" : `${daysText(routes[0].r.distanceMiles)} for the truck`}; the [delivery spread](/questions/what-is-a-moving-delivery-spread/) is set in the bill of lading.` }] : []),
+      ...(routes[0] ? [{ question: `How long does a move from ${city.name} to ${routes[0].d.name} take?`, answer: `${milesText(routes[0].r.distanceMiles)} straight line, ${driveText(routes[0].r.distanceMiles, state.code, routes[0].d.stateCode)}, ${routes[0].r.moveType === "local" ? "classified as local; confirm scheduling and access with the mover" : `${daysText(routes[0].r.distanceMiles, state.code, routes[0].d.stateCode)} for the truck`}; the [delivery spread](/questions/what-is-a-moving-delivery-spread/) is set in the bill of lading.` }] : []),
     ];
     const sameState = nearby.filter(({ city: c }) => c.stateCode === city.stateCode).slice(0, 5);
     draft.content.related = [
@@ -1041,7 +1053,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   const research = isCity ? researchForCityRoute(ctx.research, oc!.slug, dc!.slug) : researchForStateRoute(ctx.research, o.code, d.code, route.slug);
   const kw = keywordFor(research, isCity ? `moving from ${originShort.toLowerCase()} ${o.code.toLowerCase()} to ${destShort.toLowerCase()} ${d.code.toLowerCase()}` : `moving from ${originShort.toLowerCase()} to ${destShort.toLowerCase()}`, "informational");
   const band = route.distanceBand ? bandOf(route.distanceMiles) : null;
-  const transit = estimateTransit(route.distanceMiles);
+  const transit = estimateRoadTransit(route.distanceMiles, o.code, d.code);
   const oCounty = oc?.countyFips ? ctx.counties.get(oc.countyFips) : undefined;
   const dCounty = dc?.countyFips ? ctx.counties.get(dc.countyFips) : undefined;
   const tzNote = isCity ? tzDifference(oCounty?.timeZone ?? null, dCounty?.timeZone ?? null, originShort, destShort, new Date(`${ctx.today}T12:00:00Z`)) : null;
@@ -1050,8 +1062,8 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   const heading = compass(originPoint, destPoint);
   const dataPoints: DataPoint[] = [
     { label: "Straight-line distance", value: `${milesText(route.distanceMiles)} ${heading}`, basis: `Haversine between ${isCity ? "city" : "state"} centroids (GeoNames)` },
-    { label: "Estimated driving distance", value: `${n(transit.drivingMiles)} miles`, basis: TRANSIT_NOTE },
-    { label: "Driving days", value: route.moveType === "local" ? "same day" : `${transit.drivingDays}`, basis: DRIVING_DAYS_NOTE },
+    { label: "Estimated driving distance", value: transit ? `${n(transit.drivingMiles)} miles` : ROAD_UNMODELED, basis: transit ? TRANSIT_NOTE : "Mode-specific transport and routing data required" },
+    { label: "Driving days", value: roadDays(route.distanceMiles, o.code, d.code, route.moveType === "local"), basis: transit ? DRIVING_DAYS_NOTE : "Mode-specific transport and routing data required" },
     { label: "Classified as", value: `${typeShort(route.moveType)}${band ? ` (${band})` : ""}`, basis: "@amc/core classifyMove, 50-mile local radius" },
     { label: "Movers covering this direction", value: n(coverage.matched.length), basis: `American Moving Choice coverage rules, ${ctx.today}` },
   ];
@@ -1061,9 +1073,9 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
     dataPoints.push({ label: "ZIP codes at each end", value: `${o.name} ${n(o.zipCount)}; ${d.name} ${n(d.zipCount)}`, basis: "GeoNames" });
   }
   const answer = pick(seed, 0, [
-    `Moving from ${originName} to ${destName} is ${typeWords[route.moveType]} of about ${milesText(route.distanceMiles)} heading ${heading}, roughly ${n(transit.drivingMiles)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles)}` : ""}${band ? `, priced in the ${band} band` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this direction", originShort)}.`,
-    `${originName} to ${destName}: about ${milesText(route.distanceMiles)} ${heading} between centroids, ${driveText(route.distanceMiles)}, ${typeWords[route.moveType]}${band ? ` in the ${band} band` : ""}${route.moveType !== "local" ? `, ${daysText(route.distanceMiles)} for the truck` : ""}. On ${ctx.today}, ${coverageSentence(coverage, "moves in this direction", originShort)}; the reverse direction has [its own page](${routeUrl(reverseSlug)}).`,
-    `About ${milesText(route.distanceMiles)} separate ${originName} and ${destName} (${heading}), ${driveText(route.distanceMiles)} by the transit model's estimate, making this ${typeWords[route.moveType]}${band ? ` (${band})` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this route", originShort)}.`,
+    `Moving from ${originName} to ${destName} is ${typeWords[route.moveType]} of about ${milesText(route.distanceMiles)} heading ${heading}, roughly ${roadMiles(route.distanceMiles, o.code, d.code)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles, o.code, d.code)}` : ""}${band ? `, priced in the ${band} band` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this direction", originShort)}.`,
+    `${originName} to ${destName}: about ${milesText(route.distanceMiles)} ${heading} between centroids, ${driveText(route.distanceMiles, o.code, d.code)}, ${typeWords[route.moveType]}${band ? ` in the ${band} band` : ""}${route.moveType !== "local" ? `, ${daysText(route.distanceMiles, o.code, d.code)} for the truck` : ""}. On ${ctx.today}, ${coverageSentence(coverage, "moves in this direction", originShort)}; the reverse direction has [its own page](${routeUrl(reverseSlug)}).`,
+    `About ${milesText(route.distanceMiles)} separate ${originName} and ${destName} (${heading}), ${driveText(route.distanceMiles, o.code, d.code)} by the transit model's estimate, making this ${typeWords[route.moveType]}${band ? ` (${band})` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this route", originShort)}.`,
   ]);
   // Corridor data relative to this route: cities around each end with their distance to the other end.
   const originSide = isCity ? [oc!, ...nearestCities(ctx, oc!, 9, null).map((x) => x.city)] : (ctx.citiesByState.get(o.code) ?? []).slice(0, 10);
@@ -1073,7 +1085,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   const originRows = originSide.map((c) => {
     const miles = distanceMiles(c, destPoint);
     const t = classify(c.stateCode === d.code, miles);
-    return [cityLink(c), mi(miles), compass(c, destPoint), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", n(estimateTransit(miles).drivingMiles), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, t === "local" ? "0" : String(estimateTransit(miles).drivingDays)];
+    return [cityLink(c), mi(miles), compass(c, destPoint), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", roadMiles(miles, c.stateCode, d.code), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, roadDays(miles, c.stateCode, d.code, t === "local")];
   });
   // Destination side: where each city lies from the origin, with its own size and ZIP count (a different cut from the reverse page's origin side).
   const destRows = destSide.map((c) => {
@@ -1089,7 +1101,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
     ? zipCity.zips.slice(0, 10).map((z) => {
         const loc = lookupZip(z)!;
         const miles = distanceMiles(loc, destPoint);
-        return [z, mi(miles), compass(loc, destPoint), loc.city, `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`, n(estimateTransit(miles).drivingMiles)];
+        return [z, mi(miles), compass(loc, destPoint), loc.city, `${loc.lat.toFixed(3)}, ${loc.lng.toFixed(3)}`, roadMiles(miles, loc.state, d.code)];
       })
     : [];
   const endRows: string[][] = isCity
@@ -1118,7 +1130,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
       heading: pick(seed, 2, [`${originShort} to ${destShort}: both ends in numbers`, `Route facts: ${originName} to ${destName}`, `What defines the ${originShort} to ${destShort} move`]),
       blocks: [
         { type: "table", caption: isCity ? `${ACS_VINTAGE} population and housing units; ${GAZETTEER_VINTAGE} land area` : `GeoNames counts; ${ACS_VINTAGE} county sums`, columns: ["Fact", originShort, destShort], rows: endRows },
-        { type: "paragraph", text: `${milesText(route.distanceMiles)} centroid to centroid heading ${heading}, an estimated ${n(transit.drivingMiles)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles)}` : ""}${band ? `; the ${band} band prices it, and a route near a band edge may fall in the next` : ""}.${tzNote ? ` ${tzNote}` : ""} The reverse route, [${destShort} to ${originShort}](${routeUrl(reverseSlug)}), has its own count.` },
+        { type: "paragraph", text: `${milesText(route.distanceMiles)} centroid to centroid heading ${heading}, an estimated ${roadMiles(route.distanceMiles, o.code, d.code)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles, o.code, d.code)}` : ""}${band ? `; the ${band} band prices it, and a route near a band edge may fall in the next` : ""}.${tzNote ? ` ${tzNote}` : ""} The reverse route, [${destShort} to ${originShort}](${routeUrl(reverseSlug)}), has its own count.` },
       ],
     },
     {
@@ -1154,13 +1166,13 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
     supportingKeywords: kw.supporting,
     parentUrl: "/routes/",
     title: `Moving from ${originShort} to ${destShort}${isCity && (o.code !== d.code || originShort === destShort) ? ` (${o.code} to ${d.code})` : ""}: Costs, Movers & Planning Guide`,
-    metaDescription: clampDescription(`${originName} to ${destName}: about ${milesText(route.distanceMiles)} straight line, ${n(transit.drivingMiles)} estimated road miles, ${typeShort(route.moveType)}${band ? ` in the ${band} band` : ""}; ${n(coverage.matched.length)} network movers cover this direction as of ${ctx.today}, with cost ranges where rate cards exist and the rules that apply.`),
+    metaDescription: clampDescription(`${originName} to ${destName}: about ${milesText(route.distanceMiles)} straight line, ${roadMiles(route.distanceMiles, o.code, d.code)} estimated road miles, ${typeShort(route.moveType)}${band ? ` in the ${band} band` : ""}; ${n(coverage.matched.length)} network movers cover this direction as of ${ctx.today}, with cost ranges where rate cards exist and the rules that apply.`),
     h1: `Moving from ${originName} to ${destName}`,
     content: { version: 1, intro: { answer, dataPoints }, sections, faq: [], related: [], quote: quoteFor(originZip, destZip, `${originShort} and ${destShort} ZIP codes`, seed), schemaType: "Article", credits: [CREDITS.geonames, CREDITS.cities, CREDITS.census], dataAsOf: ctx.today },
     sources: sourcesOf([...originReg, ...destReg, ...national]),
     mediaIds: pickMedia(ctx, routeUrl(route.slug), { hero: [["route", stateTag(o.code)], ["route", stateTag(d.code)], ["route", "hero"], ["route", "landscape"]], card: [] }),
     evidenceCount: 0,
-    blocked: [],
+    blocked: transit ? [] : ["blocked: unsupported transport mode (AK/HI needs mode-specific routing and transport data)"],
     keywordBasis: kw.basis,
     minEvidence: 6,
   };
@@ -1182,15 +1194,15 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
         id: "questions",
         heading: pick(seed, 9, [`Questions people ask about a ${originShort} to ${destShort} move`, `Before you book ${originShort} to ${destShort}`, `${originShort} to ${destShort}: the questions the research turned up`]),
         blocks: [
-          { type: "paragraph", text: `Three questions the research turned up for moves like ${originShort} to ${destShort} (${mi(route.distanceMiles)} mi, ${n(transit.drivingMiles)} road mi${route.moveType !== "local" ? `, ${transit.drivingDays} driving ${transit.drivingDays === 1 ? "day" : "days"}` : ""}), each answered on its own page from the rule cited there.` },
+          { type: "paragraph", text: `Three questions the research turned up for moves like ${originShort} to ${destShort} (${mi(route.distanceMiles)} mi, ${roadMiles(route.distanceMiles, o.code, d.code)} road mi${route.moveType !== "local" ? `, ${daysText(route.distanceMiles, o.code, d.code)}` : ""}), each answered on its own page from the rule cited there.` },
           { type: "list", items: qFacts.map(({ q, fact }) => `[${q.question}](${q.link}) (${fact!.sourceLabel})`) },
         ],
       });
       draft.sources.push(...sourcesOf(qFacts.map((x) => x.fact!)).filter((s) => !draft.sources.some((e) => e.url === s.url)));
     }
     draft.content.faq = [
-      { question: `How far is ${originShort} from ${destShort}?`, answer: `About ${milesText(route.distanceMiles)} centroid to centroid heading ${heading} (${band ?? "local"} band), an estimated ${n(transit.drivingMiles)} road miles.` },
-      ...(route.moveType !== "local" ? [{ question: `How many days does a move from ${originShort} to ${destShort} take?`, answer: `${daysText(route.distanceMiles)} for the ${n(transit.drivingMiles)} road miles at up to 500 a day; the [delivery spread](/questions/what-is-a-moving-delivery-spread/) an interstate mover commits to is written in the bill of lading.` }] : []),
+      { question: `How far is ${originShort} from ${destShort}?`, answer: `About ${milesText(route.distanceMiles)} centroid to centroid heading ${heading} (${band ?? "local"} band), an estimated ${roadMiles(route.distanceMiles, o.code, d.code)} road miles.` },
+      ...(route.moveType !== "local" ? [{ question: `How many days does a move from ${originShort} to ${destShort} take?`, answer: `${daysText(route.distanceMiles, o.code, d.code)} for the ${roadMiles(route.distanceMiles, o.code, d.code)} road miles at up to 500 a day; the [delivery spread](/questions/what-is-a-moving-delivery-spread/) an interstate mover commits to is written in the bill of lading.` }] : []),
       { question: `How many movers cover ${originShort} to ${destShort}?`, answer: `${plural(coverage.matched.length, "mover")} as of ${ctx.today}${coverage.explicit.length ? `, ${coverage.explicit.length} naming ${o.name} explicitly` : ""}.` },
       { question: `What does a ${originShort} to ${destShort} move cost?`, answer: block.rows.length ? `From rate cards covering ${o.name}, as of ${block.asOf}: ${block.rows.map((r) => `${r.homeSize} ${r.low} to ${r.high}`).join("; ")}. Planning ranges, not quotes.` : `No range yet: ${ctx.cardMovers.get(o.code) ?? 0} of five movers' cards cover ${o.name}.` },
     ];
@@ -1594,6 +1606,7 @@ export async function generateFamily(db: Queryable, family: SeoFamily, options: 
       const blocked = [...draft.blocked];
       const gates: Record<string, { passed: boolean; detail: string }> = {};
       gates.evidence = { passed: draft.evidenceCount >= draft.minEvidence, detail: `${draft.evidenceCount} data-backed facts; ${draft.minEvidence} needed` };
+      if (family === "route") gates.transport = { passed: !draft.blocked.some((reason) => reason.startsWith("blocked: unsupported transport mode")), detail: "Generic road transit requires two contiguous-US endpoints; AK/HI needs mode-specific routing and transport data" };
       if (!gates.evidence.passed) blocked.push(`blocked: insufficient evidence (${draft.evidenceCount} facts, ${draft.minEvidence} needed)`);
       const hashDup = hashOwner.get(hash);
       gates.duplicate_content = { passed: !hashDup || hashDup === draft.url, detail: hashDup && hashDup !== draft.url ? `same content hash as ${hashDup}` : "content hash is unique" };

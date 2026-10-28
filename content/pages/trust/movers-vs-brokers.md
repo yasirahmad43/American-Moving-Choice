@@ -94,7 +94,7 @@ This table covers moves between states, which FMCSA regulates.
 
 [Verify: by row — who moves your things, note B13, B5 and B18; authority, compliance facts §1 and note A6 (Form OP-1), A4 and A1; filings, note B11, A6 and B10; estimates, note B2 and B7 (as corrected: no 50-mile radius, video surveys allowed since the 2022 rule) and consumer-moving-rules note C1 and C2 (C2 as corrected); moving day, note B13 and B18; claims, note B12 (FMCSA's 9-month advice and the 9-month floor in 49 U.S.C. 14706(e)(1)). All rest on search excerpts.] [Counsel: the broker-estimate wording follows the summary in carrier-vs-broker note item 6.]
 
-Federal law makes the carrier that received your goods, and the carrier that delivered them, liable for actual loss or damage ([49 U.S.C. 14706](https://uscode.house.gov/view.xhtml?req=granuleid%3AUSC-prelim-title49-section14706&num=0&edition=prelim)). Movers must offer a neutral dispute settlement program, and FMCSA can't resolve claims for you. FMCSA's page [What if there are problems?](https://www.fmcsa.dot.gov/protect-your-move/what-if-problems) explains the steps, and our guide to [your rights when moving between states](/guides/your-rights-when-moving-interstate/) covers the claims process.
+Federal law makes the carrier that received your goods, and the carrier that delivered them, liable for actual loss or damage ([49 U.S.C. 14706](https://uscode.house.gov/view.xhtml?req=granuleid%3AUSC-prelim-title49-section14706&num=0&edition=prelim)). Movers must offer a neutral dispute settlement program, and FMCSA can't resolve claims for you. FMCSA's page [What if there are problems?](https://www.fmcsa.dot.gov/protect-your-move/what-if-problems) explains the steps, and [What happens if goods are damaged?](/questions/what-happens-if-my-goods-are-damaged-in-a-move/) covers the claims questions to raise with your mover.
 
 [Verify: carrier-vs-broker note B12 (search excerpts of 49 U.S.C. 14706 and FMCSA's "What if there are problems?").] [Counsel: note item 5; neither source covers every theory under which a broker could be liable.]
 
@@ -271,5 +271,5 @@ When we change this page, we record the change here with its date.
 
 - [How we verify movers](/how-we-verify-movers/): every check we run on movers in our network, and how often.
 - [Verify a mover](/verify-a-mover/): explains USDOT and MC numbers and state licenses, and helps you look up a mover.
-- [How to avoid moving scams](/guides/how-to-avoid-moving-scams/): warning signs to know before you hire anyone.
+- [How to spot a moving scam](/questions/how-to-spot-a-moving-scam/): warning signs to know before you hire anyone.
 - [FMCSA Protect Your Move: Movers vs. Brokers](https://www.fmcsa.dot.gov/protect-your-move/movers-vs-brokers): FMCSA's own guide, with its [fact sheet](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-05/PYM-MoversvsBrokers-2023.pdf).

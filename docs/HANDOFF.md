@@ -21,12 +21,12 @@ video controls that respect reduced motion. **PR #6 merged the design/contact-fl
 `docs/design/pass-2-verification.md` for the design proof.
 
 The SEO expansion and persistent media upload implementation are also complete in the integration
-checkout and await release. Local SEO validation published **2,674 pages** with all publication
+checkout and await release. Local SEO validation published **2,467 pages** with all publication
 gates passing; the production bootstrap, saved-phase resume and repeat-run behavior were exercised
 locally. The local counts do not establish production counts or search-engine indexing. See
 `docs/seo/expansion-verification.md`.
 
-Current verification: **487 automated tests passed** (core 81, UI 8, DB 58, server 311, web content
+Current verification: **497 unique automated checks passed** across full suites and focused follow-ups (core 84, UI 8, DB 58, server 318, web content
 29), and all package TypeScript checks passed. The focused media run passed **23 tests** against
 an isolated local database with mocked Storage; it is a focused subset, not 23 additional tests.
 Both final local application builds passed. The expanded browser suite is running at this update;
@@ -122,7 +122,7 @@ pnpm seo:crawl -- --base http://localhost:3000 --out docs/seo/crawl-report.md
   publishes only passing pages, rebuilds links and syncs media ownership into the DB. Migration
   220 supplies a renewable deployment lease and durable phase checkpoints for the transaction
   pooler. An initialized editorial catalogue is left alone; incomplete bootstrap phases resume.
-  Local validation retained 2,674 published/indexable pages on a repeat complete call. Verify
+  Local validation retained 2,467 published/indexable pages on a repeat complete call. Verify
   production counts and gates after deployment; local counts are not production evidence.
 
 ## 6. Demo accounts (production and previews)

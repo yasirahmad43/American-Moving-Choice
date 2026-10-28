@@ -362,6 +362,9 @@
   }
 
   /* --- Data table --------------------------------------------------------------------------- */
+  .dt-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .dt {
     border-radius: var(--r-card);
     border: 1px solid var(--border);

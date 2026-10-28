@@ -8,6 +8,8 @@
  *   milesPerDrivingDay     up to 500 road miles per driving day (a planning assumption);
  *                          loading and unloading days are not included.
  */
+import { isStateCode } from "../geo";
+
 export interface TransitModelConfig {
   drivingDistanceFactor: number;
   milesPerDrivingDay: number;
@@ -35,4 +37,12 @@ export function estimateTransit(straightMiles: number, config: TransitModelConfi
   const drivingMiles = Math.round(straightMiles * config.drivingDistanceFactor);
   const drivingDays = drivingMiles === 0 ? 0 : Math.max(1, Math.ceil(drivingMiles / config.milesPerDrivingDay));
   return { straightMiles, drivingMiles, drivingDays, version: TRANSIT_MODEL_VERSION };
+}
+
+/** The generic road model is supported only when both endpoints are in the contiguous US/DC.
+ * AK/HI need mode-specific routing; same-state endpoints do not prove a road connection.
+ */
+export function estimateRoadTransit(straightMiles: number, originState: string, destinationState: string): TransitEstimate | null {
+  if (!isStateCode(originState) || !isStateCode(destinationState) || [originState, destinationState].some((state) => state === "AK" || state === "HI")) return null;
+  return estimateTransit(straightMiles);
 }

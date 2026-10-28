@@ -31,8 +31,8 @@ const FAQ = [
   { q: "Can I withdraw my request?", a: "Yes. Use the secure link on your confirmation page or in your confirmation email. Withdrawing stops new purchases of your request and notifies companies that already received it." },
 ];
 const SERVICES = [
-  { title: "Across town.", label: "Local moving", body: "A new neighborhood. A little more room. Plan a local move with the details in hand.", href: "/services/local-moving/", asset: "home-family-carrying-labeled-boxes-toward" },
-  { title: "Across the country.", label: "Long-distance moving", body: "A bigger change of scenery. Understand routes, estimates, and what comes next.", href: "/services/long-distance-moving/", asset: "home-truck-suburban-autumn-street" },
+  { title: "Across town.", label: "Local moving", body: "A new neighborhood. A little more room. Plan a local move with the details in hand.", href: "/services/local/", asset: "home-family-carrying-labeled-boxes-toward" },
+  { title: "Across the country.", label: "Long-distance moving", body: "A bigger change of scenery. Understand routes, estimates, and what comes next.", href: "/services/long-distance/", asset: "home-truck-suburban-autumn-street" },
 ];
 const RESOURCES = [
   { href: "/moving-cost-calculator/", title: "Get a feel for moving costs", body: "Planning ranges, when enough mover rate data is available.", icon: "calculator" as const },

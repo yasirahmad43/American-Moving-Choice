@@ -1,7 +1,7 @@
 /**
  * Small site crawler for the SEO checks (site architecture §3.3, §8; seo-technical skill).
  *
- *   pnpm seo:crawl [--base http://localhost:3500] [--out docs/seo/crawl-report.md] [--max 5000]
+ *   pnpm seo:crawl [--base http://localhost:3500] [--out docs/seo/crawl-report.md] [--max 5000] [--preview]
  *
  * Starts from / and the sitemap index, follows every same-origin <a href>, and reports: broken
  * links (non-200), redirect chains, duplicate titles and descriptions, missing or multiple H1s,
@@ -41,6 +41,8 @@ const BASE = opt("base", "http://localhost:3500").replace(/\/$/, "");
 // pnpm runs the script inside packages/server; the report path is relative to where the command was typed.
 const OUT = resolve(process.env.INIT_CWD ?? process.cwd(), opt("out", "docs/seo/crawl-report.md"));
 const MAX = Number(opt("max", "5000"));
+// Explicit acknowledgement for an intentionally unindexed demo/preview; never inferred.
+const PREVIEW = args.includes("--preview");
 
 const attr = (tag: string, name: string): string | null => {
   const m = new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)')`, "i").exec(tag);
@@ -188,13 +190,14 @@ async function main(): Promise<void> {
   const indexable = ok.filter((p) => !isNoindex(p));
   const broken = all.filter((p) => p.status !== 200);
   const brokenWithSources = broken.map((p) => ({ url: p.url, status: p.status, from: [...p.inbound].slice(0, 3) }));
-  const dupTitles = groupDup(indexable, (p) => p.title ?? "");
-  const dupDesc = groupDup(indexable, (p) => p.description ?? "");
-  const noDesc = indexable.filter((p) => !p.description);
+  const dupTitles = groupDup(ok, (p) => p.title ?? "");
+  const dupDesc = groupDup(ok, (p) => p.description ?? "");
+  const noDesc = ok.filter((p) => !p.description);
   const h1Issues = ok.filter((p) => p.h1s.length !== 1);
   const canonicalMismatch = indexable.filter((p) => !p.canonical || p.canonical !== p.finalUrl);
-  const orphans = indexable.filter((p) => p.inbound.size === 0 && p.url !== `${BASE}/`);
-  const deep = indexable.filter((p) => (depth.get(p.url) ?? 99) > 3);
+  const assessed = PREVIEW ? ok : indexable;
+  const orphans = assessed.filter((p) => p.inbound.size === 0 && p.url !== `${BASE}/`);
+  const deep = assessed.filter((p) => (depth.get(p.url) ?? 99) > 3);
   const noindexCount = ok.filter(isNoindex).length;
   const sitemapMissing = [...sitemap.urls.keys()].filter((u) => pages.get(u)?.status !== 200);
   const sitemapNoindex = [...sitemap.urls.keys()].filter((u) => {
@@ -204,7 +207,8 @@ async function main(): Promise<void> {
   const indexableNotInSitemap = indexable.filter((p) => !sitemap.urls.has(p.url) && !p.url.includes("?"));
   const chains = redirects.filter((r) => r.hops > 1);
   const invalidLd = ok.filter((p) => p.jsonLdTypes.includes("INVALID_JSON_LD"));
-  const faqMismatch = ok.filter((p) => p.faqSchema !== p.faqVisible && p.jsonLdTypes.length > 0);
+  // AMC deliberately omits FAQPage markup. Visible FAQs without it are valid content.
+  const faqMismatch = ok.filter((p) => p.faqSchema && !p.faqVisible);
   const big = ok.filter((p) => p.bytes > 2_000_000);
   const byFamily = new Map<string, number>();
   for (const p of indexable) {
@@ -216,6 +220,8 @@ async function main(): Promise<void> {
   const report = `# Crawl report: ${BASE}
 
 Generated ${new Date().toISOString()} by \`pnpm seo:crawl\` (tools/seo-crawl.ts). Plain HTTP fetch of the server-rendered HTML, starting from the home page and the sitemap index, following every same-origin link.
+
+${PREVIEW ? "**Intentional preview indexing policy:** this run explicitly used `--preview`. Global noindex and noindex sitemap entries are expected demo observations, listed separately below. Title, description, H1, link, orphan and depth checks still assess public HTML pages. HTTP canonical eligibility applies only to indexable responses; stored self-canonicals are checked separately in the database proof. FAQPage markup is optional; only markup without visible FAQ content is an error." : "Indexing checks use the responses' actual robots directives. FAQPage markup is optional; only markup without visible FAQ content is an error."}
 
 ## Summary
 
@@ -229,16 +235,16 @@ Generated ${new Date().toISOString()} by \`pnpm seo:crawl\` (tools/seo-crawl.ts)
 | Redirects followed | ${redirects.length} (chains > 1 hop: ${chains.length}) |
 | Duplicate titles (groups) | ${dupTitles.length} |
 | Duplicate descriptions (groups) | ${dupDesc.length} |
-| Indexable pages without a description | ${noDesc.length} |
+| HTML pages without a description | ${noDesc.length} |
 | Pages without exactly one H1 | ${h1Issues.length} |
 | Canonical mismatches (indexable pages) | ${canonicalMismatch.length} |
-| Orphans (indexable, no inbound link) | ${orphans.length} |
-| Indexable pages deeper than 3 clicks from home | ${deep.length} |
+| Orphans (${PREVIEW ? "public preview" : "indexable"}, no inbound link) | ${orphans.length} |
+| ${PREVIEW ? "Public preview" : "Indexable"} pages deeper than 3 clicks from home | ${deep.length} |
 | Sitemap files | ${sitemap.files.length} |
-| Sitemap URLs | ${sitemap.urls.size} (non-200: ${sitemapMissing.length}; noindex: ${sitemapNoindex.length}) |
+| Sitemap URLs | ${sitemap.urls.size} (non-200: ${sitemapMissing.length}; noindex: ${sitemapNoindex.length}${PREVIEW ? ", expected in preview" : ""}) |
 | Indexable pages missing from the sitemap | ${indexableNotInSitemap.length} |
 | Invalid JSON-LD blocks | ${invalidLd.length} |
-| FAQ schema without visible FAQ (or vice versa) | ${faqMismatch.length} |
+| FAQPage markup without visible FAQ content | ${faqMismatch.length} |
 | Pages over 2 MB of HTML | ${big.length} |
 
 ### Indexable pages by first path segment
@@ -279,13 +285,13 @@ ${list(deep.map((p) => `${p.url} (depth ${depth.get(p.url) ?? "unreachable from 
 
 ## Sitemap issues
 
-${list([...sitemapMissing.map((u) => `non-200: ${u}`), ...sitemapNoindex.map((u) => `noindex in sitemap: ${u}`), ...indexableNotInSitemap.map((p) => `indexable but not in sitemap: ${p.url}`)])}
+${list([...sitemapMissing.map((u) => `non-200: ${u}`), ...(PREVIEW ? [] : sitemapNoindex.map((u) => `noindex in sitemap: ${u}`)), ...indexableNotInSitemap.map((p) => `indexable but not in sitemap: ${p.url}`)])}
 
 ## Structured data
 
-${list([...invalidLd.map((p) => `invalid JSON-LD: ${p.url}`), ...faqMismatch.map((p) => `FAQ schema/visibility mismatch: ${p.url}`)])}
+${list([...invalidLd.map((p) => `invalid JSON-LD: ${p.url}`), ...faqMismatch.map((p) => `FAQPage markup without visible FAQ: ${p.url}`)])}
 
-## noindex pages
+## noindex pages${PREVIEW ? " (expected demo policy)" : ""}
 
 ${list(ok.filter(isNoindex).map((p) => `${p.url} (${p.robots ?? p.xRobots})`))}
 `;
