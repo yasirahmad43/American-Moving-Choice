@@ -31,7 +31,7 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 - **Vetting.** Movers are "pre screened" (/partnership/) and "licensed" (/faq/), with no method given, and v1's license, insurance and BBB checks are unconfirmed [capture; v1 §2.7].
 - **Guarantee.** The home page offers a "100% price and service guarantee", says quotes are "not based on estimates" and promises "no hidden fees" [capture /]. The price comes instantly from the online inventory, before anyone sees the goods; later surveys were not observed [capture /how-it-works/].
 - **Claims.** "800,000+ moves booked", "save 45%", "the only place" and "the the biggest online resource" have no source or date [capture /, /partnership/, blog / meta]; v1's 2015 commissioned-study origin for the 45% is unconfirmed [v1 §2.7].
-- **Ratings.** The 4.2 / 36 markup describes Unpakt itself, even on /sign-in/ [capture]; 36 ratings beside 800,000+ bookings looks hard-coded [inference]. Off-site scores were not re-verified and are not repeated [search, third party].
+- **Ratings.** The 4.2 / 36 markup describes Unpakt itself, even on /sign-in/ [capture]; 36 ratings beside 800,000+ bookings looks hard-coded [inference]. Off-site scores were not re-verified and are not repeated [search: uk.trustpilot.com, consumersadvocate.org, third party].
 - **Reviews.** "Real customer reviews" are promised with no explanation of collection or checks [capture / meta]; v1 said some profile reviews come from other portals [v1 §2.7].
 
 ## Disclosure and consent
@@ -43,7 +43,7 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 ## SEO and content
 - **Footprint.** Home takes 65.72% of estimated visits and /moving-companies/NY/new-york/ 19.29%, with the reference set's highest value per visit ($22.94, about twice hireahelper.com's) [semrush top_pages_more, domain_rank]; it is no Wave 1 rival [semrush phrase_organic_top10].
 - **City pages.** NYC earns 1,153 visits; five other cities earn 9 to 48 each, even at KD 37 (Miami) and KD 30 (Columbus), and profiles and service pages 9 to 73 [semrush top_pages_more, phrase_these]. NYC has about 4 times Miami's demand but 24 times its visits, for reasons not shown [semrush top_pages_more; site-architecture §5.2].
-- **URLs.** Uppercase states mix with lowercase cities (/moving-companies/FL/miami/), and profiles sit at /movers/{company}-{city}-{st}/, correcting v1, which saw no geo URLs [semrush top_pages_more; v1 §2.7].
+- **URLs.** Uppercase states mix with lowercase cities (/moving-companies/FL/miami/), and profiles sit at /movers/{company}-{city}-{st}/, correcting v1, which saw no geo URLs on www [semrush top_pages_more; v1 §2.7].
 - **Two hosts.** www (MovingCompany markup) and a WordPress blog (Organization markup) have separate navs, and NYC intent overlaps: the city page and a blog "Best Moving Companies in New York City" post [capture blog /; semrush top_pages_more].
 - **Blog.** Seven blog URLs earn 473 visits, about 330 on population, museum, restaurant and home-type lists [semrush top_pages_more]. Dates are relative ("2 years ago" to "4 years ago"), a title says "in 2023", and cost posts show no method or source [capture blog].
 - **Markup.** /faq/ is 212 words of "READ MORE" links; no captured page has FAQPage, BreadcrumbList, Article or Person markup, or an author or methodology page [capture].
@@ -51,7 +51,7 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 
 ## Design and UX
 - On mobile, "The Moving App" link precedes the H1 on all four www pages with a recorded order; the home "Moving From" field and a support link sit above the fold [capture /, /partnership/, /how-it-works/, /sign-in/].
-- On desktop, promo, provider and login links precede the H1; the form's position was not recorded [capture /].
+- On desktop, consumer, promo, provider and login links precede the H1; the form's position was not recorded [capture /].
 - Both home address inputs share one element id [walk /].
 
 ## What AMC should adopt or adapt

@@ -21,7 +21,7 @@ A marketplace for booking hourly moving crews and local full-service moves, paid
 | 3. Booking | Not walked | Not observed | [walk] |
 
 - **Pre-filled date.** No date was typed, yet 11/3/2026 reached the list; with movers promised as "actually available on your date" (/services/moving-companies/), an unchosen date shapes results [walk; capture].
-- **One chosen team.** "Choose the team that fits and book online" (/how-it-works/) implies no broadcast; whether fees shape the first-listed "Best Match" order is unknown, as the match explainer was cut off [capture; walk; inference].
+- **One chosen team.** "Choose the team that fits and book online" (/how-it-works/) implies no broadcast; whether fees shape the first-listed "Best Match" order is unknown (its explainer was cut off) [capture; walk; inference].
 - **Test limits.** The Georgia-to-Florida test ran "No Truck, Labor Only" and listed other companies first; the labor-only form and out-of-area ZIPs make this inconclusive [walk].
 
 ## Mover side
@@ -46,7 +46,7 @@ Footer links invite movers to get listed, sign up and use provider software [cap
 - **City pages.** Ten of the top 15 pages are city pages (30,820 visits, 24.6%), and the Dallas page reaches page one beside Yelp and Thumbtack [semrush top_pages, phrase_organic_top10]. keyword-research §1's "drive most traffic" cannot be shown, since 57% of traffic sits outside the top 15 [semrush]. The three captured city pages share 11 of their first 12 H2s and a meta template; what clearly differs is the mover inventory [capture].
 - **Few-keyword pages.** Tallahassee, Beckley and Oshkosh draw about 140-160 visits per keyword (Los Angeles: 7); check their queries before citing small metros as "achievable" (keyword-research §2) [semrush top_pages; inference].
 - **Misfiled pages.** The #2 page, /services/moving-companies/ (7,969 visits), is a service pillar, not the "best of" guide keyword-research §2 calls it; DIY cost and container guides are the only top-15 content pages [semrush top_pages; capture].
-- **Long distance.** No route, state or long-distance URL is in the top 15, and the stated long-distance offer is labor at both ends (a long-distance link was not followed), supporting AMC's long-distance and route waves (site-architecture §5) [semrush; capture /services/; inference].
+- **Long distance.** No route, state or long-distance URL is in the top 15, and the stated long-distance offer is labor at both ends (one long-distance link went unfollowed), supporting AMC's long-distance and route waves (site-architecture §5) [semrush; capture /services/; inference].
 - **Markup and content.** Profile MovingCompany ratings match the page; /advice/ shows bylines, dates and answer-first excerpts; the ungated calculator says "not estimates" under an "Accurate Moving Estimate" title [capture].
 
 ## Design and UX
@@ -78,7 +78,7 @@ On mobile, the homepage leads with phone, logo and Trustpilot rating, then the H
 - Provider fees, and whether fees shape "Best Match" or featured slots [capture].
 - HireAHelper's own FMCSA status: a third-party review lists USDOT 3214531, unchecked [search: goodmigrations.com, third party].
 - Ownership: a reported 2019 Porch Group purchase, unchecked; the footer heads its brands "PARTNERS", not "sister brands" as the evidence pack says [search: geekwire.com, third party; capture].
-- Payment timing: "pay only when the job is done" (/how-it-works/) against v1's card charge a day before [capture; v1 §2.4].
+- Payment timing: "pay only when the job is done" (/how-it-works/) vs v1's day-before card charge [capture; v1 §2.4].
 - BBB and regulator records, full JSON-LD, canonicals, state hubs, keyword lists and AI-engine answers [search; capture; semrush].
 - Owner decisions: pricing requests from a mover's own profile; matching labor-only requests between two areas (lead-lifecycle §3); the state crumb when a state hub fails its gate (site-architecture §3.3) [inference].
 
