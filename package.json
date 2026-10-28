@@ -22,7 +22,14 @@
     "db:migrate": "pnpm --filter @amc/db migrate",
     "db:reset": "pnpm --filter @amc/db reset",
     "db:seed:build": "pnpm --filter @amc/db seed:build",
-    "db:bundle:supabase": "pnpm --filter @amc/db bundle:supabase"
+    "db:bundle:supabase": "pnpm --filter @amc/db bundle:supabase",
+    "seo:import-geo": "pnpm --filter @amc/server seo import-geo",
+    "seo:import-research": "pnpm --filter @amc/server seo import-research",
+    "seo:generate": "pnpm --filter @amc/server seo generate",
+    "seo:publish": "pnpm --filter @amc/server seo publish",
+    "seo:review": "pnpm --filter @amc/server seo review",
+    "seo:report": "pnpm --filter @amc/server seo report",
+    "seo:crawl": "tsx tools/seo-crawl.ts"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

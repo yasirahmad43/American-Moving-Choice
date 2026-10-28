@@ -70,7 +70,7 @@ const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 function build(sourceDir: string): void {
   const stateByName = new Map(STATES.map((s) => [s.name.toLowerCase(), s.code]));
-  const stateCodes = new Set(STATES.map((s) => s.code));
+  const stateCodes = new Set<string>(STATES.map((s) => s.code));
 
   const zips = JSON.parse(readFileSync(join(dataDir, "zip5.json"), "utf8")) as Record<string, ZipTuple>;
   const counties = JSON.parse(readFileSync(join(dataDir, "counties.json"), "utf8")) as Record<string, [name: string, state: string]>;

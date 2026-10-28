@@ -1,0 +1,4 @@
+{
+  "_comment": "Media manifest (apps/web/lib/media.ts). Each asset: id, kind (image|video), src, poster, alt, credit, tags, usedOn, placeholder. The programmatic SEO generator assigns an unused asset by tag (family, state slug, city slug, route slug) and records it in seo_media_usage, so no asset appears on two pages. Empty until licensed assets exist: pages then render without an image.",
+  "assets": []
+}
