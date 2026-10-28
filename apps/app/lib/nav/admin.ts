@@ -49,6 +49,16 @@ export const ADMIN_NAV: AdminNavSection[] = [
     ],
   },
   {
+    title: "Content",
+    items: [
+      { href: "/admin/content", label: "Content inventory", description: "Every programmatic page with its status, gates, keyword basis and media; edit, review, publish.", roles: ["super_admin", "ops", "content_editor"] },
+      { href: "/admin/content/research", label: "Research", description: "Imported keywords and questions, their measured volume or hypothesis status, and the page each targets.", roles: ["super_admin", "ops", "content_editor"] },
+      { href: "/admin/content/media", label: "Media library", description: "The manifest's assets with credit, licence and prompt; assign, unclaim, reject or upload.", roles: ["super_admin", "ops", "content_editor"] },
+      { href: "/admin/content/publication", label: "Publication", description: "Counts by family and status, sitemaps, the last crawl, blocked reasons and the pipeline steps.", roles: ["super_admin", "ops", "content_editor"] },
+      { href: "/admin/content/preferred-movers", label: "Preferred-mover criteria", description: "The published screening standards and which companies meet them, with the evidence.", roles: ["super_admin", "ops", "content_editor"] },
+    ],
+  },
+  {
     title: "System",
     items: [
       { href: "/admin/mailbox", label: "Mailbox", description: "Every email and text the platform queued; in demo mode nothing leaves the system.", roles: ["super_admin", "ops", "support"] },

@@ -29,4 +29,6 @@ export const ROLES = {
   platform: ["super_admin"],
   /** Sharing policies. */
   policies: ["super_admin", "finance"],
+  /** Programmatic content, research, media and publication (packages/server/src/admin/content.ts). */
+  content: ["super_admin", "ops", "content_editor"],
 } as const satisfies Record<string, readonly AdminRole[]>;
