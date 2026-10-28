@@ -19,23 +19,33 @@ export default async function MoversIndexPage() {
   await connection();
   const [hubs, settings] = await Promise.all([publishedStateUrls(), getSettings()]);
   return (
-    <Container size="reading" className="grid gap-10 section-pad">
+    <>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Movers", path: "/movers/" }])} />
-      <div className="grid gap-4">
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Movers" }]} />
-        <h1 className="type-display-l text-text">Movers by state</h1>
-        <p className="type-lede text-text-2">
-          Every mover in the American Moving Choice network sets the areas it serves. A request reaches only movers whose coverage includes
-          it, and never more than the number you choose.
-        </p>
+      <div className="mesh-light border-b border-border">
+        <Container className="grid gap-8 py-10 sm:py-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,26rem)] lg:items-end lg:gap-12">
+          <div className="grid gap-4">
+            <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Movers" }]} />
+            <p className="flex items-center gap-3 type-overline text-text-2">
+              <span aria-hidden="true" className="h-px w-8 bg-brand-red" />
+              Coverage, state by state
+            </p>
+            <h1 className="type-display-xl max-w-[18ch] text-text">Movers by state</h1>
+            <p className="type-lede max-w-[60ch] text-text-2">
+              Every mover in the American Moving Choice network sets the areas it serves. A request reaches only movers whose coverage includes it, and
+              never more than the number you choose.
+            </p>
+          </div>
+          <section aria-labelledby="zip-heading" className="bezel">
+            <div className="bezel-inner grid gap-4 p-5 sm:p-6">
+              <h2 id="zip-heading" className="type-h3 text-text">
+                Check coverage where you&apos;re moving from
+              </h2>
+              <ZipCheck />
+            </div>
+          </section>
+        </Container>
       </div>
-
-      <section aria-labelledby="zip-heading" className="grid gap-4 rounded-card border border-border bg-surface p-5 shadow-e1 sm:p-6">
-        <h2 id="zip-heading" className="type-h3 text-text">
-          Check coverage where you're moving from
-        </h2>
-        <ZipCheck />
-      </section>
+    <Container size="reading" className="grid gap-10 section-pad">
 
       <section aria-labelledby="states-heading" className="grid gap-3">
         <h2 id="states-heading" className="type-h3 text-text">
@@ -121,5 +131,6 @@ export default async function MoversIndexPage() {
         </p>
       </section>
     </Container>
+    </>
   );
 }

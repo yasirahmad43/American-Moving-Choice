@@ -18,15 +18,18 @@ async function expectNoSeriousAxeViolations(page: Page) {
 }
 
 test.describe("mover directory", () => {
-  test("lists the demo companies alphabetically with demo chips and badges, never the broker", async ({ page }) => {
+  test("lists the demo companies alphabetically with badges and no demo chips, never the broker", async ({ page }) => {
     const response = await page.goto(`${WEB_URL}/directory/`);
     expect(response?.status()).toBe(200);
     const list = page.locator("main ul.grid").first();
     const names = await list.locator("> li h3").allTextContents();
     expect(names).toHaveLength(12);
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "en-US", { sensitivity: "base" })));
-    await expect(list.locator("> li").first().getByText("Demo company: fictional")).toBeVisible();
+    // Public cards carry no "Demo company" chip: the one preview notice lives in the footer.
+    await expect(page.getByText("Demo company: fictional")).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "Preview notice" })).toContainText("fictional demo data");
     await expect(list.locator("> li").first().getByText(/Preferred Mover/).first()).toBeVisible();
+    expect(await page.locator("main").innerText()).not.toContain("name pending");
     await expect(page.getByText("Every mover listed here pays American Moving Choice")).toBeVisible();
     await expect(page.getByText("Demo Dual Authority Moving Group")).toHaveCount(0);
 
@@ -62,7 +65,7 @@ test.describe("company profile", () => {
   test("shows dated credential rows, the badge explainer, separate ratings with labels and responses", async ({ page }) => {
     await page.goto(`${WEB_URL}/companies/${LONE_STAR}/`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Demo Lone Star Relocation Co.");
-    await expect(page.getByText("Demo company: fictional").first()).toBeVisible();
+    await expect(page.getByText("Demo company: fictional")).toHaveCount(0);
     const credentials = page.locator("section", { has: page.getByRole("heading", { name: "Credentials and checks" }) });
     await expect(credentials.getByText("USDOT number")).toBeVisible();
     await expect(credentials.getByText("No broker authority on record")).toBeVisible();
@@ -153,13 +156,21 @@ test.describe("review invitation", () => {
 test.describe("location pages and verify-a-mover", () => {
   test("movers index explains coverage and reports a ZIP's state inline; gated pages are 404", async ({ page }) => {
     await page.goto(`${WEB_URL}/movers/`);
-    await expect(page.getByText("No state pages are published yet.")).toBeVisible();
+    // With only the demo seed no state page is published; after `pnpm seo:generate state` and
+    // `seo:publish` the hub lists them instead and /movers/texas/ is live.
+    const generated = (await page.getByRole("link", { name: /Texas/ }).count()) > 0;
+    if (!generated) await expect(page.getByText("No state pages are published yet.")).toBeVisible();
     await page.getByLabel("Your ZIP code").fill("78704");
     await page.getByRole("button", { name: "Check coverage" }).click();
     await expect(page.getByText(/Austin, TX: \d+ movers in our network cover moves starting in Texas/)).toBeVisible();
     expect(page.url()).toBe(`${WEB_URL}/movers/`);
-    expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(404);
-    expect((await page.goto(`${WEB_URL}/movers/texas/dallas/`))?.status()).toBe(404);
+    if (generated) {
+      expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(200);
+      await expect(page.locator("h1")).toHaveCount(1);
+    } else {
+      expect((await page.goto(`${WEB_URL}/movers/texas/`))?.status()).toBe(404);
+      expect((await page.goto(`${WEB_URL}/movers/texas/dallas/`))?.status()).toBe(404);
+    }
   });
 
   test("verify-a-mover finds fixture USDOT 9000001 and reports the broker fixture as a broker", async ({ page }) => {

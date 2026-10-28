@@ -27,10 +27,11 @@ export function SidebarNav({ sections, label, rootHref }: { sections: SidebarSec
                     href={item.href}
                     aria-current={current ? "page" : undefined}
                     className={cx(
-                      "flex min-h-11 items-center rounded-control border-l-[3px] px-3 font-semibold no-underline",
-                      current ? "border-primary bg-info-bg text-info-text" : "border-transparent text-text-2 hover:bg-surface-2 hover:text-text",
+                      "flex min-h-11 items-center gap-2.5 rounded-control px-3 font-semibold no-underline transition-colors duration-[var(--d1)]",
+                      current ? "bg-primary text-on-primary shadow-e1" : "text-text-2 hover:bg-surface-2 hover:text-text",
                     )}
                   >
+                    <span aria-hidden="true" className={cx("size-1.5 shrink-0 rounded-pill", current ? "bg-[#ff5a5f]" : "bg-border-strong")} />
                     {item.label}
                   </Link>
                 </li>

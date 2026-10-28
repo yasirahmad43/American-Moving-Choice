@@ -1,6 +1,6 @@
 import { requireMembership } from "@amc/server/auth";
 import { ZIP_RADIUS_OPTIONS, listAvailable, parseMarketplaceFilters, type MarketplaceFilters } from "@amc/server/marketplace";
-import { Alert, Button, Card, EmptyState, Field, Input, LinkButton, Money, PageHeader, Select } from "@amc/ui";
+import { Alert, Button, Card, ChevronDownIcon, EmptyState, Field, Input, LinkButton, Money, PageHeader, Select } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { blockedReason, dialogProps, loadBuyer } from "@/components/portal/marketplace/buyer";
@@ -167,8 +167,13 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
 
       {blocked ? <Alert tone="warning">{blocked}</Alert> : null}
 
-      <details className="rounded-card border border-border bg-surface p-5" open={hasFilters}>
-        <summary className="cursor-pointer font-semibold">Filters{hasFilters ? " (on)" : ""}</summary>
+      <details className="expandable group rounded-card border border-border bg-surface p-5 shadow-e1" open={hasFilters}>
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold text-text [&::-webkit-details-marker]:hidden">
+          <span>Filters{hasFilters ? " (on)" : ""}</span>
+          <span aria-hidden="true" className="expandable-chevron inline-grid size-9 shrink-0 place-items-center rounded-pill border-[1.5px] border-border-strong text-text-2 group-hover:bg-surface-2">
+            <ChevronDownIcon size={18} />
+          </span>
+        </summary>
         <div className="mt-4">
           <Filters filters={filters} />
         </div>

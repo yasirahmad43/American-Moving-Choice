@@ -1,4 +1,4 @@
-import { AbsoluteDate, Chip, IdCardIcon } from "@amc/ui";
+import { AbsoluteDate, Chip, IdCardIcon, RouteMark } from "@amc/ui";
 import { SERVICE_LABELS, type Listing } from "@amc/server/profiles";
 import Link from "next/link";
 import { BadgeWithExplainer, StatusChips } from "./badge-explainer";
@@ -30,24 +30,47 @@ export function CoverageSummary({ listing, limit }: { listing: Listing; limit?: 
   );
 }
 
-/** Directory card (VD §9.5): name, chips, badge and explainer, verification line, ratings, services, coverage. */
+/** Initials mark standing in for a company logo until the company uploads one (VD §9.5). */
+function Monogram({ name }: { name: string }) {
+  const initials = name
+    .replace(/^Demo\s+/i, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]!.toUpperCase())
+    .join("");
+  return (
+    <span aria-hidden="true" className="inline-grid size-14 shrink-0 place-items-center rounded-control bg-surface-3 font-display text-[1.25rem] font-extrabold text-brand-navy ring-1 ring-border [font-stretch:85%]">
+      {initials}
+    </span>
+  );
+}
+
+/** Directory card (VD §9.5): logo slot, name, chips, badge and explainer, verification line, ratings, services, coverage. */
 export function CompanyCard({ listing, headingLevel = "h3" }: { listing: Listing; headingLevel?: "h2" | "h3" }) {
   const Heading = headingLevel;
   const services = listing.services.slice(0, 3);
   const extra = listing.services.length - services.length;
   const headingId = `company-${listing.slug}`;
   return (
-    <li className="flex min-w-0 flex-col gap-4 rounded-card border border-border bg-surface p-5 shadow-e1" aria-labelledby={headingId}>
-      <div className="grid gap-2">
-        <Heading id={headingId} className="type-h4 text-text">
-          <Link href={`/companies/${listing.slug}/`} className="link text-text">
-            {listing.displayName}
-          </Link>
-        </Heading>
-        <StatusChips isDemo={listing.isDemo} isNew={listing.isNew} joinedAt={listing.joinedAt} />
+    <li className="lift relative flex min-w-0 flex-col gap-4 rounded-card border border-border bg-surface p-5 shadow-e1 sm:p-6" aria-labelledby={headingId}>
+      <div className="flex items-start gap-4">
+        <Monogram name={listing.displayName} />
+        <div className="grid min-w-0 gap-1.5">
+          <Heading id={headingId} className="type-h3 text-text">
+            <Link href={`/companies/${listing.slug}/`} className="text-text no-underline after:absolute after:inset-0 after:rounded-card hover:underline">
+              {listing.displayName}
+            </Link>
+          </Heading>
+          <StatusChips isNew={listing.isNew} joinedAt={listing.joinedAt} />
+        </div>
       </div>
-      {listing.badge ? <BadgeWithExplainer verifiedDate={listing.badge.verifiedDate} usdot={listing.usdot} idSuffix={listing.slug} /> : null}
-      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 type-small text-text-2">
+      {listing.badge ? (
+        <div className="relative z-[1]">
+          <BadgeWithExplainer verifiedDate={listing.badge.verifiedDate} usdot={listing.usdot} idSuffix={listing.slug} compact />
+        </div>
+      ) : null}
+      <p className="flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border pt-3 type-small text-text-2">
         <IdCardIcon size={16} />
         {listing.usdot ? <span className="tabular">USDOT {listing.usdot}</span> : null}
         {listing.mcNumber ? <span className="tabular">· {listing.mcNumber}</span> : null}
@@ -72,8 +95,11 @@ export function CompanyCard({ listing, headingLevel = "h3" }: { listing: Listing
           ) : null}
         </ul>
       ) : null}
-      <CoverageSummary listing={listing} limit={2} />
-      <div className="mt-auto flex flex-wrap items-center gap-3 pt-1">
+      <div className="flex items-start gap-2">
+        <RouteMark size={12} className="mt-1 shrink-0" />
+        <CoverageSummary listing={listing} limit={2} />
+      </div>
+      <div className="relative z-[1] mt-auto flex flex-wrap items-center gap-3 pt-1">
         <RequestQuoteButton companyId={listing.companyId} slug={listing.slug} displayName={listing.displayName} size="sm" />
         <Link href={`/companies/${listing.slug}/`} className="link inline-flex min-h-11 items-center type-small">
           View profile<span className="sr-only">: {listing.displayName}</span>

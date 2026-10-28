@@ -18,6 +18,8 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
+import { publicTokenFallback } from "@/lib/content/markdown";
+import { REVIEW_NOTES_IN_HTML } from "@/lib/review-mode";
 
 function contentRoot(): string {
   const candidates = [path.join(process.cwd(), "..", "..", "content"), path.join(process.cwd(), "content")];
@@ -48,9 +50,9 @@ export function token(key: string): string | null {
 
 const PENDING = "[pending]";
 
-/** Replaces {{token}} with its value; pending tokens render a visible placeholder. */
+/** Replaces {{token}} with its value; pending tokens render a visible placeholder (review builds) or a public-safe phrase. */
 export function renderTokens(text: string, overrides: Record<string, string> = {}): string {
-  return text.replace(/\{\{([a-z0-9_.-]+)\}\}/gi, (_m, key: string) => overrides[key] ?? token(key) ?? PENDING);
+  return text.replace(/\{\{([a-z0-9_.-]+)\}\}/gi, (_m, key: string) => overrides[key] ?? token(key) ?? (REVIEW_NOTES_IN_HTML ? PENDING : publicTokenFallback(key)));
 }
 
 const MARKER = /\[(Counsel|Owner|Data owner|Data|Verify|Build):/;
@@ -96,6 +98,7 @@ export function renderMarkdown(markdown: string, overrides: Record<string, strin
       .processSync(renderTokens(text, overrides)),
   );
   return html.replace(/@@REVIEWNOTE(\d+)@@/g, (_m, n: string) => {
+    if (!REVIEW_NOTES_IN_HTML) return "";
     const note = renderTokens(markers[Number(n)] ?? "", overrides);
     return `<span class="review-note" data-review-note="">Review note: ${escapeHtml(note)}</span>`;
   });

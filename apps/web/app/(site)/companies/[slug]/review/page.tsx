@@ -34,11 +34,6 @@ export default async function ReviewPage({ params, searchParams }: Props) {
           <div className="grid gap-3">
             <p className="type-overline text-text-2">{lookup.invitation.reviewType === "move_experience" ? "Moving experience" : "Quote and sales experience"}</p>
             <h1 className="type-display-l text-text">Review {lookup.invitation.companyName}</h1>
-            {lookup.invitation.isDemo ? (
-              <div>
-                <Chip tone="demo">Demo company: fictional</Chip>
-              </div>
-            ) : null}
             <p className="type-lede text-text-2">
               {lookup.invitation.reviewType === "move_experience"
                 ? "Tell other people how the move itself went with this mover."
