@@ -3,7 +3,7 @@
 /** Finance decisions: credit adjustments, refunds, quality claims and disputes. */
 import { AdminError, adjustCredit, approveClaim, createDispute, parseDollarsToCents, refundPurchase, rejectClaim, retryProviderRefund, updateDispute } from "@amc/server/admin";
 import type { FormState } from "@/lib/form";
-import { adminAction, field, idField } from "../_lib/action";
+import { adminAction, field, idField, redirectOnSuccess } from "../_lib/action";
 import { ROLES } from "../_lib/roles";
 
 const PATHS = ["/admin/billing", "/admin/purchases", "/admin"];
@@ -32,7 +32,7 @@ export async function refundAction(previous: FormState, formData: FormData): Pro
 }
 
 export async function claimDecisionAction(previous: FormState, formData: FormData): Promise<FormState> {
-  return adminAction(previous, ROLES.finance, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.finance, async ({ actor }) => {
     const decision = field(formData, "decision", 10);
     const claimId = idField(formData, "claimId");
     const note = field(formData, "note", 1000);
@@ -46,6 +46,7 @@ export async function claimDecisionAction(previous: FormState, formData: FormDat
     }
     throw new AdminError("Choose approve or reject.");
   }, PATHS);
+  return redirectOnSuccess(state, "/admin/billing?tab=claims", field(formData, "decision", 10) === "approve" ? "claim_approved" : "claim_rejected");
 }
 
 export async function createDisputeAction(previous: FormState, formData: FormData): Promise<FormState> {

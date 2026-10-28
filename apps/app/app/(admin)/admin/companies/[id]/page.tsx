@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { LEDGER_KIND_LABELS, getCompanyDetail, summarizePayload, type CheckRow } from "@amc/server/admin";
+import { LEDGER_KIND_LABELS, getCompanyDetail, statusReasonLabel, summarizePayload, type CheckRow } from "@amc/server/admin";
 import { hasAdminRole, requireAdmin } from "@amc/server/auth";
 import { isUuid } from "@amc/server/db";
 import { CHECK_LABELS, fmcsaSnapshotUrl } from "@amc/server/verification";
@@ -129,7 +129,7 @@ function Overview({ detail, can }: { detail: Detail; can: { verify: boolean; pro
             { label: "Applied", value: <When value={c.created_at} /> },
             { label: "Approved", value: c.approved_at ? <When value={c.approved_at} /> : null },
             { label: "Suspended", value: c.suspended_at ? <When value={c.suspended_at} /> : null },
-            { label: "Status reason", value: c.status_reason },
+            { label: "Status reason", value: statusReasonLabel(c.status_reason) },
             { label: "Billing status", value: <Status value={c.billing_status} /> },
             { label: "Credentials valid until", value: c.credentials_valid_until ? <When value={c.credentials_valid_until} date /> : null },
             { label: "Credit balance", value: <Money cents={c.balance_cents} /> },
@@ -173,6 +173,38 @@ function Overview({ detail, can }: { detail: Detail; can: { verify: boolean; pro
         ) : (
           <p className="text-text-2">No profile yet. Approval creates one from the company name.</p>
         )}
+      </Card>
+      <Card title="Application and mover terms" titleAs="h2" description="What the company entered in the portal application, and every acceptance of the mover terms (append-only).">
+        {detail.application ? (
+          <div className="grid gap-3">
+            <Facts
+              items={[
+                { label: "Submitted", value: detail.application.submitted_at ? <When value={detail.application.submitted_at} /> : "Not yet" },
+                { label: "Submissions", value: <span className="tabular">{detail.application.submission_count}</span> },
+                { label: "Steps completed", value: detail.application.completed_steps.map(humanize).join(", ") || null },
+                { label: "Last edited", value: <When value={detail.application.updated_at} /> },
+              ]}
+            />
+            <JsonDetails value={detail.application.data} summary="Show the application data" />
+          </div>
+        ) : (
+          <p className="text-text-2">No portal application on file.</p>
+        )}
+        <Table
+          caption="Mover terms acceptances"
+          className="mt-4"
+          compact
+          rowKey={(t) => t.id}
+          rows={detail.termsAcceptances}
+          empty={<p className="mt-4 text-text-2">The mover terms have not been accepted.</p>}
+          columns={[
+            { key: "at", header: "Accepted", cell: (t) => <When value={t.accepted_at} /> },
+            { key: "version", header: "Version", cell: (t) => <Mono>{t.terms_version}</Mono> },
+            { key: "rep", header: "Representative", cell: (t) => `${t.representative_name}, ${t.representative_title} (${t.representative_email})` },
+            { key: "authority", header: "Authority attested", cell: (t) => (t.authority_attested ? "Yes" : "No") },
+            { key: "by", header: "Signed in as", cell: (t) => t.user_email },
+          ]}
+        />
       </Card>
       {can.verify ? <StatusDecisions detail={detail} /> : null}
       <Card title="Outbox messages to this company" titleAs="h2">
@@ -487,7 +519,7 @@ function Verification({ detail, canVerify }: { detail: Detail; canVerify: boolea
                       <blockquote className="border-l-4 border-border-strong pl-4 type-small text-text-2 whitespace-pre-line">{detail.profile.description}</blockquote>
                       {detail.profile.description_status !== "approved" ? (
                         <label className="flex min-h-11 items-start gap-3 py-2">
-                          <input type="checkbox" name="approveDescription" className="mt-0.5 size-5 accent-primary" />
+                          <input type="checkbox" name="approveDescription" defaultChecked className="mt-0.5 size-5 accent-primary" />
                           <span>Approve this description too, so the profile goes live</span>
                         </label>
                       ) : null}

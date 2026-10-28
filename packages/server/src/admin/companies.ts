@@ -22,6 +22,14 @@ const actorFields = (actor: DecisionActor) =>
     ? { actorType: "system" as const, actorId: actor.system, ip: null, userId: null }
     : { actorType: "admin" as const, actorId: actor.userId, ip: actor.ip ?? null, userId: actor.userId };
 
+/** Labels for the reason codes other slices store in companies.status_reason (free text shows as written). */
+export const STATUS_REASON_LABELS: Record<string, string> = {
+  broker_authority: "Broker authority on the FMCSA record (rejected automatically under the movers-only policy)",
+  duplicate_usdot: "Another application or company uses this USDOT number",
+};
+
+export const statusReasonLabel = (reason: string | null): string | null => (reason ? (STATUS_REASON_LABELS[reason] ?? reason) : null);
+
 /** Highest price an admin can set in one step ($5,000), a guard against typos. */
 export const MAX_PRICE_CENTS = 500_000;
 
@@ -340,6 +348,16 @@ export async function getCompanyDetail(companyId: string, db: Queryable = getPoo
          where m.related_type = 'company' and m.related_id = $1 order by m.created_at desc limit 50`,
       ),
     ]);
+  const [application, terms] = await Promise.all([
+    q<{ data: Record<string, unknown>; completed_steps: string[]; submitted_at: Date | null; submission_count: number; updated_at: Date }>(
+      "select data, completed_steps, submitted_at, submission_count, updated_at from company_applications where company_id = $1",
+    ),
+    q<{ id: string; terms_version: string; terms_sha256: string; representative_name: string; representative_title: string; representative_email: string; representative_phone: string | null; authority_attested: boolean; ip: string | null; accepted_at: Date; user_email: string | null }>(
+      `select t.id, t.terms_version, t.terms_sha256, t.representative_name, t.representative_title, t.representative_email, t.representative_phone,
+              t.authority_attested, t.ip, t.accepted_at, u.email as user_email
+       from mover_terms_acceptances t left join users u on u.id = t.user_id where t.company_id = $1 order by t.accepted_at desc`,
+    ),
+  ]);
   const latest = await latestChecks(companyId, db);
   const eligibility = await getCompanyEligibility(companyId, db);
   return {
@@ -362,6 +380,8 @@ export async function getCompanyDetail(companyId: string, db: Queryable = getPoo
     audit: auditRows,
     messages,
     eligibility,
+    application: application[0] ?? null,
+    termsAcceptances: terms,
     officialPhone: officialPhoneFrom(checks),
   };
 }

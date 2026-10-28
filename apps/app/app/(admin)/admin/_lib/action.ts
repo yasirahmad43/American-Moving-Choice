@@ -9,7 +9,7 @@ import "server-only";
 import { AdminError, isAdminError, type AdminActor } from "@amc/server/admin";
 import { requestMeta, requireAdmin, type AdminRole } from "@amc/server/auth";
 import { revalidatePath } from "next/cache";
-import { unstable_rethrow } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { errorState, type FormState } from "@/lib/form";
 
 export interface ActionContext {
@@ -50,4 +50,13 @@ export function idField(formData: FormData, name: string): string {
   const value = field(formData, name, 64);
   if (!UUID.test(value)) throw new AdminError("The form is missing its record. Reload the page and try again.");
   return value;
+}
+
+/**
+ * After a decision that removes its own form from the page (a queue item that leaves the queue),
+ * send the admin back to the page with ?done=<key> so the page can show the result.
+ */
+export function redirectOnSuccess(state: FormState, path: string, done: string): FormState {
+  if (state.status === "success") redirect(`${path}${path.includes("?") ? "&" : "?"}done=${encodeURIComponent(done)}`);
+  return state;
 }

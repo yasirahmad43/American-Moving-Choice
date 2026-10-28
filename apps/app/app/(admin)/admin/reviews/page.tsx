@@ -5,7 +5,7 @@ import { Card, Field, PageHeader, Select, Table, Textarea } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm } from "@/components/admin/action-form";
-import { LinkTabs, Mono, Status, When, humanize, param } from "@/components/admin/admin-ui";
+import { DoneNotice, LinkTabs, Mono, Status, When, humanize, param } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { ROLES } from "../_lib/roles";
 import { descriptionAction } from "../companies/actions";
@@ -36,6 +36,16 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Prom
   return (
     <div className="grid gap-6">
       <PageHeader size="portal" title={item.label} description="Reviews are rejected only for policy reasons, never for being negative. Every decision is recorded in the moderation log." />
+      <DoneNotice
+        value={param(sp.done)}
+        messages={{
+          published: "Review published. It now shows on the company's profile.",
+          rejected: "Review rejected. The reason is in the moderation log.",
+          report_upheld: "Report upheld; the review is removed.",
+          report_dismissed: "Report dismissed; the review stays.",
+          response_removed: "Response removed.",
+        }}
+      />
       <LinkTabs label="Moderation queues" current={tab} items={TABS.map((t) => ({ id: t.id, label: t.label, href: `/admin/reviews?tab=${t.id}` }))} />
       {tab === "pending" || tab === "published" || tab === "rejected" || tab === "removed" ? <ReviewList status={tab} canModerate={canModerate && tab === "pending"} /> : null}
       {tab === "reports" ? <Reports canModerate={canModerate} /> : null}

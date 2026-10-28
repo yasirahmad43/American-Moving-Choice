@@ -266,3 +266,14 @@ export function Scroll({ label, children }: { label: string; children: ReactNode
     </div>
   );
 }
+
+/** The result of a decision whose form left the page (see redirectOnSuccess). */
+export function DoneNotice({ value, messages }: { value: string; messages: Record<string, string> }) {
+  const message = messages[value];
+  if (!message) return null;
+  return (
+    <div role="status" className="rounded-control border-l-4 border-success bg-success-bg px-4 py-3 text-text">
+      {message}
+    </div>
+  );
+}

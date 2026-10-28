@@ -3,13 +3,13 @@
 /** Review moderation decisions. */
 import { AdminError, checkEvidence, decideReport, publishReview, rejectReview, removeResponse } from "@amc/server/admin";
 import type { FormState } from "@/lib/form";
-import { adminAction, field, idField } from "../_lib/action";
+import { adminAction, field, idField, redirectOnSuccess } from "../_lib/action";
 import { ROLES } from "../_lib/roles";
 
 const PATHS = ["/admin/reviews", "/admin"];
 
 export async function moderateReviewAction(previous: FormState, formData: FormData): Promise<FormState> {
-  return adminAction(previous, ROLES.reviews, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.reviews, async ({ actor }) => {
     const reviewId = idField(formData, "reviewId");
     const decision = field(formData, "decision", 20);
     if (decision === "publish") {
@@ -22,6 +22,7 @@ export async function moderateReviewAction(previous: FormState, formData: FormDa
     }
     throw new AdminError("Choose publish or reject.");
   }, PATHS);
+  return redirectOnSuccess(state, "/admin/reviews?tab=pending", field(formData, "decision", 20) === "publish" ? "published" : "rejected");
 }
 
 export async function evidenceAction(previous: FormState, formData: FormData): Promise<FormState> {
@@ -34,17 +35,19 @@ export async function evidenceAction(previous: FormState, formData: FormData): P
 }
 
 export async function reportAction(previous: FormState, formData: FormData): Promise<FormState> {
-  return adminAction(previous, ROLES.reviews, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.reviews, async ({ actor }) => {
     const decision = field(formData, "decision", 20);
     if (decision !== "uphold" && decision !== "dismiss") throw new AdminError("Choose uphold or dismiss.");
     await decideReport(actor, idField(formData, "reportId"), { uphold: decision === "uphold", decision: field(formData, "note", 1000) });
     return decision === "uphold" ? "Report upheld; the review is removed." : "Report dismissed; the review stays.";
   }, PATHS);
+  return redirectOnSuccess(state, "/admin/reviews?tab=reports", field(formData, "decision", 20) === "uphold" ? "report_upheld" : "report_dismissed");
 }
 
 export async function removeResponseAction(previous: FormState, formData: FormData): Promise<FormState> {
-  return adminAction(previous, ROLES.reviews, async ({ actor }) => {
+  const state = await adminAction(previous, ROLES.reviews, async ({ actor }) => {
     await removeResponse(actor, idField(formData, "responseId"), field(formData, "reason", 500));
     return "Response removed.";
   }, PATHS);
+  return redirectOnSuccess(state, "/admin/reviews?tab=responses", "response_removed");
 }

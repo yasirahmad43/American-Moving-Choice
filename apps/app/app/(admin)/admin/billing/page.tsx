@@ -6,7 +6,7 @@ import { Alert, Card, Field, Input, Money, PageHeader, Select, Table, Textarea }
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm } from "@/components/admin/action-form";
-import { FilterBar, FilterInput, FilterSelect, LinkTabs, Mono, Pager, SectionTitle, ShortId, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
+import { DoneNotice, FilterBar, FilterInput, FilterSelect, LinkTabs, Mono, Pager, SectionTitle, ShortId, Status, When, humanize, pageNumber, param, qs } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { adjustCreditAction, claimDecisionAction, createDisputeAction, refundAction, retryProviderRefundAction, updateDisputeAction } from "./actions";
 
@@ -35,6 +35,7 @@ export default async function BillingPage({ searchParams }: { searchParams: Prom
   return (
     <div className="grid gap-6">
       <PageHeader size="portal" title={item.label} description="Money moves only through the database functions: refunds never reopen a slot and are capped at the net paid; ledger entries are append-only." />
+      <DoneNotice value={param(sp.done)} messages={{ claim_approved: "Claim approved: the net paid was refunded as account credit.", claim_rejected: "Claim rejected. The company was emailed the reason." }} />
       <LinkTabs label="Billing sections" current={tab} items={TABS.map((t) => ({ id: t.id, label: t.label, href: `/admin/billing?tab=${t.id}` }))} />
       {tab === "ledger" ? <LedgerTab sp={sp} /> : null}
       {tab === "adjust" ? <AdjustTab /> : null}
