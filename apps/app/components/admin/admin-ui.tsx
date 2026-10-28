@@ -194,16 +194,17 @@ export function StatTile({ label, value, href, note }: { label: string; value: R
   const body = (
     <>
       <p className="type-small font-semibold text-text-2">{label}</p>
-      <p className="mt-1 text-[1.75rem] leading-tight font-semibold tabular text-text">{value}</p>
-      {note ? <p className="mt-1 type-small text-text-3">{note}</p> : null}
+      <p className="mt-1 font-display text-[2rem] leading-none font-extrabold tabular text-text [font-stretch:85%]">{value}</p>
+      {note ? <p className="mt-2 type-small text-text-3">{note}</p> : null}
     </>
   );
+  const frame = "block rounded-card border border-border border-t-[3px] border-t-brand-navy bg-surface p-4 shadow-e1";
   return href ? (
-    <Link href={href} className="block rounded-card border border-border bg-surface p-4 no-underline shadow-e1 hover:shadow-e2">
+    <Link href={href} className={`${frame} lift no-underline`}>
       {body}
     </Link>
   ) : (
-    <div className="rounded-card border border-border bg-surface p-4 shadow-e1">{body}</div>
+    <div className={frame}>{body}</div>
   );
 }
 

@@ -12,7 +12,7 @@ export function HeaderCta() {
   const pathname = usePathname() ?? "/";
   const surveyInView = pathname === "/" || pathname.startsWith(GET_QUOTES.href.replace(/\/$/, ""));
   return (
-    <LinkButton href={GET_QUOTES.href} variant={surveyInView ? "secondary" : "cta"} size="sm">
+    <LinkButton href={GET_QUOTES.href} variant={surveyInView ? "secondary" : "cta"} size="sm" className="whitespace-nowrap">
       {GET_QUOTES.label}
     </LinkButton>
   );

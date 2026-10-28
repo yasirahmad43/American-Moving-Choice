@@ -5,6 +5,7 @@
  */
 import type { ReactNode } from "react";
 import { cx } from "../cx";
+import { BoxesArt } from "../art";
 import { RouteMark } from "../icons";
 
 export interface EmptyStateProps {
@@ -19,9 +20,12 @@ export interface EmptyStateProps {
 
 export function EmptyState({ title, titleAs: Heading = "h2", description, action, showMark = false, className }: EmptyStateProps) {
   return (
-    <div className={cx("grid justify-items-start gap-2 rounded-card border-[1.5px] border-dashed border-border-strong bg-surface-2 p-6", className)}>
+    <div className={cx("relative isolate grid justify-items-start gap-2 overflow-hidden rounded-card border-[1.5px] border-dashed border-border-strong bg-surface-2 p-6 sm:p-8", className)}>
+      <div className="pointer-events-none absolute -right-6 -top-6 -z-10 h-40 w-64 opacity-70 [mask-image:linear-gradient(to_left,black,transparent)]" aria-hidden="true">
+        <BoxesArt />
+      </div>
       {showMark ? <RouteMark size={16} className="mb-1" /> : null}
-      <Heading className="type-h4 text-text">{title}</Heading>
+      <Heading className="type-h3 text-text">{title}</Heading>
       {description ? <p className="max-w-[60ch] text-text-2">{description}</p> : null}
       {action ? <div className="mt-2">{action}</div> : null}
     </div>

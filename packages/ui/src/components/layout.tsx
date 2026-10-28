@@ -123,12 +123,17 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={cx("grid gap-3", className)}>
+    <header className={cx("grid gap-3", size === "portal" && "border-b border-border pb-5", className)}>
       {breadcrumbs?.length ? <Breadcrumbs items={breadcrumbs} /> : null}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0 max-w-[68ch]">
-          {overline ? <p className="mb-2 type-overline text-text-2">{overline}</p> : null}
-          <h1 className={cx("text-text", size === "page" ? "type-display-l" : "type-h3 sm:text-[1.625rem]")}>{title}</h1>
+          {overline ? (
+            <p className="mb-2 flex items-center gap-3 type-overline text-text-2">
+              <span aria-hidden="true" className="h-px w-6 bg-brand-red" />
+              {overline}
+            </p>
+          ) : null}
+          <h1 className={cx("text-text", size === "page" ? "type-display-l" : "type-display-l !text-[clamp(1.625rem,1.3rem+1vw,2rem)]")}>{title}</h1>
           {description ? <div className={cx("mt-2 text-text-2", size === "page" && "type-lede")}>{description}</div> : null}
         </div>
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}

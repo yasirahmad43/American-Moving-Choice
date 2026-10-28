@@ -20,11 +20,14 @@ const CONTENT_PAGES = [
 
 test.describe("content pages", () => {
   for (const path of CONTENT_PAGES) {
-    test(`${path} renders as a draft with breadcrumbs, one h1 and its canonical URL`, async ({ page }) => {
+    test(`${path} renders with breadcrumbs, one h1, its canonical URL and no reviewer notes`, async ({ page }) => {
       const response = await page.goto(`${WEB_URL}${path}`);
       expect(response?.status()).toBe(200);
-      await expect(page.locator('section[aria-label="Page status"]')).toHaveCount(1);
-      expect(await page.locator("mark.review-note").count()).toBeGreaterThan(0);
+      // Reviewer-only pieces never reach visitors: production builds strip them, development builds
+      // hide them until ?review=1 (apps/web/lib/review-mode.ts).
+      await expect(page.locator('section[aria-label="Page status"]:visible')).toHaveCount(0);
+      await expect(page.locator("mark.review-note:visible")).toHaveCount(0);
+      expect(await page.locator("main").innerText()).not.toMatch(/name pending|\[(Counsel|Owner|Verify|Build|Data):/);
       await expect(page.locator("h1")).toHaveCount(1);
       // No unfilled template variables or leftover statement markers.
       const text = await page.locator("main").evaluate((el) => {

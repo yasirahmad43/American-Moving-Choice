@@ -35,7 +35,8 @@ export const PLATFORM_SETTING_DEFAULTS: Record<string, string> = {
 
 /** Working values the S1 spec fixes for the preview. */
 export const FIXED_TOKENS: Record<string, string> = {
-  "badge.name": "Preferred Mover · American Moving Choice (name pending)",
+  "badge.name": "Preferred Mover",
+  "directory.name": "Mover directory",
   "directory.url": "/directory/",
 };
 
