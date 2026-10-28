@@ -33,6 +33,11 @@ export const envSchema = z.object({
     z.string().regex(/^postgres(ql)?:\/\//, "must be a postgres:// connection URL").optional(),
   ),
   /**
+   * Replaces the host in DATABASE_URL when set (for example the Supabase pooler host), so the host
+   * can change without re-entering the secret connection string.
+   */
+  DATABASE_HOST: z.preprocess(blankToUndefined, z.string().regex(/^[A-Za-z0-9.-]+$/, "must be a hostname").optional()),
+  /**
    * disable (local only: production refuses it for a remote host), require (encrypted, certificate
    * not verified) or verify (encrypted and verified against DATABASE_SSL_CA or Node's trust store).
    */

@@ -22,12 +22,19 @@ function required(name: string): never {
   throw new EnvError([`${name}: is required in production`]);
 }
 
-/** DATABASE_URL, or the local development database outside production. */
+/** DATABASE_URL (with DATABASE_HOST applied), or the local development database outside production. */
 export function databaseUrl(): string {
   const e = env();
-  if (e.DATABASE_URL) return e.DATABASE_URL;
+  if (e.DATABASE_URL) return withHost(e.DATABASE_URL, e.DATABASE_HOST);
   if (e.NODE_ENV === "production") required("DATABASE_URL");
   return DEV_DATABASE_URL;
+}
+
+function withHost(url: string, host: string | undefined): string {
+  if (!host) return url;
+  const parsed = new URL(url);
+  parsed.hostname = host;
+  return parsed.toString();
 }
 
 // Fixed values for development and tests only. They are public, so production refuses them.

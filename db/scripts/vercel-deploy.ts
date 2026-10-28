@@ -14,7 +14,14 @@ import { clientConfig, redactUrl } from "./lib";
 import { migrate } from "./migrate";
 
 async function main(): Promise<void> {
-  const url = process.env.DATABASE_URL;
+  let url = process.env.DATABASE_URL;
+  const host = process.env.DATABASE_HOST?.trim();
+  if (url && host) {
+    // Same override as @amc/server's databaseUrl(): the host can change without re-entering the secret URL.
+    const parsed = new URL(url);
+    parsed.hostname = host;
+    url = parsed.toString();
+  }
   if (process.env.VERCEL_ENV !== "production" || !url) {
     console.log("vercel-deploy: not a production build with DATABASE_URL; skipping migrations and seed");
     return;
