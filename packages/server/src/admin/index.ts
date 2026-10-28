@@ -2,6 +2,8 @@ import "server-only";
 
 export * from "./common";
 export * from "./companies";
+export * from "./content";
+export * from "./content-media";
 export * from "./coverage";
 export * from "./finance";
 export * from "./leads";
