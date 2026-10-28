@@ -13,6 +13,8 @@ export interface CardProps {
   as?: "div" | "section" | "article" | "li";
   /** Interactive cards get a strong edge (they are controls) and the e2 shadow on hover. */
   interactive?: boolean;
+  /** "bezel" nests the card in a tray (double bezel, VD §7); "plain" is the hairline card. */
+  frame?: "plain" | "bezel";
   padding?: "md" | "lg" | "none";
   className?: string;
   children?: ReactNode;
@@ -27,17 +29,19 @@ export function Card({
   footer,
   as: Tag = "div",
   interactive,
+  frame = "plain",
   padding = "md",
   className,
   children,
   ...aria
 }: CardProps) {
   const pad = padding === "none" ? "" : padding === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6";
-  return (
+  const body = (
     <Tag
       className={cx(
-        "min-w-0 rounded-card bg-surface shadow-e1",
-        interactive ? "border-[1.5px] border-border-strong transition-shadow duration-[var(--d1)] hover:shadow-e2" : "border border-border",
+        "min-w-0 rounded-card bg-surface",
+        frame === "bezel" ? "bezel-inner" : "shadow-e1",
+        frame === "plain" && (interactive ? "border-[1.5px] border-border-strong transition-shadow duration-[var(--d1)] hover:shadow-e2" : "border border-border"),
         pad,
         className,
       )}
@@ -56,4 +60,5 @@ export function Card({
       {footer ? <div className="mt-5 border-t border-border pt-4">{footer}</div> : null}
     </Tag>
   );
+  return frame === "bezel" ? <div className={cx("bezel", interactive && "lift")}>{body}</div> : body;
 }

@@ -74,9 +74,9 @@ function NextStep({ data }: { data: DashboardData }) {
 
 function Stat({ label, value, href, linkLabel }: { label: string; value: ReactNode; href?: string; linkLabel?: string }) {
   return (
-    <div className="rounded-control border border-border bg-surface p-4">
+    <div className="rounded-card border border-border border-t-[3px] border-t-brand-navy bg-surface p-4 shadow-e1">
       <dt className="type-small font-semibold text-text-2">{label}</dt>
-      <dd className="mt-1 type-h3 tabular text-text">{value}</dd>
+      <dd className="mt-1 font-display text-[2rem] leading-none font-extrabold tabular text-text [font-stretch:85%]">{value}</dd>
       {href ? (
         <dd className="mt-1">
           <Link href={href} className="link type-small inline-flex min-h-11 items-center">

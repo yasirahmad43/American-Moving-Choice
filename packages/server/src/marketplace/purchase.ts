@@ -11,7 +11,7 @@
  * path and the Stripe webhook can both call it.
  */
 import { audit } from "../audit/audit";
-import { getPool, isUuid, raisedMessage, withCompany, type Queryable } from "../db/pool";
+import { getPool, isTransientPgError, isUuid, raisedMessage, withCompany, type Queryable } from "../db/pool";
 import { env } from "../env/env";
 import { enqueueEmail } from "../outbox/outbox";
 import { defaultPaymentMethod } from "../payments/methods";
@@ -93,11 +93,15 @@ export async function purchase(
         if (!refreshed.refreshed) return fail("eligibility_stale");
         continue;
       }
-      if (code === "purchase_in_progress" && busyTries < 3) {
+      // A concurrent reservation or settlement holds the row locks: wait briefly and try again. A
+      // deadlock or serialization failure between two callers is the same situation to the buyer
+      // (nothing was reserved or charged), so it retries the same way and never surfaces as a crash.
+      if ((code === "purchase_in_progress" || isTransientPgError(error)) && busyTries < 3) {
         busyTries++;
         await sleep(deps.busyRetryDelayMs ?? 700);
         continue;
       }
+      if (isTransientPgError(error)) return fail("purchase_in_progress");
       if (code === "already_purchased" || code === "lead_unavailable" || code === "sold_out") {
         const existing = await pool.query<{ id: string }>("select id from purchases where group_id = $1 and company_id = $2", [input.groupId, actor.companyId]);
         // reserve_purchase checks availability before "already purchased": a request this company
@@ -109,6 +113,7 @@ export async function purchase(
       // wrong lead. Nothing was reserved or charged.
       if (code === "idempotency_key_reused") return fail("unknown");
       if (code && isPurchaseErrorCode(code)) return fail(code);
+      console.error(`[purchase] reserve failed: ${error instanceof Error ? error.name : "error"} ${(error as { code?: string }).code ?? ""}`);
       throw error;
     }
   }

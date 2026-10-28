@@ -3,7 +3,8 @@
   "notes": [
     "media/library: every asset below with credit.creator 'American Moving Choice (AI-generated via Higgsfield)' was generated for AMC (stills: gpt_image_2_5; videos: seedance_2_5). Not stock; no attribution required. See docs/media/inventory.md and docs/media/prompt-matrix.csv.",
     "media/library: usedOn starts empty; the page that adopts an asset writes its one route there. `pnpm media:check` fails if an id is listed on more than one page.",
-    "media/library: `src` is the largest WebP tier (native 1344px for 16:9, 1168px for 4:3, 1024px for 1:1); `srcset` lists the 800px tier. `blurDataURL` is a 24px blurred WebP for next/image placeholder='blur'."
+    "media/library: `src` is the largest WebP tier (native 1344px for 16:9, 1168px for 4:3, 1024px for 1:1); `srcset` lists the 800px tier. `blurDataURL` is a 24px blurred WebP for next/image placeholder='blur'.",
+    "design/premium: the hand-built pages (/, /get-quotes/, /directory/, /companies/[slug]/, /moving-cost-calculator/, /verify-a-mover/, /for-movers/ and the trust and cost content pages) pin their assets here; apps/web/lib/media.ts serves them by page and tag."
   ],
   "assets": [
     {
@@ -45,7 +46,9 @@
         "season:summer",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAQBACdASoYAA4APu1kqU4ppaOiMAgBMB2JQBOgA3StwI6fPqzhw4fMAAD+uwpZSOoxBuqw5iLdltF5JS+A8uzsB1VthHn7yjCSn9A0QAA=",
       "generator": {
@@ -96,7 +99,9 @@
         "video",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/moving-cost-calculator/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAAAwAwCdASoYAA4APu1Ct1apoqakGAEwHYllAKwAaCq8DA7UAP7p8+J8vu8ceaHlKMWVDLXt0UvFpv1UmiNBNLIA",
       "generator": {
@@ -145,7 +150,9 @@
         "video",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/get-quotes/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQBACdASoYAA4APu1qrU8ppiQiMAgBMB2JZQDA3GS+msp7DSlh3aNwAAD+/MVqzgZvEWfiqU28ClUG1ZHf2BX9nMZHt6fWvyDm4ZJP14gAAA==",
       "generator": {
@@ -194,7 +201,9 @@
         "video",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQBACdASoYAA4APu1mq04ppaQiMAgBMB2JYwCdMoRwABwmaHlCMSygAADOIj283zeSpeqrh0ldgqTHfG0n7y3B53mb1xeRxaEcDA+oe4IQrT1cAAA=",
       "generator": {
@@ -407,7 +416,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/new-york-to-florida/"
+        "/movers/texas/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASoYAA0APu1krU6ppaSiMAgBMB2JZACdAGLj3ooiHeLlKAD+2VIWSnSqoIxpeH7ruliZNNRNeL/vOMTW3SY19JV+owqczTRqq/TAAA==",
@@ -864,7 +873,9 @@
         "quotes",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAwBACdASoYAA0APu1kqk2ppaQiMAgBMB2JYwCdMoACfMI4Xp5R35G3ToAA/hjQNuHwEiGgIDPOc3O5NHBQUecsD0+xERuY0NjPWDbGR3VMKpcMxifm4Q4AAAA=",
       "generator": {
@@ -3758,7 +3769,9 @@
         "theme:pricing",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAwBACdASoYAA0APu1kqk4ppaQiMAgBMB2JQBOmUABmy/6jlKZJyN4LEQAA/tQy1hCLioRHwAANN6+SumBhb4Gi2IUOW5OKzoGSR1uPfFd9hcTbS55P5VmAAAA=",
       "generator": {
@@ -4078,7 +4091,9 @@
         "theme:pricing",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/moving-cost-calculator/method/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnwAAABXRUJQVlA4IHAAAACwBACdASoYABIAPtFWok2oJKMiN+gBABoJZQC/7BvN6quJYMnhpILn+Fk851GAAP67Bb91LY4TuB/bIhzJQhjwk2BWXGDxxQ1+J5dFyfxu0BwOKnF9Rd+trWwkqiG8N+h0j4CkRjszdPWiBxJldoAA",
       "generator": {
@@ -4986,7 +5001,9 @@
         "theme:fleet",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/for-movers/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JYwCdACHW4NirJfuRQAD+3s2khPOBHGmb+iM60jYCI6jtnRTfcd+1kUEd8ZfcgnAKx1KQAAA=",
       "generator": {
@@ -5546,7 +5563,9 @@
         "theme:profile",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/companies/[slug]/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAABQAwCdASoYAA0ALrV2u12jqampiYC0SgAAp12Qi1I9g0v2wAD+CmIPL8IpnHcNdq4BJxeANABBZnRT9BJJbZTjKc9Do/uWUgTPQT3LiGO8AAAA",
       "generator": {
@@ -5586,7 +5605,9 @@
         "theme:profile",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/directory/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAACwAwCdASoYAA0APu1iqk2ppaQiMAgBMB2JYwDCgB7C05twQfFXwAD7fe+xRQ0oFe4v/z2WQ0EX8Dwmgx1VvF4m1zow49PgAAA=",
       "generator": {
@@ -5786,7 +5807,9 @@
         "theme:profile",
         "landscape"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/verify-a-mover/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAABQBACdASoYAA0APu1iqk4ppaQiMAgBMB2JYgCdL1yBhOIntdu46/l7f1LQAP3h/8uJorPFNXYWKJyl18qnej61r8c1IPGKVWsAfzywrA1wWR9o5oxvstTwkWLHgAAA",
       "generator": {
@@ -6350,7 +6373,9 @@
         "theme:safety",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/how-we-verify-movers/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAAAwBQCdASoYABIAPuVipk2pJaOiMAwBIByJQBUk6YhwOWyuVwjcZbHVwt3Ok+ABJF3JQAD2WFwwwT26aq6asv1xIV7xTtOUQ6AbslbgnfH9Mu+Rzw1Z9Lx1p052qMw8jcJGZLdWAAA=",
       "generator": {
@@ -6390,7 +6415,9 @@
         "theme:safety",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/movers-vs-brokers/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAACwBACdASoYABIAPu1mq1AppSOisBgIATAdiWcAyrQNynHZaD0O0VPx4pdnzXkAAP7fhZkSnAA2Q9F+3Wb4jOeEUAUOIQBRzCpsPA/9nrsn+BcDleqPlZLsnNCkuDYmmQwjRetnMJhhgAAA",
       "generator": {
@@ -6512,7 +6539,9 @@
         "theme:safety",
         "standard"
       ],
-      "usedOn": [],
+      "usedOn": [
+        "/review-methodology/"
+      ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAQBQCdASoYABIAPt1apU2opSOsN/qoAYAbiUAYVCmAO7vt86Dd9r96B0Q37IY6gUugAM4eeMRRzctHNJSkzwxVkEBfjTqudyzc9ueinmLR4+1BrAyD+zpy6cbQzZhhcqOAAA==",
       "generator": {
@@ -10291,9 +10320,7 @@
         "hero",
         "landscape"
       ],
-      "usedOn": [
-        "/movers/texas/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAAAwBACdASoYAA0APu1oqk6ppiQiMAgBMB2JYwCsB6gAiimTRjA9gGL1KgAA/mTq9B775VbzFg4yw9D6MZ4EDfxw/r9t4JLv2/Uj2SVo/jOttTofRJjRoAAA",
       "generator": {
@@ -11237,9 +11264,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/connecticut/bridgeport/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAACQBACdASoYABgAPu1qqVCppaOiqA1RMB2JQBOmaFglT7V4DiRQ0LiSXUGfkqAA/qZKVzB1DnTuH6sX3PEmjsGTGsWS9wr1nfmvsb3a/T6Qiwm4MFrSmspH0cOSoAqU63s1NEhHI15Z9jF9bjd5JCPWwAA=",
       "generator": {
@@ -12005,9 +12030,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/mississippi/jackson/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAABwBQCdASoYABgAPulkq02pJaQiMBgMASAdCWQAuyDYgSm5BHsgYIfG+2uiBgrirmDhgmIAAP7oI9mOAd/iGG0F8eDRo0wx8P8QSAWWYaGxImtBo5Xecjyc/ZqgFOTZHtocChGkSAoUTKgIhX7OqtxKlSLrAecelOsFXrRGp96k1poAAAA=",
       "generator": {
@@ -12091,9 +12114,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/montana/billings/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAACQBACdASoYABgAPu1or1CppaQiqAqpMB2JQBdgAUm5Vb+jp1uXzCDwmeB1asgA15fYDJ9NTSwYxKM8LAsTF9eKeawEXme0DpmM1sAL3F1x1eU79K73FB9HPhNlmyc9yIgcNbq0rPxyjz7Cx8AAAA==",
       "generator": {
@@ -12220,9 +12241,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/new-hampshire/manchester/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRngAAABXRUJQVlA4IGwAAADQBACdASoYABgAPu1mq06ppaQiKA1RMB2JZgDM0BCNZciVNC7QCq14z8Y4AQTyAAD+W8nK6H2jNQ1Jz/BoLnytrXTSXK0g6yIyC2oNxRgCW1dZ0d6q7cOgXcSM6vptJSfT/W3YPEcYVzAAAAA=",
       "generator": {
@@ -12435,9 +12454,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/north-dakota/fargo/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAAAQBQCdASoYABgAPu1wrVIppiQiqAqpMB2JZQCsAGlh1c8oDl71uLeCuyzXtdUGP0CAAP7gBANLfM/XlY1KMzOHopOTyGSaPn3yV4SFAG+RlFtgdAS+UefLg0Rx0pP2EbMoT2xNwB2sXJTkB7mr9fQAAAA=",
       "generator": {
@@ -12650,9 +12667,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/rhode-island/providence/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAADQBACdASoYABgAPu1eq02ppKQiMBgMATAdiUAZEwG20x47pAu8AeOzUchDimUtCAD9MccRq7OZZu6tdFq3cUME5INNsSDUtEpSRAkLcHjW5303bMgoJP9r+4Vk86iqWWyiIAAA",
       "generator": {
@@ -12693,9 +12708,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/south-carolina/columbia/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAAAQBQCdASoYABgAPu1cqE2ppKOiN/VYATAdiWMAAC06iQ8jXQ5h6A0FgIyCeKywYr5MAP7MtZGYjeAfEDjInC1ycf6TG+xY5Ovw2D+J7SVAswjll+FR4yv3xZEtdrwgrzR+6kE6kAA=",
       "generator": {
@@ -12736,9 +12749,7 @@
         "tile",
         "square"
       ],
-      "usedOn": [
-        "/movers/south-dakota/sioux-falls/"
-      ],
+      "usedOn": [],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAAAwBACdASoYABgAPuFgqE2opaQiMAwBEBwJQBlABDaNCTN7w/rRSnBZI+AA/ud66GyknYS54YIhkVSNjc9c4SpCOuUGfVbeK46OyN8g3hjuBgTVxKigc6ChKS4f4u+0+hYAAA==",
       "generator": {
@@ -16183,7 +16194,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-texas/"
+        "/routes/new-york-to-florida/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAABwAgCdASoYAA0AA4BaJZACsADz5mFiywoihWCQAPucXJWOWDNdVshV9XdjNO9pcTw4ocduuGJ3f6XeocqZLNNr+OYkAA==",
@@ -16269,7 +16280,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-new-york/"
+        "/routes/california-to-texas/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASoYAA0APu1krU6ppaSiMAgBMB2JQBWABHoIc8jI1+k62AD+nh2eY4vXf/HxerxFLsfgln2P/S1iBY+W5dhg5nYd8jsaYgJge8iAAA==",
@@ -16312,7 +16323,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-florida/"
+        "/routes/california-to-new-york/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACwAwCdASoYAA0APu1kqk2ppaQiMAgBMB2JZwCo9CHXS3vERuIcAAD+xJoGDsY0h7zoNqePjBepP1UPKPwq2Sm/g8p7AwAA",
@@ -16355,7 +16366,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/ohio-to-florida/"
+        "/routes/california-to-florida/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAACwAwCdASoYAA0APu1yrU+pp6QiMAgBMB2JQBOgDSrqfdSKqL4AAAD+t3ma8aGQ15Eyy5gNPLQtvxBWaVttZcz6UtVnboVYzJWdsPi7/IEWUnfFcuryQxrbBQAAAA==",
@@ -16441,7 +16452,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-tennessee/"
+        "/routes/ohio-to-florida/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADQAwCdASoYAA0APu1iqU2ppaOiMAgBMB2JagCdAGj49Op7SmJwtcAA/vdDNqR1pQzM6IfTkzW4OeonF8ZSsiAeDu9uTp6bbHhrj5lV9DnQF3Hv5mmg1QzQAAA=",
@@ -16484,7 +16495,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/texas-to-california/"
+        "/routes/new-york-to-texas/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADwAwCdASoYAA0APu1krU2ppaSiMAgBMB2JZgCdL1yFpcU6hPtFEVeAAP7q8+87BWcGw8wOtFdh4tj88PUNGBufdp/QHfcULad2SvoNkAJZeB2giRNH2XDjRIau3gAA",
@@ -16527,7 +16538,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/new-york-to-texas/"
+        "/routes/california-to-tennessee/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAwCdASoYAA0APu1mqk2ppaQiMAgBMB2JZwCsAB5r+9+L+M8BawAA++kwaC2k7/mKyQ3TO3H5r4uJOJ8Zgl7LE5aB1Q95vQXk+O45MAA=",
@@ -16570,7 +16581,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/texas-to-florida/"
+        "/routes/texas-to-california/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAAAQBACdASoYAA0APu1mqk4ppaOiMAgBMB2JYwCsIMgCubtM5kZ08PqhQAD+8rSxseH5WNtmMzfHTgNHzr89bRDPIDrYZa7Z4QRzGSKft2cKk5jG4AA=",
@@ -16859,7 +16870,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/massachusetts-to-florida/"
+        "/routes/new-york-to-south-carolina/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAACwAwCdASoYAA0APu1krU6ppaSiMAgBMB2JQBOgBFVYQ93fENf8EAD45JvHCuaZhYN60hjal9WvgcxEahTIU3muuw8WclVwvrSpkk+1kKAAAA==",
@@ -16902,7 +16913,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-arizona/"
+        "/routes/massachusetts-to-florida/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAwBACdASoYAA0APu1iqU2ppaOiMAgBMB2JQBOmUABfzz9LBzvRt0m9IAAA/qaBtPDdqWCWJrblncAM+aspEgt05hbYWH3H1zt6puhMuIPTOvttetL4aeGci8AAAA==",
@@ -16945,7 +16956,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-washington/"
+        "/routes/texas-to-florida/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAABwAwCdASoYAA0ALrV2u12jqampiYC0SxgFh2IdnFIZPIhKAYAA/vTbhcQGFJYPY+pM9FJl3G1Dqm6Qy67P1ijT70CU+AAA",
@@ -16988,7 +16999,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/new-jersey-to-florida/"
+        "/routes/new-york-to-north-carolina/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmIAAABXRUJQVlA4IFYAAADwAwCdASoYAA0APu1iqU2ppaOiMAgBMB2JZgC1CDZCdK/nZB7GylLwAP6M7rPOxnpFI2M9EcIqkBoZv6ltqaIiviFKSlU1IPywUvoVhqDJCXeMJYAAAA==",
@@ -17113,7 +17124,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/illinois-to-florida/"
+        "/routes/maryland-to-new-york/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAAAwBACdASoYAA0APu1yrU+pp6QiMAgBMB2JQBOgDRm7O72gYDmY+O2xOQAA/qy6r0zK7j0Fn+je32LvtDG+G7QpNEawGuNiXfbBYSLWMJ6v/aYii8j3AgTuRusIAA==",
@@ -17156,7 +17167,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-colorado/"
+        "/routes/new-york-to-maryland/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAwAwCdASoYAA0ALrV2u12jqampiYC0SgC7AELSInAkw4PAAP7E94TBMJVGLbPCGjZxInc9MkTd2VBZMcjJh/wQkcUsPabNLf8AAA==",
@@ -17199,7 +17210,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/michigan-to-florida/"
+        "/routes/california-to-washington/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAABQAwCdASoYAA0ALrV2u12jqampiYC0SxgF2AIddrpMI01SAAD+34NlFwlmTneQIl5FKko1bFh4XDhKXYRUgZ918mqjQAAA",
@@ -17365,7 +17376,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-north-carolina/"
+        "/routes/texas-to-new-york/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADwAwCdASoYAA0APu1qrU8ppiQiMAgBMB2JZACdAB6JJRaFPuFijAAAANxobjrxUpsGHyzfo8iTaUNy4RWE5B7VEnT2He5WPiADJeAA",
@@ -17408,7 +17419,7 @@
         "landscape"
       ],
       "usedOn": [
-        "/routes/california-to-nevada/"
+        "/routes/california-to-arizona/"
       ],
       "placeholder": false,
       "blurDataURL": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAwCdASoYAA0APu1Ct1apoqakGAEwHYllAMssIetNOMUj1p7POzoAAPlqv9WkqpdPrgHsb35bX7XzTbZhH/gYzdeKYfU8at9AAA==",

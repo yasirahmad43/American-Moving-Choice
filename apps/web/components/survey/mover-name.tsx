@@ -1,9 +1,10 @@
 /**
- * One mover as the survey and the request pages name it: display name, USDOT number, the demo
- * chip and, when the profile is live, a link to it (opens in a new tab so the survey keeps its
- * place). No prices and no phone numbers (implications §2.2).
+ * One mover as the survey and the request pages name it: display name, USDOT number and, when
+ * the profile is live, a link to it (opens in a new tab so the survey keeps its place). No prices
+ * and no phone numbers (implications §2.2). Demo companies carry no public chip: the site-wide
+ * preview notice in the footer covers the demo data.
  */
-import { DemoChip, ExternalLinkIcon, formatAbsoluteDate } from "@amc/ui";
+import { ExternalLinkIcon, formatAbsoluteDate } from "@amc/ui";
 
 export interface MoverNameProps {
   displayName: string;
@@ -15,7 +16,7 @@ export interface MoverNameProps {
   showCheckDate?: boolean;
 }
 
-export function MoverName({ displayName, usdotNumber, profileSlug, isDemo, checkedAt, showCheckDate }: MoverNameProps) {
+export function MoverName({ displayName, usdotNumber, profileSlug, checkedAt, showCheckDate }: MoverNameProps) {
   return (
     <div className="grid min-w-0 gap-1">
       <p className="font-semibold text-text">{displayName}</p>
@@ -26,7 +27,6 @@ export function MoverName({ displayName, usdotNumber, profileSlug, isDemo, check
             {checkedAt ? `Federal record checked ${formatAbsoluteDate(checkedAt, { month: "long" })}` : "Check date not recorded"}
           </span>
         ) : null}
-        {isDemo ? <DemoChip /> : null}
       </p>
       {profileSlug ? (
         <p className="type-small">

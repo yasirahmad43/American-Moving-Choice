@@ -1,6 +1,7 @@
 import "@amc/ui/fonts.css";
 import "./globals.css";
 import { env } from "@amc/server/env";
+import { JsFlag } from "@amc/ui";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
@@ -27,7 +28,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <JsFlag />
+      </head>
       <body className="min-h-dvh bg-bg text-text">{children}</body>
     </html>
   );

@@ -119,13 +119,17 @@ export function useAvailability(groupIds: readonly string[]) {
 export function LiveAvailability({ groupIds }: { groupIds: readonly string[] }) {
   const { checkedAt, error } = useAvailability(groupIds);
   if (groupIds.length === 0) return <span className="type-small text-text-2">Buying always re-checks availability.</span>;
+  // VD §13.9: a static dot marks the live indicator; the text carries the state.
   return (
-    <span className="type-small text-text-2" aria-live="polite">
-      {error
-        ? "Live updates paused; retrying. Buying always re-checks availability."
-        : checkedAt
-          ? `Live: checked ${checkedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" })}; updates every 10 seconds while this tab is open.`
-          : "Checking availability…"}
+    <span className="inline-flex items-start gap-2 type-small text-text-2" aria-live="polite">
+      <span aria-hidden="true" className={`mt-1.5 size-2 shrink-0 rounded-pill ${error ? "bg-icon-warning" : "bg-icon-success"}`} />
+      <span>
+        {error
+          ? "Live updates paused; retrying. Buying always re-checks availability."
+          : checkedAt
+            ? `Live: checked ${checkedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" })}; updates every 10 seconds while this tab is open.`
+            : "Checking availability…"}
+      </span>
     </span>
   );
 }

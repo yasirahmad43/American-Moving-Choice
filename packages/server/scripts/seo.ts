@@ -43,7 +43,8 @@ function loadMedia(): MediaAsset[] {
   const path = join(here, "..", "..", "..", "apps", "web", "content", "media", "manifest.json");
   if (!existsSync(path)) return [];
   const parsed = JSON.parse(readFileSync(path, "utf8")) as { assets?: MediaAsset[] } | MediaAsset[];
-  return Array.isArray(parsed) ? parsed : (parsed.assets ?? []);
+  // Assets the admin rejected (manifest `rejected`) are never offered to the generator.
+  return (Array.isArray(parsed) ? parsed : (parsed.assets ?? [])).filter((a) => !(a as { rejected?: unknown }).rejected);
 }
 
 async function main(): Promise<void> {
