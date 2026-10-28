@@ -44,7 +44,8 @@ Environment variables (preview and production):
 | `WEB_URL`, `APP_URL` | yes | yes |
 | `DEMO_MODE=true` | yes | yes |
 | `SITE_INDEXABLE=false` | yes | — |
-| `SESSION_SECRET`, `APP_ENCRYPTION_KEY`, `CRON_SECRET` | — | yes |
+| `APP_ENCRYPTION_KEY` (the web app seals the manage link in the confirmation email; same value in both) | yes | yes |
+| `SESSION_SECRET`, `CRON_SECRET` | — | yes |
 | Optional provider keys (Stripe, Postmark, Twilio, FMCSA, Turnstile) | as needed | as needed |
 
 Cron jobs are declared in `apps/app/vercel.json` and call `/api/cron/*` with `Authorization: Bearer $CRON_SECRET`.
