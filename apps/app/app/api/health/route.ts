@@ -29,18 +29,23 @@ async function probeDatabase(): Promise<Probe> {
   const probe: Probe = { reachable: false, latencyMs: null, migrations: null, latestMigration: null, at: Date.now() };
   const started = performance.now();
   try {
-    const result = await getPool().query<{ count: number | null; latest: string | null }>(
-      `select case when to_regclass('schema_migrations') is null then null
-              else (select count(*)::int from schema_migrations) end as count,
-              case when to_regclass('schema_migrations') is null then null
-              else (select max(name) from schema_migrations) end as latest`,
-    );
+    // Two steps: Postgres resolves every table a statement names before running it, so a CASE
+    // around schema_migrations still fails on a database that has never been migrated.
+    const exists = await getPool().query<{ present: boolean }>("select to_regclass('schema_migrations') is not null as present");
     probe.reachable = true;
-    probe.migrations = result.rows[0]?.count ?? null;
-    probe.latestMigration = result.rows[0]?.latest ?? null;
+    if (exists.rows[0]?.present) {
+      const result = await getPool().query<{ count: number; latest: string | null }>(
+        "select count(*)::int as count, max(name) as latest from schema_migrations",
+      );
+      probe.migrations = result.rows[0]?.count ?? null;
+      probe.latestMigration = result.rows[0]?.latest ?? null;
+    }
     probe.latencyMs = Math.round(performance.now() - started);
-  } catch {
+  } catch (error) {
     probe.reachable = false;
+    // Server log only (never the response): the code and message say whether DNS, TLS or auth failed.
+    const e = error as { code?: string; message?: string };
+    console.error(`health: database probe failed: ${e.code ?? "no code"}: ${e.message ?? String(error)}`);
   }
   return probe;
 }
