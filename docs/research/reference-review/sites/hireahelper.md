@@ -29,7 +29,7 @@ Footer links invite movers to get listed, sign up and use provider software [cap
 
 ## Trust, verification and reviews
 - **Vetting.** A "five-point vetting process" precedes the first booking; the captured points are an owner background check, verified business and payment details, and "10+ reviews and a 4-star rating" [capture /how-it-works/]. Full-service bookings also need an insurance certificate [capture /movers/].
-- **Credentials.** No USDOT, MC or license check appears, though two points and the "License & Insurance" page were not captured, and v1 reported full-service license checks [capture; v1 §2.4]. Profile "Credentials" list only a self-declared uniformed-crew attribute [capture profiles].
+- **Credentials.** No USDOT, MC or license check appears in the excerpts, though two points and the "License & Insurance" page were not captured, and v1 reported full-service license checks [capture; v1 §2.4]. Profile "Credentials" list only a self-declared uniformed-crew attribute [capture profiles].
 - **Badge.** The review threshold sits inside "Vetted & Verified", so a business with no reviews cannot qualify; with reviews only from paid bookings, the source of those first reviews is unstated [capture /how-it-works/, /movers/].
 - **Reviews.** "Every review on HireAHelper comes from a real, paid move" (/movers/), and profiles show unedited reviews with mover replies, even to critical ones [capture]. Review dates, and how featured city-page reviews are picked, were not captured [capture].
 - **Guarantees.** The same $1,000 is "damage coverage" (/) and a "Service Guarantee" (/services/moving-companies/), and the price guarantee narrows to the same mover and date "on our platform" (/moving-cost-calculator/) [capture].
@@ -42,7 +42,7 @@ Footer links invite movers to get listed, sign up and use provider software [cap
 - **Data and phone.** Pages load FullStory session replay, MNTN retargeting and Optimizely beside a "Do not sell my information" footer link; checkout use is unknown, and the first checkout URL carries ZIPs and dates [capture; walk]. A phone link leads all six recorded mobile screens and varies by page and session, suggesting call tracking [capture].
 
 ## SEO and content
-- **Scale.** About 125,334 visits a month at about $10.45 each, with 11,736 referring domains (96% of backlinks nofollow): a benchmark, not a near-term target [semrush domain_rank, backlinks_overview; inference].
+- **Scale.** About 125,334 visits a month, valued at about $10.45 each, with 11,736 referring domains (96% of backlinks nofollow): a benchmark, not a near-term target [semrush domain_rank, backlinks_overview; inference].
 - **City pages.** Ten of the top 15 pages are city pages (30,820 visits, 24.6%), and the Dallas page reaches page one beside Yelp and Thumbtack [semrush top_pages, phrase_organic_top10]. keyword-research §1's "drive most traffic" cannot be shown, since 57% of traffic sits outside the top 15 [semrush]. The three captured city pages share 11 of their first 12 H2s and a meta template; what clearly differs is the mover inventory [capture].
 - **Few-keyword pages.** Tallahassee, Beckley and Oshkosh draw about 140-160 visits per keyword (Los Angeles: 7); check their queries before citing small metros as "achievable" (keyword-research §2) [semrush top_pages; inference].
 - **Misfiled pages.** The #2 page, /services/moving-companies/ (7,969 visits), is a service pillar, not the "best of" guide keyword-research §2 calls it; DIY cost and container guides are the only top-15 content pages [semrush top_pages; capture].
@@ -53,7 +53,7 @@ Footer links invite movers to get listed, sign up and use provider software [cap
 On mobile, the homepage leads with phone, logo and Trustpilot rating, then the H1 and two service buttons, under a promo banner [capture /]. Mobile profiles show no quote form among the first recorded elements [capture]. The homepage chooser is a custom widget the walker could not operate [walk /].
 
 ## What AMC should adopt or adapt
-- **Value before contact** [walk]. Better: after move details and the coverage check, preview Approved movers (names, USDOT, verification dates) without prices; ask for a date range, never pre-filled; keep any save-progress email apart from consent; reword AMC's planned "See available movers" button, which echoes HireAHelper. Serves: the quote survey (lead-lifecycle §2; visual-direction §5.3).
+- **Value before contact** [walk]. Better: after move details and the coverage check, preview Approved movers (names, USDOT, verification dates) without prices; ask for a date or flexible range, never pre-filled; keep any save-progress email apart from consent; reword AMC's planned "See available movers" button, which echoes HireAHelper. Serves: the quote survey (lead-lifecycle §2; visual-direction §5.3).
 - **Consumer choice** [capture /how-it-works/]. Better: name the eligible movers and allow deselection before consent, within the company-count limit; explain the order; label paid placement. Serves: named-mover consent (consent copy §5; compliance facts §2-§4).
 - **Role line** [capture /services/]. Better: AMC's role statement beside the hero button and in the survey, a footer "How we make money" link, and "compare", never "book". Serves: trust pages (consent copy §1, §7).
 - **Vetting checklist** [capture /how-it-works/]. Better: one page of AMC's checks and recheck cadence, linked from every badge, with "verified on {date}" and FMCSA links on profiles; tie every "licensed" claim, the draft role statement's included, to what was checked. Serves: movers-only and Preferred Movers (mover-verification §3-§5).
@@ -84,7 +84,7 @@ On mobile, the homepage leads with phone, logo and Trustpilot rating, then the H
 
 ## Sources
 - Evidence: `docs/research/reference-review/captures/hireahelper.md`, `_provenance.md`; private raw pack; v1 `docs/research/reference-matrix.md` §2.4.
-- Semrush (US, 2026-10-27): `docs/research/raw/semrush/` (domain_rank, top_pages, phrase_organic_top10, backlinks_overview); `docs/seo/raw/semrush_phrase_organic_top10_2026-10-27.csv`; `docs/research/keyword-research.md` §1-§2.
+- Semrush (US, 2026-10-27): `docs/research/raw/semrush/` (domain_rank, top_pages, phrase_organic_top10, backlinks_overview); `docs/seo/raw/semrush_phrase_organic_top10_2026-10-27.csv`; `docs/research/keyword-research.md` §1-§3.
 - AMC: `docs/00-discovery-brief.md`, `docs/business-rules/` (consent copy is `consent-and-disclosure-copy-draft.md`), `docs/research/compliance-and-platform-facts.md` (compliance facts), `docs/seo/site-architecture.md`, `docs/design/visual-direction.md`, `docs/product/mvp-scope.md`.
 - Pages: https://www.hireahelper.com/movers/dalton_ga/a-1-moving/ and the paths cited.
 - Search, not re-checked: https://sidehusl.com/hireahelper/, https://www.geekwire.com/2019/home-improvement-marketplace-porch-acquires-hireahelper-doubling-moving-services/, goodmigrations.com (all third party).

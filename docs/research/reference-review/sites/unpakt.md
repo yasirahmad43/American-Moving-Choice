@@ -25,7 +25,7 @@ A moving marketplace where consumers compare "guaranteed" prices, book a mover a
 - The redirect suggests an account is needed at some point [inference]; the failure may be sandbox-only [walk].
 
 ## Mover side
-Movers set their own unit cost [capture /how-it-works/]. No captured page covers mover fees, joining rules or screening; the For Service Providers, Agreement and Terms pages were not captured [capture], and search leads on fees (a 13% cut in 2012 press, help-center tiers) were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own]. Referral partners, including real estate agents, earn a fee per booked move, "paid monthly", and may offer clients "an exclusive discount for any moving company th…" (cut off) [capture /partnership/, footer]. One blog page loads an affiliates.unpakt.com widget loader, which suggests a partner widget; none was observed [capture blog /category/how-to-before-moving/; inference].
+Movers set their own unit cost [capture /how-it-works/]. No captured page covers mover fees, joining rules or screening; the For Service Providers, Agreement and Terms pages were not captured [capture], and search leads on mover fees were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own]. Referral partners, including real estate agents, earn a fee per booked move, "paid monthly", and may offer clients "an exclusive discount for any moving company th…" (cut off) [capture /partnership/, footer]. One blog page loads an affiliates.unpakt.com widget loader, which suggests a partner widget; none was observed [capture blog /category/how-to-before-moving/; inference].
 
 ## Trust, verification and reviews
 - **Vetting.** Movers are "pre screened" (/partnership/) and "licensed" (/faq/), with no method given, and v1's license, insurance and BBB checks are unconfirmed [capture; v1 §2.7].
@@ -37,7 +37,7 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 ## Disclosure and consent
 - **Role.** The copy says "our movers" but otherwise presents a booking platform, and no captured page says whether Unpakt is a mover, broker or neither [capture /]. Holding payments sits uneasily with v1's report that the Agreement disclaims "involvement or control over the actual transaction" [inference; v1 §2.7].
 - **Payment.** "You don't pay the movers directly" [capture /]; FMCSA's 2023 guidance weighs who handles money between shipper and carrier (compliance facts §2).
-- **Consent and tags.** No consent wording or consent-certificate script was seen, but the contact step was never reached [walk; capture]. An "I want to connect utilities" option sits by the main button, type and default unrecorded [capture /]. Google Ads, Tag Manager, Facebook, Zoho PageSense and Cloudflare load, with no cookie-consent host, though one could be self-hosted [capture].
+- **Consent and tags.** No consent wording or consent-certificate script was seen, but the contact step was never reached [walk; capture]. An "I want to connect utilities" option sits by the main button, type and default unrecorded [capture /]. Google, Facebook, Zoho PageSense and Cloudflare tags load, with no cookie-consent host, though one could be self-hosted [capture].
 - **Privacy.** The "Unpakt, LLC" policy counts "its affiliates" as "we", calls "item or shipment values" non-personal and may obtain data from "commercially available sources"; the excerpts do not say what movers receive [capture /privacy/].
 
 ## SEO and content
@@ -80,8 +80,7 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 - After the first screen: contact step, account rules, mover count, consent and named sellers [walk].
 - Agreement, Terms and For Service Providers pages: arbitration, refunds, card timing, commission disclosure [capture].
 - How Unpakt is paid; FMCSA or state registration (one search found none, which proves nothing); BBB and complaint records [search].
-- Profile and city templates; sources of the rating, scale and 45% claims; the utilities partner; the full privacy policy; tag access to form values [capture].
-- Ownership links: what "our Move affiliates" means, and whether founder-linked movers (FlatRate Moving, per unverified search summaries) appear in comparisons [capture /privacy/; search].
+- Profile and city templates; sources of the rating, scale and 45% claims; the utilities partner; the full privacy policy and who "our Move affiliates" are; tag access to form values [capture /privacy/].
 - Robots, sitemaps, keyword lists, backlinks and AI answers [capture; semrush].
 - Owner questions: merge "best movers in {city}" into city pages, against site-architecture §2.4 rule 6? Add a guide review interval tied to "Last reviewed" (§4.4, §7.3)? [inference]
 
