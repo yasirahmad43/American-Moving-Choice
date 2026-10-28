@@ -107,8 +107,8 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | ID | Text | Notes |
 |---|---|---|
 | route.summary | {origin_city}, {origin_state} to {destination_city}, {destination_state} | |
-| route.distance | {miles} miles between ZIP code centers | Whole miles, with a thousands separator, from 2 miles up |
-| route.distance.one | 1 mile between ZIP code centers | When the distance rounds to 1 mile |
+| route.distance | {miles} miles in a straight line between ZIP code centers | Whole miles, with a thousands separator, from 2 miles up |
+| route.distance.one | 1 mile in a straight line between ZIP code centers | When the distance rounds to 1 mile |
 | route.distance.short | Less than 1 mile between ZIP code centers | When the distance rounds below 1 mile |
 | route.distance.same | Within ZIP code {zip} | When both ZIP codes are the same |
 | route.type.local | Local | Move-type labels and rules match the method page's table. [Counsel: how to label local, in-state long-distance and interstate moves, in all six route.type.* strings and wherever they render (results.assume.distance; ST-7's scope), so readers don't infer which rules apply from AMC's distance rule (consumer-moving-rules note, counsel item 6; How movers charge carries the same marker)] |
@@ -119,7 +119,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | route.type.interstate.help | Different states, whatever the distance | |
 | route.check | If this looks wrong, check the ZIP codes. | |
 
-[Build: render nothing until both ZIP codes resolve, and never show "0 miles" (implications §8.1). Build plan §7.1 computes haversine (straight-line) distance; once that's confirmed, say "straight-line" here and on the method page, which still leaves the measure open]
+[Build: render nothing until both ZIP codes resolve, and never show "0 miles" (implications §8.1). Distance is haversine (straight-line) between ZIP centroids, as the method page now says (build plan §7.1, §7.3)]
 
 **Progress hint and errors**
 

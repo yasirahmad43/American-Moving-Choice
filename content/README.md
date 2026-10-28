@@ -44,7 +44,7 @@ last_updated: null                       # set by the CMS on the first approved 
 
 ## 3. Tokens and markers
 
-**Tokens** are values the CMS renders from a record, so a number or name lives in one place (implications §4.5; site architecture §6.3 rule 6). Never type the value by hand.
+**Tokens** are values the CMS renders from a record, so a number or name lives in one place (implications §4.5; site architecture §6.3 rule 6). Never type the value by hand. Until the CMS exists, `content/tokens.json` holds the values the site renders; `null` renders as a visible "pending" placeholder.
 
 | Token | Meaning | Current value or status | Source |
 |---|---|---|---|

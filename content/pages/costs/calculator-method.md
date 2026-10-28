@@ -61,7 +61,7 @@ One model version feeds the calculator wherever it appears on our site, its resu
 
 Every answer starts empty, unless you arrive from one of our route pages, which fills in that page's route for you to confirm or change. We don't preselect a home size or any services, and we don't fill in a ZIP code from your location unless you ask us to. [Build: every input starts empty except a route carried from a route page, which the visitor confirms (site architecture §3.2; implications §2.2); a scripted submit of defaults fails (implications §2.7); location is used only on request, then confirmed (implications §2.1)]
 
-**Where you're moving from and to.** You enter two ZIP codes, and we measure the distance between their centers. We use the same ZIP code data and distance measure as our request form, so the calculator and the form agree on your move type. [Build: build plan §7.1 measures haversine (straight-line) distance between ZIP centroids; lead lifecycle §3 says only that distances come from geocoded ZIP centroids. Confirm the measure for production and, if it's straight-line, say so here] [Owner: name the production ZIP dataset here once it's chosen. Lead lifecycle §3 names the US Census Gazetteer files and the HUD-USPS ZIP crosswalk, refreshed quarterly; build plan §7.1 uses GeoNames postal data from the zipcodes-us package] The two states and the distance set the move type:
+**Where you're moving from and to.** You enter two ZIP codes, and we measure the straight-line distance between their centers, using GeoNames postal code data. We use the same ZIP code data and distance measure as our request form, so the calculator and the form agree on your move type. [Owner: confirm the production ZIP dataset. The build uses GeoNames postal data (CC BY 4.0, via the zipcodes-us package; build plan §7.1); lead lifecycle §3 named the US Census Gazetteer files and the HUD-USPS ZIP crosswalk] The two states and the distance set the move type:
 
 | Move type | When it applies |
 |---|---|
@@ -71,15 +71,15 @@ Every answer starts empty, unless you arrive from one of our route pages, which 
 
 For a long-distance move, the distance also sets the distance band. Once you've entered both ZIP codes, the calculator shows the distance and move type it will use, so you can check them. [Build: show the distance only after both ZIP codes resolve, never a zero distance before input (implications §8.1)]
 
-**Home size.** You choose your home's size from the same list the request form uses. It sets the typical job we price: the crew size and crew hours for a local move, or the shipment weight for a long-distance move. [Build: the same size options as the "Size and services" step of the request form]
+**Home size.** You choose your home's size: a studio, or a home with 1, 2, 3, or 4 or more bedrooms. It sets the typical job we price: the crew size and crew hours for a local move, or the shipment weight for a long-distance move. Office moves and moves of only a few items get no range in this version, because rate cards don't price them. [Build: these five sizes match the household sizes in the "Size and services" step of the request form; the form's office and partial-move options show the no-range state with this reason]
 
 **Services.** You can add packing, storage and specialty items. Each mover's prices for the services you pick go into that mover's result, and a mover counts toward your range only if its rate card prices every service you pick. Storage is priced for {{cost.method.storage_assumption}}, and "specialty items" means {{cost.method.specialty_items}}.
 
-**Move month.** The calculator asks for a month only where enough movers give seasonal rates to pass the same thresholds as the range itself. Where it doesn't ask, we use each mover's standard rates, and the range's list of assumptions says so. [Data: ask for a move month only where seasonal rates pass the site architecture §6.3 thresholds]
+**Move month.** This version doesn't ask for a month. Every range uses each mover's standard rates, and the range's list of assumptions says so. A later version may ask for a month where enough movers give seasonal rates to pass the same thresholds as the range itself. [Data: add seasonal rates only where they pass the site architecture §6.3 thresholds]
 
 ## How is the range built?
 
-[Data: v1 proposal; data owner to confirm before launch: the rate-card format; both formulas, including which formula applies to interstate moves shorter than {{setting.local_radius_miles}} miles and whether local ranges should change with distance; which movers count, including the every-service rule; the storage period and the list of specialty items; how typical hours and weights are set; the percentiles; the rounding units; and the distance bands. Build plan §7.3 sets different defaults for several of these, and brief §8 records each difference]
+[Data: v1 proposal; the defaults below match build plan §7.3, and the data owner confirms them before launch: the rate-card format; both formulas (every interstate move uses the long-distance formula, however short; local ranges don't change with distance); which movers count, including the every-service rule; the storage period and the specialty-item definition; how typical hours, weights and crew sizes are set; the percentiles; the rounding units; and the distance bands]
 
 Each range comes from rate cards: what movers in our network tell us they charge. We price the same typical job with each mover's own rates, then take the middle of the results.
 
@@ -91,12 +91,11 @@ Under the proposed format, a mover's rate card lists:
 - any truck or travel fee it charges on local moves;
 - its rate for each distance band on long-distance moves;
 - its prices for packing, storage and specialty items;
-- the crew size, crew hours and shipment weight it expects for each home size;
-- its seasonal rates, if it charges them.
+- the crew size, crew hours and shipment weight it expects for each home size.
 
 ### Which movers count
 
-A mover's rate card goes into your range only if the mover is currently in our network, serves your move's area, and has rates for your move type, distance band, home size and every service you pick. We call these movers the contributing movers. A range needs at least {{cost.method.min_movers}} of them. Movers under common ownership count as one. [Build: rate cards count only while the mover's account is active: approved and not suspended] [Data: define "area" for each move type, for example the origin county or state for local moves and the origin and destination states for long-distance moves; build plan §7.3 uses the origin state and, for long-distance moves, the band] [Owner: extend implications §11 Q12 (one purchase per corporate family) to range counting — default shown: yes; the data owner says which brand's rate card counts]
+A mover's rate card goes into your range only if the mover is currently in our network, its rate card covers the state you're moving from, and it has rates for your move type, distance band, home size and every service you pick. We call these movers the contributing movers. A range needs at least {{cost.method.min_movers}} of them. Movers under common ownership count as one. [Build: rate cards count only while the mover's account is active: approved and not suspended] [Data: the area is the origin state for every move type in v1 (build plan §7.3); a later version may narrow it to counties for local moves] [Owner: extend implications §11 Q12 (one purchase per corporate family) to range counting — default shown: yes; the data owner says which brand's rate card counts] [Build: counting a corporate family as one mover needs family data (implications §9.5); until it exists, each company counts separately, so this sentence waits for that data]
 
 Under our proposed rules, movers who serve a market where the calculator shows ranges give us a rate card when they join. [Owner: whether rate-card submission is required at onboarding — default shown: required for movers in markets with a published range (new question; not in implications §11)]
 
@@ -134,7 +133,7 @@ We line up the contributing movers' results from lowest to highest. The range ru
 
 We round the low end down and the high end up, to whole multiples of {{cost.method.rounding_unit_local}} for a local move or {{cost.method.rounding_unit_long_distance}} for a long-distance move. That way, rounding never makes the range narrower than the span from the {{cost.method.percentile_low}} to the {{cost.method.percentile_high}} percentile.
 
-The typical crew hours and shipment weight for each home size are the medians of what movers state on their rate cards: half state more and half state less. We take these medians across every mover whose rate card covers your area, move type and home size, whatever services you pick, so adding a service never changes the typical job. Because every mover is priced on the same typical job, the range shows how movers' rates differ, not how each mover sizes a job. [Data: how the typical crew size for each home size is set, to be fixed with the rate-card format]
+The typical crew size, crew hours and shipment weight for each home size are the medians of what movers state on their rate cards: half state more and half state less. We take these medians across every mover whose rate card covers your area, move type and home size, whatever services you pick, so adding a service never changes the typical job. Because every mover is priced on the same typical job, the range shows how movers' rates differ, not how each mover sizes a job. We find each percentile by linear interpolation between the two nearest results. [Data: the crew-size median rounds to a whole crew size the mover's card prices; confirm with the rate-card format]
 
 We don't raise or lower any mover's figures; rounding the range outward is the only change we make. The calculator shows ranges only, never one figure, and we never claim you'll pay less by using us: movers set their own prices.
 
@@ -152,7 +151,7 @@ We use these sources in this order of preference. Only the first one sets a calc
 
 1. **Rate cards from movers in our network.** The source of every calculator range, including the typical hours and weights. A range needs at least {{cost.method.min_movers}} contributing movers (see [Which movers count](#which-movers-count)).
 2. **Totals from consented move requests sent through our site**, combined so no single request shows. Only for facts that aren't prices, and never for prices. We use them only with at least {{cost.method.request_min_n}} requests per area over at least {{cost.method.request_min_days}} days, and we hide any group of fewer than {{cost.method.request_suppress_below}} requests. If we show figures built from requests, we call them "recent request mix by route and size", never "recent estimates". [Owner: apply site architecture §7.5's 90-day period to request data in the cost model — default shown (new question)] [Counsel: confirm the consent basis for aggregate use of request data and that the privacy policy permits it, and review the "recent request mix" block (site architecture §6.3 rule 7, §7.5, §11)]
-3. **Public data**, such as Bureau of Labor Statistics wage data for hand laborers and material movers (SOC 53-7062). We use it only as context on labor costs. It never sets or changes a range. [Verify: confirm the occupation title against the BLS occupational profile and link it before publishing]
+3. **Public data**, such as Bureau of Labor Statistics wage data for the occupation "Laborers and Freight, Stock, and Material Movers, Hand" (SOC 53-7062). We use it only as context on labor costs. It never sets or changes a range. [Verify: confirm the occupation title against the BLS occupational profile and link it before publishing; docs/research/content-claims/consumer-moving-rules.md C20 gives this title]
 4. **Third-party studies that publish their method**, cited by name and date. They give context and never set a calculator range.
 
 Figures published by other companies are never treated as our data.
