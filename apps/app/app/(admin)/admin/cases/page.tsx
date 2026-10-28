@@ -5,7 +5,7 @@ import { Card, Field, Input, PageHeader, Select, Table, Textarea } from "@amc/ui
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionForm } from "@/components/admin/action-form";
-import { FilterBar, FilterSelect, Status, When, param } from "@/components/admin/admin-ui";
+import { FilterBar, FilterSelect, Mono, Status, When, humanize, param } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { createCaseAction } from "./actions";
 
@@ -38,8 +38,18 @@ export default async function CasesPage({ searchParams }: { searchParams: Promis
         rows={cases}
         empty={<p className="text-text-2">No cases match these filters.</p>}
         columns={[
-          { key: "type", header: "Case", cell: (r) => <Link className="font-semibold text-link underline" href={`/admin/cases/${r.id}`}>{CASE_TYPE_LABELS[r.case_type]}</Link> },
-          { key: "company", header: "Company", cell: (r) => r.company_name ?? "Not linked" },
+          {
+            key: "type",
+            header: "Case",
+            cell: (r) => (
+              <span className="grid">
+                <Link className="font-semibold text-link underline" href={`/admin/cases/${r.id}`}>{CASE_TYPE_LABELS[r.case_type]}</Link>
+                <Mono>{r.reference_code}</Mono>
+              </span>
+            ),
+          },
+          { key: "source", header: "Source", cell: (r) => humanize(r.source) },
+          { key: "company", header: "Company", cell: (r) => r.company_name ?? (r.reported_company ? <span>Named: {r.reported_company}</span> : "Not linked") },
           { key: "status", header: "Status", cell: (r) => <Status value={r.status} label={CASE_STATUS_LABELS[r.status]} /> },
           { key: "assignee", header: "Assignee", cell: (r) => r.assignee_email ?? "Unassigned" },
           {

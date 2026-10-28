@@ -51,6 +51,9 @@ export const isCaseStatus = (v: string): v is CaseStatus => (CASE_STATUSES as re
 
 export interface CaseRow {
   id: string;
+  reference_code: string;
+  reported_company: string | null;
+  source: string;
   case_type: CaseType;
   company_id: string | null;
   company_name: string | null;
@@ -67,7 +70,7 @@ export interface CaseRow {
   updated_at: Date;
 }
 
-const CASE_SELECT = `select k.id, k.case_type, k.company_id, c.legal_name as company_name, k.lead_id, k.review_id, k.description, k.status,
+const CASE_SELECT = `select k.id, k.reference_code, k.reported_company, k.source, k.case_type, k.company_id, c.legal_name as company_name, k.lead_id, k.review_id, k.description, k.status,
        k.assignee, u.email as assignee_email, k.sla_due_at, k.outcome, k.resolved_at, k.created_at, k.updated_at
   from cases k left join companies c on c.id = k.company_id left join users u on u.id = k.assignee`;
 
@@ -102,7 +105,7 @@ export async function listCases(
 export async function getCase(caseId: string, db: Queryable = getPool()) {
   if (!isUuid(caseId)) return null;
   const found = await db.query<CaseRow & { reporter_name: string | null; reporter_email: string | null; reporter_phone: string | null; company_status: string | null }>(
-    `select k.id, k.case_type, k.company_id, c.legal_name as company_name, c.status as company_status, k.lead_id, k.review_id, k.description, k.status,
+    `select k.id, k.reference_code, k.reported_company, k.source, k.case_type, k.company_id, c.legal_name as company_name, c.status as company_status, k.lead_id, k.review_id, k.description, k.status,
             k.assignee, u.email as assignee_email, k.sla_due_at, k.outcome, k.resolved_at, k.created_at, k.updated_at,
             k.reporter_name, k.reporter_email, k.reporter_phone
      from cases k left join companies c on c.id = k.company_id left join users u on u.id = k.assignee where k.id = $1`,

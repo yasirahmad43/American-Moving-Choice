@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/admin/action-form";
-import { Facts, JsonDetails, Mono, Status, When } from "@/components/admin/admin-ui";
+import { Facts, JsonDetails, Mono, Status, When, humanize } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
 import { ROLES } from "../../_lib/roles";
 import { caseReverifyAction, caseSuspendAction, updateCaseAction } from "../actions";
@@ -28,7 +28,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
       <PageHeader
         size="portal"
         breadcrumbs={[{ label: "Cases", href: "/admin/cases" }, { label: CASE_TYPE_LABELS[k.case_type] }]}
-        title={`${CASE_TYPE_LABELS[k.case_type]} case`}
+        title={`${CASE_TYPE_LABELS[k.case_type]} case ${k.reference_code}`}
         description={
           <span className="flex flex-wrap items-center gap-2">
             <Status value={k.status} label={CASE_STATUS_LABELS[k.status]} /> Opened <When value={k.created_at} /> · SLA due <When value={k.sla_due_at} />
@@ -41,6 +41,9 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
             <p className="whitespace-pre-line">{k.description}</p>
             <Facts
               items={[
+                { label: "Reference", value: <Mono>{k.reference_code}</Mono> },
+                { label: "Source", value: humanize(k.source) },
+                { label: "Company named by the reporter", value: k.reported_company },
                 { label: "Reporter", value: k.reporter_name },
                 { label: "Reporter email", value: k.reporter_email },
                 { label: "Reporter phone", value: k.reporter_phone },

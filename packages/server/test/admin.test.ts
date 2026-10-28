@@ -395,6 +395,7 @@ describe("cases", () => {
     const id = await createCase(admin, { caseType: "broker_activity", description: "Consumer says the mover handed the job to another company.", companyId: company(2), reporterEmail: "reporter@demo.invalid" });
     const created = await getCase(id);
     expect(created?.case.sla_due_at).toBeInstanceOf(Date);
+    expect(created?.case).toMatchObject({ source: "admin", reference_code: expect.stringMatching(/^CASE-/) });
     await expectAdminError(updateCase(admin, id, { status: "resolved" }), "missing_outcome");
     await updateCase(admin, id, { assignee: ADMIN, status: "in_progress" });
     expect(await caseReverify(admin, id)).toBe("pass");
