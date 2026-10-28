@@ -588,10 +588,12 @@ function checkPlan(c: CompanySpec): Partial<Record<CheckType, CheckOutcome>> {
 // ================================================================== rate cards (build plan §7.3)
 
 // Hourly rates for crews of 2, 3, 4 and 5 movers.
-const RATE_BASE: Partial<Record<StateCode, { crew: [number, number, number, number]; travel: number; cwt: [number, number, number, number, number]; extraHours: number }>> = {
-  TX: { crew: [12900, 16900, 20900, 24900], travel: 12500, cwt: [6800, 8200, 9800, 11200, 12800], extraHours: 0 },
-  FL: { crew: [13500, 17500, 21900, 26300], travel: 13500, cwt: [7000, 8500, 10100, 11500, 13200], extraHours: 0 },
-  CA: { crew: [16900, 21900, 26900, 31900], travel: 17500, cwt: [7900, 9500, 11300, 12900, 14800], extraHours: 0.5 },
+// Packing and monthly storage by home size (studio to 4+ bedrooms), and one specialty item.
+type Five = [number, number, number, number, number];
+const RATE_BASE: Partial<Record<StateCode, { crew: [number, number, number, number]; travel: number; cwt: Five; extraHours: number; packing: Five; storage: Five; specialty: number }>> = {
+  TX: { crew: [12900, 16900, 20900, 24900], travel: 12500, cwt: [6800, 8200, 9800, 11200, 12800], extraHours: 0, packing: [30000, 45000, 65000, 90000, 120000], storage: [15000, 20000, 27500, 35000, 45000], specialty: 35000 },
+  FL: { crew: [13500, 17500, 21900, 26300], travel: 13500, cwt: [7000, 8500, 10100, 11500, 13200], extraHours: 0, packing: [32000, 47500, 68000, 94000, 125000], storage: [16000, 21500, 29000, 37000, 47500], specialty: 37500 },
+  CA: { crew: [16900, 21900, 26900, 31900], travel: 17500, cwt: [7900, 9500, 11300, 12900, 14800], extraHours: 0.5, packing: [38000, 56000, 80000, 110000, 145000], storage: [20000, 27000, 36000, 46000, 59000], specialty: 45000 },
 };
 
 const round100 = (cents: number): number => Math.round(cents / 100) * 100;
@@ -603,7 +605,7 @@ const round100 = (cents: number): number => Math.round(cents / 100) * 100;
 export const rateCardAgeDays = (c: { n: number; daysAgo: number }): number =>
   Math.max(1, Math.min(c.daysAgo - 2, 30 + ((c.n * 37) % 270)));
 
-function rateCardFor(state: StateCode, factor: number): { local: object; long_distance: object } {
+function rateCardFor(state: StateCode, factor: number, offered: readonly Service[] = []): { local: object; long_distance: object; services: object } {
   const b = RATE_BASE[state];
   if (!b) throw new Error(`No rate card base for ${state}`);
   const f = (cents: number) => round100(cents * factor);
@@ -621,8 +623,16 @@ function rateCardFor(state: StateCode, factor: number): { local: object; long_di
       },
       weight_lbs_by_size: { studio: 2000, "1br": 3000, "2br": 4500, "3br": 6500, "4br_plus": 9000 },
     },
-    // Service prices (packing, storage, specialty items) go in rate_cards.services, which slice S3
-    // adds in its own migration together with the seed's service prices (build plan §7.3).
+    // rate_cards.services (migration 120, slice S3): priced only for the services the company offers.
+    services: {
+      packing_cents_by_size: offered.includes("packing")
+        ? { studio: f(b.packing[0]), "1br": f(b.packing[1]), "2br": f(b.packing[2]), "3br": f(b.packing[3]), "4br_plus": f(b.packing[4]) }
+        : null,
+      storage_cents_per_month_by_size: offered.includes("storage")
+        ? { studio: f(b.storage[0]), "1br": f(b.storage[1]), "2br": f(b.storage[2]), "3br": f(b.storage[3]), "4br_plus": f(b.storage[4]) }
+        : null,
+      specialty_item_cents: offered.includes("specialty_items") ? f(b.specialty) : null,
+    },
   };
 }
 
@@ -1055,10 +1065,10 @@ end $$;\n`);
       effective_from: at(-(c.status === "approved" ? c.daysAgo : c.daysAgo - 1) * DAY), set_by: "seed",
     }))),
     insert("rate_cards", COMPANIES.filter((c) => c.rateCard).map((c) => {
-      const card = rateCardFor(c.hq.state, c.rateCard!.factor);
+      const card = rateCardFor(c.hq.state, c.rateCard!.factor, c.capabilities?.services ?? []);
       return {
         id: ids.rateCard(c.n), company_id: ids.company(c.n), states: textArray([c.hq.state]), local: jsonb(card.local),
-        long_distance: jsonb(card.long_distance), status: "active", submitted_by: c.n === owner.n ? MOVER_OWNER : null,
+        long_distance: jsonb(card.long_distance), services: jsonb(card.services), status: "active", submitted_by: c.n === owner.n ? MOVER_OWNER : null,
         created_at: at(-rateCardAgeDays(c) * DAY),
       };
     })),
