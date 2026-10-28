@@ -2,12 +2,12 @@
 
 A marketplace for booking hourly moving crews and local full-service moves, paid through its own checkout [capture /services/, /how-it-works/]; the owner named its A-1 Moving profile, a structure AMC's discovery brief calls "the best model" (00-discovery-brief.md §3 item 4).
 
-**Reviewed:** 2026-10-27. **Evidence:** 13 of 14 pages captured (/affiliate/ blocked by Cloudflare); an automated walk from the profile to the mover list, reached before any contact details; Semrush US, October 2026; standard WebSearch, not re-checked, so search-only claims are hedged or left out. **Confidence:** medium, because booking, checkout consent, terms and provider fees were not seen.
+**Reviewed:** 2026-10-27. **Evidence:** 13 of 14 pages captured (/affiliate/ blocked by Cloudflare); an automated walk from the profile to the mover list, reached before any contact details; Semrush US, October 2026; standard WebSearch (search-only claims not re-checked, so hedged or omitted). **Confidence:** medium, because booking, checkout consent, terms and provider fees were not seen.
 
 ## At a glance
 - Consumers compare providers, pick one team, then book and pay through HireAHelper [capture /how-it-works/; walk].
 - Two short screens from a profile reach a mover list with no contact details or consent wording [walk].
-- Its best trust signals (paid-move reviews, booked-move counts, the $1,000 guarantee) depend on running bookings and payment, which AMC does not do, so the discovery brief's "best model" view needs revising [inference].
+- Its best trust signals (paid-move reviews, booked-move counts, the $1,000 guarantee) depend on taking payment, which AMC does not do; the discovery brief's "best model" view needs revising [inference].
 - Captured vetting text names no USDOT, MC or license check and no last-checked date [capture /how-it-works/].
 - Counts and ratings differ between pages and carry no date [capture].
 - About 125,334 organic visits a month; city pages lead its top 15, but it is absent from six measured long-distance and interstate top 10s [semrush].
@@ -25,7 +25,7 @@ A marketplace for booking hourly moving crews and local full-service moves, paid
 - **Test limits.** The Georgia-to-Florida test ran "No Truck, Labor Only" and listed other companies first; the labor-only form and out-of-area ZIPs make this inconclusive [walk].
 
 ## Mover side
-Footer links invite movers to get listed, sign up and use provider software, beside a "Movers Academy" link whose content was not captured [capture footer]. Each booking goes to one chosen provider, so no sharing cap applies [inference]. Providers "advertise on HireAHelper" (/), but no captured page says what they pay, and search-only fee figures were not re-checked [capture; search: https://sidehusl.com/hireahelper/, third party]. For AMC, labor-only requests depend on approved carriers that also sell labor (mvp-scope §6), and /for-movers/ should publish lead prices and credit rules (shared-pricing-and-credits.md) [inference].
+Footer links invite movers to get listed, sign up and use provider software [capture footer]. Each booking goes to one chosen provider, so no sharing cap applies [inference]. Providers "advertise on HireAHelper" (/), but no captured page says what they pay, and search-only fee figures were not re-checked [capture; search: https://sidehusl.com/hireahelper/, third party]. For AMC, labor-only requests depend on approved carriers that also sell labor (mvp-scope §6), and /for-movers/ should publish lead prices and credit rules (shared-pricing-and-credits.md) [inference].
 
 ## Trust, verification and reviews
 - **Vetting.** A "five-point vetting process" precedes the first booking; the captured points are an owner background check, verified business and payment details, and "10+ reviews and a 4-star rating" [capture /how-it-works/]. Full-service bookings also need an insurance certificate [capture /movers/].
@@ -44,9 +44,9 @@ Footer links invite movers to get listed, sign up and use provider software, bes
 ## SEO and content
 - **Scale.** About 125,334 visits a month at about $10.45 each, with 11,736 referring domains (96% of backlinks nofollow): a benchmark, not a near-term target [semrush domain_rank, backlinks_overview; inference].
 - **City pages.** Ten of the top 15 pages are city pages (30,820 visits, 24.6%), and the Dallas page reaches page one beside Yelp and Thumbtack [semrush top_pages, phrase_organic_top10]. keyword-research §1's "drive most traffic" cannot be shown, since 57% of traffic sits outside the top 15 [semrush]. The three captured city pages share 11 of their first 12 H2s and a meta template; what clearly differs is the mover inventory [capture].
-- **Few-keyword pages.** Tallahassee, Beckley and Oshkosh earn about 140-160 visits per keyword, against 7 for Los Angeles; check their queries before citing small metros as "achievable" (keyword-research §2) [semrush top_pages; inference].
+- **Few-keyword pages.** Tallahassee, Beckley and Oshkosh draw about 140-160 visits per keyword (Los Angeles: 7); check their queries before citing small metros as "achievable" (keyword-research §2) [semrush top_pages; inference].
 - **Misfiled pages.** The #2 page, /services/moving-companies/ (7,969 visits), is a service pillar, not the "best of" guide keyword-research §2 calls it; DIY cost and container guides are the only top-15 content pages [semrush top_pages; capture].
-- **Long distance.** No route, state or long-distance URL is in the top 15, and the stated long-distance offer is labor at both ends (a long-distance movers link was not followed), which supports AMC's long-distance and route waves (site-architecture §5) [semrush; capture /services/; inference].
+- **Long distance.** No route, state or long-distance URL is in the top 15, and the stated long-distance offer is labor at both ends (a long-distance link was not followed), supporting AMC's long-distance and route waves (site-architecture §5) [semrush; capture /services/; inference].
 - **Markup and content.** Profile MovingCompany ratings match the page; /advice/ shows bylines, dates and answer-first excerpts; the ungated calculator says "not estimates" under an "Accurate Moving Estimate" title [capture].
 
 ## Design and UX

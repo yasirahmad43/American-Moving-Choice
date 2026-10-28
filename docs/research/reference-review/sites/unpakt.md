@@ -20,7 +20,7 @@ A moving marketplace where consumers compare "guaranteed" prices, book a mover a
 | 2. Submit | "Get Prices & Compare Movers" | "Something went wrong creating your move plan", then /sign-in/, twice | [walk /] |
 | 3. Inventory to booking | Not observed | Not observed | [walk] |
 
-- The walk sent the presets and the site tried to create a move plan, so unchosen values are accepted; whether a later step confirms them is unknown [walk /].
+- The walk sent the presets and the site tried to create a move plan, so unchosen values pass; no later confirmation step was observed [walk /].
 - No captured page says whether, or how many, movers receive contact details [capture].
 - The redirect suggests an account is needed at some point [inference]; the failure may be sandbox-only [walk].
 
@@ -28,21 +28,21 @@ A moving marketplace where consumers compare "guaranteed" prices, book a mover a
 Movers set their own unit cost [capture /how-it-works/]. No captured page covers mover fees, joining rules or screening; the For Service Providers, Agreement and Terms pages were not captured [capture], and search leads on fees (a 13% cut in 2012 press, help-center tiers) were not re-verified [search: betakit.com, third party; unpakt-mover-faq.groovehq.com, site's own]. Referral partners, including real estate agents, earn a fee per booked move, "paid monthly", and may offer clients "an exclusive discount for any moving company th…" (cut off) [capture /partnership/, footer]. One blog page loads an affiliates.unpakt.com widget loader, which suggests a partner widget; none was observed [capture blog /category/how-to-before-moving/; inference].
 
 ## Trust, verification and reviews
-- **Vetting.** "Pre screened" (/partnership/) and "licensed" (/faq/) come with no method, and v1's license, insurance and BBB checks are unconfirmed [capture; v1 §2.7].
+- **Vetting.** Movers are "pre screened" (/partnership/) and "licensed" (/faq/), with no method given, and v1's license, insurance and BBB checks are unconfirmed [capture; v1 §2.7].
 - **Guarantee.** The home page offers a "100% price and service guarantee", says quotes are "not based on estimates" and promises "no hidden fees" [capture /]. The price comes instantly from the online inventory, before anyone sees the goods; later surveys were not observed [capture /how-it-works/].
 - **Claims.** "800,000+ moves booked", "save 45%", "the only place" and "the the biggest online resource" have no source or date [capture /, /partnership/, blog / meta]; v1's 2015 commissioned-study origin for the 45% is unconfirmed [v1 §2.7].
 - **Ratings.** The 4.2 / 36 markup describes Unpakt itself, even on /sign-in/ [capture]; 36 ratings beside 800,000+ bookings looks hard-coded [inference]. Off-site scores were not re-verified and are not repeated [search, third party].
 - **Reviews.** "Real customer reviews" are promised with no explanation of collection or checks [capture / meta]; v1 said some profile reviews come from other portals [v1 §2.7].
 
 ## Disclosure and consent
-- **Role.** "Our movers" copy presents a booking platform, and no captured page says whether Unpakt is a mover, broker or neither [capture /]. Holding payments sits uneasily with v1's report that the Agreement disclaims "involvement or control over the actual transaction" [inference; v1 §2.7].
+- **Role.** The copy says "our movers" but otherwise presents a booking platform, and no captured page says whether Unpakt is a mover, broker or neither [capture /]. Holding payments sits uneasily with v1's report that the Agreement disclaims "involvement or control over the actual transaction" [inference; v1 §2.7].
 - **Payment.** "You don't pay the movers directly" [capture /]; FMCSA's 2023 guidance weighs who handles money between shipper and carrier (compliance facts §2).
 - **Consent and tags.** No consent wording or consent-certificate script was seen, but the contact step was never reached [walk; capture]. An "I want to connect utilities" option sits by the main button, type and default unrecorded [capture /]. Google Ads, Tag Manager, Facebook, Zoho PageSense and Cloudflare load, with no cookie-consent host, though one could be self-hosted [capture].
 - **Privacy.** The "Unpakt, LLC" policy counts "its affiliates" as "we", calls "item or shipment values" non-personal and may obtain data from "commercially available sources"; the excerpts do not say what movers receive [capture /privacy/].
 
 ## SEO and content
-- **Footprint.** Home takes 65.72% of estimated visits and /moving-companies/NY/new-york/ 19.29%, with the reference set's highest value per visit ($22.94, twice hireahelper.com's) [semrush top_pages_more, domain_rank]; it is no Wave 1 rival [semrush phrase_organic_top10]. Commercial landing pages may explain the value [inference].
-- **City pages.** NYC earns 1,153 visits; five other cities earn 9 to 48 each, even at KD 37 (Miami) and KD 30 (Columbus), and profiles and service pages 9 to 73 [semrush top_pages_more, phrase_these]. NYC has 4 times Miami's demand but 24 times its visits, for reasons not shown [semrush top_pages_more; site-architecture §5.2].
+- **Footprint.** Home takes 65.72% of estimated visits and /moving-companies/NY/new-york/ 19.29%, with the reference set's highest value per visit ($22.94, about twice hireahelper.com's) [semrush top_pages_more, domain_rank]; it is no Wave 1 rival [semrush phrase_organic_top10].
+- **City pages.** NYC earns 1,153 visits; five other cities earn 9 to 48 each, even at KD 37 (Miami) and KD 30 (Columbus), and profiles and service pages 9 to 73 [semrush top_pages_more, phrase_these]. NYC has about 4 times Miami's demand but 24 times its visits, for reasons not shown [semrush top_pages_more; site-architecture §5.2].
 - **URLs.** Uppercase states mix with lowercase cities (/moving-companies/FL/miami/), and profiles sit at /movers/{company}-{city}-{st}/, correcting v1, which saw no geo URLs [semrush top_pages_more; v1 §2.7].
 - **Two hosts.** www (MovingCompany markup) and a WordPress blog (Organization markup) have separate navs, and NYC intent overlaps: the city page and a blog "Best Moving Companies in New York City" post [capture blog /; semrush top_pages_more].
 - **Blog.** Seven blog URLs earn 473 visits, about 330 on population, museum, restaurant and home-type lists [semrush top_pages_more]. Dates are relative ("2 years ago" to "4 years ago"), a title says "in 2023", and cost posts show no method or source [capture blog].
@@ -52,7 +52,7 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 ## Design and UX
 - On mobile, "The Moving App" link precedes the H1 on all four www pages with a recorded order; the home "Moving From" field and a support link sit above the fold [capture /, /partnership/, /how-it-works/, /sign-in/].
 - On desktop, promo, provider and login links precede the H1; the form's position was not recorded [capture /].
-- Explainers carry a "Start!" form, and both home address inputs share one element id [capture /how-it-works/, /faq/; walk /].
+- Both home address inputs share one element id [walk /].
 
 ## What AMC should adopt or adapt
 - **Move details first, from any page** [walk /; capture /how-it-works/]. Better: route fields after the H1 and lede on mobile and every explainer; required size choices pairing bedrooms with square feet, never preset; a flexible-date option; stops and storage early; unique field ids and labels. Serves: quote survey (lead-lifecycle §2 steps 1-5; shared-pricing §6; visual-direction §12).
