@@ -15,6 +15,7 @@ import {
   submitApplication,
   type ApplicationStep,
 } from "@amc/server/companies";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { errorResult, type ActionState } from "@/components/portal/onboarding/form-state";
 import { actionContext, deliverOutboxLater, formValues } from "@/components/portal/onboarding/server-helpers";
@@ -76,6 +77,8 @@ export async function saveStepAction(previous: ActionState, formData: FormData):
     return errorResult(previous, message, { fieldErrors: result.fieldErrors, values });
   }
   const next = APPLICATION_STEPS[APPLICATION_STEPS.indexOf(step) + 1] ?? "review";
+  // The portal layout shows the company name and status; render it again.
+  if (step === "company") revalidatePath("/portal", "layout");
   redirect(`/portal/application?step=${next}&saved=${step}`);
 }
 
@@ -95,5 +98,6 @@ export async function submitApplicationAction(previous: ActionState, formData: F
     return errorResult(previous, `Finish or update these steps first: ${result.missing.map((s) => STEP_TITLES[s]).join(", ")}.`, { values });
   }
   deliverOutboxLater();
+  revalidatePath("/portal", "layout");
   redirect(`/portal?submitted=${result.status}`);
 }
