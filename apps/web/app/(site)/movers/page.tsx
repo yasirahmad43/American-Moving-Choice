@@ -1,5 +1,6 @@
 import { Breadcrumbs, Container } from "@amc/ui";
-import { GEO_THRESHOLDS, publishedStateHubs } from "@amc/server/geo-pages";
+import { GEO_THRESHOLDS } from "@amc/server/geo-pages";
+import { publishedStateUrls } from "@amc/server/seo";
 import { getSettings } from "@amc/server/settings";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -13,10 +14,10 @@ export const metadata: Metadata = {
   ...canonical("/movers/"),
 };
 
-/** Geo index (site architecture §1.2): lists published hubs only; in the preview none pass the gates. */
+/** Geo index (site architecture §1.2): lists published state pages only (seo_pages, status published). */
 export default async function MoversIndexPage() {
   await connection();
-  const [hubs, settings] = await Promise.all([publishedStateHubs(), getSettings()]);
+  const [hubs, settings] = await Promise.all([publishedStateUrls(), getSettings()]);
   return (
     <Container size="reading" className="grid gap-10 section-pad">
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Movers", path: "/movers/" }])} />
@@ -43,9 +44,9 @@ export default async function MoversIndexPage() {
         {hubs.length ? (
           <ul className="grid gap-2 sm:grid-cols-2">
             {hubs.map((state) => (
-              <li key={state.code}>
-                <Link href={`/movers/${state.slug}/`} className="link">
-                  Movers in {state.name}
+              <li key={state.stateCode}>
+                <Link href={state.url} className="link">
+                  {state.h1}
                 </Link>
               </li>
             ))}
@@ -57,6 +58,27 @@ export default async function MoversIndexPage() {
             the state's own rules for movers. Until then, the ZIP check above and the quote survey show coverage for your move.
           </p>
         )}
+      </section>
+
+      <section aria-labelledby="plan-heading" className="grid gap-3">
+        <h2 id="plan-heading" className="type-h3 text-text">
+          Routes, services, costs and planning
+        </h2>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {[
+            { href: "/routes/", label: "Moving routes: state-to-state and city-to-city" },
+            { href: "/services/", label: "Moving services: local, long-distance, interstate, packing, storage, specialty" },
+            { href: "/moving-costs/", label: "Moving costs and the cost calculator" },
+            { href: "/questions/", label: "Moving questions answered from the rules" },
+            { href: "/planning/", label: "Planning checklists" },
+          ].map((link) => (
+            <li key={link.href}>
+              <Link href={link.href} className="link inline-flex min-h-11 items-center">
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section aria-labelledby="how-heading" className="grid gap-3 text-text">

@@ -9,7 +9,7 @@ export function generateMetadata(): Metadata {
   const page = calculatorPageContent();
   // The front-matter title has no site suffix (site architecture §8.2 template, 55 characters).
   // Results render client-side after a POST and never get their own URL, so they can't be indexed.
-  return { title: { absolute: page.title }, description: page.metaDescription };
+  return { title: { absolute: page.title }, description: page.metaDescription, alternates: { canonical: "/moving-cost-calculator/" } };
 }
 
 /** Styles for the drafted copy rendered from Markdown (headings, lists, links and review notes). */
