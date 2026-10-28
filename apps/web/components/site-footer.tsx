@@ -1,7 +1,7 @@
 import { env } from "@amc/server/env";
 import { Wordmark } from "@amc/ui";
 import Link from "next/link";
-import { GEONAMES_CREDIT, HELP_LINKS, LEGAL_LINKS, TRUST_LINKS, type NavLink } from "@/lib/site";
+import { EXPLORE_LINKS, GEONAMES_CREDIT, HELP_LINKS, LEGAL_LINKS, TRUST_LINKS, type NavLink } from "@/lib/site";
 import { storedText } from "@/lib/stored-texts";
 
 function LinkList({ title, links }: { title: string; links: NavLink[] }) {
@@ -29,11 +29,12 @@ export function SiteFooter() {
   const appUrl = env().APP_URL;
   return (
     <footer data-band="" className="bg-band text-on-band">
-      <div className="mx-auto grid max-w-content gap-10 py-12 gutter lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
+      <div className="mx-auto grid max-w-content gap-10 py-12 gutter lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,1fr))]">
         <div className="grid content-start gap-4">
           <Wordmark tone="reversed" />
           <p className="max-w-[60ch] text-on-band-2">{storedText("ST-1a")}</p>
         </div>
+        <LinkList title="Find movers" links={EXPLORE_LINKS} />
         <LinkList title="How we work" links={TRUST_LINKS} />
         <LinkList title="Help" links={HELP_LINKS} />
         <div>

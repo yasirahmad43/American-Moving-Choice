@@ -60,6 +60,27 @@ export default async function MoversIndexPage() {
         )}
       </section>
 
+      <section aria-labelledby="plan-heading" className="grid gap-3">
+        <h2 id="plan-heading" className="type-h3 text-text">
+          Routes, services, costs and planning
+        </h2>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {[
+            { href: "/routes/", label: "Moving routes: state-to-state and city-to-city" },
+            { href: "/services/", label: "Moving services: local, long-distance, interstate, packing, storage, specialty" },
+            { href: "/moving-costs/", label: "Moving costs and the cost calculator" },
+            { href: "/questions/", label: "Moving questions answered from the rules" },
+            { href: "/planning/", label: "Planning checklists" },
+          ].map((link) => (
+            <li key={link.href}>
+              <Link href={link.href} className="link inline-flex min-h-11 items-center">
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section aria-labelledby="how-heading" className="grid gap-3 text-text">
         <h2 id="how-heading" className="type-h3 text-text">
           How coverage works
