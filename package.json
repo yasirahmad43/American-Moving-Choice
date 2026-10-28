@@ -22,7 +22,8 @@
     "db:migrate": "pnpm --filter @amc/db migrate",
     "db:reset": "pnpm --filter @amc/db reset",
     "db:seed:build": "pnpm --filter @amc/db seed:build",
-    "db:bundle:supabase": "pnpm --filter @amc/db bundle:supabase"
+    "db:bundle:supabase": "pnpm --filter @amc/db bundle:supabase",
+    "media:check": "pnpm --filter @amc/web media:check"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
