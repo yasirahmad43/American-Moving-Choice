@@ -4,3 +4,13 @@ dist/
 .env.*
 !.env.example
 coverage/
+db/seed/out/
+db/out/
+# Next.js and TypeScript build output
+.next/
+next-env.d.ts
+*.tsbuildinfo
+.vercel/
+# Playwright
+test-results/
+playwright-report/

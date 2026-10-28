@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "@amc/ui/theme.css";
+
+/* Scan the shared components for class names (Tailwind scans apps/web by itself). */
+@source "../../../packages/ui/src";

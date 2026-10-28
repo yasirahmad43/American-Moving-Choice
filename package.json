@@ -2,10 +2,27 @@
   "name": "american-moving-choice",
   "private": true,
   "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
+    "dev:web": "pnpm --filter @amc/web dev",
+    "dev:app": "pnpm --filter @amc/app dev",
+    "build": "pnpm --filter @amc/web build && pnpm --filter @amc/app build",
+    "build:web": "pnpm --filter @amc/web build",
+    "build:app": "pnpm --filter @amc/app build",
+    "start:web": "pnpm --filter @amc/web start",
+    "start:app": "pnpm --filter @amc/app start",
+    "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "test:db": "pnpm --filter @amc/db test",
-    "typecheck": "pnpm -r typecheck"
+    "test:server": "pnpm --filter @amc/server test",
+    "geo:build": "pnpm --filter @amc/server build:zip-data",
+    "e2e": "pnpm --filter @amc/e2e e2e",
+    "db:migrate": "pnpm --filter @amc/db migrate",
+    "db:reset": "pnpm --filter @amc/db reset",
+    "db:seed:build": "pnpm --filter @amc/db seed:build",
+    "db:bundle:supabase": "pnpm --filter @amc/db bundle:supabase"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
