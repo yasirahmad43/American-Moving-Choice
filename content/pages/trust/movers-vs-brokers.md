@@ -3,7 +3,7 @@ id: trust-movers-vs-brokers
 url: /movers-vs-brokers/
 family: Trust page
 title: "Movers vs Brokers: How to Tell the Difference"   # 45 characters; " | American Moving Choice" would make 70, past 65 (site architecture §8.2). "vs" without a period, as README §9 and the inbound anchors write the page name
-meta_description: "Movers move your things with their own crews; interstate brokers arrange moves with carriers and keep a $75,000 bond or trust fund. How to tell them apart."   # 155 characters; $75,000 is typed until a registry key exists (brief §10)
+meta_description: "Movers move your things themselves; interstate brokers arrange moves with carriers and keep a $75,000 bond or trust fund. How to tell them apart."   # 145 characters; $75,000 is a regulatory figure the body cites with its primary source (README §3, "Regulatory figures")
 h1: "Movers vs brokers: what's the difference?"
 breadcrumb: "Home › Movers vs brokers"
 indexation: index once approved
@@ -14,13 +14,14 @@ author: "{{page.author}}"
 reviewer: "{{page.reviewer}}"
 data_owner: n/a                          # no data blocks on this page
 ai_assisted: true
-stored_texts: [ST-2]
+ai_role: drafted
+stored_texts: [ST-2, ST-8]
 tokens: [setting.require_mc_number, org.support_email, org.support_phone, page.author, page.reviewer]
 depends_on:
   - "Counsel: definitions of mover, broker and agent, worded with counsel (implications §7.1; content/README.md §3)"
   - "Counsel: comparison-table wording on broker estimates and on who handles loss or damage claims (carrier-vs-broker note, items for counsel 5 and 6)"
   - "Counsel: whether broker disclosure duties (49 CFR 371.107, 371.109, 371.111, 371.117, 371.7) are presented as things a consumer can check (carrier-vs-broker note, item 7)"
-  - "Counsel: why AMC holds no operating authority, in counsel's words, reviewed in one pass with ST-1a, which the section's list restates (implications §7.1; carrier-vs-broker note, items 1 to 3 and 10; compliance facts §2; stored-texts.md header)"
+  - "Counsel: why AMC holds no operating authority, in counsel's words, reviewed in one pass with ST-1a; the section's list is proposed as ST-1d (implications §7.1; carrier-vs-broker note, items 1 to 3 and 10; compliance facts §2; stored-texts ST-1d)"
   - "Counsel: ST-2 phrasing, including 'no broker authority on its federal record' (stored-texts ST-2 notes; consent draft §2; carrier-vs-broker note, item 8)"
   - "Counsel: whether 'we don't give estimates' holds with the cost calculator live (stored-texts ST-1 notes; compliance facts §2)"
   - "Counsel: Florida ch. 507 and other state broker definitions (carrier-vs-broker note, item 4; brief §11 Q2(e))"
@@ -35,9 +36,13 @@ last_updated: null
 
 # Movers vs brokers: what's the difference?
 
-A mover, called a household-goods motor carrier in federal law, moves your belongings with its own trucks and crews and is responsible for transporting them. A moving broker is paid to arrange your move with a carrier and doesn't transport anything itself. Both are legal and regulated. American Moving Choice works only with movers.
+A mover, called a household-goods motor carrier in federal law, transports your belongings, usually with its own trucks and crews, and is responsible for transporting them. A moving broker is paid to arrange your move with a carrier and doesn't transport anything itself. Both are legal and regulated. American Moving Choice works only with movers.
 
 [Verify: carrier-vs-broker note B1, B2, B13 and A4 (search excerpts of 49 U.S.C. 13102 and 14916 and of FMCSA's "Movers vs. Brokers" page).] [Counsel: this answer summarizes the definitions below, which counsel words (implications §7.1); "responsible for transporting them" follows FMCSA's wording (note B13) and waits on note item 5.]
+
+Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
+
+[Build: this review note renders from the page record, as the editorial policy specifies (content/pages/trust/editorial-policy.md, "How we tell you"; README §2)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown (editorial policy, "How we tell you")]
 
 ## What is a mover, and what is a moving broker?
 
@@ -207,21 +212,24 @@ What that means in practice:
 
 - **No broker authority, alone or beside carrier authority.** A company with broker authority on its record can't join our network, even if it also holds active carrier authority.
 - **The company that quotes is the company that moves.** A mover in our network that quotes your move must be the one that carries it out. [Counsel: the mover terms are still a summary for counsel to draft; confirm this term matches the final agreement (consent draft §11 item 2). Mover verification §1 item 5 words the related term as "accurate identification of the carrier that will transport the customer's goods" (content/README.md §6).]
-- **Rechecked every week.** If a recheck finds broker authority on a mover's record, the mover comes off our directory, our location pages and the lists of movers you see before you send a request.
+- **Rechecked every week.** We recheck every mover's federal record weekly; [How we verify movers](/how-we-verify-movers/) explains what happens if a recheck finds broker authority.
 
-[Build: companies with broker authority can't buy requests (`company_can_purchase`, mover verification §1); broker authority found on a weekly recheck suspends the mover and removes it from the directory, location pages and consent lists (mover verification §3; lead lifecycle §3 item 1; site architecture §2.5; implications §4.1 for the timing).]
+[Build: companies with broker authority can't buy requests (`company_can_purchase`, mover verification §1).]
 
 We explain [every check we run and what happens when one fails](/how-we-verify-movers/) on a separate page.
 
 ## What about van lines and their agents?
 
-If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact. [Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out the move under its own authority and bill of lading, and how the agent default fits "the carrier quoting is the carrier performing the move" (consent draft §11 item 2) and "accurate identification of the carrier that will transport the customer's goods" (mover verification §1 item 5). The page states no answer until this is decided.]
+<!-- ST-8 -->
+> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact.
+
+[Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out a move bought through us under its own authority and bill of lading, given the term that the carrier that quotes your move is the carrier that does it (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5)] [Build: ST-8 renders from its record, as on How we verify movers (stored-texts ST-8, proposed)]
 
 Our [rules for who can join](/how-we-verify-movers/) treat van-line agents the same way. How a carrier's agent differs from a broker is explained with the definitions above.
 
 ## American Moving Choice and operating authority
 
-[Counsel: in counsel's words (implications §7.1). This is a plain draft: it describes what we do and draws no conclusion about what the law requires of us (carrier-vs-broker note, items for counsel 1 to 3 and 10; compliance facts §2). The "why" implications §7.1 asks for is counsel's to write, so the heading stays neutral until then. Review this section with ST-1a in one pass: its list restates ST-1a's role sentence at greater length (stored-texts.md header).]
+[Counsel: in counsel's words (implications §7.1). This is a plain draft: it describes what we do and draws no conclusion about what the law requires of us (carrier-vs-broker note, items for counsel 1 to 3 and 10; compliance facts §2). The "why" implications §7.1 asks for is counsel's to write, so the heading stays neutral until then. Review this section with ST-1a in one pass: its list restates ST-1a's role sentence at greater length, and is proposed as ST-1d, which this page renders under `<!-- ST-1d -->` once approved (stored-texts ST-1d).]
 
 American Moving Choice holds no FMCSA operating authority, as a mover or as a broker. Here's what we do and what we don't.
 
@@ -249,9 +257,19 @@ You can also complain to FMCSA about an interstate mover or broker, through its 
 
 [Verify: compliance facts §2; consumer-moving-rules note C15 ([FMCSA Complaint Center FAQs](https://www.fmcsa.dot.gov/consumer-protection/complaint-center-faqs)); carrier-vs-broker note B12 (search excerpts). Check that the complaint database is working before publishing (note C15).]
 
+## Changes to this page
+
+When we change this page, we record the change here with its date.
+
+| Version | Date | What changed |
+|---|---|---|
+| 1 | Set on first publish | First published |
+
+[Build: the CMS renders each row's version and date from the page record, and stamps the date when an approved change publishes, the first on the first approved publish (README §2 `last_updated`)] [Owner: changelog numbering, and who approves a change to this page before a new row publishes. The draft numbers versions 1, 2, 3, as the other trust pages do (editorial policy brief §10 item 6) — default shown]
+
 ## More ways to check a company
 
 - [How we verify movers](/how-we-verify-movers/): every check we run on movers in our network, and how often.
-- [Verify a mover](/verify-a-mover/): how to look up a mover's USDOT number, MC number and state license, step by step.
+- [Verify a mover](/verify-a-mover/): explains USDOT and MC numbers and state licenses, and helps you look up a mover.
 - [How to avoid moving scams](/guides/how-to-avoid-moving-scams/): warning signs to know before you hire anyone.
 - [FMCSA Protect Your Move: Movers vs. Brokers](https://www.fmcsa.dot.gov/protect-your-move/movers-vs-brokers): FMCSA's own guide, with its [fact sheet](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-05/PYM-MoversvsBrokers-2023.pdf).

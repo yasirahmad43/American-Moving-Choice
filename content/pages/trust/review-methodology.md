@@ -14,8 +14,9 @@ author: "{{page.author}}"
 reviewer: "{{page.reviewer}}"
 data_owner: n/a
 ai_assisted: true
+ai_role: drafted
 stored_texts: []
-tokens: [setting.quote_invite_delay_days, setting.post_move_invite_days, setting.rank_min_reviews, setting.ai_summary_min_reviews, setting.reviews_subpage_min]
+tokens: [page.author, page.reviewer, setting.quote_invite_delay_days, setting.post_move_invite_days, setting.rank_min_reviews, setting.ai_summary_min_reviews, setting.reviews_subpage_min]
 depends_on:
   - "Owner: post-move review invitation, a rule change to mover verification §6 (implications §4.4), sent under the same contact-preference rule as the quote invitation; also which date starts the count when a request gives a date range, and whether each mover that bought a shared request triggers its own invitation"
   - "Owner: whether company-requested move-experience invitations continue beside the post-move invitation; implications §4.4 doesn't propose ending them (mover verification §6; backlog 6.5.2)"
@@ -31,6 +32,8 @@ depends_on:
   - "Owner: appeal route, decider, timing and scope (mover verification §6)"
   - "Owner: whether any reviewer incentive exists at launch (mover verification §6)"
   - "Owner: whether a suspended mover's profile keeps showing its reviews and ratings (site architecture §2.5)"
+  - "Owner: the evidence documents for Verified customer and Verified completed move; mover verification §6 and data model `review_evidence` still name the order for service and an unsigned bill of lading (consumer-moving-rules C12; How movers charge)"
+  - "Build: invitation-coverage monitoring of company review requests, and the 12-month count beside ratings (implications §9.7, §4.4; not in build plan §7.5)"
   - "Owner: changelog numbering, and who approves a change to this method (editorial policy brief §10 item 6)"
   - "Counsel: material-connection disclosure beside ratings, and how to treat the effect of purchase volume on review counts and rating-sort eligibility against ST-1a, ST-1b and ST-3 (compliance facts §4)"
   - "Counsel: mover-agreement clauses on review incentives and replies (consent draft §11 item 5)"
@@ -41,6 +44,10 @@ last_updated: null
 
 Only people whose move request a mover bought through American Moving Choice can review that mover, and only through a single-use link we send. We check each review against our purchase records and any uploaded documents, and label it by what they prove. Ratings are a simple 1-to-5 average, calculated separately for the quote experience and the move.
 
+Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
+
+[Build: this review note renders from the page record, as the editorial policy specifies (content/pages/trust/editorial-policy.md, "How we tell you"; README §2)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown (editorial policy, "How we tell you")]
+
 ## Who can review a mover?
 
 You can review a mover only if it bought your move request through American Moving Choice. [Which companies receive my request](/which-companies-receive-my-request/) explains how a mover comes to buy a request.
@@ -50,6 +57,8 @@ You can review a mover only if it bought your move request through American Movi
 - **Movers don't send invitations.** We send every invitation ourselves. A mover can ask us to invite customers it has recorded as hiring it, and we log and watch those requests, as [How review invitations work](#invitations) explains.
 - **Your contact details stay private.** They never appear with your review, and the mover gets no contact details beyond those it received when it bought your request.
 
+<a id="payment"></a>
+
 ## Does payment affect reviews?
 
 Movers in our network pay us for the move requests they buy. Because you can only review a mover that bought your request, every mover with reviews here has bought requests from us.
@@ -58,7 +67,9 @@ Payment never changes which submitted reviews we publish or how ratings are calc
 
 Buying more requests does mean more people are invited to review that mover, so it may collect more reviews. That's why we never sort movers by review count by default.
 
-We don't call our reviews "independent," because the movers being reviewed pay us. They're reviews collected by American Moving Choice from people whose requests a mover bought. [Counsel: compliance facts §4 asks whether movers' request fees are a material connection that must be disclosed next to ratings or rankings. Confirm this section, the "independent" sentence, and whether a short paid-relationship line belongs beside each rating on profiles and lists. Also decide how to treat the effect of buying more requests: more invitations can bring more reviews, which moves a mover's rating values and how soon it reaches the {{setting.rank_min_reviews}} eligible reviews needed for rating-sort priority (see "Minimum sample before any ranking"). ST-1a, ST-1b and ST-3, and How AMC makes money, say buying never changes a mover's ratings or where it appears (brief §8)] [How AMC makes money](/advertising-disclosure/) explains who pays us and what payment never changes.
+We don't call our reviews "independent," because the movers being reviewed pay us. They're reviews collected by American Moving Choice from people whose requests a mover bought. [Counsel: compliance facts §4 asks whether movers' request fees are a material connection that must be disclosed next to ratings or rankings. Confirm this section, the "independent" sentence, and whether a short paid-relationship line belongs beside each rating on profiles and lists. Also decide how to treat the effect of buying more requests: more invitations can bring more reviews, which moves a mover's rating values and how soon it reaches the {{setting.rank_min_reviews}} eligible reviews needed for rating-sort priority (see "Minimum sample before any ranking"). ST-1a, ST-1b and ST-3, and How AMC makes money, say buying never changes a mover's ratings or where it appears; the ST-1 and ST-3 notes in content/stored-texts.md put this to counsel with proposed variants (brief §8)] [How AMC makes money](/advertising-disclosure/) explains who pays us and what payment never changes.
+
+<a id="experiences"></a>
 
 ## Two experiences, rated separately
 
@@ -69,13 +80,15 @@ Each review is about one of two experiences, and each experience has its own rat
 
 We never blend the two into one overall score. A mover can be good at quoting and poor at moving, or the reverse, and a single number would hide that.
 
+<a id="invitations"></a>
+
 ## How review invitations work
 
 Each invitation is about one mover that bought your request, and each comes with its own single-use link.
 
 - **After a mover buys your request.** About {{setting.quote_invite_delay_days}} days after a mover buys your request, we invite you to review the quote and sales experience with that mover, if your contact preferences allow it. We do this whether or not you hired the mover, so people who were unhappy are asked too, not only the ones a company would pick.
 - **After your move date.** {{setting.post_move_invite_days}} days after the move date in your request, we send a second invitation, if your contact preferences allow it. It lets you review the move itself, if you moved with that mover. We send it whatever the mover has recorded about your job, so a company can't decide whose move gets reviewed by how it records its jobs. [Owner: post-move invitation, a rule change to mover verification §6 (implications §4.4). The default sends it under the same contact-preference rule as the quote invitation. Also decide which date starts the count when a request gives a date range rather than one date (implications §2.1 step 3), and whether each mover that bought a shared request triggers its own post-move invitation (brief §10 items 2 and 3). If the current rule stays, delete this item: "When a mover asks" already describes the current rule — default shown (implications §4.4)]
-- **When a mover asks.** Once a mover has recorded that you hired it, or that your move is done, it can ask us to invite you to review your move. We send that invitation ourselves. We log every request and watch for signs that a mover is choosing whom to invite, such as asking about only a small share of the customers it has recorded as hiring it. Signs like that can trigger an audit. [Owner: implications §4.4 adds the post-move invitation but doesn't end company-requested move-experience invitations (mover verification §6 Collection; JTBD §4 J6 stage 1b; backlog 6.5.2). Ending them would be a separate owner decision that §4.4 doesn't propose. If it's made, delete this item and the second sentence of "Movers don't send invitations" under "Who can review a mover?", and record the change under "Changes to this method" (brief §8)]
+- **When a mover asks.** Once a mover has recorded that you hired it, or that your move is done, it can ask us to invite you to review your move. We send that invitation ourselves. We log every request and watch for signs that a mover is choosing whom to invite, such as asking about only a small share of the customers it has recorded as hiring it. Signs like that can trigger an audit. [Build: log each company review request and show invitation coverage per company in admin, with a threshold that opens a case (mover verification §6; implications §9.7; not in build plan §7.5)] [Owner: implications §4.4 adds the post-move invitation but doesn't end company-requested move-experience invitations (mover verification §6 Collection; JTBD §4 J6 stage 1b; backlog 6.5.2). Ending them would be a separate owner decision that §4.4 doesn't propose. If it's made, delete this item and the second sentence of "Movers don't send invitations" under "Who can review a mover?", and record the change under "Changes to this method" (brief §8)]
 
 ## How are reviews checked?
 
@@ -84,12 +97,14 @@ Every published review carries one of three evidence labels. The label tells you
 | Label | What proves it | What it can rate |
 |---|---|---|
 | Verified platform inquiry | Our records show the reviewer sent the request and this mover bought it through American Moving Choice. | The quote and sales experience only |
-| Verified customer | All of the above, plus a document from this mover showing the reviewer did business with it: a written estimate, an order for service or a deposit receipt. | The quote and sales experience, up to the point the reviewer hired the mover, if they did [Owner: hiring folded into the quote and sales experience, as under "Two experiences, rated separately" — default shown] |
-| Verified completed move | All of the above, plus evidence the move was completed: a bill of lading, a final invoice or a delivery receipt. | The moving experience |
+| Verified customer | All of the above, plus a document from this mover showing the reviewer did business with it: a written estimate or a deposit receipt. [Owner: mover verification §6 also lists an order for service, which FMCSA's 2022 rule removed for interstate moves (consumer-moving-rules note C12). Confirm the list, and whether a bill of lading signed before loading should count here — default shown] | The quote and sales experience, up to the point the reviewer hired the mover, if they did [Owner: hiring folded into the quote and sales experience, as under "Two experiences, rated separately" — default shown] |
+| Verified completed move | All of the above, plus evidence the move was completed: a bill of lading signed at delivery, a final invoice or a delivery receipt. | The moving experience |
+
+[Owner: mover verification §6 and data model `review_evidence` still name the order for service and an unsigned bill of lading; change them with this page (consumer-moving-rules C12; How movers charge, whose documents table has the bill of lading signed before loading and again at delivery)]
 
 - **Documents are checked.** Reviewers upload documents themselves, and each document is checked in moderation before the label is given. Only Verified completed move reviews count toward a moving-experience rating, so every such rating rests on checked evidence that the move was completed. [Build: labels come only from collected evidence, and the label shown always matches the evidence record (mover verification §8; backlog 6.5.4)]
 - **Documents stay private.** We never publish the documents themselves, because they often carry private details such as addresses and prices. [Owner: no AMC document says uploaded review evidence stays private. Confirm and add it to mover verification §6 — default shown (by analogy with mover verification §5, "without exposing documents", and §6, contact details never shown)]
-- **A purchase isn't proof of a move.** A mover buying your request doesn't show that you moved with it, and neither does a mover marking your job "Completed" in its own records. Verified completed move needs a checked bill of lading, final invoice or delivery receipt, in addition to the document that Verified customer needs. [Build: a CRM "Completed" stage alone never yields Verified completed move (mover verification §6, §8; backlog 6.5.4)]
+- **A purchase isn't proof of a move.** A mover buying your request doesn't show that you moved with it, and neither does a mover marking your job "Completed" in its own records. Verified completed move needs a checked bill of lading signed at delivery, final invoice or delivery receipt, in addition to the document that Verified customer needs. [Build: a CRM "Completed" stage alone never yields Verified completed move (mover verification §6, §8; backlog 6.5.4)]
 - **No label, no publication.** We don't publish a review that doesn't qualify for one of these labels.
 
 ## No rewards for good reviews
@@ -110,6 +125,8 @@ Every review goes through moderation before it's published, under the rules on t
 
 We never reject or remove a review for being negative, and we apply the same rules to positive and negative reviews. Every moderation action is logged with its reason and the moderator who took it. [Build: every moderation action writes a log entry with reason and moderator (mover verification §6)]
 
+<a id="what-movers-can-do"></a>
+
 ## What movers can and can't do
 
 - **They can't change reviews.** Movers can't edit, delete or hide a review, or change its rating. [Build: companies have no write access to reviews through any endpoint; permission tests per mover verification §8 ("cannot alter reviews or suppress valid criticism") and backlog 6.5.6]
@@ -119,14 +136,16 @@ We never reject or remove a review for being negative, and we apply the same rul
 
 ## How are ratings calculated?
 
-A mover has up to two ratings, one for each experience. Each is built from that experience's eligible reviews: published reviews that haven't been removed under the rules on this page and that carry a label that can rate that experience. [Build: a review's stars count only toward an experience its label can rate, so only Verified completed move reviews feed the moving-experience rating, and a move review with purchase evidence only never does (mover verification §6; backlog 6.5.4)] [Owner: decide what happens to a move review whose label can't rate the moving experience, because its only evidence is the purchase or an estimate, order or deposit receipt. Backlog 6.5.3 makes proof optional, and 6.5.4 publishes a purchase-only review as Verified platform inquiry, which can rate only the quote and sales experience (mover verification §6). Decide whether it's published without counting toward either rating, held until evidence arrives, or handled another way, and say so here. Also confirm that a Verified completed move label can rate the quote and sales experience too (brief §8; §10 item 6)]
+A mover has up to two ratings, one for each experience. Each is built from that experience's eligible reviews: published reviews that haven't been removed under the rules on this page and that carry a label that can rate that experience. [Build: a review's stars count only toward an experience its label can rate, so only Verified completed move reviews feed the moving-experience rating, and a move review with purchase evidence only never does (mover verification §6; backlog 6.5.4)] [Owner: decide what happens to a move review whose label can't rate the moving experience, because its only evidence is the purchase or an estimate or deposit receipt. Backlog 6.5.3 makes proof optional, and 6.5.4 publishes a purchase-only review as Verified platform inquiry, which can rate only the quote and sales experience (mover verification §6). Decide whether it's published without counting toward either rating, held until evidence arrives, or handled another way, and say so here. Also confirm that a Verified completed move label can rate the quote and sales experience too (brief §8; §10 item 6)]
 
 - **A simple average.** The rating is the plain average of reviewers' own 1-to-5 star ratings. Every eligible review counts the same, and there's no hidden weighting.
-- **Shown with context.** Next to each rating we show how many eligible reviews it comes from, how those reviews spread across 1 to 5 stars, the date of the latest one and how many arrived in the last 12 months.
+- **Shown with context.** Next to each rating we show how many eligible reviews it comes from, how those reviews spread across 1 to 5 stars, the date of the latest one and how many arrived in the last 12 months. [Build: the 12-month count comes from the same rating record (implications §4.4)]
 - **Full dates.** Every review shows its full date, with month, day and year, never "3 months ago."
 - **From the first review.** A rating appears as soon as a mover has one eligible review of that experience. The count beside it shows how much the rating rests on.
 - **No placeholder ratings.** A mover with no eligible reviews shows "No customer reviews yet" in place of a rating. We never show empty stars or a 0.0. [Build: no stars, "0.0" or count render without an eligible review, and one rating record per experience type feeds every surface (mover verification §8; implications §4.4)] [Owner: what one experience's rating slot shows when the mover has eligible reviews of the other experience only. Mover verification §6 and visual direction §9.4 define one empty state per profile (brief §8)]
 - **Removals.** A review leaves a rating only if it's removed under the rules on this page. [Owner: whether a reviewer can edit or withdraw a published review. No AMC document decides it. If withdrawal is allowed, add it to this page as a removal rule (brief §8)]
+
+<a id="minimum-sample"></a>
 
 ### Minimum sample before any ranking
 
@@ -134,9 +153,11 @@ A rating built on a few reviews can change a lot with the next one. So until a m
 
 We publish no rankings or "best" lists, and we give movers no awards or "best" badges. If we ever add any, no mover will be ranked, or called "top" or "best", on a rating with fewer than {{setting.rank_min_reviews}} eligible reviews of that experience, and we'll record the change under [Changes to this method](#changes). [Build: rating sorts, ranks and any "top" wording check {{setting.rank_min_reviews}} per experience type (site architecture §1.2 directory row, §2.4 rule 3)]
 
+<a id="what-we-dont-do"></a>
+
 ## What we don't do
 
-- **Import reviews.** We don't bring in reviews or ratings from Google, Yelp, BBB, Trustpilot or anywhere else. Every review here came through one of our invitations.
+- **Import reviews.** We don't bring in reviews or ratings from review sites, search engines or anywhere else. Every review here came through one of our invitations.
 - **Blend ratings.** We keep the quote and moving ratings apart, as [Two experiences, rated separately](#experiences) explains.
 - **Add our own score.** We don't publish an editorial score or grade, or mix our opinion into customer ratings.
 - **Rate ourselves.** We don't show ratings for American Moving Choice or for our own tools, such as [our cost calculator](/moving-cost-calculator/).
@@ -159,6 +180,8 @@ If you think a review breaks the rules on this page, tell us through [Report a c
 Each report made through Report a concern opens a case. Someone on our team is assigned to it, it has a target time for a decision, and the outcome is recorded. [Build: each report made through Report a concern opens a case with an assignee, a target time and a recorded outcome (mover verification §7; data model §8 `cases`, `review_reports`)]
 
 Reports from movers, and appeals by either side, are covered under [What movers can and can't do](#what-movers-can-do).
+
+<a id="changes"></a>
 
 ## Changes to this method
 

@@ -14,15 +14,16 @@ author: "{{page.author}}"
 reviewer: "{{page.reviewer}}"
 data_owner: n/a                          # no data blocks on this page
 ai_assisted: true
-stored_texts: [ST-2, ST-5]
-tokens: [badge.name, company.verified_date, setting.require_mc_number, setting.new_to_network_days, org.support_email, org.support_phone, page.author, page.reviewer]
+ai_role: drafted
+stored_texts: [ST-2, ST-5, ST-8]
+tokens: [badge.name, company.verified_date, setting.require_mc_number, setting.credential_alert_days, setting.new_to_network_days, org.support_email, org.support_phone, page.author, page.reviewer]
 depends_on:
   - "Owner: MC-number requirement vs a state-licensed local track (mover verification §9 decision 1; brief §11 Q4)"
   - "Owner: the stated reason for the MC rule (mover verification §1 gives none)"
   - "Owner: the MC row on profiles whenever an MC number is on record, or only while the MC rule is on (mover verification §5; compliance facts §1 implication 6; site architecture §8.5 vs §1.2)"
   - "Owner: federal household-goods carrier authority for every member, or only where interstate moves are offered (mover verification §1 item 2 and §3 vs §4; stored-texts ST-2, ST-5)"
   - "Owner + counsel: badge name, after clearance and usability round 1 (implications §5.3, §11 Q6; site architecture §0 item 9)"
-  - "Counsel: ST-5 wording, including the material-connection question (implications §5.4 Q5), and its example rendering on this page with a placeholder date (stored-texts.md header)"
+  - "Counsel: ST-5 wording, including the material-connection question (implications §5.4 Q5), the suspension clause and link label changed on 2026-10-28 (stored-texts ST-5 notes), and its example rendering on this page with a placeholder date (stored-texts.md header)"
   - "Counsel: a mover suspended for unpaid charges loses the badge, beside the badge's money relation (implications §5.4 Q5; mover verification §3, §4)"
   - "Owner: what {{company.verified_date}} means: approval, last full re-verification or latest weekly recheck (mover verification §3 to §5; VD §9.4)"
   - "Counsel: ST-2 phrasing while the MC number is a platform rule (stored-texts ST-2 notes; consent draft §2)"
@@ -30,21 +31,26 @@ depends_on:
   - "Counsel: MC-number wording, 'considering' or 'plans to propose' (carrier-vs-broker note item 9)"
   - "Counsel: broker definition in counsel's words, the same approved definition Movers vs brokers uses (implications §7.1; content/README.md §3)"
   - "Owner: van-line brands with broker authority and their agents (implications §11 Q11, §4.1)"
-  - "Owner + counsel: whether a qualifying van-line agent may book a move bought through us under the van line's authority (implications §4.1, §11 Q11; consent draft §11 item 2)"
+  - "Owner + counsel: whether a qualifying van-line agent must carry out a move bought through us under its own authority and bill of lading (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5; stored-texts ST-8)"
   - "Owner + counsel: movers with ties to AMC's people, and their badge (implications §11 Q10, §4.3)"
   - "Owner: certificate-of-insurance minimums beyond federal filings (mover verification §9 decision 3)"
   - "Owner: 'New to our network' duration (mover verification §9 decision 4)"
   - "Owner: the wording of the notice on a suspended mover's profile, 'Verification under review' (mover verification §3) or 'not currently part of the American Moving Choice network' (site architecture §2.5); every suspended mover comes off the directory and location pages (site architecture §2.5)"
-  - "Owner: a report category for contact from an unlisted company (implications §9.7)"
+  - "Owner: confirmed resale suspends the company (implications §9.7)"
   - "Owner: changelog numbering, and who approves a change to this text (editorial policy brief §10 item 6)"
   - "Counsel: final mover terms (consent draft §11)"
   - "Counsel: compliance facts §1 and §2 questions on requiring MC numbers, verifying state credentials, showing USDOT numbers on profiles, and diligence against disguised brokers"
+  - "Counsel: California's Interstate Mover license for companies that move goods only into or out of California, and whether state-credential checks cover it (consumer-moving-rules note, counsel item 9; C16)"
 last_updated: null
 ---
 
 # How we verify movers
 
 American Moving Choice accepts only moving carriers: companies that perform moves themselves. Before approval, we check each company's federal record for an active USDOT number, household-goods carrier authority, no broker authority and insurance filings, and a person reviews the file. We recheck that record weekly. If a check fails, the mover can't buy new requests and loses its badge.
+
+Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
+
+[Build: this review note renders from the page record, as the editorial policy specifies (content/pages/trust/editorial-policy.md, "How we tell you"; README §2)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown (editorial policy, "How we tell you")]
 
 ## Who can join our network?
 
@@ -82,7 +88,12 @@ A docket number alone doesn't show whether a company is a carrier, a broker or b
 
 ### Van-line agents
 
-Some movers work as agents of a national van line. If the van line's brand holds broker authority, the brand can't join. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact. [Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent may book a move bought through us under the van line's authority, given our term that the carrier that quotes your move is the carrier that does it (implications §4.1, §11 Q11; consent draft §11 item 2). The page states no answer until this is decided.]
+Some movers work as agents of a national van line.
+
+<!-- ST-8 -->
+> If a van line's brand holds broker authority, the brand can't join our network. An agent that holds its own household-goods carrier authority, and no broker authority, can qualify on its own record. Its profile shows the agent's legal name first and names the van-line tie as a disclosed fact.
+
+[Owner: implications §11 Q11 — default shown] [Owner and Counsel: whether a qualifying agent must carry out a move bought through us under its own authority and bill of lading, given the term that the carrier that quotes your move is the carrier that does it (implications §4.1, §9.4, §11 Q11; consent draft §11 item 2; mover verification §1 item 5)] [Build: ST-8 renders from its record, as on Movers vs brokers (stored-texts ST-8, proposed)]
 
 ### Insurance
 
@@ -97,7 +108,7 @@ Some states issue their own credentials to movers that work within the state. Fo
 - **Florida:** a registration, known as an IM number, with the Department of Agriculture and Consumer Services (FDACS);
 - **New York:** household goods authority from the New York State Department of Transportation (NYSDOT).
 
-[Verify: state credentials in compliance facts §1 (search excerpts); confirm the current Florida statute text.]
+[Verify: state credentials in compliance facts §1 (search excerpts); confirm the current Florida statute text; confirm whether BHGS calls the CAL-T credential a permit or a license (consumer-moving-rules note C16; its FAQ says "license"); confirm the New York row with NYSDOT, since compliance facts §1 cites a New York City business page and a secondary source.] [Counsel: California's BHGS also licenses interstate movers that move goods only into or out of California (C16 notes). Does that affect this section or the checks table's "State credentials" row (consumer-moving-rules note, counsel item 9)?]
 
 If a company offers in-state moves in a state like these, we check its number against that state's records. At launch, a person does this by hand.
 
@@ -133,7 +144,7 @@ No company is approved automatically. After the automated and document checks, s
 
 Every check leaves a dated evidence record: where the data came from, a copy of what we retrieved, when we retrieved it, the result, and who reviewed it and what they decided. We add to these records but never edit them.
 
-Once approved, a company gets a public profile, a place in our mover directory and on our location pages for areas it actually serves, and the badge. If we turn a company down, we tell it why, and it can reapply once it has fixed the problem.
+Once approved, a company gets a public profile, a place in our mover directory and on our location pages for areas it actually serves, and the badge. If we turn a company down, we tell it why, and it can reapply once it has fixed the problem. [Build: the rejection reason goes to the applicant, and reapplication is allowed (mover verification §3)]
 
 ### Ties to our team
 
@@ -144,12 +155,12 @@ Our application asks whether a company has any ties to people who own or work fo
 Passing once isn't enough to stay in our network.
 
 - **Every week:** we recheck every approved mover's FMCSA record for its USDOT status, operating authority and insurance filings.
-- **Before documents expire:** we alert the mover 30, 14 and 7 days before its certificate of insurance or a state credential expires, and again on the day it expires.
+- **Before documents expire:** we alert the mover {{setting.credential_alert_days}} days before its certificate of insurance or a state credential expires, and again on the day it expires.
 - **Every year:** we run every check again for every mover.
 - **Right away after certain events:** we run every check again when someone reports broker activity, when someone complains about a mover's credentials, when a mover's ownership changes, or when we see a pattern of chargebacks (reversed card payments) on its account with us.
 - **At every purchase:** before a mover can buy a request, our system confirms from our records that it's still approved, has no broker authority on file, has its numbers on file and has no expired credentials.
 
-[Build: weekly FMCSA recheck job, expiry alerts and automatic suspension (mover verification §3, §8 Phase 6; implications §9.6).]
+[Build: weekly FMCSA recheck job; expiry alerts at 30, 14, 7 and 0 days; annual full re-verification; immediate re-verification on a broker-activity report, credential complaint, ownership change or chargeback pattern; automatic suspension; the purchase-time check (mover verification §3, §8 Phase 6; implications §9.6)]
 
 ## What happens when a check fails?
 
@@ -162,7 +173,7 @@ If a check fails and we can't confirm that the mover still meets our rules:
 
 [Owner: the wording of the profile notice, "Verification under review" (mover verification §3) or "not currently part of the American Moving Choice network" (site architecture §2.5), and whether it differs by the reason for suspension. Mover verification §3 also allows removal from the directory "per policy" instead of a notice; the copy follows site architecture §2.5, which removes every suspended company from the directory and location pages and keeps a notice on its profile.]
 
-The same happens when we suspend a mover for broker activity, fraud or unpaid charges. If a weekly recheck finds broker authority on a mover's record, alone or beside carrier authority, the mover comes off our directory, our location pages and the lists of movers you see before sending a request.
+The same happens when we suspend a mover for broker activity, fraud, reselling a request or unpaid charges. [Owner: confirmed resale suspends the company — default shown (implications §9.7)] If a weekly recheck finds broker authority on a mover's record, alone or beside carrier authority, the mover comes off our directory, our location pages and the lists of movers you see before sending a request.
 
 A suspended mover can't buy your request, even if it was among the movers listed when you sent it, because every purchase rechecks the mover's standing first. Requests it bought before the suspension stay with it, along with its records, its invoices and its access to our support team.
 
@@ -194,7 +205,7 @@ Anything a company tells us about itself, such as its description or photos, sit
 Profiles also say plainly when a mover is new or has no reviews:
 
 - **New to our network** shows for the first {{setting.new_to_network_days}} days after approval.
-- **No customer reviews yet** shows until the mover has a published customer review, and no rating appears until then. How we collect and check reviews is on [Review methodology](/review-methodology/).
+- **No customer reviews yet** shows until the mover has an eligible customer review, as our [Review methodology](/review-methodology/) defines it, and no rating appears until then.
 
 We don't give movers awards. We never show a rating, review count, years in business, number of moves, award or "top-rated" label without evidence behind it. [Build: empty states and no fabricated rating on profiles (mover verification §5, §6, §8).]
 
@@ -204,16 +215,16 @@ We don't give movers awards. We never show a rating, review count, years in busi
 
 There is one badge, with no higher tiers. Every approved mover gets it. [Owner and Counsel: whether a mover with ties to our team gets the badge; if not, this sentence needs an exception (implications §4.3, §11 Q10).] We issue it only from the results of the checks on this page. It takes no input from reviews, ratings, how long a mover has been with us, or how much it buys or spends, so a mover with no reviews earns it exactly as any other mover does.
 
-The badge comes off automatically when we suspend a mover, whatever the reason: a failed check, broker activity, fraud or unpaid charges. It stays off until the mover is reinstated. Paying more never earns or keeps it. [Counsel: the badge and billing standing, beside the material-connection question (implications §5.4 Q5; mover verification §3, §4).]
+The badge comes off automatically when we suspend a mover, whatever the reason: a failed check, broker activity, fraud, reselling a request or unpaid charges. It stays off until the mover is reinstated. Paying more never earns or keeps it. [Counsel: the badge and billing standing, beside the material-connection question (implications §5.4 Q5; mover verification §3, §4).]
 
 This is the explainer that sits next to every badge. Here it's an example, because this page isn't about one mover. On a profile, its date is the last date that mover's federal record passed our checks. [Owner: define `{{company.verified_date}}`, which no AMC document defines: the approval date, the last full re-verification or the latest weekly recheck — default shown: the latest date the mover's federal record passed a check, at approval or a weekly recheck. That matches the federal-record checks ST-5 lists and the "last-checked date" profiles show (mover verification §3, §5; VD §9.4).]
 
 **Example: the explainer next to a mover's badge**
 
 <!-- ST-5 -->
-> **{{badge.name}}** means this mover passed our screening on {{company.verified_date}}: an active USDOT registration, active household-goods carrier authority, no broker authority, the insurance filings federal rules require, and agreement to our movers-only terms. Those insurance filings are minimum amounts, not full coverage for your belongings. We recheck federal records every week, and the badge comes off if a check fails. The badge doesn't rate work quality, prices or crews, and it isn't a government endorsement or a guarantee. Every mover in our network pays us for the requests it buys, but the badge isn't sold, and buying more never earns or keeps it. Customer reviews are shown separately. [Official FMCSA record] · [How we verify movers]
+> **{{badge.name}}** means this mover passed our screening on {{company.verified_date}}: an active USDOT registration, active household-goods carrier authority, no broker authority, the insurance filings federal rules require, and agreement to our movers-only terms. Those insurance filings are minimum amounts, not full coverage for your belongings. We recheck federal records every week, and the badge comes off if a check fails or the mover's account is suspended for any reason, including unpaid charges. The badge doesn't rate work quality, prices or crews, and it isn't a government endorsement or a guarantee. Every mover in our network pays us for the requests it buys, but the badge isn't sold, and buying more never earns or keeps it. Customer reviews are shown separately. [This mover's FMCSA record] · [How we verify movers]
 
-[Owner: badge name after counsel clearance and usability round 1; the token shows the working name "Preferred Mover · American Moving Choice" — default shown (implications §5.3, §11 Q6; site architecture §0 item 9).] [Counsel: ST-5 wording, including whether the badge needs a material-connection disclosure (implications §5.4 Q5; stored-texts ST-5 notes); whether its federal-record phrases hold (carrier-vs-broker note, counsel item 8(a) to (c)); and its example rendering on this page.] [Build: render ST-5 from its record, unchanged, in a box under the example label. With no single mover on this page, `{{company.verified_date}}` shows the visible placeholder "[the date shown on its profile]", and [Official FMCSA record] links to FMCSA's company snapshot search.] [Build: issue the badge only from passing checks (`badges.evidence_check_ids`); zero reviews plus passing checks earn it; suspension for any reason revokes it (implications §4.3; mover verification §3, §4; data model §3).]
+[Owner: badge name after counsel clearance and usability round 1; the token shows the working name "Preferred Mover · American Moving Choice" — default shown (implications §5.3, §11 Q6; site architecture §0 item 9).] [Counsel: ST-5 wording, including whether the badge needs a material-connection disclosure (implications §5.4 Q5; stored-texts ST-5 notes); whether its federal-record phrases hold (carrier-vs-broker note, counsel item 8(a) to (c)); and its example rendering on this page.] [Build: render ST-5 from its record, unchanged, in a box under the example label. With no single mover on this page, `{{company.verified_date}}` shows the visible placeholder "[the date shown on its profile]", and [This mover's FMCSA record] links to FMCSA's company snapshot search.] [Build: issue the badge only from passing checks (`badges.evidence_check_ids`); zero reviews plus passing checks earn it; suspension for any reason revokes it (implications §4.3; mover verification §3, §4; data model §3).]
 
 Any change to the badge's name or meaning will be recorded in the changelog at the end of this page. How we're paid, and what payment never changes, is on [How AMC makes money](/advertising-disclosure/).
 
@@ -232,18 +243,20 @@ Our checks are our own. They aren't a license, a certification or a government a
 - **How claims are handled.** If something is lost or damaged, we don't check how the mover will handle your claim.
 - **Whether a mover will quote you.** Passing our checks doesn't mean a mover will contact you or give you a quote.
 - **Complaint and safety history.** Beyond confirming that a mover isn't marked out of service, we don't review its complaint history or safety record. You can see both on Protect Your Move (below). [Verify: Protect Your Move shows complaint history and safety records (compliance facts §1, search excerpt).]
-- **Full coverage for your belongings.** The insurance filings we check are the minimums federal rules set for carriers. For example, a household-goods common carrier's federal cargo filing is $5,000 per vehicle and $10,000 per occurrence. [Verify: cargo filing amounts (compliance facts §1, search excerpt of FMCSA insurance filing requirements); carrier-vs-broker note B11 gives the same amounts for common carriers and says contract carriers file no cargo insurance (note A6).] Protection for your belongings is a separate choice, called valuation, that you make with the mover. [Verify: valuation isn't in compliance facts §1 or §2; match How movers charge, which owns valuation (content/README.md §9), and confirm against its source (consumer-moving-rules note C10, search excerpts).] [How movers charge](/moving-costs/how-movers-charge/#what-is-valuation-and-is-it-insurance) explains it.
+- **Full coverage for your belongings.** The insurance filings we check are the minimums federal rules set for carriers. For example, a household-goods common carrier's federal cargo filing is $5,000 per vehicle and $10,000 per occurrence. [Verify: cargo filing amounts (compliance facts §1, search excerpt of FMCSA insurance filing requirements); carrier-vs-broker note B11 gives the same amounts for common carriers and says contract carriers file no cargo insurance (note A6).] Protection for your belongings is a separate choice, called valuation, that you make with the mover. [Verify: valuation isn't in compliance facts §1 or §2; match How movers charge, which owns valuation (content/README.md §9), and confirm against its source (consumer-moving-rules note C10, search excerpts).] [How movers charge](/moving-costs/how-movers-charge/#what-is-valuation) explains it.
 
 ## How can I check a mover myself?
 
 You can look up any mover, in our network or not, on public records. Search by USDOT number rather than by name, because different companies can have similar names.
 
-- **[FMCSA company snapshot (SAFER)](https://safer.fmcsa.dot.gov/saferhelp.aspx):** shows whether a USDOT number is active, inactive or out of service, and the company's operating authority status, such as authorized for household goods or not authorized.
-- **[FMCSA Licensing and Insurance](https://li-public.fmcsa.dot.gov/LIVIEW/pkg_li_std_routines.prc_help?pn_pageid=5):** shows the types of authority a company holds and has held, which tells you whether it's a carrier, a broker or both, and its insurance filings.
-- **[Protect Your Move](https://www.fmcsa.dot.gov/protect-your-move/how-to/faqs):** FMCSA's consumer site, where you can search interstate movers and brokers by name, state, USDOT number or MC number and see their complaint history and safety records.
+- **[FMCSA company snapshot (SAFER)](https://safer.fmcsa.dot.gov/saferhelp.aspx):** the company snapshot.
+- **[FMCSA Licensing and Insurance](https://li-public.fmcsa.dot.gov/LIVIEW/pkg_li_std_routines.prc_help?pn_pageid=5):** authority and insurance filings.
+- **[Protect Your Move](https://www.fmcsa.dot.gov/protect-your-move/how-to/faqs):** complaint history.
 - **State rules for in-state moves:** [Texas (TxDMV)](https://www.txdmv.gov/motor-carriers/txdmv-number), [California (BHGS)](https://www.bhgs.dca.ca.gov/licensee/ab2956.pdf), [Florida (FDACS)](https://ccmedia.fdacs.gov/content/download/116043/file/Household-Moving-Services-Registration-Package-Guide.pdf) and [New York](https://nyc-business.nyc.gov/nycbusiness/description/authority-to-transport-household-goods).
 
-[Verify: SAFER, Licensing and Insurance, and Protect Your Move descriptions (compliance facts §1, search excerpts). Compliance facts gives help and FAQ pages, not the search pages; link each search page directly.] [Verify: the state links are the rule and registration pages compliance facts cites, not lookups, and the New York link is a New York City business page, not an NYSDOT page. Compliance facts names a BHGS license search but gives no URL, and names no lookup for Texas, Florida or New York. Link each agency's public lookup, then relabel the bullet "State records for in-state moves".]
+[Movers vs brokers](/movers-vs-brokers/) explains how to read each record.
+
+[Verify: compliance facts §1 gives help and FAQ pages, not the search pages; link each search page directly.] [Verify: the state links are the rule and registration pages compliance facts cites, not lookups, and the New York link is a New York City business page, not an NYSDOT page. Compliance facts names a BHGS license search but gives no URL, and names no lookup for Texas, Florida or New York. Link each agency's public lookup, then relabel the bullet "State records for in-state moves".]
 
 Our [Verify a mover](/verify-a-mover/) tool explains USDOT and MC numbers and state licenses, and helps you look up a mover.
 
@@ -253,7 +266,7 @@ If you think a mover in our network is acting as a broker, has credentials that 
 
 Each report opens a case. Someone on our team is assigned to it, and it's closed with a recorded outcome. A report can prompt us to run every check on the mover again, or to suspend it.
 
-[Owner: a report category for contact from a company the consumer wasn't told about — default shown (implications §9.7).] [Build: each report creates a case with an assignee, a target time and an outcome, and can trigger re-verification or suspension (mover verification §7; data model `cases`); once the owner approves the category, the form offers "contact from a company I was not told about" (implications §9.7).]
+[Build: each report creates a case with an assignee, a target time and an outcome, and can trigger re-verification or suspension (mover verification §7; data model `cases`); the form offers "contact from a company I was not told about", case type `unlisted_contact` (build plan §4.1; implications §9.7).]
 
 For complaints about a move itself, see [Complaints](/complaints/), which also explains how to file with FMCSA and state agencies.
 

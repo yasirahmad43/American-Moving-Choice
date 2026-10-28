@@ -47,7 +47,7 @@ author: "{{page.author}}"
 reviewer: "{{page.reviewer}}"
 data_owner: "{{page.data_owner}}"        # owns the ranges table
 ai_assisted: true
-stored_texts: [ST-6, ST-7]               # ST-6 twice: inside the ranges block and in "Why we show ranges, not prices". ST-7 as a specimen in the calculator section. The role line is proposed as ST-1e and joins this list once content/stored-texts.md holds it (brief open item 15)
+stored_texts: [ST-6, ST-7]               # ST-6 twice: inside the ranges block and in "Why we show ranges, not prices". ST-7 as a specimen in the calculator section. The role line is ST-1e, now held in content/stored-texts.md as proposed; it joins this list once counsel approves it (brief open item 15)
 tokens: [page.author, page.reviewer, page.data_owner, setting.local_radius_miles, cost.method.min_movers,
   cost.result.range, cost.result.scope, cost.result.basis, cost.result.as_of, cost.model.version,
   cost.hub.studio.local.scope, cost.hub.studio.local.range, cost.hub.studio.local.source, cost.hub.studio.local.sample, cost.hub.studio.local.as_of,
@@ -75,7 +75,7 @@ depends_on:
   - "Counsel: whether ranges, tables or calculators count as providing an estimate, and 'planning range' as the label, covering the answer block, the calculator section and the ranges table (compliance facts §2; consumer-moving-rules note, counsel item 1)"
   - "Counsel: labels for local, in-state long-distance and interstate moves (consumer-moving-rules note, counsel item 6)"
   - "Counsel: FMCSA's on-site red-flag wording against video surveys under 49 CFR 375.103 (consumer-moving-rules note, counsel item 3)"
-  - "Counsel: the role line, which restates ST-1a outside the stored record; proposed as an ST-1 variant (ST-1e) for content/stored-texts.md and rendered by key once approved (stored-texts.md header; site architecture §7.1; implications §3.4; brief open item 15)"
+  - "Counsel: the role line, which restates ST-1a outside the stored record; held in content/stored-texts.md as the proposed ST-1 variant ST-1e, which also replaces How movers charge's first two sentences under "Where does American Moving Choice fit?", and rendered by key once approved (stored-texts.md header and ST-1e; site architecture §7.1; implications §3.4; brief open item 15)"
   - "Reviewer: the practice statements (local moves priced by the hour, longer moves by weight or volume and distance, home size as a shorthand, services usually adding to the price, seasonal rates), reworded or cut where the reviewer disagrees; each also needs a primary source before publishing (site architecture §6.2, §7.2; brief §8; open item 8)"
   - "Editorial: whether a distance rendered from setting.local_radius_miles may appear outside the gated block under the page rule (brief open item 6)"
   - "Owner: the review note's AI line and the author's 'Edited by' label; default shown: the editorial policy's defaults (content/pages/trust/editorial-policy.md, 'How we tell you')"
@@ -141,7 +141,7 @@ Like the calculator's ranges, these leave out charges a mover sets after seeing 
 
 ## What affects the price of a move?
 
-Movers set their own prices, and each one prices a move from what the job will take. These are the main things that change the price:
+Movers, not American Moving Choice, set prices, and each one prices a move from what the job will take. These are the main things that change the price:
 
 - **Distance and move type.** How far you're moving changes how movers price the job; see [local versus long-distance moves](#local-versus-long-distance-moves).
 - **Home size and weight.** Home size is a shorthand for how much you're moving. More belongings mean more crew time on an hourly move, and a heavier or larger shipment on a move priced by weight or volume.
@@ -155,6 +155,8 @@ Movers set their own prices, and each one prices a move from what the job will t
 
 [How movers charge](/moving-costs/how-movers-charge/) covers the detail. It explains how hourly and weight-based prices are built, the binding and non-binding estimates an interstate mover can give and how far each lets the final bill move, and how valuation, extra charges and deposits work. It also lists the documents to expect on a move between states.
 
+<a id="local-versus-long-distance-moves"></a>
+
 ## Local versus long-distance moves
 
 Our ranges and our calculator sort moves into these types:
@@ -165,9 +167,9 @@ Our ranges and our calculator sort moves into these types:
 | In-state long distance | Same state, more than {{setting.local_radius_miles}} miles apart |
 | Interstate | Different states, whatever the distance |
 
-These types don't decide which rules apply. Federal rules cover moves between states, with some exceptions, and also some moves within one state ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move); [FMCSA booklet, 2013 edition](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/docs/Rights-and-Responsibilities-2013.pdf)). How movers charge explains [which rules apply to your move](/moving-costs/how-movers-charge/#which-rules-apply-to-your-move).
+These types don't decide which rules apply. Federal rules cover moves between states, with some exceptions, and also some moves within one state ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move); [FMCSA handbook, October 2023](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf)). How movers charge explains [which rules apply to your move](/moving-costs/how-movers-charge/#which-rules-apply-to-your-move).
 
-[Counsel: how to label local, in-state long-distance and interstate moves so readers don't infer which rules apply from our move types (consumer-moving-rules note, counsel item 6). The labels and help text match the calculator's route summary and the method page; lead lifecycle §3 sets the local radius behind the setting] [Owner: editorial confirms that a distance rendered from setting.local_radius_miles may appear outside the gated block, although the page rule keeps numbers to cost.* tokens inside it — default shown (new question; brief open item 6). If not, the Local row says "a short move within one state" and How the calculator works gives the distance] [Verify: C16 (verified-excerpt). FMCSA "What is an interstate move?": Part 375 covers interstate moves, including a move between two places in one state that passes through another state, and states regulate moves within their borders. FMCSA booklet, 2013 edition: Part 375 doesn't apply within a commercial zone, even one that crosses a state line (FMCSA's example is a move from Brooklyn, New York, to Hackensack, New Jersey), or between two places in one state. Confirm both in the October 2023 handbook.]
+[Counsel: how to label local, in-state long-distance and interstate moves so readers don't infer which rules apply from our move types (consumer-moving-rules note, counsel item 6). The labels and help text match the calculator's route summary and the method page; lead lifecycle §3 sets the local radius behind the setting] [Owner: editorial confirms that a distance rendered from setting.local_radius_miles may appear outside the gated block, although the page rule keeps numbers to cost.* tokens inside it — default shown (new question; brief open item 6). If not, the Local row says "a short move within one state" and How the calculator works gives the distance] [Verify: C16 (verified-excerpt). FMCSA "What is an interstate move?": Part 375 covers interstate moves, including a move between two places in one state that passes through another state, and states regulate moves within their borders. FMCSA booklet, 2013 edition (no longer cited, since it predates the 2022 rule): Part 375 doesn't apply within a commercial zone, even one that crosses a state line (FMCSA's example is a move from Brooklyn, New York, to Hackensack, New Jersey), or between two places in one state. Confirm both in the October 2023 handbook now linked; if it lacks the commercial-zone exception, drop "with some exceptions" and the handbook link rather than cite the 2013 edition (counsel item 3).]
 
 ### Local moves
 
@@ -206,7 +208,7 @@ Estimates compare only when they price the same move. Check that each one covers
 - What valuation does the price assume, and what would more coverage cost?
 - Do you want a deposit, and how can I pay at delivery?
 
-To compare written estimates from more than one mover, [request quotes from movers](/get-quotes/) who serve your move. Movers contact you directly, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can receive your details.
+To compare written estimates from more than one mover, [request quotes from movers](/get-quotes/) who serve your move. Movers that buy your request contact you directly, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can receive your details.
 
 ## Red flags around price
 
@@ -245,7 +247,7 @@ A mover prices your move from what it sees and what you ask for, so a figure fro
 
 American Moving Choice isn't a moving company or a moving broker: movers in our network pay us for the requests they buy, you pay us nothing, and [How AMC makes money](/advertising-disclosure/) explains what their payment never changes.
 
-[Counsel: this line restates ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). So the line, worded as above, is proposed as an ST-1 variant, ST-1e, for content/stored-texts.md, which this review couldn't edit; the movers-vs-brokers brief already proposes an ST-1d. Once counsel approves the variant, the line renders from the record after its key comment and joins stored_texts; until then counsel reviews it with ST-1a in one pass (brief open item 15)]
+[Counsel: this line restates ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). So the line, worded as above, is held in content/stored-texts.md as the proposed ST-1 variant ST-1e, beside the proposed ST-1d; ST-1e also replaces the first two sentences of How movers charge's "Where does American Moving Choice fit?", which carry the same marker. Once counsel approves the variant, the line renders from the record after an `<!-- ST-1e -->` key comment and joins stored_texts; until then counsel reviews it with ST-1a in one pass. "Isn't … a moving broker" is a legal conclusion about AMC (stored-texts ST-1 notes; carrier-vs-broker note, counsel items 1 to 4; brief open item 15)]
 
 ## Sources and data notes
 
@@ -256,7 +258,7 @@ American Moving Choice isn't a moving company or a moving broker: movers in our 
 - [Spot the red flags](https://www.fmcsa.dot.gov/protect-your-move/red-flags), Protect Your Move. Accessed October 28, 2026.
 - [Tips for a successful move](https://www.fmcsa.dot.gov/protect-your-move/tips-for-success), Protect Your Move. Accessed October 28, 2026.
 - [What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move) Accessed October 28, 2026.
-- [Your Rights and Responsibilities When You Move](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/docs/Rights-and-Responsibilities-2013.pdf), 2013 edition (PDF): the commercial-zone exception and moves within one state. Accessed October 28, 2026.
+- [Your Rights and Responsibilities When You Move](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf), handbook, October 2023 (PDF): the commercial-zone exception and moves within one state, to confirm before publishing. Accessed October 28, 2026.
 - [Valuation](https://www.fmcsa.dot.gov/protect-your-move/valuation-insurance), Protect Your Move. Accessed October 28, 2026.
 - [Glossary](https://www.fmcsa.dot.gov/protect-your-move/glossary), Protect Your Move: stair (flight), long-carry and shuttle charges. Accessed October 28, 2026.
 

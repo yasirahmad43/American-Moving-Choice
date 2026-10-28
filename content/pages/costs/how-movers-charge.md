@@ -20,6 +20,7 @@ depends_on:
   - "Counsel: whether calculator planning ranges count as 'providing an estimate', and whether 'planning range' is the right label (consumer-moving-rules note, counsel item 1; stored-texts ST-1 notes; compliance facts §2)"
   - "Counsel: 110% rule wording, including the delivery limits under both estimate types, the 15% limit on impracticable-operations charges, and how to word the balance and when it is billed (implications §7.1; consumer-moving-rules note, counsel item 2)"
   - "Counsel: approve ST-6 (site architecture §6.3 rule 3; stored-texts ST-6 notes)"
+  - "Counsel: approve ST-1e, which replaces the first two sentences of 'Where does American Moving Choice fit?'; reviewed with ST-1a in one pass, including ST-1e's 'isn't … a moving broker' (stored-texts ST-1e and ST-1 notes; content/README.md §9; carrier-vs-broker note, counsel items 1 to 4)"
   - "Counsel: which source to follow where FMCSA consumer pages lag the 2022 rule, for the survey and order-for-service wording (consumer-moving-rules note, counsel item 3)"
   - "Counsel: whether to mention 'not-to-exceed' estimates or California's 'Not to Exceed Price' (consumer-moving-rules note, counsel item 4)"
   - "Counsel: the 60-cents-per-pound limit and the full-value default as fixed figures (consumer-moving-rules note, counsel item 5)"
@@ -43,24 +44,28 @@ last_updated: null
 
 Movers, not American Moving Choice, set prices. Local moves are usually charged by the hour. Interstate moves are mainly charged by the shipment's weight and the distance, plus services such as packing. On an interstate move, the type of written estimate, binding or non-binding, decides how far the final bill can move from the estimate.
 
-Written by {{page.author}} · Reviewed by {{page.reviewer}}
+Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
-[Build: show the published and last-updated dates from the CMS record beside the byline, and render the same dates in Article `datePublished` and `dateModified`; mark up the reviewer as `WebPage.reviewedBy` (site architecture §7.3, §8.5)]
+[Build: this review note renders from the page record, as the editorial policy specifies: the author's "Edited by" label and the AI line appear because AI drafted this page (`ai_assisted: true`). Show the published and last-updated dates from the CMS record beside it, and render the same dates in Article `datePublished` and `dateModified`; mark up the reviewer as `WebPage.reviewedBy` (content/pages/trust/editorial-policy.md, "How we tell you"; content/README.md §2; site architecture §7.3, §8.5)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown: a review-note AI line and "Edited by", as the editorial policy drafts them (new questions; editorial policy, "How we tell you")]
 
 [Verify: "usually charged by the hour" and "weight and the distance" summarize practice, not a rule. The sections below give the rules behind them (consumer-moving-rules note C5, C9, C19). The reviewer, who needs relevant moving experience (site architecture §7.2), confirms the summary.]
+
+<a id="which-rules-apply-to-your-move"></a>
 
 ## Which rules apply to your move?
 
 Two sets of rules shape how a mover can price a move. Which set applies depends on the route, not the distance.
 
-- **Moves between states** follow federal rules from the Federal Motor Carrier Safety Administration (FMCSA), in 49 CFR Part 375. These rules also cover a move between two places in one state if the shipment passes through another state ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move)). Part 375 doesn't apply, though, to a move within a commercial zone, even one that crosses a state line. FMCSA's example is a move from Brooklyn, New York, to Hackensack, New Jersey ([FMCSA booklet, 2013 edition](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/docs/Rights-and-Responsibilities-2013.pdf)).
-- **Moves within one state** follow that state's rules, not Part 375 ([FMCSA booklet, 2013 edition](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/docs/Rights-and-Responsibilities-2013.pdf)).
+- **Moves between states** follow federal rules from the Federal Motor Carrier Safety Administration (FMCSA), in 49 CFR Part 375. These rules also cover a move between two places in one state if the shipment passes through another state ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move)). Part 375 doesn't apply, though, to a move within a commercial zone, even one that crosses a state line. FMCSA's example is a move from Brooklyn, New York, to Hackensack, New Jersey ([FMCSA handbook, October 2023](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf)).
+- **Moves within one state** follow that state's rules, not Part 375 ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move); [FMCSA handbook, October 2023](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf)).
 
 States register or license movers for moves within their borders, through agencies such as the [Texas Department of Motor Vehicles](https://www.txdmv.gov/sites/default/files/body-files/Motor_Carrier_Handbook.pdf), California's [Bureau of Household Goods and Services](https://bhgs.dca.ca.gov/licensee/hhm_faqs.shtml) and Florida's [Department of Agriculture and Consumer Services](https://www.fdacs.gov/Business-Services/Moving-Companies). [Verify a mover](/verify-a-mover/) explains federal and state licenses.
 
-[Verify: C16 (verified-excerpt). FMCSA "What is an interstate move?"; FMCSA booklet; Tex. Transp. Code §643.051 and 43 TAC ch. 218; Cal. Bus. & Prof. Code §19225 and following; Fla. Stat. ch. 507. The commercial-zone line and the line on moves within one state come from the 2013 booklet; confirm them in the October 2023 handbook. Confirm whether BHGS calls its credential a license or a permit.] [Counsel: California's BHGS also issues an Interstate Mover license to companies that move goods only into or out of California (C16 notes). Does that affect the statement that states regulate moves within their borders (consumer-moving-rules note, counsel item 9)?]
+[Verify: C16 (verified-excerpt). FMCSA "What is an interstate move?"; FMCSA handbook, October 2023; Tex. Transp. Code §643.051 and 43 TAC ch. 218; Cal. Bus. & Prof. Code §19225 and following; Fla. Stat. ch. 507. The commercial-zone line and the line on moves within one state were found only in the 2013 booklet, which predates the 2022 rule and is no longer cited here; confirm both in the October 2023 handbook before publishing. If the handbook lacks the commercial-zone line, delete the sentences from "Part 375 doesn't apply, though," to the end of that bullet rather than cite the 2013 edition (consumer-moving-rules note C16; counsel item 3). Confirm whether BHGS calls its credential a license or a permit.] [Counsel: California's BHGS also issues an Interstate Mover license to companies that move goods only into or out of California (C16 notes). Does that affect the statement that states regulate moves within their borders (consumer-moving-rules note, counsel item 9)?]
 
 On this page, a local move means a short move within one state, and an interstate move means a move between states. A long move within one state also follows that state's rules, and those rules may set how it's priced: California, for example, requires in-state moves of more than 100 miles to be charged by weight and mileage ([BHGS consumer guide](https://bhgs.dca.ca.gov/consumers/hhm.html)). If yours is a long move within one state, ask each mover how it will price it. Most of the estimate, weighing, valuation and paperwork rules below are federal rules for interstate moves. Each section says where a move within one state can differ. [Verify: C19 (verified-excerpt); BHGS consumer guide.] [Counsel: how to label local, in-state long-distance and interstate moves so readers don't infer which rules apply from distance, with labels that match the calculator's three move types: Local, In-state long distance and Interstate (consumer-moving-rules note, counsel item 6)]
+
+<a id="how-do-movers-charge-for-local-moves"></a>
 
 ## How do movers charge for local moves?
 
@@ -89,6 +94,8 @@ For hourly price ranges, see [how much movers charge per hour](/moving-costs/loc
 - What does the hourly rate include, such as blankets, wrapping or taking furniture apart?
 - What costs extra, such as packing materials, stairs, a long walk to the truck or a heavy item?
 - Will you put the price, and how it can change, in a written estimate?
+
+<a id="how-do-movers-charge-for-interstate-moves"></a>
 
 ## How do movers charge for interstate moves?
 
@@ -128,6 +135,8 @@ Before you sign the bill of lading, the contract for an interstate move, the mov
 
 [Moving estimates explained](/guides/moving-estimates-explained/) goes further into binding and non-binding estimates.
 
+<a id="why-should-a-survey-come-before-the-estimate"></a>
+
 ### Why should a survey come before the estimate?
 
 For an interstate move, the mover must survey your belongings before it gives you a written estimate, whatever the distance, unless you waive the survey in a signed writing before loading. The survey can be in person or virtual. A virtual survey must let the mover clearly identify your belongings by live or recorded video ([49 CFR 375.103](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-A/section-375.103); [375.401](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401)). Older guides may mention a 50-mile limit on surveys; FMCSA's 2022 rule removed it ([87 FR 24431](https://www.federalregister.gov/documents/2022/04/26/2022-08808/implementation-of-household-goods-working-group-recommendations)).
@@ -149,6 +158,8 @@ If you add goods or services that the binding estimate doesn't list, the mover m
 A non-binding estimate is the mover's reasonably accurate estimate of what the move should cost, based on the estimated weight or volume of your shipment, the services you need and the survey of your belongings ([49 CFR 375.405](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.405)). It doesn't bind the mover: the final charges come from the mover's tariff and can be higher than the estimate. The estimate must say so, and it must also say that you won't have to pay more than 110% of it at delivery. The mover can't charge you for a non-binding estimate ([49 CFR 375.401](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401)). If the charges depend on weight, the mover must [weigh your shipment](#how-is-your-shipment-weighed) before it bills you.
 
 [Verify: C5 and C4 (verified-excerpt); 49 CFR 375.401(b)(2), (d); 375.405; 375.507(a). Confirm whether the sentence basing final charges on actual weight, services and the tariff sits in 375.401 or only in Appendix A before quoting it.] [Counsel: 110% rule wording (implications §7.1)]
+
+<a id="how-is-your-shipment-weighed"></a>
 
 ### How is your shipment weighed?
 
@@ -182,6 +193,8 @@ If a mover won't deliver unless you pay more than these limits, you can file a c
 
 **In-state moves:** binding and non-binding estimates, the survey requirement, weighing and the 110% rule are federal rules for interstate moves. For a move within one state, ask the mover what kind of estimate it gives, whether it will weigh your shipment and what you'll owe at delivery, and check your state's rules.
 
+<a id="what-extra-charges-can-a-mover-add"></a>
+
 ## What extra charges can a mover add?
 
 Beyond the main charge, movers charge for extra services, which the rules call accessorial services. On an interstate move, the mover's tariff sets their prices ([49 U.S.C. 13702](https://www.law.cornell.edu/uscode/text/49/13702); [49 CFR 375.401](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401)). Common ones include:
@@ -209,6 +222,8 @@ The stair, long-carry and shuttle descriptions follow [FMCSA's glossary](https:/
 Ask each mover about anything its estimate doesn't mention, such as a heavy or bulky item, or storage if your belongings can't be delivered right away, and get the answer into the written estimate.
 
 **In-state moves:** these are federal rules for interstate moves. For a move within one state, ask the mover how it prices extra services, and check your state's rules.
+
+<a id="what-is-valuation"></a>
 
 ## What is valuation?
 
@@ -261,7 +276,7 @@ Other red flags [FMCSA lists](https://www.fmcsa.dot.gov/protect-your-move/red-fl
 
 [Verify: C14 (verified-excerpt); items paraphrased from search excerpts of FMCSA's "Spot the Red Flags"; check each against the live page before quoting.]
 
-American Moving Choice never asks you for a deposit or any payment for your move. [Owner: no deposits or move payments through AMC, as a standing exclusion — default shown (implications D5; brief §4; the "Booking deposits and payments" add-on in MVP scope §5)] [How to avoid moving scams](/guides/how-to-avoid-moving-scams/#deposits) has more on deposits.
+American Moving Choice never asks you for a deposit or any payment for your move. [Owner: no deposits or move payments through AMC, as a standing exclusion — default shown (implications D5; brief §4; the "Booking deposits and payments" add-on in MVP scope §5)] [How to avoid moving scams](/guides/how-to-avoid-moving-scams/) has more on deposits.
 
 ## What documents should you get?
 
@@ -293,6 +308,8 @@ Never sign a blank document, and keep a copy or photo of everything you sign ([F
 
 **In-state moves:** these are the federal paperwork rules for interstate moves. For a move within one state, ask the mover which documents it will give you.
 
+<a id="how-do-you-compare-quotes-like-for-like"></a>
+
 ## How do you compare quotes like for like?
 
 Put the movers' written estimates side by side and check the same things on each.
@@ -311,6 +328,8 @@ If one estimate is much lower than the others, ask what it leaves out.
 ## Where does American Moving Choice fit?
 
 We don't set or check movers' prices, and we don't give quotes or estimates. Movers in our network pay us for the move requests they buy; you pay us nothing. [How AMC makes money](/advertising-disclosure/) explains who pays us and what payment never changes.
+
+[Counsel: the first two sentences above restate ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). content/stored-texts.md now holds ST-1e (proposed), which replaces these two sentences (stored-texts ST-1e; content/README.md §9). Once counsel approves ST-1e, it renders here after an `<!-- ST-1e -->` key comment and joins stored_texts; until then counsel reviews these sentences with ST-1a in one pass. ST-1e's "isn't … a moving broker" is a legal conclusion about AMC (stored-texts ST-1 notes; carrier-vs-broker note, counsel items 1 to 4)]
 
 Our [moving cost calculator](/moving-cost-calculator/) shows a planning range, built from rate cards that movers in our network give us, where enough of them cover your move. [Owner: ranges come only from network movers' rate cards, and movers in markets with a published range give one when they join; both are proposals in the calculator method draft, and site architecture §6.3 rule 2 also allows cited studies — default shown (method draft, "Where does the data come from?" and "Which movers count"; new questions, not in implications §11)] [Counsel: stored-texts ST-1 notes ask whether the cost calculator's planning ranges fit "we don't give quotes or estimates" above, and whether "planning range" is the right label (compliance facts §2; consumer-moving-rules note, counsel item 1).] [How the calculator works](/moving-cost-calculator/method/) explains the method, and [Moving costs](/moving-costs/) covers what affects the price of a move.
 
@@ -354,7 +373,6 @@ When you're ready, [request quotes from movers](/get-quotes/) who serve your mov
 - [Valuation](https://www.fmcsa.dot.gov/protect-your-move/valuation-insurance), Protect Your Move. Accessed October 28, 2026.
 - [Glossary](https://www.fmcsa.dot.gov/protect-your-move/glossary), Protect Your Move. Accessed October 28, 2026.
 - [Your Rights and Responsibilities When You Move](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf), handbook, October 2023 (PDF). Accessed October 28, 2026.
-- [Your Rights and Responsibilities When You Move](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/docs/Rights-and-Responsibilities-2013.pdf), 2013 edition (PDF), for the commercial-zone example and the line on moves within one state. Accessed October 28, 2026.
 - [Ready to Move?](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/ReadytoMoveBrochure_2022Update.pdf), 2022 update (PDF). Accessed October 28, 2026.
 
 **State agencies**

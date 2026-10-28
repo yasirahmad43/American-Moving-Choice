@@ -14,8 +14,9 @@ author: "{{page.author}}"
 reviewer: "{{page.reviewer}}"
 data_owner: n/a                          # no data blocks on this page
 ai_assisted: true                        # drafted by an AI drafting agent from AMC's documents; the author's edit and the reviewer's check and approval are pending
+ai_role: drafted
 stored_texts: [ST-6]                     # reference only: quoted as the statement every cost block carries; this page has no cost block
-tokens: [org.editorial_email, page.author, page.reviewer, setting.rank_min_reviews, setting.ai_summary_min_reviews, cost.method.refresh_months, cost.method.max_data_age_months]
+tokens: [org.editorial_email, page.author, page.reviewer, setting.rank_min_reviews, setting.ai_summary_min_reviews, cost.method.refresh_months, cost.method.max_data_age_months, cost.method.request_min_n, cost.method.request_min_days, setting.moving_to_min_requirements, setting.geo_min_movers, setting.geo_min_movers_state, setting.geo_min_facts, setting.geo_min_facts_route, setting.geo_min_data_points, setting.geo_min_data_points_route, setting.geo_deindex_days, setting.geo_consolidate_days, setting.fact_recheck_months, policy.quote_max_words]
 depends_on:
   - "Owner: the uses AI may have (no AMC document lists them; default shown: research help, first drafts, summaries of government sources, consistency checks)"
   - "Owner: what sets ai_assisted and the review-note AI line (README §2 makes it a yes/no flag; default shown: AI drafting or summarizing of page text; research help and consistency checks alone don't)"
@@ -28,13 +29,14 @@ depends_on:
   - "Owner: competitor figures (README §5 bars naming competitors in consumer copy; site architecture §6.3 rule 2 allows their figures as cited context; default shown: no figures from other moving-request or review sites)"
   - "Owner: typo and layout fixes don't move 'Last updated' (site architecture §7.3 and §8.4 define substantive changes by a list; default shown)"
   - "Owner: apply site architecture §4.3's 12-month cost-data limit to every cost figure, the calculator included (default shown; the same question as the calculator method draft)"
-  - "Owner and build: registry keys for the policy numbers this page types, such as the gate thresholds, the 30- and 90-day rules, the 6-month fact recheck and the 25-word quote limit (site architecture §4.1 makes gate thresholds configurable per family in admin; brief open item 8)"
+  - "Owner and build: the values and admin settings behind the policy-number tokens this page now uses (gate thresholds, the 30- and 90-day rules, the 6-month fact recheck and the 25-word quote limit), which content/tokens.json holds until platform settings exist (site architecture §4.1 makes gate thresholds configurable per family in admin; README §3; brief open item 8)"
   - "Owner: pages for reviewers as well as authors (site architecture §1.2 and §7.2 document author pages only; default shown: yes)"
   - "Owner: the corrections process and any reply or response time (no AMC document sets one)"
   - "Owner: a version number and changelog on every policy and method page (documented only for the verification text and the calculator method: implications §4.3; site architecture §6.3 rule 5)"
   - "Owner: name authors, reviewers and data owners with credentials that can be checked (brief §11 Q9; implications §11 Q17)"
   - "Owner: the value of {{org.editorial_email}} (brief §11 Q1)"
-  - "Counsel: aggregate use of request data under the privacy policy (site architecture §7.5, §6.3 rule 7)"
+  - "Counsel: aggregate use of consented request data under the privacy policy (site architecture §7.5, §6.3 rule 7)"
+  - "Counsel: 'payment buys it move requests, nothing more', beside the effect of buying on review invitations and rating-sort eligibility; word it as counsel decides for ST-1a and ST-3 (stored-texts ST-1 and ST-3 notes)"
   - "Counsel: ST-6 wording (site architecture §6.3 rule 3; stored-texts ST-6 notes)"
 last_updated: null
 ---
@@ -51,7 +53,7 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with
 
 We publish to help you plan a move and check the movers you might hire. We choose topics from what people planning a move search for and ask about, and we write to answer the question, not to reach a word count.
 
-- **[Guides](/guides/)** answer common questions, such as how to choose a mover, how to spot a moving scam and what your rights are when you move between states. Each guide has to add something useful that you can't easily find elsewhere. Our moving-to guides set out what a state asks of new residents, such as registering a vehicle. Each has its own publishing bar, including at least 5 such requirements checked against government sources.
+- **[Guides](/guides/)** answer common questions, such as how to choose a mover, how to spot a moving scam and what your rights are when you move between states. Each guide has to add something useful that you can't easily find elsewhere. Our moving-to guides set out what a state asks of new residents, such as registering a vehicle. Each has its own publishing bar, including at least {{setting.moving_to_min_requirements}} such requirements checked against government sources.
 - **[Cost pages](/moving-costs/)** show what moves cost as ranges, never as single prices.
 - **Tools** help you check something for your own move: our [moving cost calculator](/moving-cost-calculator/) gives a planning range, and [Verify a mover](/verify-a-mover/) helps you look up a mover's federal record.
 - **[Location pages](/movers/)** for states, cities and routes between states show the movers in our network that serve the area, with local facts and costs. We publish one only where enough movers serve the area and we have real local data. If a live page stays below that bar, we hide it from search, then redirect or remove it. [When a location page goes live](#location-pages) sets out the details.
@@ -61,7 +63,7 @@ This policy covers what we write and publish. Customer reviews follow our [Revie
 ### What we don't publish
 
 - **Pages with nothing new.** If a page wouldn't tell you anything you can't easily find already, we don't write it. If two of our own pages would be near copies, we merge them before either goes live.
-- **"Best movers" lists.** We publish no rankings or best-of lists at launch, and no "best movers" posts for a city alongside our city pages. If we add a comparison later, it will follow a published method, treat movers the same whether or not they're in our network or pay us, and won't rank a mover, or call it "top" or "best," on a rating from fewer than {{setting.rank_min_reviews}} eligible reviews.
+- **"Best movers" lists.** We publish no rankings or best-of lists at launch, and no "best movers" posts for a city alongside our city pages. If we add a comparison later, it will follow a published method, treat movers the same whether or not they're in our network or pay us, and won't rank a mover, or call it "top" or "best," on a rating from fewer than {{setting.rank_min_reviews}} eligible reviews of that experience.
 - **Pages for places we don't cover.** There's no page for a place no mover in our network serves, and there are no pages for single ZIP codes.
 - **Pages made mainly to rank in search**, such as near-identical pages for every city, ZIP code or service, or question-and-answer blocks written for search features rather than for you.
 - **Advice beyond what we know.** For example, we don't recommend neighborhoods or schools, because we have no expertise there.
@@ -70,7 +72,7 @@ This policy covers what we write and publish. Customer reviews follow our [Revie
 
 No. American Moving Choice is paid by movers in our network for the move requests they buy, not by you; [How AMC makes money](/advertising-disclosure/) explains how that works.
 
-A mover's payment buys it move requests, nothing more. Our location pages and their mover counts include only movers with active accounts, and paying what it owes is part of keeping an account active. Beyond that, how much a mover buys or spends never affects whether or where it appears. Buying more requests can also bring a mover more review invitations, because only people whose request a mover bought can review it. How AMC makes money explains both, in its section on [which movers are listed](/advertising-disclosure/#which-movers-are-listed).
+A mover's payment buys it move requests, nothing more. Only movers with active accounts appear on our location pages or count toward them; [How AMC makes money](/advertising-disclosure/#which-movers-are-listed) explains what that does and doesn't depend on, including review invitations. [Counsel: the same question as How AMC makes money, "Which movers are listed?": reviews come only from requests a mover bought, and rating sorts rank movers once they reach {{setting.rank_min_reviews}} eligible reviews; word this as counsel decides for ST-1a and ST-3 (stored-texts ST-1 and ST-3 notes)]
 
 No mover can pay for:
 
@@ -103,7 +105,7 @@ Cost ranges work the same way: only movers with active accounts count, and how m
 - **Population and migration:** the U.S. Census Bureau.
 - **Wages:** the Bureau of Labor Statistics (BLS).
 
-We link to the source where we use it, and we explain the rule in plain words. When we quote a source, we keep the quote under 25 words and link to it. If we've only seen a fact secondhand, for example in a search result or a news story, it doesn't go live until we've confirmed it on the primary source.
+We link to the source where we use it, and we explain the rule in plain words. When we quote a source, we keep the quote under {{policy.quote_max_words}} words and link to it. If we've only seen a fact secondhand, for example in a search result or a news story, it doesn't go live until we've confirmed it on the primary source.
 
 **Figures from movers.** Some figures come from movers in our network, such as the rates they give us for our cost ranges. We say so wherever we use them.
 
@@ -121,7 +123,7 @@ We link to the source where we use it, and we explain the rule in plain words. W
 - **A source and a date for every figure.** Each one links to its source, or to the page that explains how we worked it out.
 - **Ranges, with their workings.** Cost figures are always ranges. Each one states what it covers, such as home size and distance, along with its source, the date of its data and how we built it. Our [calculator method page](/moving-cost-calculator/method/) sets out how.
 - **No figure without enough data.** When we don't have enough data for a reliable figure, we leave it out rather than guess.
-- **Our own request data, with limits.** Totals from move requests sent through our site appear only for facts that aren't prices, only above set minimum numbers of requests, and only where our privacy policy allows. [Counsel: confirm the privacy policy permits aggregate use of request data (site architecture §7.5, §6.3 rule 7)]
+- **Our own request data, with limits.** Totals from consented move requests sent through our site appear only for facts that aren't prices, only with at least {{cost.method.request_min_n}} requests over at least {{cost.method.request_min_days}} days, with smaller groups hidden, and only where our privacy policy allows. [Counsel: confirm the privacy policy permits aggregate use of request data (site architecture §7.5, §6.3 rule 7)]
 - **No claims we can't back up.** We never claim you'll save money by using us, and we publish no counts of people helped, moves booked or jobs done. We don't arrange or book moves, and we have no complete record of who hires which mover, so we couldn't support those numbers.
 
 Every cost range, table and calculator result on our site carries this statement:
@@ -184,7 +186,7 @@ This page is AI-assisted. AI drafted it from our planning and policy documents. 
 
 ## Images, video and customer stories
 
-- **Generated images stay abstract.** We use generated images only for illustrations, backgrounds and objects, such as a box texture or a stylized route map. They never show people, whether customers, staff or movers, and never show offices, a real company's trucks, a move or a testimonial. They can't be placed on a mover's profile, in reviews or in customer stories. So any photo of people or a move that we choose is a real photograph, though it may be a licensed photo rather than a picture of our customers or of movers in our network.
+- **Generated images stay abstract.** We use generated images only for illustrations, backgrounds and objects, such as a box texture or a stylized route map. They never show people, whether customers, staff or movers, and never show offices, a real company's trucks, a move or a testimonial. They can't be placed on a mover's profile, in reviews or in customer stories. So any photo of people or a move that we choose is a real photograph, though it may be a stock photo used under license rather than a picture of our customers or of movers in our network.
 - **Every image is logged.** We record the source, license, creator and release status of every image, and whether it was generated.
 - **Places are what we say they are.** We never caption a generic photo as a particular city. We don't use seals, flags or government logos, such as FMCSA's, and we avoid landmarks that could suggest a business tie or an endorsement.
 - **Movers' photos are labeled.** A mover's photos and videos appear only if the mover confirms it's allowed to publish them, and they're labeled as provided by that company.
@@ -211,7 +213,7 @@ When you report an error:
 ## How we keep pages current
 
 - **Cost data** is refreshed at least every {{cost.method.refresh_months}} months, and sooner when a source changes. If the data behind a cost figure is more than {{cost.method.max_data_age_months}} months old, the figure stops showing until it's refreshed. [Owner: apply site architecture §4.3's 12-month limit to every cost figure, the calculator included — default shown (the same question as the calculator method draft)] [Build: a cost figure whose data is past the limit stops rendering]
-- **Facts we've checked** each have a recheck date in the page's source record. On location pages and moving-to guides, facts such as a state's rules for movers are rechecked at least every 6 months and whenever the rule changes, and a fact past its recheck date stops showing until someone rechecks it. [Build: expired facts hide themselves (site architecture §4.1 G3)]
+- **Facts we've checked** each have a recheck date in the page's source record. On location pages and moving-to guides, facts such as a state's rules for movers are rechecked at least every {{setting.fact_recheck_months}} months and sooner when we learn a rule has changed, and a fact past its recheck date stops showing until someone rechecks it. [Build: expired facts hide themselves (site architecture §4.1 G3)]
 - **Movers' federal records** are rechecked every week. [How we verify movers](/how-we-verify-movers/) explains those checks.
 - **Search performance** is reviewed every month for the first six months after launch, then every three months. A review can lead us to improve a page, merge it into another or remove it, and a location page can also be hidden from search.
 - **Policy and method pages**, this one included, carry a version number and a changelog that records each change with its date. [Owner: AMC documents ask for a changelog only on the verification text (implications §4.3) and the calculator method (site architecture §6.3 rule 5); confirm for every policy and method page — default shown]
@@ -220,17 +222,17 @@ When you report an error:
 
 A location page goes live only when all of these are true:
 
-- **Enough movers serve the area.** At least 3 movers in our network that have passed [our checks](/how-we-verify-movers/) serve it, or 5 for a state page. A route page counts only movers that serve the route in that direction. For local moves in a city, a mover counts only if it lists that area's counties or ZIP codes and does local moves; a setting that covers a whole state or the whole country doesn't count. Storage, container and truck-rental companies never count, and the number of movers the page shows is the same count. [Owner: mover thresholds — default shown (brief §11 Q4; site architecture §4.1 G1)]
-- **Local facts are checked.** At least 3 facts about the place have been checked against government sources. A route page needs 4, covering both ends of the move.
+- **Enough movers serve the area.** At least {{setting.geo_min_movers}} movers in our network that have passed [our checks](/how-we-verify-movers/) serve it, or {{setting.geo_min_movers_state}} for a state page. A route page counts only movers that serve the route in that direction. For local moves in a city, a mover counts only if it lists that area's counties or ZIP codes and does local moves; a setting that covers a whole state or the whole country doesn't count. Storage, container and truck-rental companies never count, and the number of movers the page shows is the same count. [Owner: mover thresholds — default shown (brief §11 Q4; site architecture §4.1 G1)]
+- **Local facts are checked.** At least {{setting.geo_min_facts}} facts about the place have been checked against government sources. A route page needs {{setting.geo_min_facts_route}}, covering both ends of the move.
 - **Costs have a source and a date.** Without enough cost data, the page waits. The main page for a state is the exception: it can go live without costs, and it says why.
-- **It couldn't be any other page.** It has at least one original data point (two for a route page), such as Census figures on where people move or totals from requests sent through our site. It answers local questions from its own facts, not with text repeated across pages, and every section says something that would be wrong on the page for another place.
+- **It couldn't be any other page.** It has at least {{setting.geo_min_data_points}} original data point ({{setting.geo_min_data_points_route}} for a route page), such as Census figures on where people move or totals from requests sent through our site. It answers local questions from its own facts, not with text repeated across pages, and every section says something that would be wrong on the page for another place.
 - **A named person has reviewed it.** [Owner: site architecture §4.1 G9 moves programmatic pages to a 20% review sample from Wave 3; see the marker under "How AI-assisted pages are checked"]
 
 A location page that doesn't pass isn't published at all. We don't put up a thin page and hide it from search engines. [Build: the publishing gate runs every check above before a location page gets a public URL (site architecture §4.1, §4.2)]
 
 ### If a location page drops below the bar
 
-If the number of movers serving a live location page drops two or more below the bar and stays there for 30 days in a row, we ask search engines not to list the page (a setting called noindex). A smaller or shorter dip doesn't hide the page, so pages don't flicker in and out of search results. If the page is still below the bar 90 days after it dropped, we redirect it to its state's main page, or remove it if there isn't a relevant one. [Build: nightly coverage counts drive the 30-day and 90-day rules, and internal links and sitemaps update the same day (site architecture §4.4, §2.5)]
+If the number of movers serving a live location page drops two or more below the bar and stays there for {{setting.geo_deindex_days}} days in a row, we ask search engines not to list the page (a setting called noindex). A smaller or shorter dip doesn't hide the page, so pages don't flicker in and out of search results. If the page is still below the bar {{setting.geo_consolidate_days}} days after it dropped, we redirect it to its state's main page, or remove it if there isn't a relevant one. [Build: nightly coverage counts drive the 30-day and 90-day rules, and internal links and sitemaps update the same day (site architecture §4.4, §2.5)]
 
 ## Changes to this policy
 

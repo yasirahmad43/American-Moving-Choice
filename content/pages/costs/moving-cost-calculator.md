@@ -25,13 +25,14 @@ depends_on:
   - "Data owner and owner: at least one area passes the thresholds before this page publishes (site architecture §6.3 rules 4 and 5, §3.3 rule 4)"
   - "Owner: apply site architecture §4.3's 12-month cost-data limit to the calculator, rate card by rate card; default shown: yes (method page, 'How is the method updated?')"
   - "Owner: call-to-action wording; default shown: 'See which movers cover this move' (implications §8.6; names or a count before contact, implications §11 Q1)"
-  - "Owner: which locations the calculator and the request form can't serve; default shown: PO-box-only ZIP codes, APO and FPO addresses and US territories (JTBD §4 J1; backlog 4.1.2)"
+  - "Owner: which locations the calculator and the quote survey can't serve; default shown: PO-box-only ZIP codes, APO and FPO addresses and US territories (JTBD §4 J1; backlog 4.1.2)"
   - "Owner: no city lookup for unknown ZIP codes on the calculator, although VD §9.2 has one; default shown: none, since the method page takes two ZIP codes"
   - "Owner: the same ZIP code at both ends is accepted as a local move (lead lifecycle §4)"
-  - "Owner and build: the calculator runs the coverage check before the request form (implications §2.1 step 5, §2.2; lead lifecycle §2 step 5; backlog 4.1.6)"
+  - "Owner and build: the calculator runs the coverage check before the quote survey (implications §2.1 step 5, §2.2; lead lifecycle §2 step 5; backlog 4.1.6)"
   - "Design and build: error.zip.non_us fires only on a non-US postal-code pattern, tested before VD §9.2's cleanup (lead lifecycle §2; VD §9.2, §14)"
   - "Build and counsel: the site architecture §8.8 tag policy covers this page and its results view"
   - "Owner: name the author, the reviewer and the data owner (brief §11 Q9; implications §11 Q17)"
+  - "Owner: the review note's AI line and the author's 'Edited by' label; default shown: the editorial policy's defaults (content/pages/trust/editorial-policy.md, 'How we tell you')"
 last_updated: null
 ---
 
@@ -43,7 +44,9 @@ The moving cost calculator from American Moving Choice shows a planning range fo
 
 [Counsel: "Estimate" as a verb in the title, "Moving Cost Calculator: Estimate Your Moving Cost Range"; alternative "Moving Cost Calculator: See a Typical Cost Range" (site architecture §8.2; compliance facts §2)]
 
-Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page.data_owner}}
+Edited by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page.data_owner}} · First drafted with AI
+
+[Build: this review note renders from the page record, as the editorial policy specifies: the author's "Edited by" label and the AI line appear because AI drafted this page (`ai_assisted: true`). Show the published and last-updated dates from the CMS record beside it, and mark up the reviewer as `WebPage.reviewedBy` (content/pages/trust/editorial-policy.md, "How we tell you"; content/README.md §2; site architecture §7.3, §8.5)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown: a review-note AI line and "Edited by", as the editorial policy drafts them (new questions; editorial policy, "How we tell you")]
 
 <!-- calculator-widget:start -->
 
@@ -51,7 +54,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 
 **Order on the page.**
 
-1. The form: the two ZIP code fields, the route summary, move size, services, the move month where it's asked, the "Still needed" hint, the button and the privacy line.
+1. The form: the two ZIP code fields, the route summary, move size, services, the "Still needed" hint, the button and the privacy line.
 2. The result area, empty until the reader calculates: one result (the results view, or the not-enough-data, no-range-for-this-size, stale-data or error state), then one next step (the call to action with ST-1b, or the no-coverage state).
 
 **Heading levels.** In the result area, `results.heading` and every `state.*.heading` render as H2, and `results.assume.heading`, `results.includes.heading` and `results.excludes.heading` as H3. The result area sits between the H1 and the H2s below the tool, so the outline stays in order (VD §14).
@@ -60,7 +63,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 
 [Build: native inputs only (text, radio, checkbox and select). Every input starts empty, and a scripted submit of defaults fails (implications §2.7; VD §9.2)]
 
-**Placeholders.** No field has placeholder text. Format hints sit in the help line below each field, so nothing looks filled in before the reader types. The month list opens on an empty "Choose a month" option.
+**Placeholders.** No field has placeholder text. Format hints sit in the help line below each field, so nothing looks filled in before the reader types.
 
 **Form**
 
@@ -68,13 +71,13 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 |---|---|---|
 | form.name | Moving cost calculator | Accessible name of the form; not shown |
 | form.route.legend | Where are you moving? | Legend for the two ZIP code fields |
-| form.origin.label | Moving from (ZIP) | Same label as the request form in the style tile |
+| form.origin.label | Moving from (ZIP) | Same label as the quote survey in the style tile |
 | form.origin.help | 5-digit ZIP code | Replaced by form.origin.resolved once the ZIP code resolves |
 | form.origin.resolved | {city}, {state} | Resolved city and two-letter state code (VD §9.2) |
 | form.destination.label | Moving to (ZIP) | |
 | form.destination.help | 5-digit ZIP code | Replaced by form.destination.resolved |
 | form.destination.resolved | {city}, {state} | |
-| form.size.legend | Move size | Same label as the request form in the style tile. [Build: radio choice cards with native inputs, none selected (VD §9.2). The seven options are the request form's list, in its order and with its labels, as the method page says ("Home size"; `MoveSize` in `packages/core/src/matching.ts`; style tile). Rate cards price only the five home sizes (build plan §7.3), so `office` and `partial` lead to state.size_unpriced] |
+| form.size.legend | Move size | Same label as the quote survey in the style tile. [Build: radio choice cards with native inputs, none selected (VD §9.2). The seven options are the quote survey's list, in its order and with its labels, as the method page says ("Home size"; `MoveSize` in `packages/core/src/matching.ts`; style tile). Rate cards price only the five home sizes (build plan §7.3), so `office` and `partial` lead to state.size_unpriced] |
 | form.size.help | The range uses movers' rates for a typical move of this size. | |
 | form.size.studio | Studio | |
 | form.size.1br | 1 bedroom | |
@@ -91,7 +94,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | form.services.storage.help | Storage for {{cost.method.storage_assumption}}. | The method page's storage period |
 | form.services.specialty_items | Specialty items | |
 | form.services.specialty_items.help | Covers {{cost.method.specialty_items}}. | The method page's list |
-| form.month.label | Move month (optional) | Native select, after services. A blank month uses each mover's standard rates, as where the field isn't asked (method page, "Move month"). [Data: show the field only after both ZIP codes resolve, and only where seasonal rates pass the site architecture §6.3 thresholds (method page, "Move month")] |
+| form.month.label | Move month (optional) | [Build: not rendered in model v1, which has no seasonal rates (build plan §7.3; method page, "Move month"). This marker covers every form.month.* string, results.assume.month and results.assume.month.blank; they wait for a later model version] Native select, after services. A blank month uses each mover's standard rates, as where the field isn't asked (method page, "Move month"). [Data: show the field only after both ZIP codes resolve, and only where seasonal rates pass the site architecture §6.3 thresholds (method page, "Move month")] |
 | form.month.help | Movers in this area price some months differently, so the month can change the range. If you're not sure yet, leave it blank. | |
 | form.month.empty | Choose a month | First option, empty value |
 | form.month.options | January to December | Twelve options: full month names in calendar order, no year |
@@ -135,7 +138,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | error.zip.short | Enter a 5-digit ZIP code. | Fewer than five digits after cleanup, as with a typo such as "0210O"; same text as the style tile |
 | error.zip.unknown | We can't find ZIP code {zip}. Check the number. | Five digits that match no ZIP code in our data. [Owner: no city lookup on the calculator, although VD §9.2 has unknown ZIP codes prompt a city choice; the method page takes two ZIP codes — default shown (new question; brief open item 10)] |
 | error.zip.non_us | That isn't a US ZIP code. We can show ranges only for moves within the US. | Only when the entry, before cleanup, matches a non-US postal code pattern, such as a Canadian code ("M5V 2T6") or a UK-style code ("SW1A 1AA"). [Build: test the raw entry against those patterns before VD §9.2's cleanup. Every other entry is cleaned as usual, so "02a108" and "ZIP 02108" still resolve to 02108 (VD §14)] |
-| error.zip.unsupported | We can't show ranges for moves to or from ZIP code {zip} yet. | [Owner: which locations the calculator and the request form can't serve yet — default shown (JTBD §4 J1 lists PO-box-only ZIP codes, APO and FPO addresses and US territories; backlog 4.1.2)] |
+| error.zip.unsupported | We can't show ranges for moves to or from ZIP code {zip} yet. | [Owner: which locations the calculator and the quote survey can't serve yet — default shown (JTBD §4 J1 lists PO-box-only ZIP codes, APO and FPO addresses and US territories; backlog 4.1.2)] |
 | error.zip.lookup | We couldn't check this ZIP code just now. Try again in a moment. | The lookup failed |
 | notice.zip.same | You entered the same ZIP code twice. That works for a move within one ZIP code; if not, check the moving-to ZIP code. | A notice, not an error, and it doesn't block. [Owner: accept the same ZIP code at both ends as a local move, with this notice — default shown (new question; lead lifecycle §4 allows the same origin and destination only for local moves, and a same-ZIP move is always local)] |
 | error.size.required | Choose a move size. | Same text as the style tile |
@@ -148,7 +151,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 
 | ID | Text | Notes |
 |---|---|---|
-| form.privacy | No contact details needed. Your answers never appear in the page address, and we don't keep them unless you continue to the request form. | [Build: answers stay out of URLs, analytics events and logs, and the calculator stores nothing, on the server or in the browser, until the reader chooses the call to action; then they go to the request form's draft (lead lifecycle §1). Confirm the site architecture §8.8 tag policy covers this page and its results view] |
+| form.privacy | No contact details needed. Your answers never appear in the page address, and we don't keep them unless you continue to the quote survey. | [Build: answers stay out of URLs, analytics events and logs, and the calculator stores nothing, on the server or in the browser, until the reader chooses the call to action; then they go to the quote survey's draft (lead lifecycle §1). Confirm the site architecture §8.8 tag policy covers this page and its results view] |
 
 **Results view** (below the form, after the reader calculates, when a range passes the thresholds)
 
@@ -159,7 +162,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 <!-- ST-7 -->
 > **Planning range, not a quote:** {{cost.result.range}} for {{cost.result.scope}}. Based on {{cost.result.basis}}; data as of {{cost.result.as_of}}; model {{cost.model.version}}. [How this range is calculated]
 
-[Build: the range may render large, but only inside this label, with its scope, basis, date, model version and link, and never as one figure (site architecture §6.3 rule 1). "How this range is calculated" opens /moving-cost-calculator/method/#how-is-the-range-built. One model version feeds this view, any calculator widget elsewhere and the answers carried into the request form; a CI test sends the same answers through each and fails on any difference (site architecture §6.3 rules 5 and 6; implications §2.7)]
+[Build: the range may render large, but only inside this label, with its scope, basis, date, model version and link, and never as one figure (site architecture §6.3 rule 1). "How this range is calculated" opens /moving-cost-calculator/method/#how-is-the-range-built. One model version feeds this view, any calculator widget elsewhere and the answers carried into the quote survey; a CI test sends the same answers through each and fails on any difference (site architecture §6.3 rules 5 and 6; implications §2.7)]
 
 | ID | Text | Notes |
 |---|---|---|
@@ -172,7 +175,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | results.assume.services.none | Services: none | |
 | results.assume.month | Move month: {month} | When a month is picked |
 | results.assume.month.blank | Time of year: not adjusted, because you didn't pick a month | When the month is asked but left blank |
-| results.assume.month.none | Time of year: not adjusted, because too few movers here give seasonal rates | Where the month isn't asked |
+| results.assume.month.none | Time of year: not adjusted; this version uses each mover's standard rates | Every result in model v1 |
 | results.includes.heading | What the range includes | H3 |
 | results.includes.intro | As each mover's rate card prices them: | |
 | results.includes.time | the crew's time | Local moves |
@@ -201,7 +204,7 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | ID | Text | Notes |
 |---|---|---|
 | cta.button | See which movers cover this move | CTA red (VD §5.3). [Owner: final wording — default shown (implications §8.6, §11 Q1). If the owner picks a count only before contact, it becomes "See how many movers cover this move", and state.next.intro changes to match] |
-| cta.help | Opens our request form with your ZIP codes, move size and services filled in for you to check. Nothing reaches a mover unless you send a request. | [Build: opens /get-quotes/ at the "Where" step, with the two ZIP codes, move size and services carried in session state, never the URL, and marked for the reader to confirm (implications §2.1, §2.2; site architecture §8.8). The month isn't carried, because the "When" step starts empty (implications §2.1 step 3)] |
+| cta.help | Opens our quote survey with your ZIP codes, move size and services filled in for you to check. Nothing reaches a mover unless you send a request. | [Build: opens /get-quotes/ at the "Where" step, with the two ZIP codes, move size and services carried in session state, never the URL, and marked for the reader to confirm (implications §2.1, §2.2; site architecture §8.8). The month isn't carried, because the "When" step starts empty (implications §2.1 step 3)] |
 
 <!-- ST-1b -->
 > Free to use. Movers in our network pay us for the requests they buy, and payment never changes their screening, ratings or order. [How AMC makes money]
@@ -227,9 +230,9 @@ Written by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{pag
 | state.error.heading | We couldn't load a range | H2. Inline, in the result area |
 | state.error.body | Something went wrong. Nothing was shared with any mover, and your answers are still filled in. | |
 | state.error.retry | Try again | Secondary button |
-| state.noscript | The calculator needs JavaScript. You can turn it on in your browser, or read [Moving costs](/moving-costs/) to see what affects the price of a move. | [Build: show only if the calculator can't run without JavaScript. The request form's steps are client state, so this line doesn't send readers there (site architecture §1.2, Quote survey row; §8.1)] |
+| state.noscript | The calculator needs JavaScript. You can turn it on in your browser, or read [Moving costs](/moving-costs/) to see what affects the price of a move. | [Build: show only if the calculator can't run without JavaScript. The quote survey's steps are client state, so this line doesn't send readers there (site architecture §1.2, Quote survey row; §8.1)] |
 
-[Build: the calculator runs the same coverage check as the request form's "What we found" step, as a count only (lead lifecycle §2 step 5; implications §2.2). Every result, the error state included, pairs with one next step from that check: the call to action when at least one mover covers the move or the check fails to load (the request form checks again), and the no-coverage state when none does. A range with no coverage shows the results view, then the no-coverage state with state.no_coverage.with_range] [Owner: the calculator runs the coverage check before the request form — default shown (new question; backlog 4.1.6 is marked "confirm with the business-rules owner")]
+[Build: the calculator runs the same coverage check as the quote survey's "What we found" step, as a count only (lead lifecycle §2 step 5; implications §2.2). Every result, the error state included, pairs with one next step from that check: the call to action when at least one mover covers the move or the check fails to load (the quote survey checks again), and the no-coverage state when none does. A range with no coverage shows the results view, then the no-coverage state with state.no_coverage.with_range] [Owner: the calculator runs the coverage check before the quote survey — default shown (new question; backlog 4.1.6 is marked "confirm with the business-rules owner")]
 
 <!-- calculator-widget:end -->
 
@@ -241,7 +244,7 @@ Each range comes from rate cards: what movers in our network tell us they charge
 
 ## What changes the price of a move?
 
-The calculator works from the answers you give it: the route, the size of your move, the services you pick and, where we ask, the month. A mover pricing your actual move also looks at things a range can't see, such as:
+The calculator works from the answers you give it: the route, the size of your move and the services you pick. A mover pricing your actual move also looks at things a range can't see, such as:
 
 - how much you're moving;
 - stairs, elevators, parking and the walk from your door to the truck;
@@ -253,11 +256,7 @@ The calculator works from the answers you give it: the route, the size of your m
 
 ## Why get a written estimate after a survey?
 
-A planning range describes a typical move like yours. It can't see your home or your belongings, so a mover's price for your move can fall outside it. A mover that surveys what you're moving can price the real job and put it in writing. On a move between states, whether that written estimate is binding or non-binding decides how far your final bill can move from it; [How movers charge](/moving-costs/how-movers-charge/) explains both kinds, and what to ask on a move within one state. [Verify: binding and non-binding estimates (49 CFR 375.401, 375.403, 375.405, 375.407); How movers charge and docs/research/content-claims/consumer-moving-rules.md C3, C5 and C6 rest on search excerpts]
-
-The Federal Motor Carrier Safety Administration (FMCSA) lists estimates given by phone or online, sight unseen, among the red flags on its [Protect Your Move](https://www.fmcsa.dot.gov/protect-your-move/red-flags) site. Getting no written estimate is on the same list. [Verify: confirm both red flags against the FMCSA page; compliance facts §2 took them from a search excerpt]
-
-If a written estimate is far from the range, ask the mover what it includes. The range leaves out some charges, such as those for valuation coverage and those a mover sets after a survey.
+A planning range can't see your home or belongings, so a mover's price can fall outside it. Ask movers for a written estimate after a survey; [How movers charge](/moving-costs/how-movers-charge/#why-should-a-survey-come-before-the-estimate) explains why.
 
 ## Related pages
 
