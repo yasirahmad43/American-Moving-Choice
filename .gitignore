@@ -17,3 +17,4 @@ test-results/
 playwright-report/
 .worktrees/
 apps/*/AGENTS.md
+.claude/worktrees/
