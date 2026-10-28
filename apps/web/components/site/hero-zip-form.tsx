@@ -60,7 +60,9 @@ export function HeroZipForm({ moneyLine }: { moneyLine: ReactNode }) {
   const describedBy = (field: "from" | "to") => [errors[field] ? `${ids[field]}-error` : null, `${ids[field]}-help`].filter(Boolean).join(" ");
 
   return (
-    <form noValidate onSubmit={onSubmit} aria-labelledby={`${id}-title`} className="grid gap-5">
+    // The inputs carry no name, so even a submit without JavaScript sends no ZIP code anywhere: it
+    // simply opens the survey (action), which asks for both ZIPs again.
+    <form action={GET_QUOTES_PATH} method="get" noValidate onSubmit={onSubmit} aria-labelledby={`${id}-title`} className="grid gap-5">
       <h2 id={`${id}-title`} className="type-h3 text-text">
         Where are you moving?
       </h2>
@@ -75,7 +77,6 @@ export function HeroZipForm({ moneyLine }: { moneyLine: ReactNode }) {
               <input
                 ref={field === "from" ? fromRef : toRef}
                 id={ids[field]}
-                name={field === "from" ? "originZip" : "destZip"}
                 type="text"
                 inputMode="numeric"
                 autoComplete={field === "from" ? "postal-code" : "off"}

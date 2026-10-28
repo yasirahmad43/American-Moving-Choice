@@ -41,7 +41,6 @@ export function ConcernForm({
       target?.focus();
     }
     // Runs once per new result from the server action.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   if (state.status === "sent") {
