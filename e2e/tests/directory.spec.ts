@@ -83,8 +83,12 @@ test.describe("company profile", () => {
 
     await page.getByRole("link", { name: "Request a quote from Demo Lone Star Relocation Co." }).click();
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
-    const origin = await page.evaluate(() => sessionStorage.getItem("amc.survey.profile"));
-    expect(JSON.parse(origin ?? "{}")).toMatchObject({ slug: LONE_STAR, companyId: LONE_STAR_ID });
+    // The survey takes the profile origin (then clears it): it skips the need question and lists
+    // this company first (the survey scenarios check the ordering).
+    await expect(page.getByText("Step 1 of 7")).toBeVisible();
+    expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.profile"))).toBeNull();
+    const draft = JSON.parse((await page.evaluate(() => sessionStorage.getItem("amc.survey.draft"))) ?? "{}");
+    expect(draft).toMatchObject({ profileCompanyId: LONE_STAR_ID });
   });
 
   test("profile has no serious axe violations", async ({ page }) => {

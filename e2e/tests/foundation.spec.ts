@@ -119,7 +119,8 @@ test.describe("company app", () => {
     await signUp(page, unique, `e2e-owner-${unique}@example.com`, "e2e-owner-password-1");
     await expect(page.getByRole("banner")).toContainText(legalName);
     await expect(page.getByRole("banner")).toContainText("Application started");
-    await expect(page.getByText("Your application is in progress")).toBeVisible();
+    await expect(page.getByText("Start your application")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Start the application" })).toBeVisible();
 
     const company = await withDatabase(async (db) => {
       const result = await db.query("select status, usdot_number, mc_number from companies where legal_name = $1", [legalName]);
