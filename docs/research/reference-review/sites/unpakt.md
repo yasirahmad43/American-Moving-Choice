@@ -88,6 +88,6 @@ Movers set their own unit cost [capture /how-it-works/]. No captured page covers
 - Evidence: `docs/research/reference-review/captures/unpakt.md`, `_provenance.md`; private raw pack (not in the repository).
 - v1: `docs/research/reference-matrix.md` §2.7, §3, §4 item 7.
 - Semrush (US, 2026-10-27): `docs/research/raw/semrush/` domain_rank, top_pages_more, phrase_these, phrase_organic_top10, backlinks_overview; `docs/seo/raw/semrush_phrase_organic_top10_2026-10-27.csv`.
-- AMC docs as cited: discovery brief, business rules, compliance facts, site architecture, visual direction, mvp-scope, backlog.
+- AMC docs: as cited inline, all under `docs/`.
 - Pages: https://www.unpakt.com/ (`/`, `/how-it-works/`, `/faq/`, `/partnership/`, `/sign-in/`, `/privacy/`); https://blog.unpakt.com/ (`/`, `/category/how-to-before-moving/`, `/category/moving-cost/`).
 - Search, not re-verified. Site's own: https://unpakt-mover-faq.groovehq.com/help/what-percentage-of-commission-is-unpakt-charging-me. Third party: https://betakit.com/unpakt-launches-platform-to-help-homeowners-compare-and-book-movers/; https://uk.trustpilot.com/review/unpakt.com; https://www.consumersadvocate.org/moving-companies/c/unpakt-moving-companies-review.

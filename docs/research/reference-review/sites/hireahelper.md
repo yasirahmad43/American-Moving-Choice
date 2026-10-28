@@ -2,7 +2,7 @@
 
 A marketplace for booking hourly moving crews and local full-service moves, paid through its own checkout [capture /services/, /how-it-works/]; the owner named its A-1 Moving profile, a structure AMC's discovery brief calls "the best model" (00-discovery-brief.md §3 item 4).
 
-**Reviewed:** 2026-10-27. **Evidence:** 13 of 14 pages captured (/affiliate/ blocked by Cloudflare); an automated walk from the profile to the mover list, reached before any contact details; Semrush US, October 2026; standard WebSearch (search-only claims not re-checked, so hedged or omitted). **Confidence:** medium, because booking, checkout consent, terms and provider fees were not seen.
+**Reviewed:** 2026-10-27. **Evidence:** 13 of 14 pages captured (/affiliate/ blocked by Cloudflare); an automated walk from the profile to the mover list, before any contact step; Semrush US, October 2026; standard WebSearch (search-only claims not re-checked, so hedged or omitted). **Confidence:** medium, because booking, checkout consent, terms and provider fees were not seen.
 
 ## At a glance
 - Consumers compare providers, pick one team, then book and pay through HireAHelper [capture /how-it-works/; walk].
@@ -10,7 +10,7 @@ A marketplace for booking hourly moving crews and local full-service moves, paid
 - Its best trust signals (paid-move reviews, booked-move counts, the $1,000 guarantee) depend on taking payment, which AMC does not do; the discovery brief's "best model" view needs revising [inference].
 - Captured vetting text names no USDOT, MC or license check and no last-checked date [capture /how-it-works/].
 - Counts and ratings differ between pages and carry no date [capture].
-- About 125,334 organic visits a month; city pages lead its top 15, but it is absent from six measured long-distance and interstate top 10s [semrush].
+- About 125,334 organic visits a month; city pages lead its top 15, but it misses all six measured long-distance and interstate top 10s [semrush].
 
 ## Consumer journey
 | step | what it asks | what it shows before contact | evidence |
@@ -25,13 +25,13 @@ A marketplace for booking hourly moving crews and local full-service moves, paid
 - **Test limits.** The Georgia-to-Florida test ran "No Truck, Labor Only" and listed other companies first; the labor-only form and out-of-area ZIPs make this inconclusive [walk].
 
 ## Mover side
-Footer links invite movers to get listed, sign up and use provider software [capture footer]. Each booking goes to one chosen provider, so no sharing cap applies [inference]. Providers "advertise on HireAHelper" (/), but no captured page says what they pay, and search-only fee figures were not re-checked [capture; search: https://sidehusl.com/hireahelper/, third party]. For AMC, labor-only requests depend on approved carriers that also sell labor (mvp-scope §6), and /for-movers/ should publish lead prices and credit rules (shared-pricing-and-credits.md) [inference].
+Footer links invite movers to get listed, sign up and use provider software [capture footer]. Each booking goes to one chosen provider, so no sharing cap applies [inference]. Providers "advertise on HireAHelper" (/), but no captured page says what they pay, and search-only fee figures went unchecked [capture; search: https://sidehusl.com/hireahelper/, third party]. For AMC, labor-only requests depend on approved carriers that also sell labor (mvp-scope §6), and /for-movers/ should publish lead prices and credit rules (shared-pricing-and-credits.md) [inference].
 
 ## Trust, verification and reviews
 - **Vetting.** A "five-point vetting process" precedes the first booking; the captured points are an owner background check, verified business and payment details, and "10+ reviews and a 4-star rating" [capture /how-it-works/]. Full-service bookings also need an insurance certificate [capture /movers/].
 - **Credentials.** No USDOT, MC or license check appears in the excerpts, though two points and the "License & Insurance" page were not captured, and v1 reported full-service license checks [capture; v1 §2.4]. Profile "Credentials" list only a self-declared uniformed-crew attribute [capture profiles].
 - **Badge.** The review threshold sits inside "Vetted & Verified", so a business with no reviews cannot qualify; with reviews only from paid bookings, the source of those first reviews is unstated [capture /how-it-works/, /movers/].
-- **Reviews.** "Every review on HireAHelper comes from a real, paid move" (/movers/), and profiles show unedited reviews with mover replies, even to critical ones [capture]. Review dates, and how featured city-page reviews are picked, were not captured [capture].
+- **Reviews.** "Every review on HireAHelper comes from a real, paid move" (/movers/), and profiles show unedited reviews with mover replies, even to critical ones [capture]. Review dates and the choice of featured city-page reviews were not captured [capture].
 - **Guarantees.** The same $1,000 is "damage coverage" (/) and a "Service Guarantee" (/services/moving-companies/), and the price guarantee narrows to the same mover and date "on our platform" (/moving-cost-calculator/) [capture].
 - **Numbers.** Network size reads "1,700+" (/) and "1848" (/movers/); ratings cite "9,100+" or "13k" Trustpilot reviews and an unsourced "4.8/5" (/about/) [capture].
 - **Profiles and city pages.** A-1 shows "Up to 0 miles", profiles share a "top-rated" meta template in the mover's voice, and city cards print mover claims unedited [capture profiles, /movers/los-angeles_ca/]. The Tallahassee "Compare the Best 10" list counts movers based in Orlando and Georgia; v1 saw 7 Dalton movers, the capture 20 [capture /movers/tallahassee_fl/, /movers/dalton_ga/; v1 §2.4].
