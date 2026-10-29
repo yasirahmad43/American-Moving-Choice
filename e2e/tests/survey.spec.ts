@@ -1,6 +1,6 @@
 /**
  * Slice S2 scenarios: the quote survey from the ZIP codes to the confirmation page, the
- * no-coverage ending, a repeat request and withdrawal from the manage page, a request started from
+ * uncovered-route intake, a repeat request and withdrawal from the manage page, a request started from
  * a company profile, the tag policy, and the cost calculator's hand-off into the survey.
  */
 import { expect, test, type Page } from "@playwright/test";
@@ -20,11 +20,11 @@ test.beforeEach(async ({ page }) => {
   await page.setExtraHTTPHeaders({ "x-forwarded-for": `198.51.100.${Math.floor(1 + Math.random() * 250)}` });
 });
 
-/** Need (unless the survey opens at Where), ZIP codes, date and size, ending at What we found. */
+/** Need (unless the survey opens at Where), ZIP codes, date and size, ending at contact details. */
 async function throughSize(page: Page, from: string, to: string, startAtNeed = true) {
   await page.goto(`${WEB_URL}/get-quotes/`);
   if (startAtNeed) {
-    await expect(page.getByText("Step 1 of 8")).toBeVisible();
+    await expect(page.getByText("Step 1 of 6")).toBeVisible();
     await expect(page.locator('input[name="need"]:checked')).toHaveCount(0);
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText("Choose what you need help with.")).toBeVisible();
@@ -41,79 +41,64 @@ async function throughSize(page: Page, from: string, to: string, startAtNeed = t
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.locator('input[name="moveSize"]:checked')).toHaveCount(0);
   await page.getByLabel("2 bedrooms").check();
-  await page.getByRole("button", { name: "Check which movers serve my move" }).click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();
 }
 
 async function details(page: Page, email: string, phone: string, firstName = "Avery") {
   await expect(page.getByRole("heading", { name: "Your details" })).toBeVisible();
-  await expect(page.getByText("Why we ask for your contact details")).toBeVisible();
-  await expect(page.locator('input[type="checkbox"][id^="channel-"]:checked')).toHaveCount(0);
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByText("Choose at least one way movers may contact you.")).toBeVisible();
-  await page.getByLabel("Phone calls").check();
-  await page.locator("#channel-email").check();
+  await expect(page.locator('input[id^="channel-"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Review my request", exact: true }).click();
+  await expect(page.getByLabel("First name", { exact: true })).toBeFocused();
   await page.getByLabel("First name").fill(firstName);
   await page.getByLabel("Last name").fill("Lindqvist");
   await page.locator("#email").fill(email);
   await page.getByLabel("Phone number").fill(phone);
-  await page.getByRole("button", { name: "Continue" }).click();
 }
 
 test.describe("quote survey", () => {
-  test("Dallas to Houston checks availability without identities, honors contact preferences and stores accurate evidence", async ({ page }) => {
+  test("Dallas to Houston submits with a compact notice and stores accurate button evidence", async ({ page }) => {
     test.setTimeout(90_000);
     const email = `avery.${Date.now()}@example.com`;
     await throughSize(page, "75201", "77002");
-    await expect(page.getByRole("heading", { name: "5 movers in our network serve your move" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();
     for (const name of TEXAS_MOVERS) await expect(page.getByText(name, { exact: true })).toHaveCount(0);
     await expect(page.getByText(/USDOT 900000\d/)).toHaveCount(0);
     expect(await page.content()).not.toContain("demo-lone-star-relocation-co");
-    // No contact fields before the visitor knows coverage and the contact model.
-    await expect(page.locator('input[type="email"]')).toHaveCount(0);
-    await expectNoAxeViolations(page, "what we found");
-    await page.getByRole("button", { name: "Continue" }).click();
-
     await details(page, email, uniquePhone());
 
     await expect(page.getByRole("radiogroup", { name: /How many moving companies/ }).or(page.getByRole("group", { name: /How many moving companies/ }))).toBeVisible();
-    await expect(page.getByText("This is the most movers who can receive your details.")).toBeVisible();
     await expect(page.locator('input[name="limit"]')).toHaveCount(5);
     await expect(page.locator('input[name="limit"]:checked')).toHaveCount(0);
     await expect(page.locator('input[name="limit"]:disabled')).toHaveCount(0);
     await expectNoAxeViolations(page, "count");
     await page.locator('label[for="limit-3"]').click();
-    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Review my request", exact: true }).click();
 
     await expect(page.getByRole("heading", { name: "Review and send" })).toBeVisible();
     const roleStatement = page.locator("#main").getByText("American Moving Choice connects people planning a move with independent moving companies.");
     await expect(roleStatement).toBeVisible();
     await expect(roleStatement).toContainText("We don't transport belongings, give moving estimates, or book your move.");
     await expect(roleStatement).toContainText("Companies introduce themselves when they contact you.");
-    const consent = page.locator("#consent");
-    const consentLabel = page.locator('label[for="consent"]');
-    await expect(consent).not.toBeChecked();
-    await expect(page.locator("#terms")).not.toBeChecked();
-    await expect(consentLabel).toContainText("up to 3 participating moving companies");
-    await expect(consentLabel).not.toContainText("Terms of Use");
-    await expect(consentLabel).not.toContainText("text message");
+    const notice = page.locator("#submit-notice");
+    await expect(page.locator("#consent,#terms")).toHaveCount(0);
+    await expect(notice).toContainText("up to 3 moving companies");
+    await expect(notice).toContainText("call or email me about my move");
+    await expect(notice.getByRole("link", { name: "Terms of Use", exact: true })).toBeVisible();
+    await expect(notice.getByRole("link", { name: "Privacy Policy", exact: true })).toBeVisible();
+    await expect(notice).not.toContainText(/text messages|automated|prerecorded/i);
     await expectNoAxeViolations(page, "review");
 
     await expect(page.getByRole("button", { name: /^Remove / })).toHaveCount(0);
-    await page.locator("#terms").check();
-    await page.getByRole("button", { name: "Send my request" }).click();
-    await expect(page.getByText("To send your request, tick the box")).toBeVisible();
-    await expect(page.getByText("Your request has not been sent", { exact: true })).toBeVisible();
-    await expect(consent).toBeFocused();
-    for (const name of TEXAS_MOVERS) await expect(consentLabel).not.toContainText(name);
-    await consent.check();
+    for (const name of TEXAS_MOVERS) await expect(notice).not.toContainText(name);
     await page.waitForTimeout(MIN_COMPLETION_MS);
     await page.getByRole("button", { name: "Send my request" }).click();
 
-    await expect(page.getByRole("heading", { name: "Request sent" })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: "Request received" })).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/confirmation/`);
     const reference = (await page.locator("strong.tabular").first().textContent())!.trim();
     expect(reference).toMatch(/^AMC-[0-9A-Z]{4}-[0-9A-Z]{4}$/);
-    await expect(page.getByText("Up to 3 participating moving companies may receive your details")).toBeVisible();
+    await expect(page.getByText("Up to 3 participating moving companies may receive your details", { exact: false })).toBeVisible();
     await expect(page.getByText("Choose 1 and only one mover can receive your details from us")).toBeVisible();
     await expect(page.getByRole("link", { name: "report a concern", exact: true })).toBeVisible();
     await expectNoAxeViolations(page, "confirmation");
@@ -123,11 +108,11 @@ test.describe("quote survey", () => {
       expect(lead).toMatchObject({ status: "qualified", selected_limit: 3, channel_scope: ["call", "email"], move_type: "intrastate" });
       const consentRow = (
         await db.query(
-          "select cardinality(named_company_ids) as named, cardinality(removed_company_ids) as removed, recipient_disclosure_mode, rendered_text from consent_records where lead_id = $1",
+          "select cardinality(named_company_ids) as named, cardinality(removed_company_ids) as removed, recipient_disclosure_mode, rendered_text, checkbox_state, authorization_method, contact_automation from consent_records where lead_id = $1",
           [lead.id],
         )
       ).rows[0];
-      expect(consentRow).toMatchObject({ named: 5, removed: 0, recipient_disclosure_mode: "contact_introduction" });
+      expect(consentRow).toMatchObject({ named: 5, removed: 0, recipient_disclosure_mode: "request_intake", checkbox_state: false, authorization_method: "submit_button", contact_automation: "manual_only" });
       expect(consentRow.rendered_text).not.toMatch(/Demo|USDOT/);
       expect(consentRow.rendered_text).not.toMatch(/text message|STOP/);
       const eligibility = await db.query("select named_in_consent, count(*)::int as n from lead_eligibility where group_id = $1 group by 1 order by 1", [lead.group_id]);
@@ -140,18 +125,19 @@ test.describe("quote survey", () => {
 
     // The confirmation page is cookie-backed: a reload shows the same request, the URL carries nothing.
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Request sent" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Request received" })).toBeVisible();
     await expect(page.getByText(reference).first()).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   });
 
-  test("an Anchorage, Alaska move ends at What we found without asking for contact details", async ({ page }) => {
+  test("an Anchorage, Alaska move can continue to contact details without an availability rejection", async ({ page }) => {
     await throughSize(page, "99501", "99503");
-    await expect(page.getByRole("heading", { name: "No mover in our network serves this move yet" })).toBeVisible();
-    await expect(page.getByText("We haven't asked for or shared any contact details")).toBeVisible();
-    await expect(page.locator('input[type="email"], input[type="tel"], input[name="firstName"]')).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Continue" })).toHaveCount(0);
-    await expectNoAxeViolations(page, "no coverage");
+    await expect(page.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();
+    await expect(page.getByLabel("First name", { exact: true })).toBeVisible();
+    await expect(page.locator('input[id^="channel-"]')).toHaveCount(0);
+    await expect(page.getByText(/No mover in our network serves|matching|matched/i)).toHaveCount(0);
+    await expect(page.locator('input[name="limit"]:disabled')).toHaveCount(0);
+    await expectNoAxeViolations(page, "uncovered request details");
   });
 
   test("a repeat request joins the first; withdrawing it on the manage page blocks purchases and tells buyers", async ({ page }) => {
@@ -161,15 +147,12 @@ test.describe("quote survey", () => {
     const phone = uniquePhone();
     async function send(limit: string) {
       await throughSize(page, "75201", "77002");
-      await page.getByRole("button", { name: "Continue" }).click();
       await details(page, email, phone);
       await page.locator(`label[for="limit-${limit}"]`).click();
-      await page.getByRole("button", { name: "Continue" }).click();
-      await page.locator("#consent").check();
-      await page.locator("#terms").check();
+      await page.getByRole("button", { name: "Review my request", exact: true }).click();
       await page.waitForTimeout(MIN_COMPLETION_MS);
       await page.getByRole("button", { name: "Send my request" }).click();
-      await expect(page.getByRole("heading", { name: "Request sent" })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole("heading", { name: "Request received" })).toBeVisible({ timeout: 15_000 });
     }
     await send("3");
     const manageHref = await page.getByRole("link", { name: "Manage your request" }).getAttribute("href");
@@ -216,16 +199,15 @@ test.describe("quote survey", () => {
     await page.goto(`${WEB_URL}/`);
     await page.evaluate((companyId) => sessionStorage.setItem("amc.survey.profile", JSON.stringify({ companyId })), MESQUITE_TRAIL_ID);
     await page.goto(`${WEB_URL}/get-quotes/`);
-    await expect(page.getByText("Step 1 of 7")).toBeVisible();
+    await expect(page.getByText("Step 1 of 5")).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.profile"))).toBeNull();
     await throughSize(page, "75201", "77002", false);
     for (const name of TEXAS_MOVERS) await expect(page.getByText(name, { exact: true })).toHaveCount(0);
-    await page.getByRole("button", { name: "Continue" }).click();
     await details(page, `profile.${Date.now()}@example.com`, uniquePhone());
     await expect(page.getByLabel(/^Only Demo /)).toHaveCount(0);
     await page.locator('label[for="limit-1"]').click();
-    await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.locator('label[for="consent"]')).toContainText("1 participating moving company");
+    await page.getByRole("button", { name: "Review my request", exact: true }).click();
+    await expect(page.locator("#submit-notice")).toContainText("1 moving company");
     expect(await page.content()).not.toMatch(/Demo Mesquite|9000004/);
   });
 
@@ -233,7 +215,7 @@ test.describe("quote survey", () => {
     const requests: string[] = [];
     page.on("request", (r) => requests.push(r.url()));
     await throughSize(page, "75201", "77002");
-    await expect(page.getByRole("heading", { name: /movers in our network serve your move/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();
     expect(requests.filter((u) => !u.startsWith(WEB_URL) && !u.startsWith("data:"))).toEqual([]);
     expect(requests.filter((u) => /75201|77002/.test(u))).toEqual([]);
   });
@@ -247,7 +229,7 @@ test.describe("quote survey", () => {
       ),
     );
     await page.goto(`${WEB_URL}/get-quotes/`);
-    await expect(page.getByText("Step 1 of 7")).toBeVisible();
+    await expect(page.getByText("Step 1 of 5")).toBeVisible();
     await expect(page.getByText("Check the answers we carried over")).toBeVisible();
     await expect(page.getByLabel("ZIP code you're moving from")).toHaveValue("75201");
     await expect(page.getByLabel("ZIP code you're moving to")).toHaveValue("77002");

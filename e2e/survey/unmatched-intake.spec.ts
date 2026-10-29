@@ -16,7 +16,7 @@ async function protectPublicSubmission(context: BrowserContext) {
     const body = request.postData() ?? "";
     const moveOnly = request.method() === "POST" && new URL(request.url()).pathname === "/get-quotes/" &&
       Boolean(request.headers()["next-action"]) && ["originZip", "destZip", "moveSize"].every(key => body.includes(key)) &&
-      !/firstName|lastName|email|phone|consentChecked|termsAccepted|renderedTextSha256/i.test(body);
+      !/firstName|lastName|email|phone|consentChecked|termsAccepted|renderedTextSha256|authorizationMethod|contactAutomation/i.test(body);
     if (moveOnly) return route.continue();
     denied.push(`${request.method()} ${new URL(request.url()).pathname}`);
     return route.abort();
@@ -37,38 +37,50 @@ async function reachReview(page: Page, info: TestInfo, phone: string, email: str
   await starter.locator('button[type="submit"]').click();
   await page.waitForURL(base + "/get-quotes/", { waitUntil: "domcontentloaded" });
   const full = page.locator(".quote-survey-full");
-  await expect(full).toContainText("Step 3 of 7");
+  await expect(full).toContainText("Step 3 of 5");
   await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full.getByRole("heading", { name: "Your move details", exact: true })).toBeVisible({ timeout: 20_000 });
-  const checkedAt = Date.now();
-  await expect(full).toContainText("Albany, NY to Melrose, NY");
+  await expect(full.getByRole("heading", { name: "Your details", exact: true })).toBeVisible({ timeout: 20_000 });
+  const lookupCompletedAt = Date.now();
+  await expect(full).toContainText("Step 4 of 5");
+  await expect(full).toContainText("Albany, NY");
+  await expect(full).toContainText("Melrose, NY");
   await expect(full).not.toContainText(availabilityCopy);
   await full.screenshot({ path: info.outputPath("move-details.png") });
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();
-  await full.locator("#channel-email").check();
+  await expect(full.locator('input[id^="channel-"],#consent,#terms')).toHaveCount(0);
+  await expect(full).not.toContainText("How may we contact you about your move?");
   await full.getByLabel("First name", { exact: true }).fill("Intake");
   await full.getByLabel("Last name", { exact: true }).fill("Verification");
   await full.locator("#email").fill(email);
   await full.getByLabel("Phone number", { exact: true }).fill(phone);
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 6 of 7");
   const counts = full.locator('input[name="limit"]');
   await expect(counts).toHaveCount(5);
   await expect(full.locator('input[name="limit"]:checked')).toHaveCount(0);
   for (const choice of await counts.all()) await expect(choice).toBeEnabled();
   await full.locator('label[for="limit-5"]').click();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
+  await full.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(full.getByRole("heading", { name: "Review and send", exact: true })).toBeVisible();
-  await expect(full).toContainText("Step 7 of 7");
+  await expect(full).toContainText("Step 5 of 5");
   await expect(full).not.toContainText(availabilityCopy);
-  await expect(full.locator("#consent")).toBeEnabled();
-  await expect(full.locator("#consent")).not.toBeChecked();
-  await expect(full.locator("#terms")).not.toBeChecked();
-  await expect(full.locator('label[for="consent"]')).toContainText("American Moving Choice and up to 5 participating moving companies");
-  await full.locator('label[for="consent"]').screenshot({ path: info.outputPath("contact-permission.png") });
+  await expect(full.locator('input[type="checkbox"],input[id^="channel-"]')).toHaveCount(0);
+  const notice = full.locator("#submit-notice");
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText("By sending, I authorize American Moving Choice and up to 5 moving companies");
+  await expect(notice).toContainText("call or email me about my move");
+  await expect(notice).not.toContainText(/text messages|automated|prerecorded|Message and data rates|Consent isn't required/i);
+  await expect(notice.getByRole("link", { name: "Terms of Use", exact: true })).toHaveAttribute("href", "/terms/");
+  await expect(notice.getByRole("link", { name: "Privacy Policy", exact: true })).toHaveAttribute("href", "/privacy/");
+  const send = full.getByRole("button", { name: "Send my request", exact: true });
+  await expect(send).toBeEnabled();
+  await expect(send).toHaveAttribute("aria-describedby", /submit-notice/);
+  await notice.scrollIntoViewIfNeeded();
+  const noticeBox = await notice.boundingBox(), sendBox = await send.boundingBox();
+  expect(noticeBox).not.toBeNull(); expect(sendBox).not.toBeNull();
+  const gap = Math.max(sendBox!.y - (noticeBox!.y + noticeBox!.height), noticeBox!.y - (sendBox!.y + sendBox!.height), 0);
+  expect(gap, "submit notice remains beside its action").toBeLessThanOrEqual(120);
+  const noticeText = ((await notice.textContent()) ?? "").trim();
+  await notice.screenshot({ path: info.outputPath("submit-notice.png") });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-  return { full, checkedAt };
+  return { full, noticeText, lookupCompletedAt };
 }
 
 for (const width of [319, 1440]) {
@@ -96,29 +108,37 @@ test("uncovered request is stored and can be withdrawn on the isolated local sit
   });
   expect(phone).toBeTruthy();
   const email = `uncovered-intake-${Date.now()}@example.com`;
-  const { full, checkedAt } = await reachReview(page, info, phone!, email);
-  await full.locator("#consent").check();
-  await full.locator("#terms").check();
-  // Respect the existing eight-second anti-bot minimum without changing signed tickets.
-  const remaining = 9_000 - (Date.now() - checkedAt);
-  if (remaining > 0) await page.waitForTimeout(remaining);
+  const { full, noticeText, lookupCompletedAt } = await reachReview(page, info, phone!, email);
+  const clientCompletionMs = Date.now() - lookupCompletedAt;
   await full.getByRole("button", { name: "Send my request", exact: true }).click();
-  await expect(full.getByRole("heading", { name: "Request received", exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page).toHaveURL(base + "/get-quotes/confirmation/");
-  await expect(full).not.toContainText(availabilityCopy);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const receipt = page.getByRole("heading", { name: "Request received", exact: true }).locator("xpath=../..");
+  await expect(receipt).toBeVisible({ timeout: 20_000 });
+  await expect(receipt).not.toContainText(availabilityCopy);
   const saved = await withDatabase(async db => {
     await db.query("set search_path to amc, public");
-    return (await db.query<{ id: string; group_id: string; status: string; request_intake_pending: boolean; eligible: number; mover_notices: number; recipient_count: number }>(
-      `select l.id,l.group_id,l.status,g.request_intake_pending,
+    return (await db.query<{ id: string; group_id: string; status: string; channel_scope: string[]; request_intake_pending: boolean; eligible: number; mover_notices: number; recipient_count: number; checkbox_state: boolean; authorization_method: string; contact_automation: string; terms_accepted: boolean; privacy_acknowledged: boolean; rendered_text: string; consent_text_version_id: string; form_version: string; recipient_disclosure_mode: string; completion_result: string; completion_reason: string }>(
+      `select l.id,l.group_id,l.status,l.channel_scope,g.request_intake_pending,
+              c.checkbox_state,c.authorization_method,c.contact_automation,c.terms_accepted,c.privacy_acknowledged,c.rendered_text,
+              c.consent_text_version_id,c.form_version,c.recipient_disclosure_mode,
+              (select v.result from lead_validation_results v where v.lead_id=l.id and v.check_type='min_completion_time') completion_result,
+              (select v.reason from lead_validation_results v where v.lead_id=l.id and v.check_type='min_completion_time') completion_reason,
               (select count(*)::int from lead_eligibility e where e.group_id=l.group_id and e.named_in_consent) eligible,
               (select count(*)::int from messages m where m.related_id=l.group_id and m.template='lead_available') mover_notices,
-              (select cardinality(c.named_company_ids) from consent_records c where c.lead_id=l.id) recipient_count
-         from leads l join lead_groups g on g.id=l.group_id where l.email=$1 order by l.created_at desc limit 1`, [email],
+              cardinality(c.named_company_ids) recipient_count
+         from leads l join lead_groups g on g.id=l.group_id join consent_records c on c.lead_id=l.id where l.email=$1 order by l.created_at desc limit 1`, [email],
     )).rows[0];
   });
-  expect(saved).toMatchObject({ status: "unmatched", request_intake_pending: true, eligible: 0, mover_notices: 0, recipient_count: 0 });
-  await full.screenshot({ path: info.outputPath("request-received.png") });
-  await full.getByRole("link", { name: "Manage your request", exact: true }).click();
+  expect(saved).toMatchObject({ status: "unmatched", channel_scope: ["call", "email"], request_intake_pending: true, eligible: 0, mover_notices: 0, recipient_count: 0, checkbox_state: false, authorization_method: "submit_button", contact_automation: "manual_only", terms_accepted: true, privacy_acknowledged: true, consent_text_version_id: "contact-request-submit-v1", form_version: "survey-v3-compact-submit", recipient_disclosure_mode: "request_intake" });
+  expect(saved!.rendered_text).toBe(noticeText);
+  const serverSeconds = Number(/^Sent (\d+) seconds/.exec(saved!.completion_reason)?.[1]);
+  if (serverSeconds < 8) {
+    expect(saved).toMatchObject({ completion_result: "flag", completion_reason: expect.stringContaining("Accepted compact request") });
+  }
+  await info.attach("submission-timing", { body: JSON.stringify({ clientCompletionMs, artificialWait: false, serverResult: saved!.completion_result, serverReason: saved!.completion_reason }), contentType: "application/json" });
+  await receipt.screenshot({ path: info.outputPath("request-received.png") });
+  await receipt.getByRole("link", { name: "Manage your request", exact: true }).click();
   await expect(page.getByText("Request received", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Withdraw my request", exact: true }).click();
   await page.getByRole("button", { name: "Yes, withdraw it", exact: true }).click();

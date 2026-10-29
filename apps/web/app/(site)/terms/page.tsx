@@ -45,7 +45,7 @@ export default function TermsPage() {
       <ul>
         <li>Give accurate move and contact details, and send requests only for your own move.</li>
         <li>
-          Your request goes only to eligible movers recorded for it, up to the number you choose and through the contact channels you select. Company names are introduced during contact. See{" "}
+          Your request goes only to eligible movers recorded for it, up to the number you choose, for calls and email about your move. Company names are introduced during contact. See{" "}
           <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link>.
         </li>
         <li>Using American Moving Choice is free. We never take deposits or payments for your move.</li>

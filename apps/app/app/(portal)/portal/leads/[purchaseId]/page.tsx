@@ -73,6 +73,9 @@ export default async function PurchasedRequestPage({ params }: { params: Promise
     throw error;
   }
   const { contact, move, consent, purchase } = record;
+  const manualContactOnly = consent?.contactAutomation === "manual_only";
+  const mayCall = !manualContactOnly || consent.channels.includes("call");
+  const mayEmail = !manualContactOnly || consent.channels.includes("email");
   const name = contact ? `${contact.firstName} ${contact.lastName}` : "Customer";
   const hidden = { purchaseId };
   const claimOpen = new Date() <= record.claimDeadline && !purchase.refundedAt;
@@ -109,20 +112,21 @@ export default async function PurchasedRequestPage({ params }: { params: Promise
               <dl className="grid gap-3 sm:grid-cols-2">
                 <Fact term="Name">{name}</Fact>
                 <Fact term="Phone">
-                  <a className="link tabular" href={`tel:${contact.phone}`}>
+                  {mayCall ? <a className="link tabular" href={`tel:${contact.phone}`}>
                     {formatPhone(contact.phone)}
-                  </a>
+                  </a> : <span className="tabular">{formatPhone(contact.phone)}</span>}
                 </Fact>
                 <Fact term="Email">
-                  <a className="link break-all" href={`mailto:${contact.email}`}>
+                  {mayEmail ? <a className="link break-all" href={`mailto:${contact.email}`}>
                     {contact.email}
-                  </a>
+                  </a> : <span className="break-all">{contact.email}</span>}
                 </Fact>
               </dl>
             ) : (
               <p className="text-text-2">Contact details are not available for this purchase.</p>
             )}
             <p className="mt-3 type-small text-text-3">Each time this page is opened, the view is logged. Contact the customer only about this move and within their consent.</p>
+            {manualContactOnly ? <p className="mt-3 rounded-control bg-surface-2 p-4 text-text">Use only the permitted methods in the consent summary. This request does not authorize text messages, automated dialing or prerecorded voice.</p> : null}
           </Card>
 
           <Card title="Move details" titleAs="h2">
@@ -151,7 +155,9 @@ export default async function PurchasedRequestPage({ params }: { params: Promise
           <Card title="Consent summary" titleAs="h2">
             {consent ? (
               <dl className="grid gap-3 sm:grid-cols-2">
-                <Fact term="May contact by">{consent.channels.map((c) => label(CHANNEL_LABELS, c)).join(", ")}</Fact>
+                <Fact term="May contact by">{consent.channels.map((c) => label(CHANNEL_LABELS, c)).join(", ") || "No contact method is currently authorized"}</Fact>
+                <Fact term="Agreement method">{consent.authorizationMethod === "submit_button" ? "Send my request button" : "Contact-permission checkbox"}</Fact>
+                {manualContactOnly ? <Fact term="Contact technology">Manual contact only</Fact> : null}
                 <Fact term="Consent given">
                   <AbsoluteDate value={consent.submittedAt} withTime />
                 </Fact>

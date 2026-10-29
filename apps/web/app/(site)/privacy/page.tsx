@@ -37,11 +37,11 @@ export default function PrivacyPage() {
         <li>Move details: where you&apos;re moving from and to, the date, the size of your home and the services you want.</li>
         <li>Contact details: your name, email address and phone number, and how you agree to be contacted.</li>
         <li>
-          A record of your consent: the text you saw, the maximum number of movers and contact channels you chose, the eligible-company snapshot, and when you agreed.
+          A record of your request: the notice you saw, your company limit, the permitted contact methods, the eligible-company snapshot, and when you clicked Send my request.
         </li>
       </ul>
       <p>
-        We ask for contact details only after we&apos;ve checked coverage and shown you the number of eligible movers. Company names aren't shown before contact. Move details stay in your browser
+        We ask for contact details after you provide your move details. Company names aren't shown before contact. Move details stay in your browser
         while you fill in the survey; contact details are never stored in your browser.{" "}
         <Note kind="build">contact details never stored client-side (VD §9.3); no ZIPs, dates or contact details in URLs or analytics (site architecture §8.8)</Note>
       </p>
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
       <h2>Who receives your details</h2>
       <p>
         Only eligible movers recorded for your request, and no more than the number you chose, can receive your contact details. Each of those
-        movers receives only the information needed to respond through your chosen channels. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
+        movers receives only the information needed for calls and email about this request. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
         each step. Companies identify themselves when they contact you.
       </p>
       {REVIEW_NOTES_IN_HTML ? <p>

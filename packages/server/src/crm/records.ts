@@ -233,7 +233,7 @@ export interface CrmRecordDetail {
     submittedAt: Date;
     withdrawnAt: Date | null;
   };
-  consent: { channels: string[]; submittedAt: Date; selectedLimit: number; textVersion: string; namedCount: number } | null;
+  consent: { channels: string[]; submittedAt: Date; selectedLimit: number; textVersion: string; namedCount: number; authorizationMethod: "checkbox" | "submit_button"; contactAutomation: "legacy_text" | "manual_only" } | null;
   purchase: {
     leadType: "exclusive" | "shared";
     position: number;
@@ -342,9 +342,14 @@ export async function getRecord(input: { userId: string; companyId: string; ip?:
     }
 
     const consent = (
-      await client.query<{ channel_scope: string[]; submitted_at: Date; selected_limit: number; consent_text_version_id: string; named: number }>(
-        `select channel_scope, submitted_at, selected_limit, consent_text_version_id, cardinality(named_company_ids) as named
-         from consent_records where lead_id = $1`,
+      await client.query<{ channel_scope: string[]; submitted_at: Date; selected_limit: number; consent_text_version_id: string; named: number; authorization_method: "checkbox" | "submit_button"; contact_automation: "legacy_text" | "manual_only" }>(
+        `select c.channel_scope, c.submitted_at, c.selected_limit, c.consent_text_version_id, cardinality(c.named_company_ids) as named,
+                c.authorization_method,
+                case when exists (
+                  select 1 from consent_records sibling join leads sibling_lead on sibling_lead.id=sibling.lead_id
+                   where sibling_lead.group_id=(select group_id from leads where id=$1) and sibling.contact_automation='manual_only'
+                ) then 'manual_only' else c.contact_automation end as contact_automation
+         from consent_records c where c.lead_id = $1`,
         [lead.id],
       )
     ).rows[0];
@@ -418,7 +423,7 @@ export async function getRecord(input: { userId: string; companyId: string; ip?:
         withdrawnAt: lead.withdrawn_at,
       },
       consent: consent
-        ? { channels: consent.channel_scope, submittedAt: consent.submitted_at, selectedLimit: consent.selected_limit, textVersion: consent.consent_text_version_id, namedCount: consent.named }
+        ? { channels: consent.contact_automation === "manual_only" ? consent.channel_scope.filter(channel => channel !== "sms") : consent.channel_scope, submittedAt: consent.submitted_at, selectedLimit: consent.selected_limit, textVersion: consent.consent_text_version_id, namedCount: consent.named, authorizationMethod: consent.authorization_method, contactAutomation: consent.contact_automation }
         : null,
       purchase: {
         leadType: purchase.lead_type,

@@ -52,7 +52,7 @@ export function requestReceivedEmail(input: {
       ? "Only 1 participating moving company can receive your request and contact details."
       : `Up to ${input.limit} participating moving companies can receive your request and contact details.`,
     "",
-    "We have saved your move details and contact preferences. Each company will identify itself when it contacts you using the contact methods you chose.",
+    "We have saved your move details and contact preferences. Each company will identify itself and use the contact methods recorded with your request.",
     "",
     "Movers will ask about your inventory and access. A reputable mover will offer an in-home or virtual survey before giving a written estimate.",
     "",

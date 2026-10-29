@@ -269,7 +269,7 @@ describe("seeded reference data", () => {
       claim_window_hours: 72,
       show_zip_in_preview: false,
       active_policy_version: POLICY,
-      active_consent_version: "contact-request-intake-v1",
+      active_consent_version: "contact-request-submit-v1",
     });
   });
 
@@ -293,7 +293,7 @@ describe("seeded reference data", () => {
 
   it("the draft consent text with the sha256 of its body, and the Terms acknowledgment as its own text", async () => {
     const { rows } = await pool.query("select * from consent_text_versions order by id");
-    expect(rows).toHaveLength(4);
+    expect(rows).toHaveLength(5);
     const v = rows.find((r) => r.id === "consent-v0-draft");
     const terms = rows.find((r) => r.id === "terms-ack-v0-draft");
     const current = rows.find((r) => r.id === "contact-introduction-v1-draft");
@@ -303,6 +303,11 @@ describe("seeded reference data", () => {
     expect(intake).toMatchObject({ kind: "contact_consent", status: "draft" });
     expect(intake.body).toContain("{REQUEST_INTAKE_SCOPE}");
     expect(intake.sha256).toBe(sha256(intake.body));
+    const submit = rows.find((r) => r.id === "contact-request-submit-v1");
+    expect(submit).toMatchObject({ kind: "contact_consent", status: "draft" });
+    expect(submit.body).toContain("{REQUEST_SUBMIT_SCOPE}");
+    expect(submit.body).toContain("I accept the Terms of Use and acknowledge the Privacy Policy.");
+    expect(submit.sha256).toBe(sha256(submit.body));
     expect(v).toMatchObject({ id: "consent-v0-draft", kind: "contact_consent", status: "draft", approved_by: null, effective_from: null });
     expect(v.body).toMatch(/^I agree that up to \{N\} of the movers listed above may contact me about my move/);
     expect(v.body).toContain("Consent isn't required to buy any goods or services.");
@@ -429,6 +434,23 @@ describe("other integrity rules", () => {
       await expect(insertRow("consent_records", consentRecordValues(leadId, [c], { [column]: false })), column).rejects.toThrow(/check constraint/);
     }
     await expect(insertRow("consent_records", consentRecordValues(leadId, [c]))).resolves.toBeTruthy();
+  });
+
+  it("records a real submit-button action without manufacturing checkbox or automated permission", async () => {
+    const { leadId } = await leadGroup(5);
+    const values = consentRecordValues(leadId, [], {
+      consent_text_version_id: "contact-request-submit-v1", recipient_disclosure_mode: "request_intake",
+      authorization_method: "submit_button", contact_automation: "manual_only", checkbox_state: false,
+      channel_scope: ["call", "email"], selected_limit: 5,
+    });
+    for (const over of [
+      { checkbox_state: true }, { contact_automation: "legacy_text" }, { authorization_method: "checkbox" },
+      { channel_scope: ["call", "sms", "email"] }, { channel_scope: ["email"] },
+      { terms_accepted: false }, { privacy_acknowledged: false }, { consent_text_version_id: "contact-request-intake-v1" },
+    ]) {
+      await expect(insertRow("consent_records", { ...values, ...over })).rejects.toThrow(/consent_records_authorization_check/);
+    }
+    await expect(insertRow("consent_records", values)).resolves.toBeTruthy();
   });
 
   it("allows only one approved company per USDOT number", async () => {

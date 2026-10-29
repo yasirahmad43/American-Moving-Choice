@@ -2,7 +2,7 @@
  * Database tests for lead intake: coverage, submission, duplicates and withdrawal. They run on the
  * server test database (see packages/server/test/database.ts), recreated for this file.
  */
-import { renderConsentText, consentTextSha256, type Channel } from "@amc/core/src/survey";
+import { renderConsentText, consentTextSha256, isSubmitButtonConsent, type Channel } from "@amc/core/src/survey";
 import type { Service } from "@amc/core";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { sha256Hex } from "../auth/tokens";
@@ -101,8 +101,9 @@ async function draft(options: DraftOptions = {}) {
   const named = coverage.movers.filter((m) => shown.includes(m.companyId) && !removed.includes(m.companyId));
   const ordered = shown.map((sid) => named.find((m) => m.companyId === sid)).filter((m) => m !== undefined);
   const limit = options.limit ?? 2;
-  const channels = options.channels ?? ["call", "sms", "email"];
   const consent = await activeConsent();
+  const submitButton = isSubmitButtonConsent(consent.body);
+  const channels = options.channels ?? (submitButton ? ["call", "email"] : ["call", "sms", "email"]) as Channel[];
   const text = renderConsentText(consent.body, { movers: ordered, limit, channels });
   return {
     coverage,
@@ -125,7 +126,8 @@ async function draft(options: DraftOptions = {}) {
       shownCompanyIds: shown,
       removedCompanyIds: removed,
       profileCompanyId: null,
-      consentChecked: true,
+      authorizationMethod: submitButton ? "submit_button" : "checkbox",
+      consentChecked: !submitButton,
       termsAccepted: true,
       consentVersionId: consent.versionId,
       renderedTextSha256: consentTextSha256(text),
@@ -206,7 +208,7 @@ describe("checkCoverage", () => {
       { originZip: "75201", destZip: "77002-1234", moveSize: "2br", services: [], need: "household", profileCompanyId: null },
       { ip: "203.0.113.50" },
     );
-    expect(result).toMatchObject({ ok: true, maxLimit: 5, consent: { versionId: "contact-request-intake-v1" } });
+    expect(result).toMatchObject({ ok: true, maxLimit: 5, consent: { versionId: "contact-request-submit-v1" } });
     expect(await surveyCoverage({ originZip: "1", destZip: "77002", moveSize: "huge", services: [], need: null, profileCompanyId: null }, { ip: null })).toMatchObject({
       ok: false,
       kind: "invalid",
@@ -235,7 +237,7 @@ describe("submitRequest", () => {
       move_type: "intrastate",
       origin_city: "Dallas",
       dest_state: "TX",
-      channel_scope: ["call", "sms", "email"],
+      channel_scope: ["call", "email"],
       email: "jordan.rivera@example.com",
       phone_e164: "+12145550199",
       source_category: "organic_search",
@@ -248,25 +250,28 @@ describe("submitRequest", () => {
 
     const consent = (await pool().query("select * from consent_records where lead_id = $1", [lead.id])).rows[0];
     expect(consent).toMatchObject({
-      consent_text_version_id: "contact-request-intake-v1",
+      consent_text_version_id: "contact-request-submit-v1",
       named_company_ids: expect.arrayContaining(named),
       removed_company_ids: [charlie],
       selected_limit: 2,
-      channel_scope: ["call", "sms", "email"],
-      checkbox_state: true,
+      channel_scope: ["call", "email"],
+      checkbox_state: false,
+      authorization_method: "submit_button",
+      contact_automation: "manual_only",
       terms_version: "terms-ack-v0-draft",
       terms_accepted: true,
       ip: "203.0.113.7",
       page_url: "http://localhost:3000/get-quotes/",
-      form_version: "survey-v2-contact-introduction",
+      form_version: "survey-v3-compact-submit",
       tag_manifest_version: "tags-v1-none",
     });
     expect(consent.named_company_ids).toHaveLength(named.length);
-    expect(consent.rendered_text).toContain("up to 2 participating moving companies");
+    expect(consent.rendered_text).toContain("up to 2 moving companies");
     expect(consent.recipient_disclosure_mode).toBe("request_intake");
     expect(consent.rendered_text).not.toMatch(/Demo|USDOT/);
     expect(consent.rendered_text).not.toContain("Demo Charlie Movers");
-    expect(consent.rendered_text).not.toMatch(/Terms of Use|Privacy Policy/);
+    expect(consent.rendered_text).toContain("I accept the Terms of Use and acknowledge the Privacy Policy.");
+    expect(consent.rendered_text).not.toMatch(/text messages|automated|prerecorded|STOP/i);
 
 
     const eligibility = (await pool().query("select company_id, named_in_consent, coverage_version from lead_eligibility where group_id = $1", [lead.group_id])).rows;
@@ -296,11 +301,11 @@ describe("submitRequest", () => {
     expect(await getConfirmationByToken(result.manageToken)).toMatchObject({ referenceCode: result.confirmation.referenceCode, limit: 2, movers: result.confirmation.movers });
   });
 
-  it("refuses a number above the configured ceiling and a submission without both boxes ticked", async () => {
+  it("refuses an excessive count, an invalid affirmative action and missing terms acceptance", async () => {
     const { input } = await draft({ limit: 6, removed: [charlie], email: "count@example.com", phone: "2145550101" });
     expect(await submitRequest(input, meta())).toMatchObject({ ok: false, kind: "invalid", errors: { limit: expect.any(String) } });
     const unticked = await draft({ email: "unticked@example.com", phone: "2145550102" });
-    expect(await submitRequest({ ...unticked.input, consentChecked: false, termsAccepted: false }, meta())).toMatchObject({
+    expect(await submitRequest({ ...unticked.input, consentChecked: true, termsAccepted: false }, meta())).toMatchObject({
       ok: false,
       kind: "invalid",
       errors: { consent: expect.any(String), terms: expect.any(String) },
@@ -312,13 +317,21 @@ describe("submitRequest", () => {
   it("asks again when the consent text the consumer saw no longer matches", async () => {
     const { input } = await draft({ email: "changed@example.com", phone: "2145550103" });
     const tampered = await submitRequest({ ...input, renderedTextSha256: "0".repeat(64) }, meta());
-    expect(tampered).toMatchObject({ ok: false, kind: "movers_changed", consent: { versionId: "contact-request-intake-v1" } });
+    expect(tampered).toMatchObject({ ok: false, kind: "movers_changed", consent: { versionId: "contact-request-submit-v1" } });
     const ineligible = await submitRequest({ ...input, shownCompanyIds: [...input.shownCompanyIds, id(4)] }, meta());
     expect(ineligible.ok).toBe(true);
     if (ineligible.ok) {
       const saved = (await pool().query("select c.named_company_ids from consent_records c join leads l on l.id = c.lead_id where l.reference_code = $1", [ineligible.confirmation.referenceCode])).rows[0];
       expect(saved.named_company_ids).not.toContain(id(4));
     }
+  });
+
+  it("does not accept forged checkbox evidence, an absent submit action or SMS scope in compact mode", async () => {
+    const { input } = await draft({ email: "compact-scope@example.com", phone: "2145550170" });
+    expect(await submitRequest({ ...input, consentChecked: true }, meta("198.51.100.210"))).toMatchObject({ ok: false, kind: "invalid", errors: { consent: expect.any(String) } });
+    expect(await submitRequest({ ...input, authorizationMethod: "checkbox", consentChecked: true }, meta("198.51.100.211"))).toMatchObject({ ok: false, kind: "movers_changed" });
+    expect(await submitRequest({ ...input, channels: ["call", "sms", "email"] }, meta("198.51.100.212"))).toMatchObject({ ok: false, kind: "invalid", errors: { channels: expect.any(String) } });
+    expect((await pool().query("select count(*)::int n from leads where email=$1", [input.email])).rows[0].n).toBe(0);
   });
 
   it("stores an unmatched valid request with full consent and no eligible recipients or mover notices", async () => {
@@ -330,7 +343,7 @@ describe("submitRequest", () => {
     expect(lead.status).toBe("unmatched");
     expect((await pool().query("select request_intake_pending from lead_groups where id = $1", [lead.group_id])).rows[0].request_intake_pending).toBe(true);
     const consent = (await pool().query("select * from consent_records where lead_id = $1", [lead.id])).rows[0];
-    expect(consent).toMatchObject({ recipient_disclosure_mode: "request_intake", named_company_ids: [], removed_company_ids: [], selected_limit: 5, checkbox_state: true, terms_accepted: true, rendered_text: text, rendered_text_sha256: consentTextSha256(text) });
+    expect(consent).toMatchObject({ recipient_disclosure_mode: "request_intake", named_company_ids: [], removed_company_ids: [], selected_limit: 5, checkbox_state: false, authorization_method: "submit_button", contact_automation: "manual_only", channel_scope: ["call", "email"], terms_accepted: true, rendered_text: text, rendered_text_sha256: consentTextSha256(text) });
     expect((await pool().query("select count(*)::int n from lead_eligibility where group_id = $1", [lead.group_id])).rows[0].n).toBe(0);
     expect((await pool().query("select template from messages where related_id = $1 or related_id = $2 order by created_at", [lead.id, lead.group_id])).rows).toEqual([{ template: "request_received" }]);
     expect(await getConfirmationByToken(result.manageToken)).toMatchObject({ referenceCode: result.confirmation.referenceCode, movers: [], limit: 5 });
@@ -343,7 +356,7 @@ describe("submitRequest", () => {
     await expect(pool().query("select reserve_purchase($1, $2, 'unmatched-intake')", [alpha, lead.group_id])).rejects.toThrow(/not_eligible_for_lead|lead_unavailable/);
     const guardLead = (await pool().query("insert into leads(group_id,selected_limit,first_name,last_name,email,phone_e164,origin_zip,dest_zip) values($1,1,'Legacy','Guard','legacy-guard@example.com','+12145550165','99501','99503') returning id", [lead.group_id])).rows[0].id;
     await expect(pool().query(`insert into consent_records
-      select (jsonb_populate_record(null::consent_records, to_jsonb(c) || jsonb_build_object('id',gen_random_uuid(),'lead_id',$1::uuid,'recipient_disclosure_mode','contact_introduction'))).*
+      select (jsonb_populate_record(null::consent_records, to_jsonb(c) || jsonb_build_object('id',gen_random_uuid(),'lead_id',$1::uuid,'recipient_disclosure_mode','contact_introduction','authorization_method','checkbox','checkbox_state',true,'contact_automation','legacy_text','consent_text_version_id','contact-introduction-v1-draft'))).*
       from consent_records c where lead_id=$2`, [guardLead,lead.id])).rejects.toThrow(/consent_records_recipient_snapshot_check/);
     await pool().query("update lead_groups set expires_at=now()-interval '1 day',status='expired' where id=$1", [lead.group_id]);
     const later = await getRequestByToken(result.manageToken, { ip: null });
@@ -397,17 +410,33 @@ describe("submitRequest", () => {
       const { input } = await draft({ limit: 2, email: "legacy@example.com", phone: "2145550166" });
       expect(await submitRequest({ ...input, shownCompanyIds: [...input.shownCompanyIds, id(4)] }, meta("198.51.100.206"))).toMatchObject({ ok: false, kind: "movers_changed" });
       expect(await submitRequest({ ...input, originZip: "99501", destZip: "99503", shownCompanyIds: [] }, meta("198.51.100.207"))).toMatchObject({ ok: false, kind: "no_coverage" });
+      const fast = await draft({ ticketAgeMs: 1000, email: "legacy-fast@example.com", phone: "2145550172" });
+      const fastNow = new Date(Number(fast.input.ticket.split(".")[0]) + 1000);
+      expect(await submitRequest(fast.input, { ...meta("198.51.100.217"), now: fastNow })).toEqual({ ok: false, kind: "rejected", reason: "automated" });
     } finally {
-      await pool().query("update platform_settings set value='\"contact-request-intake-v1\"'::jsonb where key='active_consent_version'");
+      await pool().query("update platform_settings set value='\"contact-request-submit-v1\"'::jsonb where key='active_consent_version'");
     }
   });
 
-  it("rejects a filled honeypot, a too-fast submission and a forged ticket, storing nothing", async () => {
+  it("accepts a fast valid compact submission and records elapsed time as a quality flag", async () => {
+    const fast = await draft({ ticketAgeMs: 1000, email: "fast-human@example.com", phone: "2145550171" });
+    const submittedAt = new Date(Number(fast.input.ticket.split(".")[0]) + 1000);
+    const result = await submitRequest(fast.input, { ...meta("198.51.100.216"), now: submittedAt });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const lead = (await pool().query("select id,status,risk_score from leads where reference_code=$1", [result.confirmation.referenceCode])).rows[0];
+    expect(lead).toMatchObject({ status: "qualified", risk_score: 15 });
+    expect((await pool().query("select result,reason from lead_validation_results where lead_id=$1 and check_type='min_completion_time'", [lead.id])).rows[0]).toMatchObject({ result: "flag", reason: expect.stringContaining("Sent 1 seconds") });
+  });
+
+  it("rejects a filled honeypot and forged, future or expired compact tickets, storing nothing", async () => {
     const honeypot = await draft({ website: "http://spam.example", email: "bot1@example.com", phone: "2145550104" });
     expect(await submitRequest(honeypot.input, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
-    const fast = await draft({ ticketAgeMs: 1000, email: "bot2@example.com", phone: "2145550105" });
-    expect(await submitRequest(fast.input, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
-    expect(await submitRequest({ ...fast.input, ticket: `${Date.now() - 60_000}.${"a".repeat(32)}` }, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
+    const invalid = await draft({ email: "bot2@example.com", phone: "2145550105" });
+    const checkedAt = Date.now();
+    expect(await submitRequest({ ...invalid.input, ticket: `${checkedAt - 60_000}.${"a".repeat(32)}` }, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
+    expect(await submitRequest({ ...invalid.input, ticket: issueSurveyTicket(hmacSecret(), checkedAt + 60_000) }, { ...meta(), now: new Date(checkedAt) })).toEqual({ ok: false, kind: "rejected", reason: "automated" });
+    expect(await submitRequest({ ...invalid.input, ticket: issueSurveyTicket(hmacSecret(), checkedAt - 7 * 3600_000) }, { ...meta(), now: new Date(checkedAt) })).toEqual({ ok: false, kind: "expired" });
     const n = await pool().query("select count(*)::int as n from leads where email like 'bot%'");
     expect(n.rows[0].n).toBe(0);
   });
@@ -526,9 +555,13 @@ describe("quality helpers", () => {
     const now = Date.now();
     const ticket = issueSurveyTicket(secret, now);
     expect(checkSurveyTicket(secret, ticket, now + 1000)).toEqual({ ok: false, reason: "too_fast" });
+    expect(checkSurveyTicket(secret, ticket, now + 1000, 0)).toEqual({ ok: true, elapsedSeconds: 1 });
     expect(checkSurveyTicket(secret, ticket, now + MIN_COMPLETION_SECONDS * 1000 + 1)).toMatchObject({ ok: true });
     expect(checkSurveyTicket("t".repeat(40), ticket, now + 60_000)).toEqual({ ok: false, reason: "invalid" });
     expect(checkSurveyTicket(secret, ticket, now + 7 * 3600_000)).toEqual({ ok: false, reason: "expired" });
+    expect(checkSurveyTicket("t".repeat(40), ticket, now + 1000, 0)).toEqual({ ok: false, reason: "invalid" });
+    expect(checkSurveyTicket(secret, ticket, now - 1000, 0)).toEqual({ ok: false, reason: "invalid" });
+    expect(checkSurveyTicket(secret, ticket, now + 7 * 3600_000, 0)).toEqual({ ok: false, reason: "expired" });
   });
 
   it("scores risk with reasons", () => {

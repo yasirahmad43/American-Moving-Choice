@@ -3,7 +3,7 @@ id: trust-which-companies-receive-my-request
 url: /which-companies-receive-my-request/
 family: Trust page
 title: "Which Companies Receive My Request? | American Moving Choice"
-meta_description: "You choose how many moving companies may contact you and which channels they use. Company names are introduced during contact, not shown in the survey."
+meta_description: "Choose your company limit, review your move and send one request for calls and email. Companies introduce themselves when they contact you."
 h1: "Which companies receive my request?"
 breadcrumb: "Home › Which companies receive my request"
 indexation: index once approved
@@ -24,28 +24,28 @@ last_updated: 2026-10-29
 
 # Which companies receive my request?
 
-You choose the maximum number of moving companies that may contact you and the contact methods they may use. Your request records those choices. American Moving Choice doesn't display company names, preferred-mover lists or individual company quote buttons before contact. Each company introduces itself when it contacts you.
+You choose the maximum number of moving companies that may contact you. Add your phone number and email, review your move and send one request. American Moving Choice doesn't display company names, preferred-mover lists or individual company quote buttons before contact. Each company introduces itself when it contacts you.
 
 <!-- ST-1b -->
 > {{text.ST-1b}}
 
 <a id="start-here"></a>
 
-## Make three choices before sending
+## Three simple checks before sending
 
 1. **Check the move details.** Confirm your route, date, size and selected services. You can edit your answers before sending; a request does not reserve a moving date or set a price.
 2. **Set your contact ceiling.** Choose the maximum number of companies you want to hear from. The survey does not select a company for you or promise that the full number will contact you.
-3. **Choose the channels and review permission.** Read the calls, texts and email choices. Send only if the final summary matches what you want; agreeing to site terms is separate from agreeing to contact.
+3. **Review and send.** Check your phone number, email and final move summary. The brief notice beside Send my request explains follow-up and links to the terms and privacy policy.
 
 Company identities first appear when the companies contact you. The confirmation and secure management link help you keep track of the choices you made.
 
 ## One request, built around your move
 
-You don't need to browse company profiles or send a separate request to each mover. Start with your route, date, home size and any extra services. Your answers stay together in one request, with your chosen contact preferences.
+You don't need to browse company profiles or send a separate request to each mover. Start with your route, date, home size and any extra services. Your answers stay together in one request.
 
 The survey asks for your contact details and lets you choose the maximum number of companies you want to hear from. You review the full request and contact permission before sending. Each company must confirm its services, dates and price directly with you.
 
-Complete your move details and contact choices, then review and send your request. Your confirmation provides a reference number and a secure link to manage it.
+The five steps cover your route, date, home size and services, contact details and company limit, then review and send. Your confirmation provides a reference number and a secure link to manage the request.
 
 <a id="how-many"></a>
 
@@ -63,32 +63,32 @@ The survey asks: “How many moving companies would you like to hear from?” No
 
 Choose any maximum from 1 to {{setting.max_movers}}. Your choice is a ceiling, not a promise that you will hear from that many companies. We do not increase the contact limit you choose.
 
-Choosing one mover doesn't select a particular company. The contact methods and maximum you choose apply to your request. Company identities aren't displayed in the survey or on the confirmation page.
+Choosing one mover doesn't select a particular company. Your maximum applies to companies contacting you by calls and email about this request. Company identities aren't displayed in the survey or on the confirmation page.
 
 <a id="review-and-send"></a>
 
 ## Review your request and contact permissions
 
-Before sending, review your move details, your chosen maximum, and the ways companies may contact you: calls, texts or email. The contact-permission box starts unticked. Accepting the terms and acknowledging the privacy policy is separate from agreeing to contact.
+Before sending, review your move details, contact details and company limit. Follow-up about your move is by calls and email. A brief notice beside Send my request explains the contact permission and links to the terms and privacy policy.
 
-Send after reviewing the contact permission and the choices shown. Leaving the contact-permission box unticked does not authorize contact.
+Click Send my request when the summary is correct. There are no separate contact-method selections or agreement checkboxes in this request form. The notice applies when you send; entering details alone does not submit a request.
 
-We keep a record of the permission text, your choices and the time you agreed. Company names are not presented as a list to browse or select.
+We keep a record of the notice, your company limit and the time you clicked the send button. Company names are not presented as a list to browse or select.
 
 <!-- ST-4b -->
 > {{text.ST-4b}}
 
 ## What happens after you send?
 
-Your confirmation gives you a reference and the maximum number you chose. Companies introduce themselves when they contact you using your permitted channels. Ask the company for its legal name, USDOT number, written estimate and relevant credentials before deciding whether to hire it.
+Your confirmation gives you a reference and the maximum number you chose. Companies introduce themselves when they call or email you about your move. Ask the company for its legal name, USDOT number, written estimate and relevant credentials before deciding whether to hire it.
 
-Contact must follow the permission, maximum and methods you chose. Keep your request reference and ask a contacting company to identify itself clearly.
+Contact must follow the request notice and your company limit. Keep your request reference and ask a contacting company to identify itself clearly.
 
 American Moving Choice is free for consumers. You arrange any estimate, booking and move directly with the company you choose to hire.
 
 ## Changing your mind
 
-The secure request-management link on your confirmation lets you withdraw the request. Withdrawal stops new companies from receiving it and notifies companies that already received it. It can't make a company forget details it already received. You can also tell a contacting company to stop, and report contact outside your permission or chosen channels.
+The secure request-management link on your confirmation lets you withdraw the request. Withdrawal stops new companies from receiving it and notifies companies that already received it. It can't make a company forget details it already received. You can also tell a contacting company to stop, and report contact outside the request permission.
 
 If you need help, use [Report a concern](/report-a-concern/) and include your request reference. Tell us the company name it gave you during contact, if available, and what happened. Avoid sending payment-card details or unrelated private documents.
 

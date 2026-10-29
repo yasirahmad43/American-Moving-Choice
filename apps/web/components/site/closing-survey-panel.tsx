@@ -14,7 +14,7 @@ export function ClosingSurveyPanel({ consumerPhoto }: { consumerPhoto: ReactNode
         <div className="closing-survey__copy">
           <p className="closing-survey__eyebrow"><span aria-hidden="true" />Your next chapter</p>
           <h2 id={heading}>A fresh start.<br />Your first step.</h2>
-          <p>Start with your route and move size. Then review your request and choose how many companies may contact you, and how.</p>
+          <p>Start with your route and move size. Choose how many companies may contact you, then review and send your request.</p>
           <ul>
             <li><LineIcon name="route" size={18} />Your move details come first</li>
             <li><LineIcon name="users" size={18} />Your contact preferences stay in your hands</li>

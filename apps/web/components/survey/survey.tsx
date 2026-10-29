@@ -2,19 +2,20 @@
 
 /**
  * The quote survey island (build plan §7.2; implications §2.1–§2.5, §3.1–§3.3; VD §9.2, §9.3,
- * §13.7). Steps: What you need, Where, When, Size and services, What we found, Your details, How
- * many movers, Review and send, then Confirmation. Household-move entry points start at Where.
+ * §13.7). Household journey: route, date, services, contact details and company limit, review.
+ * Starter answers continue into this same five-step journey without being asked again.
  *
- * - Nothing is preselected and every input is native.
+ * - Move answers and company limits are not preselected; native inputs remain editable.
  * - Move details persist in sessionStorage so back navigation and reloads keep them; contact
  *   details are never stored client-side (VD §9.3).
- * - The server runs the matcher before any contact field (What we found) and again on sending.
+ * - Eligibility stays internal; it never blocks a valid request. Permission is given by Send.
  * - No ZIP code, date, size or contact detail goes into a URL or any analytics; this page loads no
  *   third-party script (site architecture §8.8).
  */
 import {
-  CHANNELS,
-  CHANNEL_LABELS,
+  COMPACT_SURVEY_STEPS,
+  REQUEST_SUBMIT_CHANNELS,
+  isSubmitButtonConsent,
   DRAFT_STORAGE_KEY,
   MOVE_SIZE_LABELS,
   PREFILL_STORAGE_KEY,
@@ -23,7 +24,6 @@ import {
   STEP_LABELS,
   SURVEY_MOVE_SIZES,
   SURVEY_SERVICES,
-  SURVEY_STEPS,
   addMonths,
   cleanZip,
   consentTextSha256,
@@ -70,7 +70,7 @@ interface Attribution {
   utmCampaign: string | null;
 }
 
-const EMPTY_CONTACT: Contact = { channels: [], firstName: "", lastName: "", email: "", phone: "" };
+const EMPTY_CONTACT: Contact = { channels: [...REQUEST_SUBMIT_CHANNELS], firstName: "", lastName: "", email: "", phone: "" };
 
 /** The input each answer's error points at, for focus and aria-describedby. */
 const FIELD_IDS: Record<string, string> = {
@@ -106,6 +106,7 @@ const FIELD_STEPS: Record<string, SurveyStep> = {
   lastName: "details",
   email: "details",
   phone: "details",
+  limit: "details",
 };
 
 function readSession<T>(key: string, remove = false): T | null {
@@ -218,7 +219,6 @@ function SurveyFlow({
   const [found, setFound] = useState<FoundState | null>(null);
   const [limit, setLimit] = useState<number | null>(null);
   const [removed, setRemoved] = useState<string[]>([]);
-  const [recount, setRecount] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [declined, setDeclined] = useState(false);
@@ -235,7 +235,7 @@ function SurveyFlow({
   const honeypot = useRef<HTMLInputElement>(null);
   const firstRender = useRef(true);
 
-  const steps = useMemo(() => (draft.entry === "household" ? SURVEY_STEPS.filter((s) => s !== "need") : [...SURVEY_STEPS]), [draft.entry]);
+  const steps = useMemo<SurveyStep[]>(() => (draft.entry === "household" ? COMPACT_SURVEY_STEPS.filter((s) => s !== "need") : [...COMPACT_SURVEY_STEPS]), [draft.entry]);
   const stepIndex = Math.max(0, steps.indexOf(draft.step));
 
   // Focus the step heading and announce the step on every change (VD §9.3), except on first load.
@@ -246,7 +246,7 @@ function SurveyFlow({
     }
     if (done) {
       confirmationRef.current?.focus();
-      setAnnouncement("Request sent.");
+      setAnnouncement("Request received.");
       return;
     }
     headingRef.current?.focus();
@@ -276,7 +276,7 @@ function SurveyFlow({
     (step: SurveyStep) => {
       setErrors({});
       setAlert(null);
-      update({ step });
+      update({ step: step === "found" || step === "count" ? "details" : step });
     },
     [update],
   );
@@ -304,6 +304,7 @@ function SurveyFlow({
   const named = movers.filter((m) => !removed.includes(m.companyId));
   const maxLimit = found?.maxLimit ?? 5;
   const requestIntake = isRequestIntakeConsent(found?.consent.body ?? "");
+  const submitButtonConsent = isSubmitButtonConsent(found?.consent.body ?? "");
   const validLimit = (value: number | null) => value !== null && (requestIntake ? isRequestCount(value, maxLimit) : value >= 1 && value <= Math.min(named.length, maxLimit));
   const contactOptions = requestIntake ? requestCountOptions(maxLimit) : countOptions(named.length, maxLimit);
   const consentText =
@@ -377,9 +378,8 @@ function SurveyFlow({
       setFound(state);
       setLimit(null);
       setRemoved([]);
-      setRecount(false);
       setConsentChecked(false);
-      goTo("found");
+      goTo("details");
     });
   };
 
@@ -387,23 +387,16 @@ function SurveyFlow({
     event.preventDefault();
     const result = parseDetails(contact);
     if (!result.ok) return showErrors(result.errors);
-    goTo("count");
+    if (!validLimit(limit)) return showErrors({ limit: "Choose how many moving companies you would like to hear from." });
+    goTo("review");
   };
 
   const chooseCount = (value: string) => {
     setErrors({});
     setRemoved([]);
     setLimit(Number(value));
-    setRecount(false);
     setConsentChecked(false);
   };
-
-  const submitCount = (event: FormEvent) => {
-    event.preventDefault();
-    if (!validLimit(limit)) return showErrors({ limit: "Choose how many moving companies you'd like to hear from." });
-    goTo("review");
-  };
-
 
   const handleResult = (result: SubmitResult) => {
     if (result.ok) {
@@ -423,7 +416,6 @@ function SurveyFlow({
         if (step) update({ step });
         if (result.errors.limit) {
           setLimit(null);
-          setRecount(true);
         }
         showErrors(result.errors);
         if (result.errors.form) setAlert({ tone: "error", title: "We couldn't send your request", body: result.errors.form });
@@ -438,26 +430,26 @@ function SurveyFlow({
         const remaining = freshIds.length - keptRemoved.length;
         if (limit !== null && (isRequestIntakeConsent(result.consent.body) ? !isRequestCount(limit, maxLimit) : limit > remaining)) {
           setLimit(null);
-          setRecount(true);
+          update({ step: "details" });
         }
         setConsentChecked(false);
         setAlert({
           tone: "warning",
           title: "Review your contact preferences",
-          body: "Review your request details and contact preferences, then tick the box again to send your request.",
+          body: "Review your request details and select Send my request.",
         });
         focusField.current = FIELD_IDS.form!;
         return;
       }
       case "no_coverage":
         setFound((f) => (f && f.coverage.ok ? { ...f, coverage: { ...f.coverage, movers: [] } } : f));
-        goTo("found");
+        goTo("details");
         return;
       case "expired":
         runCoverage((state) => {
           setFound(state);
           setConsentChecked(false);
-          setAlert({ tone: "warning", title: "Review your request details", body: "Your session has been open for a while. Review your contact preferences and tick the box again to send your request." });
+          setAlert({ tone: "warning", title: "Review your request details", body: "Your session has been open for a while. Review your details and select Send my request." });
           focusField.current = FIELD_IDS.form!;
         });
         return;
@@ -481,9 +473,9 @@ function SurveyFlow({
     const next: FieldErrors = {};
     if (!requestIntake && named.length === 0) next.movers = "Refresh your request details before sending.";
     if (!validLimit(limit)) next.limit = "Choose how many moving companies you'd like to hear from.";
-    if (!consentChecked) next.consent = "To send your request, tick the box to confirm your contact permissions.";
-    if (!termsAccepted) next.terms = "To send your request, accept the Terms of Use and acknowledge the Privacy Policy.";
-    setDeclined(!consentChecked);
+    if (!submitButtonConsent && !consentChecked) next.consent = "To send your request, tick the box to confirm your contact permissions.";
+    if (!submitButtonConsent && !termsAccepted) next.terms = "To send your request, accept the Terms of Use and acknowledge the Privacy Policy.";
+    setDeclined(!submitButtonConsent && !consentChecked);
     if (errorCount(next) || !consentText || limit === null) return showErrors(next);
     setErrors({});
     setAlert(null);
@@ -506,8 +498,9 @@ function SurveyFlow({
       shownCompanyIds: movers.map((m) => m.companyId),
       removedCompanyIds: removed,
       profileCompanyId: null,
-      consentChecked,
-      termsAccepted,
+      authorizationMethod: submitButtonConsent ? "submit_button" : "checkbox",
+      consentChecked: submitButtonConsent ? false : consentChecked,
+      termsAccepted: submitButtonConsent ? true : termsAccepted,
       consentVersionId: found.consent.versionId,
       renderedTextSha256: consentTextSha256(consentText),
       website: honeypot.current?.value ?? "",
@@ -553,7 +546,7 @@ function SurveyFlow({
   const nav = (continueLabel = "Continue", options: { cta?: boolean; hideContinue?: boolean } = {}) => (
     <div className="flex flex-wrap items-center gap-3 pt-2">
       {!options.hideContinue ? (
-        <Button type="submit" variant={options.cta ? "cta" : "primary"} loading={pending} loadingLabel={options.cta ? "Sending…" : "Checking…"}>
+        <Button type="submit" variant={options.cta ? "cta" : "primary"} disabled={Boolean(options.cta && !consentText)} aria-describedby={options.cta && submitButtonConsent ? "submit-notice" : undefined} loading={pending} loadingLabel={options.cta ? "Sending…" : "Checking…"}>
           {continueLabel}
         </Button>
       ) : null}
@@ -753,78 +746,29 @@ function SurveyFlow({
           </form>
         );
         break;
-      case "found":
-        body = <FoundStep heading={heading} coverage={coverage} onContinue={() => goTo("details")} nav={nav} />;
-        break;
       case "details":
         body = (
-          <form noValidate onSubmit={submitDetails} className="grid gap-6">
-            {heading("Your details")}
-            <section aria-labelledby="why-heading" className="grid gap-2 rounded-card border border-border bg-surface-2 p-5">
-              <h3 id="why-heading" className="type-h4 text-text">
-                Why we ask for your contact details
-              </h3>
-              {/* Consent draft §3 without its "We don't sell your details" sentence, which waits on counsel (implications §3.7). */}
-              <p className="text-text">
-                Your contact details let us follow up about your move. You'll choose how many moving companies may
-                receive your details and which methods they may use. Each company introduces itself when it contacts you.
-              </p>
-            </section>
-            <fieldset id="channels" className="m-0 grid gap-1 border-0 p-0" aria-describedby={["channels-help", errors.channels ? errorId("channels") : null].filter(Boolean).join(" ")}>
-              <legend className="mb-1 p-0 text-[0.9375rem] font-semibold text-text">How may we contact you about your move?</legend>
-              <p id="channels-help" className="type-small text-text-3">
-                Choose at least one. Your preferences apply to contact about this request.
-              </p>
-              {CHANNELS.map((channel) => (
-                <Checkbox
-                  key={channel}
-                  id={`channel-${channel}`}
-                  label={CHANNEL_LABELS[channel]}
-                  checked={contact.channels.includes(channel)}
-                  onChange={(e) => {
-                    setContact((c) => ({ ...c, channels: e.target.checked ? [...c.channels, channel] : c.channels.filter((x) => x !== channel) }));
-                    setConsentChecked(false);
-                  }}
-                  {...(errors.channels ? { "aria-invalid": true } : {})}
-                />
-              ))}
-              {errors.channels ? <FieldError id={errorId("channels")}>{errors.channels}</FieldError> : null}
-            </fieldset>
-            <div className="grid gap-5 sm:grid-cols-2">
+          <form noValidate onSubmit={submitDetails} className="grid gap-5">
+            {heading("Your details", "Where should we follow up about your move?")}
+            <div className="grid gap-4 sm:grid-cols-2">
               <Field floating id="first-name" label="First name" error={errors.firstName} required>
                 <Input name="firstName" autoComplete="given-name" value={contact.firstName} onChange={(e) => setContact((c) => ({ ...c, firstName: e.target.value }))} />
               </Field>
               <Field floating id="last-name" label="Last name" error={errors.lastName} required>
                 <Input name="lastName" autoComplete="family-name" value={contact.lastName} onChange={(e) => setContact((c) => ({ ...c, lastName: e.target.value }))} />
               </Field>
+              <Field floating id="email" label="Email" error={errors.email} required>
+                <Input type="email" name="email" autoComplete="email" inputMode="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} />
+              </Field>
+              <Field floating id="phone" label="Phone number" error={errors.phone} required>
+                <Input type="tel" name="phone" autoComplete="tel-national" inputMode="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} />
+              </Field>
             </div>
-            <Field floating id="email" label="Email" error={errors.email} required>
-              <Input type="email" name="email" autoComplete="email" inputMode="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} />
-            </Field>
-            <Field id="phone" label="Phone number" help="A US number. Your contact preferences and company limit apply to your request." error={errors.phone} required>
-              <Input type="tel" name="phone" autoComplete="tel-national" inputMode="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} className="max-w-[16rem] tabular" />
-            </Field>
-            {nav()}
+            <CountQuestion options={contactOptions} value={limit === null ? null : String(limit)} onChange={chooseCount} error={errors.limit} helper="Choose the maximum number of companies you would like to hear from." />
+            {nav("Review my request")}
           </form>
         );
         break;
-      case "count": {
-        const options = contactOptions;
-        body = (
-          <form noValidate onSubmit={submitCount} className="grid gap-5">
-            {heading("How many movers")}
-            <CountQuestion
-              options={options}
-              value={limit === null ? null : String(limit)}
-              onChange={chooseCount}
-              error={errors.limit}
-              helper="Choose the maximum number of moving companies you would like to hear from. Nothing is selected for you."
-            />
-            {nav()}
-          </form>
-        );
-        break;
-      }
       case "review":
         body = (
           <form noValidate onSubmit={submitReview} className="grid gap-6">
@@ -832,46 +776,12 @@ function SurveyFlow({
             {formAlert}
             <RequestSummary draft={draft} coverage={coverage} contact={contact} onEdit={goTo} />
 
-            <section aria-labelledby="contact-plan-heading" className="grid gap-3 rounded-card border border-border bg-surface p-5">
-              <h3 id="contact-plan-heading" className="type-h3 text-text">Your contact preferences</h3>
-              <p className="text-text-2">You choose how we may contact you about your request and the maximum number of participating moving companies you would like to hear from. Each company will introduce itself when it gets in touch.</p>
-              {errors.movers ? <FieldError id={errorId("movers")}>{errors.movers}</FieldError> : null}
-            </section>
-
-            {recount || limit === null ? (
-              <div className="grid gap-3 rounded-card border-[1.5px] border-warning p-5">
-                <p className="font-semibold text-text">
-                  Choose the maximum number of companies you would like to hear from.
-                </p>
-                {contactOptions.length > 0 ? (
-                  <CountQuestion
-                    options={contactOptions}
-                    value={limit === null ? null : String(limit)}
-                    onChange={chooseCount}
-                    error={errors.limit}
-                    helper="Choose the maximum number of moving companies you would like to hear from. Nothing is selected for you."
-                  />
-                ) : null}
-              </div>
-            ) : (
-              <p className="text-text">
-                <strong className="tabular">
-                  {limit === 1 ? "Only 1 mover" : `Up to ${limit} movers`}
-                </strong>{" "}
-                may receive your details and contact you.{" "}
-                <button type="button" className="link" onClick={() => goTo("count")}>
-                  Change the number
-                </button>
+            {limit !== null ? (
+              <p className="type-small text-text-2">
+                <strong className="text-text">{limit === 1 ? "1 moving company" : `Up to ${limit} moving companies`}</strong> may contact you.{" "}
+                <button type="button" className="link" onClick={() => goTo("details")}>Change the number</button>
               </p>
-            )}
-
-            <div className="grid gap-3 rounded-card bg-surface-2 p-5 type-small text-text-2">
-              <p>{texts.st1a}</p>
-              <p>
-                <StoredTextLine parts={texts.st2} />
-              </p>
-              <p>{texts.st4b}</p>
-            </div>
+            ) : null}
 
             {/* Honeypot: hidden from people and assistive technology; bots that fill it are refused. */}
             <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
@@ -879,6 +789,10 @@ function SurveyFlow({
               <input ref={honeypot} id="website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
             </div>
 
+            {submitButtonConsent ? (
+              <SubmitNotice text={consentText} />
+            ) : (
+              <>
             <div className="grid gap-1">
               <Checkbox
                 id="consent"
@@ -920,6 +834,9 @@ function SurveyFlow({
               </Alert>
             ) : null}
 
+              </>
+            )}
+
             {nav("Send my request", { cta: true })}
           </form>
         );
@@ -954,6 +871,18 @@ function SurveyFlow({
 }
 
 // ------------------------------------------------------------------ pieces
+
+function SubmitNotice({ text }: { text: string | null }) {
+  if (!text) return null;
+  return (
+    <p id="submit-notice" data-authorization-method="submit_button" className="text-[0.8125rem] leading-relaxed text-text-2">
+      {text.split(/(Terms of Use|Privacy Policy)/).map((part, index) => part === "Terms of Use" || part === "Privacy Policy" ? (
+        <Link key={index} href={part === "Terms of Use" ? "/terms/" : "/privacy/"} className="link" target="_blank" rel="noopener">{part}</Link>
+      ) : part)}
+    </p>
+  );
+}
+
 
 function summaryLine(draft: Draft, coverage: Coverage | null): string {
   const route = coverage
@@ -1008,29 +937,6 @@ function MoveSidebar({ draft, coverage, texts }: { draft: Draft; coverage: Cover
   );
 }
 
-function FoundStep({
-  heading,
-  coverage,
-  onContinue,
-  nav,
-}: {
-  heading: (text: string, sub?: ReactNode) => ReactNode;
-  coverage: Coverage | null;
-  onContinue: () => void;
-  nav: (label?: string, options?: { cta?: boolean; hideContinue?: boolean }) => ReactNode;
-}) {
-  return (
-    <form noValidate onSubmit={(e) => { e.preventDefault(); onContinue(); }} className="grid gap-5">
-      {heading("Your move details", coverage ? `From ${coverage.move.origin.city}, ${coverage.move.origin.state} to ${coverage.move.destination.city}, ${coverage.move.destination.state}.` : undefined)}
-      <div className="rounded-card border border-border bg-surface-2" data-content-inset="card">
-        <p className="font-semibold text-text">Next: add your contact details.</p>
-        <p className="mt-2 text-text-2">Your move details are saved. Choose your contact preferences, then review everything before sending your request.</p>
-      </div>
-      {nav()}
-    </form>
-  );
-}
-
 function CountQuestion({
   options,
   value,
@@ -1045,29 +951,25 @@ function CountQuestion({
   helper: string;
 }) {
   return (
-    <div className="grid gap-3">
-      <RadioCardGroup
-        id="limit"
-        name="limit"
-        legend="How many moving companies would you like to hear from?"
-        help={helper}
-        value={value}
-        onValueChange={onChange}
-        error={error}
-        columns={1}
-        options={[
-          ...options.map((o) => ({
-            value: String(o.value),
-            label: <span className="tabular">{o.value}</span>,
-            disabled: !o.enabled,
-            ...(o.reason ? { disabledReason: o.reason } : {}),
-          })),
-
-        ]}
-      />
-    </div>
+    <fieldset id="limit" className="m-0 grid min-w-0 gap-2.5 border-0 p-0" aria-describedby={error ? errorId("limit") : "limit-help"}>
+      <legend className="mb-2 text-[0.9375rem] font-semibold text-text">How many moving companies would you like to hear from?</legend>
+      <p id="limit-help" className="type-small text-text-3">{helper}</p>
+      <div className="grid grid-cols-3 gap-2 min-[360px]:grid-cols-5">
+        {options.map(option => (
+          <label key={option.value} htmlFor={`limit-${option.value}`} className="relative min-w-0 cursor-pointer">
+            <input id={`limit-${option.value}`} name="limit" type="radio" value={option.value} disabled={!option.enabled} checked={value === String(option.value)} onChange={() => onChange(String(option.value))} aria-describedby={error ? errorId("limit") : "limit-help"} aria-invalid={error ? true : undefined} className="peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0" />
+            <span data-content-inset="compact" className="pointer-events-none relative flex min-h-12 items-center justify-center rounded-control border-[1.5px] border-border-strong bg-surface font-semibold tabular text-text peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus peer-disabled:cursor-not-allowed peer-disabled:bg-surface-3 peer-disabled:text-text-3">
+              {option.value}
+              {value === String(option.value) ? <svg aria-hidden="true" viewBox="0 0 12 12" fill="none" className="absolute right-1 top-1 size-2.5"><path d="m2 6 2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg> : null}
+            </span>
+          </label>
+        ))}
+      </div>
+      {error ? <FieldError id={errorId("limit")}>{error}</FieldError> : null}
+    </fieldset>
   );
 }
+
 
 function RequestSummary({
   draft,
@@ -1102,7 +1004,6 @@ function RequestSummary({
       value: [isSurveyMoveSize(draft.moveSize) ? MOVE_SIZE_LABELS[draft.moveSize] : "", ...draft.services.map((s) => SERVICE_LABELS[s])].filter(Boolean).join(", "),
       step: "size",
     },
-    { label: "Contact by", value: contact.channels.map((c) => CHANNEL_LABELS[c]).join(", "), step: "details" },
     { label: "Your details", value: `${contact.firstName} ${contact.lastName} · ${contact.email} · ${contact.phone}`, step: "details" },
   ];
   return (

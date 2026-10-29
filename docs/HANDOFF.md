@@ -3,13 +3,37 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Compact request submission — owner follow-up, 2026-10-29
+
+The owner removed the contact-method picker and long consent/terms checkboxes. Household
+requests now have five steps: route, date, services, details with the company limit, and review.
+The hero/closing starters remain the first two steps. Preserve editable carried answers and
+never store contact details in browser drafts. The 1–5 company ceiling still requires a choice.
+
+The final Send action is described by a concise visible notice with Terms and Privacy links.
+Migration `260_submit_button_authorization.sql` activates `contact-request-submit-v1`; the
+record captures `authorization_method=submit_button`, `checkbox_state=false`, form version
+`survey-v3-compact-submit`, and `contact_automation=manual_only`. New requests authorize
+calls and email only, with no SMS or automated/prerecorded call permission. Legacy consent
+records remain unchanged. Private contact views show this narrower scope, including when
+a manual-only request joins a group with older permission evidence.
+
+Fast autofill submissions in this compact mode must not be rejected solely for completing in
+under eight seconds. The signed ticket, expiry, honeypot and rate limits still apply; completion
+speed remains a recorded risk signal. Preserve the historical timing rule for legacy forms.
+
+Run the eight cases in `e2e/survey-continuity.config.ts`, server/core/DB tests, typechecks and
+content tests after changing this journey. Real submission tests are isolated-local-only;
+production verification stops at Review and send. Keep the visible notice and stored hash exact.
+
 ### Always capture valid requests — owner follow-up, 2026-10-29
 
 The household and loading-help survey must accept a valid, consented request even when no
 current company can receive it. Availability is an internal routing concern: the customer sees
 "Your move details" and "Request received", without matching language, availability counts or
-a no-mover rejection. The customer explicitly chooses a contact ceiling (1–5 by default),
-contact methods and permissions; nothing is preselected. Calculator handoffs follow the same rule.
+a no-mover rejection. The customer explicitly chooses a contact ceiling (1–5 by default);
+the compact submission rule above supersedes the older contact-method and checkbox screens.
+Calculator handoffs follow the same rule.
 
 Migration `250_request_intake.sql` introduces `contact-request-intake-v1` consent and a pending
 intake guard. Empty-recipient requests are saved as `unmatched`, appear in the admin Unmatched
@@ -24,7 +48,7 @@ never use it against production. Production verification stops before sending a 
 
 ### Survey continuity and contained overlays — owner follow-up, 2026-10-29
 
-The hero and closing starter are the first two steps of the same seven-step household journey.
+The hero and closing starter are the first two steps of the same household journey (now five steps).
 They collect route, move size and an estimated date once, then open a fresh quote page at step 3
 with an editable saved-move summary. A new starter replaces stale move intent and date flags;
 non-contact draft checkpoints are written before advancing so cached navigation/reload cannot

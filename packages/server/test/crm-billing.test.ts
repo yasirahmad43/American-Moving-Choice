@@ -7,6 +7,8 @@ import { purchase } from "../src/marketplace/purchase";
 import { listCompanyReviews, privateDetailProblem, reportReview, requestMoveReview, respondToReview, ReviewToolsError } from "../src/reviews-company/reviews";
 import { resetDatabase } from "./helpers";
 import { actorOf, addDemoCard, makeCompany, makeMember, makeRequest, type TestCompany, type TestRequest } from "./marketplace-fixtures";
+import { REQUEST_INTAKE_BODY, REQUEST_SUBMIT_BODY, renderConsentText, consentTextSha256, type Channel } from "@amc/core/src/survey";
+import { sha256Hex } from "../src/auth/tokens";
 
 const pool = () => getPool();
 let n = 0;
@@ -178,4 +180,36 @@ describe("company review tools", () => {
     await expect(requestMoveReview(actorOf(beta), betaPurchase)).rejects.toThrow(/already been requested/);
     expect((await getRecord(actorOf(beta), betaPurchase)).moveReviewRequestedAt).not.toBeNull();
   });
+});
+
+
+describe("compact contact permissions", () => {
+  it("keeps a manual-only repeat request from inheriting an older primary request's SMS or automation scope", async () => {
+    const request = await makeRequest({ limit: 1, named: [alpha] });
+    const addConsent = async (leadId: string, button: boolean) => {
+      const channels: Channel[] = button ? ["call", "email"] : ["call", "sms", "email"];
+      const body = button ? REQUEST_SUBMIT_BODY : REQUEST_INTAKE_BODY;
+      const text = renderConsentText(body, { movers: [{ displayName: alpha.name, usdotNumber: null }], limit: 1, channels });
+      await pool().query(`insert into consent_records
+        (lead_id,consent_text_version_id,rendered_text,rendered_text_sha256,named_company_ids,selected_limit,channel_scope,
+         checkbox_state,terms_version,terms_accepted,privacy_version,privacy_acknowledged,page_url,form_version,form_state_sha256,
+         ab_variant,phone_hash,email_hash,tag_manifest_version,recipient_disclosure_mode,authorization_method,contact_automation)
+        values($1,$2,$3,$4,$5::uuid[],1,$6::text[],$7,'test-terms',true,'test-privacy',true,'http://localhost/get-quotes/',
+               'test-form',$8,'none',$8,$8,'test-tags','request_intake',$9,$10)`,
+        [leadId, button ? "contact-request-submit-v1" : "contact-request-intake-v1", text, consentTextSha256(text), [alpha.companyId],
+         channels, !button, sha256Hex("fictional-test-evidence"), button ? "submit_button" : "checkbox", button ? "manual_only" : "legacy_text"]);
+    };
+    await addConsent(request.leadId, false);
+    const bought = await purchase({ ...actorOf(alpha), groupId: request.groupId, idempotencyKey: idem() });
+    expect(bought.ok).toBe(true);
+    if (!bought.ok) return;
+    expect((await getRecord(actorOf(alpha), bought.purchaseId)).consent).toMatchObject({ channels: ["call", "sms", "email"], contactAutomation: "legacy_text", authorizationMethod: "checkbox" });
+    const repeated = (await pool().query(`insert into leads(group_id,selected_limit,first_name,last_name,email,phone_e164,origin_zip,dest_zip,is_primary)
+      values($1,1,'Jordan',$2,$3,$4,'78704','77006',false) returning id`, [request.groupId,request.lastName,request.email,request.phone])).rows[0].id;
+    await addConsent(repeated, true);
+    const detail = await getRecord(actorOf(alpha), bought.purchaseId);
+    expect(detail.consent).toMatchObject({ channels: ["call", "email"], contactAutomation: "manual_only", authorizationMethod: "checkbox" });
+    expect(detail.contact?.email).toBe(request.email);
+  });
+
 });

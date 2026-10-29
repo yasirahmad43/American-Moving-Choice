@@ -78,7 +78,7 @@ test.describe("home page hand-off", () => {
     await expect(page.getByText("Check the answers we carried over")).toBeVisible();
     await expect(page.getByLabel("ZIP code you're moving from")).toHaveValue("02108");
     await expect(page.getByLabel("ZIP code you're moving to")).toHaveValue("10001");
-    await expect(page.getByText("Step 1 of 7")).toBeVisible();
+    await expect(page.getByText("Step 1 of 5")).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.prefill"))).toBeNull();
 
     await page.goto(`${WEB_URL}/about/`);

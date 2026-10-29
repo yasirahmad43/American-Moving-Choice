@@ -8,11 +8,11 @@ const date = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2
 async function completeStarter(page: Page, selector: string, origin = "75201", destination = "77002") {
   const starter = page.locator(selector);
   await expect(starter).toHaveAttribute("data-ready", "true");
-  await expect(starter).toContainText("Step 1 of 7");
+  await expect(starter).toContainText("Step 1 of 5");
   await starter.getByLabel("Moving from · ZIP code").fill(origin);
   await starter.getByLabel("Moving to · ZIP code").fill(destination);
   await starter.locator('button[type="submit"]').click();
-  await expect(starter).toContainText("Step 2 of 7");
+  await expect(starter).toContainText("Step 2 of 5");
   await starter.getByLabel("What are you moving?").selectOption("2br");
   // Required once here, rather than asking for it again after leaving this page.
   await starter.locator('button[type="submit"]').click();
@@ -23,7 +23,7 @@ async function completeStarter(page: Page, selector: string, origin = "75201", d
   await page.waitForURL(base + "/get-quotes/");
   const full = page.locator(".quote-survey-full");
   await expect(full.getByRole("heading", { name: "Anything else for your move?" })).toBeVisible();
-  await expect(full).toContainText("Step 3 of 7");
+  await expect(full).toContainText("Step 3 of 5");
   await expect(full.locator('input[name="originZip"],input[name="destZip"],input[name="moveDate"],input[name="moveSize"]')).toHaveCount(0);
   await expect(full.getByRole("region", { name: "Your saved move" })).toContainText(`${origin} → ${destination}`);
   await expect(full).toContainText("2 bedrooms");
@@ -46,9 +46,9 @@ for (const width of [319, 390, 1440]) {
     await expect(returnedStarter.locator('button[type="submit"]')).toBeEnabled();
     await page.goForward();
     await page.waitForURL(base + "/get-quotes/");
-    await expect(page.locator(".quote-survey-full")).toContainText("Step 3 of 7");
+    await expect(page.locator(".quote-survey-full")).toContainText("Step 3 of 5");
     await page.reload();
-    await expect(page.locator(".quote-survey-full")).toContainText("Step 3 of 7");
+    await expect(page.locator(".quote-survey-full")).toContainText("Step 3 of 5");
     await expect(page.getByRole("heading", { name: "Anything else for your move?" })).toBeVisible();
     // Return with normal client navigation, then submit another independently owned starter.
     await page.locator('header a[href="/"]').click();
@@ -61,50 +61,40 @@ for (const width of [319, 390, 1440]) {
   });
 }
 
-test("completed starter advances services, coverage, details, count and review without a step-one loop", async ({ page }) => {
+test("completed starter advances services, contact details and review without extra permission steps", async ({ page }) => {
   test.skip(!local, "Coverage and synthetic contact entry are tested only against the isolated local site.");
   await page.setExtraHTTPHeaders({ "x-forwarded-for": "198.51.100.229" });
   await page.goto(base + "/");
   let full = await completeStarter(page, "#hero-survey .vsh-start");
   await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 4 of 7");
-  await expect(full.getByRole("heading", { name: "Your move details", exact: true })).toBeVisible();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 5 of 7");
+  await expect(full).toContainText("Step 4 of 5");
   await expect(full.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();
-  await full.getByLabel("Phone calls", { exact: true }).check();
-  await full.locator("#channel-email").check();
+  await expect(full.locator('input[id^="channel-"],#consent,#terms')).toHaveCount(0);
   await full.getByLabel("First name", { exact: true }).fill("Survey");
   await full.getByLabel("Last name", { exact: true }).fill("Verification");
   await full.locator("#email").fill("survey-continuity@example.com");
   await full.getByLabel("Phone number", { exact: true }).fill("2025550168");
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 6 of 7");
   await full.locator('label[for="limit-2"]').click();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 7 of 7");
+  await full.getByRole("button", { name: "Review my request", exact: true }).click();
+  await expect(full).toContainText("Step 5 of 5");
   await expect(full.getByRole("heading", { name: "Review and send" })).toBeVisible();
-  await expect(full.locator("#consent")).not.toBeChecked();
-  await expect(full.locator("#terms")).not.toBeChecked();
-  // Back/Continue retain answers, while changing contact scope requires fresh permission.
-  // The final Send button is never clicked.
-  await full.locator("#consent").check();
-  await full.locator("#terms").check();
+  await expect(full.locator("#consent,#terms")).toHaveCount(0);
+  await expect(full.locator("#submit-notice")).toContainText("up to 2 moving companies");
+  await expect(full.getByRole("button", { name: "Send my request", exact: true })).toBeEnabled();
+  // Back/Continue retain the entered contact and count. The final Send is never clicked.
   await full.getByRole("button", { name: "Back", exact: true }).click();
-  await expect(full).toContainText("Step 6 of 7");
+  await expect(full).toContainText("Step 4 of 5");
   await expect(full.locator('input[name="limit"]:checked')).toHaveValue("2");
-  await full.getByRole("button", { name: "Back", exact: true }).click();
-  await expect(full).toContainText("Step 5 of 7");
-  await full.locator("#channel-sms").check();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 6 of 7");
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 7 of 7");
-  await expect(full.locator("#consent")).not.toBeChecked();
-  await expect(full.locator("#terms")).toBeChecked();
+  await expect(full.locator("#email")).toHaveValue("survey-continuity@example.com");
+  await full.locator("#email").fill("survey-continuity-edited@example.com");
+  await full.locator('label[for="limit-3"]').click();
+  await full.getByRole("button", { name: "Review my request", exact: true }).click();
+  await expect(full).toContainText("Step 5 of 5");
+  await expect(full.locator("#submit-notice")).toContainText("up to 3 moving companies");
+  await expect(full).toContainText("survey-continuity-edited@example.com");
   await page.reload();
   full = page.locator(".quote-survey-full");
-  await expect(full).toContainText("Step 3 of 7");
+  await expect(full).toContainText("Step 3 of 5");
   await expect(full.getByRole("heading", { name: "Anything else for your move?" })).toBeVisible();
   await expect(full.locator('input[type="email"],input[type="tel"]')).toHaveCount(0);
 });
@@ -117,20 +107,20 @@ test("saved route, date and size can be edited deliberately without redoing the 
   await expect(full.getByLabel("ZIP code you're moving from", { exact: true })).toHaveValue("75201");
   await full.getByLabel("ZIP code you're moving to", { exact: true }).fill("78701");
   await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 3 of 7");
+  await expect(full).toContainText("Step 3 of 5");
   await expect(full.getByRole("region", { name: "Your saved move" })).toContainText("75201 → 78701");
   await full.getByRole("button", { name: "Edit date", exact: true }).click();
   await expect(full.getByLabel("Move date", { exact: true })).toHaveValue(date);
   await full.getByLabel("My dates are flexible", { exact: true }).check();
   await full.getByLabel("Latest date", { exact: true }).fill(date);
   await full.getByRole("button", { name: "Continue", exact: true }).click();
-  await expect(full).toContainText("Step 3 of 7");
+  await expect(full).toContainText("Step 3 of 5");
   await full.getByRole("button", { name: "Edit home size", exact: true }).click();
   await full.getByLabel("3 bedrooms", { exact: true }).check();
   await expect(full.getByRole("region", { name: "Your saved move" })).toContainText("3 bedrooms");
   await full.getByRole("button", { name: "Edit route", exact: true }).click();
   await full.getByRole("button", { name: "Not a household move?", exact: true }).click();
-  await expect(full).toContainText("Step 1 of 8");
+  await expect(full).toContainText("Step 1 of 6");
   await expect(full.locator('input[name="need"]:checked')).toHaveCount(0);
   await expect(full.getByRole("heading", { name: "What do you need help with?" })).toBeVisible();
 });

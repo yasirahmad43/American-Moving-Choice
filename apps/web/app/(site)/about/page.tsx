@@ -45,11 +45,11 @@ export default function AboutPage() {
           <Link href="/how-we-verify-movers/">How we verify movers</Link>
         </li>
         <li>
-          You choose how many eligible movers can receive your details and how they may contact you. Companies introduce themselves when they contact you.{" "}
+          You choose how many eligible movers can receive your details for calls and email about your move. Companies introduce themselves when they contact you.{" "}
           <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link>
         </li>
         <li>
-          Requesting quotes is free. You choose how many participating companies may contact you and the channels they may use.
+          Requesting quotes is free. Add your contact details, choose your company limit, then review and send.
         </li>
         <li>
           Review invitations are linked to recorded requests and company contact. <Link href="/review-methodology/">How reviews work</Link>

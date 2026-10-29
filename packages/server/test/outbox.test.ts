@@ -124,11 +124,21 @@ describe("outbox", () => {
     await pool().query("update messages set attempts = 2, error = 'temporary provider error' where id = $1", [secretLegacy]);
     const receiptId = await enqueueEmail({ to: "current-receipt@example.com", template: "request_received", ...currentReceipt }, undefined, { transports });
     const purchaseId = await enqueueEmail({ to: "current-purchase@example.com", template: "purchase_notice", subject: currentPurchase.subject, bodyText: currentPurchase.body }, undefined, { transports });
+    const currentMarker = "We have saved your move details and contact preferences. Each company will identify itself and use the contact methods recorded with your request.";
+    expect(currentReceipt.bodyText).toContain(currentMarker);
+    expect(currentReceipt.secretBodyText).toContain(currentMarker);
+    const previousMarker = "Each company will identify itself when it contacts you using the contact methods you chose.";
+    const previousReceipt = {
+      bodyText: currentReceipt.bodyText.replace(currentMarker, previousMarker),
+      secretBodyText: currentReceipt.secretBodyText.replace(currentMarker, previousMarker),
+    };
+    const previousReceiptId = await enqueueEmail({ to: "previous-anonymous@example.com", template: "request_received", subject: currentReceipt.subject, ...previousReceipt }, undefined, { transports });
 
-    expect(await deliverPending({ transports })).toMatchObject({ processed: 6, sent: 2, failed: 4, retrying: 0 });
+    expect(await deliverPending({ transports })).toMatchObject({ processed: 7, sent: 3, failed: 4, retrying: 0 });
     expect(delivered).toEqual([
       { subject: currentReceipt.subject, body: currentReceipt.secretBodyText },
       { subject: currentPurchase.subject, body: currentPurchase.body },
+      { subject: currentReceipt.subject, body: previousReceipt.secretBodyText },
     ]);
     expect(delivered[0]!.body).toContain(reference);
     expect(delivered[0]!.body).toContain(manageUrl);
@@ -140,6 +150,7 @@ describe("outbox", () => {
     }
     expect((await statusOf(receiptId)).status).toBe("sent");
     expect((await statusOf(purchaseId)).status).toBe("sent");
+    expect((await statusOf(previousReceiptId)).status).toBe("sent");
     expect(await deliverPending({ transports })).toMatchObject({ processed: 0 });
   });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { MOVE_SIZE_LABELS, PREFILL_STORAGE_KEY, SURVEY_MOVE_SIZES, addMonths, cleanZip, isSurveyMoveSize, parseWhen } from "@amc/core/src/survey";
+import { HOUSEHOLD_REQUEST_STEP_COUNT, MOVE_SIZE_LABELS, PREFILL_STORAGE_KEY, SURVEY_MOVE_SIZES, addMonths, cleanZip, isSurveyMoveSize, parseWhen } from "@amc/core/src/survey";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
 type Errors = { originZip?: string; destZip?: string; moveSize?: string; moveDate?: string };
@@ -68,7 +68,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
         (next.originZip ? origin : destination).current?.focus();
         return;
       }
-      setAnnouncement("Step 2 of 7. Your move details.");
+      setAnnouncement(`Step 2 of ${HOUSEHOLD_REQUEST_STEP_COUNT}. Your move details.`);
       stepChanged.current = true;
       setStep(1);
       return;
@@ -103,7 +103,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
   return (
     // The server-rendered first step has no named inputs: without JS it opens a clean survey URL.
     <form className="vsh-start" data-vsh-starter="quote" data-ready={ready || undefined} action={PATH} method="get" noValidate onSubmit={submit} aria-labelledby={`${id}-heading`}>
-      <div className="vsh-start__topline" data-content-inset="compact"><span className="vsh-start__progress"><span>{labels.topline ?? "Let's get you moving"}</span><strong>Step {step + 1} of 7</strong></span><span className="vsh-start__free"><span aria-hidden="true">✓</span> Free to request</span></div>
+      <div className="vsh-start__topline" data-content-inset="compact"><span className="vsh-start__progress"><span>{labels.topline ?? "Let's get you moving"}</span><strong>Step {step + 1} of {HOUSEHOLD_REQUEST_STEP_COUNT}</strong></span><span className="vsh-start__free"><span aria-hidden="true">✓</span> Free to request</span></div>
       <ol className="vsh-start__steps" aria-label="Start your move">
         <li aria-current={step === 0 ? "step" : undefined} data-complete={step === 1 || undefined}><span aria-hidden="true">{step === 1 ? "✓" : "01"}</span> Your route</li>
         <li aria-current={step === 1 ? "step" : undefined}><span aria-hidden="true">02</span> Move details</li>
@@ -114,7 +114,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
           <div><div className="vsh-start__field" data-content-inset="compact"><label htmlFor={`${id}-origin`}>Moving from · ZIP code</label><input ref={origin} id={`${id}-origin`} inputMode="numeric" autoComplete="postal-code" placeholder={`e.g. ${fromExample}`} value={originZip} onChange={(event) => { setOriginZip(cleanZip(event.target.value)); setErrors((old) => ({ ...old, originZip: undefined })); }} aria-invalid={Boolean(errors.originZip)} aria-describedby={errors.originZip ? `${id}-originZip-error` : undefined} /></div>{error("originZip")}</div>
           <div><div className="vsh-start__field" data-content-inset="compact"><label htmlFor={`${id}-destination`}>Moving to · ZIP code</label><input ref={destination} id={`${id}-destination`} inputMode="numeric" autoComplete="off" placeholder={`e.g. ${toExample}`} value={destZip} onChange={(event) => { setDestZip(cleanZip(event.target.value)); setErrors((old) => ({ ...old, destZip: undefined })); }} aria-invalid={Boolean(errors.destZip)} aria-describedby={errors.destZip ? `${id}-destZip-error` : undefined} /></div>{error("destZip")}</div>
         </div> : <>
-          <div className="vsh-start__route"><span>{originZip}</span><svg aria-hidden="true" viewBox="0 0 60 14" fill="none"><path d="M1 7h55m-6-5 6 5-6 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{destZip}</span><button type="button" onClick={() => { setErrors({}); setAnnouncement("Step 1 of 7. Your route."); stepChanged.current = true; setStep(0); }}>{labels.editRoute ?? "Edit route"}</button></div>
+          <div className="vsh-start__route"><span>{originZip}</span><svg aria-hidden="true" viewBox="0 0 60 14" fill="none"><path d="M1 7h55m-6-5 6 5-6 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{destZip}</span><button type="button" onClick={() => { setErrors({}); setAnnouncement(`Step 1 of ${HOUSEHOLD_REQUEST_STEP_COUNT}. Your route.`); stepChanged.current = true; setStep(0); }}>{labels.editRoute ?? "Edit route"}</button></div>
           <div className="vsh-start__fields">
             <div><div className="vsh-start__field" data-content-inset="compact"><label htmlFor={`${id}-size`}>What are you moving?</label><select ref={size} id={`${id}-size`} value={moveSize} onChange={(event) => { setMoveSize(event.target.value); setErrors((old) => ({ ...old, moveSize: undefined })); }} aria-invalid={Boolean(errors.moveSize)} aria-describedby={errors.moveSize ? `${id}-moveSize-error` : undefined}><option value="">Choose your move size</option>{SURVEY_MOVE_SIZES.map((value) => <option key={value} value={value}>{MOVE_SIZE_LABELS[value]}</option>)}</select></div>{error("moveSize")}</div>
             <div><div className="vsh-start__field" data-content-inset="compact"><label htmlFor={`${id}-date`}>Estimated move date</label><input ref={date} id={`${id}-date`} type="date" value={moveDate} min={today || undefined} max={today ? addMonths(today, 12) : undefined} onChange={(event) => { setMoveDate(event.target.value); setErrors((old) => ({ ...old, moveDate: undefined })); }} aria-invalid={Boolean(errors.moveDate)} aria-describedby={errors.moveDate ? `${id}-moveDate-error` : undefined} /></div>{error("moveDate")}</div>

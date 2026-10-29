@@ -91,7 +91,7 @@ export const SETTING_DEFINITIONS = {
   }),
   active_consent_version: define({
     schema: z.string().min(1),
-    default: "contact-request-intake-v1",
+    default: "contact-request-submit-v1",
     label: "Active consent text",
     description: "Consent text version shown on new requests (must exist in consent_text_versions).",
   }),

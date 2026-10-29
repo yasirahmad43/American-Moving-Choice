@@ -80,7 +80,7 @@ const NEXT_STEPS = [
   { title: "Start with your route", text: "Check your move and choose a contact limit.", href: "/get-quotes/", action: "Start my moving request" },
   { title: "Understand the estimate", text: "Compare the job, billing unit and written conditions.", href: "/moving-costs/how-movers-charge/", action: "Read the cost guide" },
   { title: "Make a practical plan", text: "Choose a checklist for your next stage.", href: "/planning/", action: "Browse moving checklists" },
-  { title: "Choose your contact preferences", text: "Know the limit and channels before you send.", href: "/which-companies-receive-my-request/", action: "Review contact preferences" },
+  { title: "Choose your contact limit", text: "Set the maximum number of companies before you send.", href: "/which-companies-receive-my-request/", action: "Review contact limits" },
   { title: "Explore your destination", text: "Read the sourced state and city guides.", href: "/movers/", action: "Explore state and city guides" },
   { title: "Check a contacting company", text: "Research the credentials the company gives you.", href: "/verify-a-mover/", action: "Check a mover's credentials" },
 ];

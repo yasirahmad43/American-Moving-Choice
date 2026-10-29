@@ -85,7 +85,7 @@ export function ConfirmationView({
         </h2>
         <ol className="grid list-decimal gap-2 pl-6 text-text">
           <li>Keep your reference number and use your private manage link to review your request.</li>
-          <li>If a moving company contacts you, it will introduce itself and use only the contact methods you chose. Ask for its USDOT number and written estimate.</li>
+          <li>If a moving company contacts you, it will introduce itself. Ask for its USDOT number and written estimate.</li>
           <li>A reputable mover will offer an in-home or virtual survey before giving a written estimate. You're never obligated to hire anyone.</li>
         </ol>
         <p className="text-text-2">We can't promise when, or whether, any mover will get in touch.</p>

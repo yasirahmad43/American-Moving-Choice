@@ -1,6 +1,6 @@
 /**
  * Lead quality checks (lead lifecycle §4) that need no database: the survey ticket that proves a
- * minimum completion time, the risk score, source attribution and the validation-result rows.
+ * signed elapsed time, the risk score, source attribution and the validation-result rows.
  * Pure, so tests import it directly.
  */
 import { hmacHex, safeEqual } from "../auth/tokens";
@@ -9,8 +9,8 @@ import { hmacHex, safeEqual } from "../auth/tokens";
 
 /**
  * Issued with the coverage result at What we found and returned with the submission. Signed with
- * HMAC_SECRET, so the start time can't be forged: a submission less than MIN_COMPLETION_SECONDS
- * after the coverage check is treated as automated.
+ * HMAC_SECRET, so the start time can't be forged. Legacy checkbox forms enforce the minimum
+ * elapsed time; compact submit-button requests use it as a quality signal instead of a rejection.
  */
 export const MIN_COMPLETION_SECONDS = 8;
 /** A ticket older than this is refused; the visitor checks coverage again (fresh movers too). */
@@ -23,14 +23,14 @@ export function issueSurveyTicket(secret: string, now: number = Date.now()): str
 
 export type TicketCheck = { ok: true; elapsedSeconds: number } | { ok: false; reason: "invalid" | "too_fast" | "expired" };
 
-export function checkSurveyTicket(secret: string, ticket: string, now: number = Date.now()): TicketCheck {
+export function checkSurveyTicket(secret: string, ticket: string, now: number = Date.now(), minimumSeconds: 0 | typeof MIN_COMPLETION_SECONDS = MIN_COMPLETION_SECONDS): TicketCheck {
   const match = /^(\d{13})\.([0-9a-f]{32})$/.exec(ticket);
   if (!match) return { ok: false, reason: "invalid" };
   const [, issued, mac] = match as unknown as [string, string, string];
   if (!safeEqual(mac, hmacHex(secret, `survey-ticket\u0000${issued}`).slice(0, 32))) return { ok: false, reason: "invalid" };
   const elapsedSeconds = (now - Number(issued)) / 1000;
   if (elapsedSeconds < 0) return { ok: false, reason: "invalid" };
-  if (elapsedSeconds < MIN_COMPLETION_SECONDS) return { ok: false, reason: "too_fast" };
+  if (elapsedSeconds < minimumSeconds) return { ok: false, reason: "too_fast" };
   if (elapsedSeconds > TICKET_MAX_AGE_SECONDS) return { ok: false, reason: "expired" };
   return { ok: true, elapsedSeconds };
 }

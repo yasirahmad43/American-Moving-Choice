@@ -8,6 +8,10 @@ import type { MoveSize, Service } from "../matching";
 export const SURVEY_STEPS = ["need", "where", "when", "size", "found", "details", "count", "review"] as const;
 export type SurveyStep = (typeof SURVEY_STEPS)[number];
 
+/** Current request flow; legacy step names remain valid when restoring old move drafts. */
+export const COMPACT_SURVEY_STEPS = ["need", "where", "when", "size", "details", "review"] as const satisfies readonly SurveyStep[];
+export const HOUSEHOLD_REQUEST_STEP_COUNT = COMPACT_SURVEY_STEPS.length - 1;
+
 /** Step names as consumers see them (content/README.md §4). */
 export const STEP_LABELS: Record<SurveyStep, string> = {
   need: "What you need",

@@ -1,10 +1,12 @@
 /** Current owner-selected consumer copy. Historical stored texts and consent records stay intact. */
-export const PUBLIC_ROLE_STATEMENT = "American Moving Choice connects people planning a move with independent moving companies. We don't transport belongings, give moving estimates, or book your move. You choose the maximum number of companies who may contact you and the channels they may use. Companies introduce themselves when they contact you.";
-export const PUBLIC_REQUEST_ASSURANCE = "Free to request. You choose how many companies may contact you and how you'd like to hear from them.";
+export const PUBLIC_ROLE_STATEMENT = "American Moving Choice connects people planning a move with independent moving companies. We don't transport belongings, give moving estimates, or book your move. You choose the maximum number of companies who may contact you. Follow-up about your request is by calls and email. Companies introduce themselves when they contact you.";
+export const PUBLIC_REQUEST_ASSURANCE = "Free to request. You choose how many companies may contact you about your move.";
 
-/** Narrow AMC marketing changes. Prices charged by movers and contact consent are unchanged. */
+/** Current consumer presentation. Historical permission records are not processed here. */
 export function publicMarketingText(value: string): string {
   const updated = value
+    .replace(/You choose the maximum number of movers who may contact you and the contact channels they may use\./gi, "You choose the maximum number of movers who may contact you. Follow-up about your request is by calls and email.")
+    .replace(/You choose how many (?:participating )?companies may contact you and the channels they may use\./gi, "You choose how many companies may contact you. Follow-up about your request is by calls and email.")
     .replace(/,\s*and (?:those )?movers pay us for (?:the )?(?:move )?requests(?: they (?:choose to )?buy)?\./gi, ".")
     .replace(/(?:and )?movers pay us for requests\.[ \t]*/gi, "")
     .replace(/Movers(?: in our network)? pay (?:us|American Moving Choice) for (?:the )?(?:move )?requests they (?:choose to )?buy[.;]?[ \t]*/gi, "")
