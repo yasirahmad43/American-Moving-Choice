@@ -5,9 +5,10 @@ import { MediaCreditLine, MediaFrame } from "@/components/media/media-frame";
 import type { MediaAsset } from "@/lib/media";
 import { chapterKind, htmlChapterParts, storyIcon, storyImageAt, storyNextItems, type StoryKind, type StoryStep } from "@/lib/content/story-plan";
 import { storyCaption } from "@/lib/content/story-captions";
+import { adaptiveReactTables } from "./adaptive-react-tables";
 import "./story-sections.css";
 
-interface Chapter { key: string; content: ReactNode; heading?: string; kind?: StoryKind }
+interface Chapter { key: string; content: ReactNode; heading?: string; headingContent?: ReactNode; kind?: StoryKind; compactLists?: boolean }
 
 /** Editorial scaffolding is metadata, not a paragraph in the reader's narrative. */
 export function separateEditorialNotes(html: string): { body: string; notes: string[] } {
@@ -25,8 +26,14 @@ export function separateEditorialNotes(html: string): { body: string; notes: str
 /** Keep the complete sanitized document, including its heading anchors, links and source notes. */
 export function htmlChapters(html: string): Chapter[] {
   return htmlChapterParts(presentEditorialHtml(html)).map((part, index) => {
-    const heading = /<h2\b[^>]*>([\s\S]*?)<\/h2>/i.exec(part)?.[1]?.replace(/<a\b[^>]*class="[^"]*heading-anchor[^\"]*"[\s\S]*?<\/a>/gi, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
-    return { key: String(index), heading, kind: chapterKind(part, heading), content: <div className="prose story-prose" dangerouslySetInnerHTML={{ __html: part }} /> };
+    const headingMatch = /<h2\b[^>]*>([\s\S]*?)<\/h2>/i.exec(part);
+    const heading = headingMatch?.[1]?.replace(/<a\b[^>]*class="[^"]*heading-anchor[^\"]*"[\s\S]*?<\/a>/gi, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
+    const body = headingMatch ? part.slice(0, headingMatch.index) + part.slice(headingMatch.index + headingMatch[0].length) : part;
+    const listItems = [...body.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)].map(item => item[1]!.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+    return { key: String(index), heading, kind: chapterKind(part, heading),
+      compactLists: listItems.length > 1 && listItems.every(item => item.length <= 160),
+      headingContent: headingMatch ? <div className="prose story-chapter-title" dangerouslySetInnerHTML={{ __html: headingMatch[0] }} /> : undefined,
+      content: <div className="prose story-prose" dangerouslySetInnerHTML={{ __html: body }} /> };
   });
 }
 
@@ -53,7 +60,7 @@ function planningLabelFields(original: string): string {
 
 /** Present missing reference data coherently while retaining records, sources and real values. */
 export function presentEditorialHtml(html: string): string {
-  const available = html.replace(/<div class="table-wrap"[^>]*>\s*<table>[\s\S]*?<\/table>\s*<\/div>/gi, (original) => {
+  const available = html.replace(/<div class="table-wrap"[^>]*>\s*<table\b[^>]*>[\s\S]*?<\/table>\s*<\/div>/gi, (original) => {
     const table = original.replace(/(<td\b[^>]*>)([\s\S]*?)(<\/td>)/gi, (_cell, open: string, value: string, close: string) => `${open}${availableField(value)}${close}`);
     const unavailable = original.match(/not yet available|data pending|\[pending[^\]]*\]/gi) ?? [];
     if (unavailable.length < 3 || !/planning range|what the range covers|sample size/i.test(original) || /[$£€]\s*\d/.test(original)) return table;
@@ -67,7 +74,7 @@ export function presentEditorialHtml(html: string): string {
     if (!/\brole\s*=/i.test(attributes)) additions += ' role="region"';
     if (!/\baria-(?:label|labelledby)\s*=/i.test(attributes)) {
       let label: string;
-      do { label = `Formula or worked example ${++formulaNumber} (scroll sideways if needed)`; } while (usedLabels.has(label));
+      do { label = `Formula or worked example ${++formulaNumber}`; } while (usedLabels.has(label));
       usedLabels.add(label);
       additions += ` aria-label="${label}"`;
     }
@@ -83,16 +90,19 @@ function nodesOf(children: ReactNode): ReactNode[] {
 /** TSX trust/help/legal content uses the same chapters, without converting React to HTML. */
 export function reactChapters(children: ReactNode): Chapter[] {
   const chapters: { key: string; nodes: ReactNode[]; heading?: string }[] = [];
-  for (const node of nodesOf(children)) {
+  for (const node of nodesOf(adaptiveReactTables(children))) {
     const heading = isValidElement<{ children?: ReactNode }>(node) && node.type === "h2" ? node : null;
     if (heading || !chapters.length) chapters.push({ key: String(chapters.length), nodes: [], heading: heading && typeof heading.props.children === "string" ? heading.props.children : undefined });
     chapters[chapters.length - 1]!.nodes.push(node);
   }
   return chapters.map(({ nodes, ...chapter }) => {
-    const data = nodes.some(node => isValidElement<{ rows?: unknown; columns?: unknown }>(node) && (node.type === "table" || Array.isArray(node.props.rows) && Array.isArray(node.props.columns)));
+    const data = nodes.some(node => isValidElement<{ rows?: unknown; columns?: unknown; "data-column-count"?: number }>(node) && (node.type === "table" || node.props["data-column-count"] || Array.isArray(node.props.rows) && Array.isArray(node.props.columns)));
     const list = nodes.some(node => isValidElement(node) && (node.type === "ol" || node.type === "ul"));
     const kind = data ? "data" : /sources|related pages/i.test(chapter.heading ?? "") ? "sources" : list ? "checklist" : "narrative";
-    return { ...chapter, kind: kind as StoryKind, content: <div className="prose story-prose">{nodes}</div> };
+    const headingNode = nodes.find(node => isValidElement(node) && node.type === "h2");
+    return { ...chapter, kind: kind as StoryKind,
+      headingContent: headingNode ? <div className="prose story-chapter-title">{headingNode}</div> : undefined,
+      content: <div className="prose story-prose">{nodes.filter(node => node !== headingNode)}</div> };
   });
 }
 
@@ -106,12 +116,18 @@ export function StoryPhoto({ asset, className = "", caption }: { asset: MediaAss
 }
 
 export function StorySections({ chapters, images, planned = false, url, topic }: { chapters: Chapter[]; images: readonly (MediaAsset | null)[]; planned?: boolean; url?: string; topic?: string }) {
-  return <div className="story-chapters">{chapters.map((chapter, index) => <section key={chapter.key}
-    className={`story-chapter story-chapter-${index % 4} story-chapter-${chapter.kind ?? "narrative"}${index === 0 && !chapter.heading ? " story-chapter-intro" : ""}`} data-story-chapter="" data-motion="rise">
-    <div className="story-chapter-marker" aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><i /><LineIcon name={storyIcon(chapter.heading, chapter.kind)} size={21} /></div>
+  return <div className="story-chapters">{chapters.map((chapter, index) => {
+    const image = storyImageAt(images, index, planned);
+    const caption = storyCaption({ heading: chapter.heading, url, topic });
+    return <section key={chapter.key}
+    className={`story-chapter story-chapter-${index % 4} story-chapter-${chapter.kind ?? "narrative"}${!chapter.headingContent ? " story-chapter-intro" : ""}${chapter.compactLists ? " story-chapter-compact-list" : ""}`} data-story-chapter="" data-motion="rise">
+    <header className="story-chapter-header">
+      <div className="story-chapter-heading"><div className="story-chapter-marker" aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><i /><LineIcon name={storyIcon(chapter.heading, chapter.kind)} size={21} /></div>{chapter.headingContent ?? (caption ? <p className="story-chapter-context">{caption}</p> : null)}</div>
+      {image ? <div className="story-chapter-visual"><StoryPhoto asset={image} /></div> : null}
+    </header>
     <div className="story-chapter-copy">{chapter.content}</div>
-    {storyImageAt(images, index, planned) ? <div className="story-chapter-visual"><StoryPhoto asset={storyImageAt(images, index, planned)!} caption={storyCaption({ heading: chapter.heading, url, topic })} /></div> : null}
-  </section>)}</div>;
+  </section>;
+  })}</div>;
 }
 
 /** Short pages still carry five distinct, useful editorial photographs. */

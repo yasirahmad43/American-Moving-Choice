@@ -1,4 +1,5 @@
 import "@/components/site/prose.css";
+import "@/components/site/compact-layout.css";
 import { env } from "@amc/server/env";
 import type { ReactNode } from "react";
 import { SiteChrome } from "@/components/site-chrome";

@@ -2,7 +2,7 @@ import { Container, Reveal, TrustStrip } from "@amc/ui";
 import type { Metadata } from "next";
 import { Calculator } from "@/components/calculator/calculator";
 import { calculatorPageContent, renderTokens } from "@/components/calculator/content";
-import { COPY, MOVING_COSTS } from "@/components/calculator/copy";
+import { MOVING_COSTS } from "@/components/calculator/copy";
 import { VideoSurveyHero } from "@/components/site/video-survey-hero";
 import { socialMetadata } from "@/components/site/social-metadata";
 import { StorySections, StoryNextSteps } from "@/components/site/story-sections";
@@ -66,7 +66,7 @@ export default function MovingCostCalculatorPage() {
 
         <StorySections images={plan.images} chapters={[
           { key: "calculator-intro", heading: "A clearer starting point", content: <div className={proseClasses} dangerouslySetInnerHTML={{ __html: publicMarketingHtml(page.introHtml) }} /> },
-          { key: "calculator-tool", heading: "Plan for your move", content: <section id="planning-calculator" tabIndex={-1} aria-label={COPY["form.name"]} className="min-w-0 scroll-mt-24">
+          { key: "calculator-tool", heading: "Plan for your move", content: <section id="planning-calculator" tabIndex={-1} aria-label="Planning range tool" className="min-w-0 scroll-mt-24">
               <noscript><p className="mb-4 text-text">The calculator needs JavaScript. You can turn it on in your browser, or read <a href={MOVING_COSTS} className="link">Moving costs</a> to see what affects the price of a move.</p></noscript>
               <div className="bezel"><div className="bezel-inner p-5 sm:p-6"><Calculator tokenCopy={tokenCopy} st7={storedText("ST-7")} st6={storedText("ST-6")} st1b={[{ kind: "text", text: PUBLIC_REQUEST_ASSURANCE }]} /></div></div>
             </section> },

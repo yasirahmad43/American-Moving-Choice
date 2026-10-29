@@ -7,7 +7,7 @@
  */
 import type { CSSProperties, ReactNode } from "react";
 import { cx } from "../cx";
-import { SortableTableHeader, TableBody, TableControls, TableEnhancer, TableScroll } from "./table-enhancer";
+import { SortableTableHeader, TableBody, TableControls, TableEnhancer, TableRecords, TableScroll } from "./table-enhancer";
 
 export interface TableColumn<Row> {
   key: string;
@@ -31,6 +31,8 @@ export interface TableColumn<Row> {
   spark?: (row: Row) => number[] | null | undefined;
   /** The row's primary cell: bold and left-aligned in card mode. */
   primary?: boolean;
+  /** A key fact shown beside the primary field in compact record summaries (up to two). */
+  summary?: boolean;
   /** Stop the column from wrapping. */
   nowrap?: boolean;
   className?: string;
@@ -65,6 +67,8 @@ export interface TableProps<Row> {
   maxHeight?: string;
   /** Dense reference data stays a bounded table on phones; action lists keep card layout. */
   mobileLayout?: "cards" | "scroll";
+  /** Public reference data fits its container; wide tables become labeled, expandable records. */
+  layout?: "standard" | "adaptive";
   /** Lets each row carry an href: the primary cell becomes a link covering the row on hover. */
   className?: string;
 }
@@ -124,6 +128,7 @@ export function Table<Row>({
   id,
   maxHeight,
   mobileLayout = "cards",
+  layout = "standard",
   className,
 }: TableProps<Row>) {
   if (!loading && rows.length === 0 && empty) return <>{empty}</>;
@@ -134,21 +139,50 @@ export function Table<Row>({
   const showToggle = densityToggle ?? rows.length >= 6;
   const cellPad = "px-3.5";
   const skeletonRows = loading ? Array.from({ length: loading }, (_, i) => i) : [];
+  const adaptive = layout === "adaptive";
+  const records = adaptive && columns.length > 4;
+  const primary = columns.find((column) => column.primary) ?? columns[0];
+  const explicitSummary = columns.filter((column) => !column.primary && column.summary);
+  const summary = (explicitSummary.length ? explicitSummary : columns.filter((column) => column !== primary)).slice(0, 2);
+  const summaryKeys = new Set([primary?.key, ...summary.map((column) => column.key)]);
+  const secondary = columns.filter((column) => !summaryKeys.has(column.key));
+
+  const recordField = (column: TableColumn<Row>, row: Row) => {
+    const sortValue = column.sortValue?.(row);
+    const bar = column.bar?.(row);
+    const spark = column.spark?.(row);
+    const content = column.cell(row);
+    return <div key={column.key} className={cx("dt-record-field", column === primary && "dt-record-primary")} data-label={column.mobileLabel ?? (typeof column.header === "string" ? column.header : column.key)}>
+      <dt>{column.header}</dt>
+      <dd data-col={column.key} data-col-index={columns.indexOf(column)} data-label={column.mobileLabel ?? (typeof column.header === "string" ? column.header : column.key)} data-sort={sortValue === null || sortValue === undefined ? undefined : String(sortValue)} className={cx(column.numeric && "tabular", column.mono && "font-mono", column.className)}>
+        {bar !== null && bar !== undefined ? <span className="mini-bar"><MiniBar value={bar} /><span>{content}</span></span>
+          : spark && spark.length > 1 ? <span className="dt-record-spark"><Sparkline values={spark} /><span>{content}</span></span> : content}
+      </dd>
+    </div>;
+  };
 
   return (
-    <TableEnhancer tableId={tableId} sortable={sortable} defaultSort={defaultSort} density={density} densityToggle={showToggle} className={cx("dt-shell grid w-full min-w-0 gap-3", className)}>
+    <TableEnhancer tableId={tableId} sortable={sortable} defaultSort={defaultSort} density={density} densityToggle={showToggle} adaptive={adaptive} className={cx("dt-shell grid w-full min-w-0 gap-3", adaptive && "dt-adaptive", records && "dt-record-shell", className)}>
       {Boolean(!hideCaption || toolbar || showToggle || sortable.length > 0) && (
-        <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="dt-toolbar flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
             {!hideCaption ? <p className="type-h4 text-text">{caption}</p> : null}
             {toolbar}
-            <p className="mt-1 type-small text-text-3">{loading ? "Loading records…" : `${rows.length.toLocaleString("en-US")} ${rows.length === 1 ? "record" : "records"} shown`}</p>
+            <p className="mt-1 type-small text-text-3">{loading ? "Loading records…" : `${rows.length.toLocaleString("en-US")} ${rows.length === 1 ? "record" : "records"}${records ? "" : " shown"}`}</p>
           </div>
           <TableControls />
         </div>
       )}
-      <div id={tableId} className={cx("dt", mobileLayout === "cards" && "dt-responsive")}>
-        <TableScroll caption={caption} maxHeight={maxHeight}>
+      {records ? <div id={tableId} className="dt-records" data-table-caption={typeof caption === "string" ? caption : "Reference records"}>
+        {loading ? <div className="dt-record-grid" aria-busy="true" aria-label="Loading records">{skeletonRows.map((index) => <div key={index} className="dt-record" aria-hidden="true"><span className="skeleton block h-4 w-2/3" /><span className="skeleton mt-3 block h-3 w-full" /></div>)}</div>
+          : !rows.length ? <p className="rounded-card border border-border bg-surface p-4 text-text-3">No records to show.</p>
+          : <TableRecords label={typeof caption === "string" ? caption : "Reference records"} previewCount={4} rows={rows.map((row) => ({ key: rowKey(row), content: <div key={rowKey(row)} role="listitem" data-row-key={rowKey(row)} data-record-key={rowKey(row)} className="dt-record">
+              <dl className="dt-record-fields">{columns.filter((column) => summaryKeys.has(column.key)).map((column) => recordField(column, row))}</dl>
+              {secondary.length > 0 ? <details className="dt-record-details"><summary>All details <span aria-hidden="true">+</span></summary><dl className="dt-record-fields">{secondary.map((column) => recordField(column, row))}</dl></details> : null}
+              {actions ? <div className="dt-record-actions" role="group" aria-label={typeof actionsHeader === "string" ? actionsHeader : "Actions"}>{actions(row)}</div> : null}
+            </div> }))} />}
+      </div> : <div id={tableId} className={cx("dt", (adaptive ? columns.length > 2 : mobileLayout === "cards") && "dt-responsive")}>
+        <TableScroll caption={caption} maxHeight={maxHeight} adaptive={adaptive}>
           <table role="table" aria-busy={loading ? true : undefined}>
             <caption className="sr-only">{caption}</caption>
             <thead role="rowgroup">
@@ -157,7 +191,7 @@ export function Table<Row>({
                   const label = typeof column.header === "string" ? column.header : column.mobileLabel ?? column.key;
                   const right = column.numeric || column.align === "right";
                   if (column.sortable) return (
-                    <SortableTableHeader key={column.key} columnKey={column.key} label={label} right={right} initialSort={column.sort} className={cx("px-3.5 py-2.5 text-left", right && "text-right", column.className)}>
+                    <SortableTableHeader key={column.key} columnKey={column.key} label={label} staticLabel={adaptive} right={right} initialSort={column.sort} className={cx("px-3.5 py-2.5 text-left", right && "text-right", column.className)}>
                       {column.header}
                     </SortableTableHeader>
                   );
@@ -246,7 +280,7 @@ export function Table<Row>({
                   }))} />}
           </table>
         </TableScroll>
-      </div>
+      </div>}
     </TableEnhancer>
   );
 }

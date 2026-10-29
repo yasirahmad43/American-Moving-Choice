@@ -23,6 +23,7 @@ import { socialMetadata } from "@/components/site/social-metadata";
 import { Fragment } from "react";
 import { hubPageNumbers, hubPagePath } from "./hub-pagination";
 import styles from "./seo-reader.module.css";
+import hubStyles from "./hub-compact.module.css";
 
 export interface HubSpec {
   url: string;
@@ -59,12 +60,12 @@ function PageNav({ spec, page, total, compact = false }: { spec: HubSpec; page: 
   const numbers = hubPageNumbers(page, count);
   const inputId = `hub-${spec.family}-${compact ? "top" : "bottom"}-page`;
   return (
-    <nav aria-label={`${spec.h1} pages${compact ? " — jump to a page" : ""}`} className="grid gap-3 border-t border-border pt-6">
+    <nav aria-label={`${spec.h1} pages${compact ? " — jump to a page" : ""}`} className={hubStyles.pageNav}>
       <p className="type-small text-text-2">
         Page {page} of {count}: {total.toLocaleString("en-US")} published guides, up to {spec.perPage} per page.
       </p>
       {compact ? <div className="flex flex-wrap items-center gap-3"><p className="type-small text-text-2">Showing {((page - 1) * (spec.perPage ?? total) + 1).toLocaleString("en-US")}–{Math.min(page * (spec.perPage ?? total), total).toLocaleString("en-US")} of {total.toLocaleString("en-US")} guides</p>{page > 1 ? <Link href={hubPageUrl(spec, page - 1)} rel="prev" className="link inline-flex min-h-11 items-center px-2">Previous page</Link> : null}{page < count ? <Link href={hubPageUrl(spec, page + 1)} rel="next" className="link inline-flex min-h-11 items-center px-2">Next page <ArrowRightIcon size={16} /></Link> : null}</div> : null}
-      <details open={compact ? undefined : true} className={styles.hubPageJump}><summary>{compact ? "Jump directly to a results page" : "Browse results pages"}</summary><ul className="flex flex-wrap gap-2">
+      <details open={compact ? undefined : true} className={hubStyles.hubPageJump}><summary>{compact ? "Jump directly to a results page" : "Browse results pages"}</summary><ul className="flex flex-wrap gap-2">
         {page > 1 ? (
           <li>
             <Link href={hubPageUrl(spec, page - 1)} rel="prev" className="link inline-flex min-h-11 items-center px-2">
@@ -115,13 +116,13 @@ function groups(pages: HubEntry[], byState: boolean): { heading: string | null; 
 function LinkCards({ pages, grouped, cardImages }: { pages: HubEntry[]; grouped: boolean; cardImages: Map<string, MediaAsset> }) {
   const Heading = grouped ? "h3" : "h2";
   return (
-    <ul className={styles.hubGrid} aria-label="Published moving guides">
+    <ul className={hubStyles.hubGrid} aria-label="Published moving guides">
       {pages.map((p, index) => {
         const image = cardImages.get(p.url)!;
-        return <Reveal as="li" key={p.url} delay={Math.min(index % 3, 2) * 45} className={styles.hubCard}>
+        return <Reveal as="li" key={p.url} delay={Math.min(index % 3, 2) * 45} className={hubStyles.hubCard}>
           <Link href={p.url} aria-label={p.h1}>
-            <figure className={styles.hubCardPhoto} data-editorial-image={image.id}><MediaFrame asset={image} alt="" sizes="(min-width: 1024px) 30vw, (min-width: 520px) 45vw, 100vw" /></figure>
-            <div className={styles.hubCardCopy}><span className={styles.hubCardMeta}>Moving field guide <ArrowRightIcon size={17} /></span><Heading>{p.h1}</Heading><span className="type-small text-text-2">Explore the details →</span></div>
+            <figure className={hubStyles.hubCardPhoto} data-editorial-image={image.id}><MediaFrame asset={image} alt="" sizes="(min-width: 1024px) 30vw, (min-width: 520px) 45vw, 100vw" /></figure>
+            <div className={hubStyles.hubCardCopy}><span className={hubStyles.hubCardMeta}>Moving field guide <ArrowRightIcon size={17} /></span><Heading>{p.h1}</Heading><span className="type-small text-text-2">Explore the details →</span></div>
           </Link>
         </Reveal>;
       })}
@@ -130,9 +131,9 @@ function LinkCards({ pages, grouped, cardImages }: { pages: HubEntry[]; grouped:
 }
 
 function RouteSearch({ origins }: { origins: DiscoveryOverview["states"] }) {
-  return <form action="/explore/#browse-guides" method="get" role="search" aria-label="Find a moving route" className={styles.routeSearch}>
+  return <form action="/explore/#browse-guides" method="get" role="search" aria-label="Find a moving route" className={hubStyles.routeSearch}>
     <input type="hidden" name="type" value="route" />
-    <div className={styles.routeSearchRow}><div><label htmlFor="route-guide-query">Which route are you planning?</label><input id="route-guide-query" type="search" name="q" maxLength={80} placeholder="Origin, destination or a city" /></div><button type="submit">Find my route <ArrowRightIcon size={17} /></button></div>
+    <div className={hubStyles.routeSearchRow}><div><label htmlFor="route-guide-query">Which route are you planning?</label><input id="route-guide-query" type="search" name="q" maxLength={80} placeholder="Origin, destination or a city" /></div><button type="submit">Find my route <ArrowRightIcon size={17} /></button></div>
     <details><summary>Filter by origin state</summary><div><label htmlFor="route-guide-origin">Origin state</label><select id="route-guide-origin" name="state"><option value="">All origins</option>{origins.map(origin => <option key={origin.code} value={origin.code}>{stateByCode(origin.code)?.name ?? origin.code} ({origin.routes?.toLocaleString("en-US")})</option>)}</select></div></details>
     <p>Search either end of the route. The state filter selects where your move starts.</p>
   </form>;
@@ -169,20 +170,20 @@ export async function HubPage({ spec, page = 1 }: { spec: HubSpec; page?: number
         <a href="#browse-guides" className="inline-flex min-h-11 w-fit items-center gap-3 text-sm font-semibold text-white underline decoration-white/40 underline-offset-4">Browse {total.toLocaleString("en-US")} published {total === 1 ? "guide" : "guides"} <span aria-hidden="true">↓</span></a>
       </VideoSurveyHero>
       <Container>
-        <Reveal as="section" aria-label="Find your guide" className={styles.hubLead}>
-          <div className={styles.hubLeadCopy}><p className={styles.kicker}>More clarity. Less guesswork.</p><h2 className="type-display-l text-text">A useful detail can change the whole move.</h2><p className={styles.introText}>{spec.lede}</p><div className={styles.hubCount}><strong>{total.toLocaleString("en-US")}</strong><span>published {total === 1 ? "guide" : "guides"}<br />with checked facts and clear assumptions.</span></div></div>
-          <div className={styles.photoComposition}><figure className={styles.photoMain} data-editorial-image={images[0]!.id}><MediaFrame asset={images[0]!} sizes="(min-width: 760px) 38vw, 100vw" /><figcaption className={styles.photoLabel}>Move with a clearer plan</figcaption><span className={styles.photoSymbol}><Icon3D name={familyIcon} size={58} float /></span></figure><div className={styles.photoStrip}>{images.slice(1, 4).map((image) => <figure key={image.id} className={styles.photoSmall} data-editorial-image={image.id}><MediaFrame asset={image} alt="" sizes="(min-width: 760px) 10vw, 24vw" /></figure>)}</div></div>
+        <Reveal as="section" aria-label="Find your guide" className={hubStyles.hubLead}>
+          <div className={hubStyles.hubLeadCopy}><p className={styles.kicker}>More clarity. Less guesswork.</p><h2 className="type-display-l text-text">A useful detail can change the whole move.</h2><p className={styles.introText}>{spec.lede}</p><div className={hubStyles.hubCount}><strong>{total.toLocaleString("en-US")}</strong><span>published {total === 1 ? "guide" : "guides"}<br />with checked facts and clear assumptions.</span></div></div>
+          <div className={`${styles.photoComposition} ${hubStyles.leadPhoto}`}><figure className={styles.photoMain} data-editorial-image={images[0]!.id}><MediaFrame asset={images[0]!} sizes="(min-width: 760px) 38vw, 100vw" /><figcaption className={styles.photoLabel}>Move with a clearer plan</figcaption><span className={styles.photoSymbol}><Icon3D name={familyIcon} size={58} float /></span></figure><div className={styles.photoStrip}>{images.slice(1, 4).map((image) => <figure key={image.id} className={styles.photoSmall} data-editorial-image={image.id}><MediaFrame asset={image} alt="" sizes="(min-width: 760px) 10vw, 24vw" /></figure>)}</div></div>
         </Reveal>
-        <div className={styles.hubStory}>
-          {storyItems.map((item, index) => <Reveal key={item.title} delay={index * 50} className={styles.hubStoryCard}><figure className={styles.hubStoryPhoto} data-editorial-image={item.image.id}><MediaFrame asset={item.image} alt="" sizes="80px" /></figure><div><h3 className="type-small font-bold text-text">{item.title}</h3><p>{item.text}</p></div></Reveal>)}
+        <div className={hubStyles.hubStory}>
+          {storyItems.map((item, index) => <Reveal key={item.title} delay={index * 50} className={hubStyles.hubStoryCard}><figure className={hubStyles.hubStoryPhoto} data-editorial-image={item.image.id}><MediaFrame asset={item.image} alt="" sizes="80px" /></figure><div><h3 className="type-small font-bold text-text">{item.title}</h3><p>{item.text}</p></div></Reveal>)}
         </div>
       </Container>
-      <Container className="grid gap-10 pb-20">
-        {spec.family === "route" && origins.length ? <details className={styles.routeOrigins}><summary><span>Browse by origin state</span><span>{origins.length} origins with published guides <span aria-hidden="true">↓</span></span></summary><p>Choose where your move starts. These are published guide counts, not a promise of mover availability.</p><ul>{origins.map(origin => <li key={origin.code}><Link href={catalogUrl({ type: "route", state: origin.code })}><span>{stateByCode(origin.code)?.name ?? origin.code}</span><span>{origin.routes?.toLocaleString("en-US")} <span className="sr-only">published route guides</span><ArrowRightIcon size={16} /></span></Link></li>)}</ul></details> : null}
+      <Container className={hubStyles.hubBody}>
+        {spec.family === "route" && origins.length ? <details className={hubStyles.routeOrigins}><summary><span>Browse by origin state</span><span>{origins.length} origins with published guides <span aria-hidden="true">↓</span></span></summary><p>Choose where your move starts. These are published guide counts, not a promise of mover availability.</p><ul>{origins.map(origin => <li key={origin.code}><Link href={catalogUrl({ type: "route", state: origin.code })}><span>{stateByCode(origin.code)?.name ?? origin.code}</span><span>{origin.routes?.toLocaleString("en-US")} <span className="sr-only">published route guides</span><ArrowRightIcon size={16} /></span></Link></li>)}</ul></details> : null}
         {spec.perPage ? <PageNav spec={spec} page={page} total={total} compact /> : null}
-        <section id="browse-guides" aria-label={`Published guides: ${spec.h1}`} className="grid min-w-0 gap-10 scroll-mt-24">
-          {pages.length ? spec.groupByState ? grouped.map((group) => <section key={group.heading ?? "all"} className={styles.hubGroup} aria-label={group.heading ?? spec.h1}>
-            <header className={styles.hubGroupHead}><h2 className="type-display-l text-text">From {group.heading ?? spec.h1}</h2><div><p className="type-small text-text-2">{group.pages.length} {group.pages.length === 1 ? "guide" : "guides"} on this page</p>{group.code ? <Link href={catalogUrl({ type: "route", state: group.code })} className="link inline-flex min-h-11 items-center gap-2 text-sm">All routes from this state <ArrowRightIcon size={15} /></Link> : null}</div></header>
+        <section id="browse-guides" aria-label={`Published guides: ${spec.h1}`} className={`${hubStyles.browseGroups} scroll-mt-24`}>
+          {pages.length ? spec.groupByState ? grouped.map((group) => <section key={group.heading ?? "all"} className={hubStyles.hubGroup} aria-label={group.heading ?? spec.h1}>
+            <header className={hubStyles.hubGroupHead}><h2 className="type-display-l text-text">From {group.heading ?? spec.h1}</h2><div><p className="type-small text-text-2">{group.pages.length} {group.pages.length === 1 ? "guide" : "guides"} on this page</p>{group.code ? <Link href={catalogUrl({ type: "route", state: group.code })} className="link inline-flex min-h-11 items-center gap-2 text-sm">All routes from this state <ArrowRightIcon size={15} /></Link> : null}</div></header>
             <LinkCards pages={group.pages} grouped cardImages={cardImages} />
           </section>) : <LinkCards pages={pages} grouped={false} cardImages={cardImages} /> : <EmptyState showMark title="No pages in this family are published yet" description="Each one is published only after its data and checks pass. The quote survey shows coverage for your move right now." action={<LinkButton href="/get-quotes/">Start a quote request</LinkButton>} />}
         </section>

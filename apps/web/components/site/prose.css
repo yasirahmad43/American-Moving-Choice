@@ -123,10 +123,12 @@
     margin-block: 2rem;
   }
 
-  /* Tables (pass 2): the data-table skin (sticky header, zebra rows, hover highlight) inside a
-   * focusable scroll region so keyboard users can scroll wide tables (WCAG 2.1.1). */
+  /* Reference data keeps its native table/row/cell relationships and wraps into labeled
+   * field cards when columns would otherwise require sideways scrolling. */
   .prose .table-wrap {
-    overflow-x: auto;
+    container-type: inline-size;
+    container-name: prose-table;
+    overflow: visible;
     border: 1px solid var(--border);
     border-radius: var(--r-card);
     max-width: 100%;
@@ -135,6 +137,8 @@
   }
   .prose table {
     width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
     font-size: 0.9688rem;
@@ -147,7 +151,9 @@
     vertical-align: top;
     padding: 0.7rem 0.9rem;
     border-bottom: 1px solid var(--border);
-    min-width: 7rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
   .prose thead th {
     position: sticky;
@@ -159,7 +165,7 @@
     text-transform: uppercase;
     color: var(--text-2);
     border-bottom: 1.5px solid var(--border-strong);
-    white-space: nowrap;
+    white-space: normal;
   }
   .prose tbody th {
     font-weight: 600;
@@ -176,7 +182,37 @@
   }
   .prose td:is([data-numeric], .numeric) {
     text-align: right;
-    white-space: nowrap;
+    white-space: normal;
+  }
+  .prose .table-wrap[data-wide] { border: 0; box-shadow: none; background: transparent; }
+  .prose .table-wrap[data-wide] table,
+  .prose .table-wrap[data-wide] :is(tbody, tr, td), .prose .table-wrap[data-wide] tbody th { display: block; }
+  .prose .table-wrap[data-wide] tbody { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  .prose .table-wrap[data-wide] tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 0.75rem; padding: 0.875rem; border: 1px solid var(--border); border-radius: var(--r-control); background: var(--surface); }
+  .prose .table-wrap[data-wide] tbody tr:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .prose .table-wrap[data-wide] tbody :is(td, th) { padding: 0; min-width: 0; border: 0; text-align: left; font-size: 0.9375rem; }
+  .prose .table-wrap[data-wide] tbody :is(td, th):first-child { grid-column: 1 / -1; font-size: 1rem; font-weight: 700; }
+  .prose .table-wrap[data-wide] tbody :is(td, th)[data-label]::before { content: attr(data-label); display: block; margin-bottom: 0.25rem; color: var(--text-2); font-size: 0.75rem; line-height: 1.4; font-weight: 600; }
+  .prose .table-wrap[data-wide]:not([data-rich-header]) thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .prose .table-wrap[data-rich-header][data-wide] thead { display: block; margin-bottom: 0.75rem; }
+  .prose .table-wrap[data-rich-header][data-wide] thead tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .prose .table-wrap[data-rich-header][data-wide] thead th { display: block; min-width: 0; position: static; }
+  @container prose-table (max-width: 32rem) {
+    .prose .table-wrap[data-wide] tbody { grid-template-columns: minmax(0, 1fr); }
+  }
+  @container prose-table (max-width: 36rem) {
+    .prose .table-wrap[data-reflow]:not([data-wide]) { border: 0; box-shadow: none; background: transparent; }
+    .prose .table-wrap[data-reflow]:not([data-wide]) table,
+    .prose .table-wrap[data-reflow]:not([data-wide]) :is(tbody, tr, td), .prose .table-wrap[data-reflow]:not([data-wide]) tbody th { display: block; }
+    .prose .table-wrap[data-reflow]:not([data-wide]) tbody { display: grid; gap: 0.75rem; }
+    .prose .table-wrap[data-reflow]:not([data-wide]) tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--r-control); background: var(--surface); }
+    .prose .table-wrap[data-reflow]:not([data-wide]) tbody :is(td, th) { min-width: 0; padding: 0; border: 0; text-align: left; }
+    .prose .table-wrap[data-reflow]:not([data-wide]) tbody :is(td, th):first-child { grid-column: 1 / -1; font-weight: 700; }
+    .prose .table-wrap[data-reflow]:not([data-wide]) tbody :is(td, th)[data-label]::before { content: attr(data-label); display: block; margin-bottom: 0.25rem; font-size: 0.75rem; line-height: 1.4; font-weight: 600; color: var(--text-2); }
+    .prose .table-wrap[data-reflow]:not([data-wide]):not([data-rich-header]) thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .prose .table-wrap[data-reflow][data-rich-header]:not([data-wide]) thead { display: block; margin-bottom: 0.75rem; }
+    .prose .table-wrap[data-reflow][data-rich-header]:not([data-wide]) thead tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .prose .table-wrap[data-reflow][data-rich-header]:not([data-wide]) thead th { display: block; min-width: 0; position: static; }
   }
 
   /*

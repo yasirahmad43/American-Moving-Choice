@@ -11,6 +11,7 @@ import { VideoSurveyHero } from "@/components/site/video-survey-hero";
 import { socialMetadata } from "@/components/site/social-metadata";
 import { pageMediaPlan } from "@/lib/page-media";
 import styles from "@/components/seo/seo-reader.module.css";
+import hubStyles from "@/components/seo/hub-compact.module.css";
 import { ZipCheck } from "./zip-check";
 
 export const metadata: Metadata = {
@@ -40,27 +41,27 @@ export default async function MoversIndexPage() {
       </VideoSurveyHero>
 
       <Container>
-        <Reveal as="section" aria-label="Moving coverage at a glance" className={styles.hubLead}>
-          <div className={styles.hubLeadCopy}><p className={styles.kicker}>Where your next chapter begins</p><h2 className="type-display-l text-text">The place changes.<br />The choice stays yours.</h2><p className={styles.introText}>Every mover in the American Moving Choice network sets the areas it serves. A request reaches only movers whose coverage includes it, and never more than the number you choose.</p><div className={styles.hubCount}><strong>{hubs.length}</strong><span>published state guides<br />with place facts and checked sources.</span></div></div>
-          <div className={styles.photoComposition}><figure className={styles.photoMain} data-editorial-image={images[0]!.id}><MediaFrame asset={images[0]!} sizes="(min-width: 760px) 38vw, 100vw" /><figcaption className={styles.photoLabel}>A move on your terms</figcaption><span className={styles.photoSymbol}><Icon3D name="origin" size={58} float /></span></figure><div className={styles.photoStrip}>{images.slice(1, 4).map((image) => <figure key={image.id} className={styles.photoSmall} data-editorial-image={image.id}><MediaFrame asset={image} alt="" sizes="(min-width: 760px) 10vw, 24vw" /></figure>)}</div></div>
+        <Reveal as="section" aria-label="Moving coverage at a glance" className={hubStyles.hubLead}>
+          <div className={hubStyles.hubLeadCopy}><p className={styles.kicker}>Where your next chapter begins</p><h2 className="type-display-l text-text">The place changes.<br />The choice stays yours.</h2><p className={styles.introText}>Every mover in the American Moving Choice network sets the areas it serves. A request reaches only movers whose coverage includes it, and never more than the number you choose.</p><div className={hubStyles.hubCount}><strong>{hubs.length}</strong><span>published state guides<br />with place facts and checked sources.</span></div></div>
+          <div className={`${styles.photoComposition} ${hubStyles.leadPhoto}`}><figure className={styles.photoMain} data-editorial-image={images[0]!.id}><MediaFrame asset={images[0]!} sizes="(min-width: 760px) 38vw, 100vw" /><figcaption className={styles.photoLabel}>A move on your terms</figcaption><span className={styles.photoSymbol}><Icon3D name="origin" size={58} float /></span></figure><div className={styles.photoStrip}>{images.slice(1, 4).map((image) => <figure key={image.id} className={styles.photoSmall} data-editorial-image={image.id}><MediaFrame asset={image} alt="" sizes="(min-width: 760px) 10vw, 24vw" /></figure>)}</div></div>
         </Reveal>
       </Container>
 
-      <Container className="grid gap-12 pb-20">
+      <Container className={hubStyles.hubBody}>
         <Reveal as="section" aria-labelledby="zip-heading" className={styles.quoteBand}>
           <figure className={styles.quotePhoto}><MediaFrame asset={images[1]!} alt="" sizes="(min-width: 760px) 35vw, 100vw" /></figure>
           <div className="grid content-center gap-4 bg-surface p-6 text-text sm:p-8"><p className={styles.kicker}>Start close to home</p><h2 id="zip-heading" className="type-display-l text-text">Check coverage where you&apos;re moving from</h2><ZipCheck /></div>
         </Reveal>
 
-        <section aria-labelledby="states-heading" className="grid min-w-0 gap-6 scroll-mt-24">
-          <header className={styles.hubGroupHead}><div className="grid gap-2"><p className={styles.kicker}>Find your place</p><h2 id="states-heading" className="type-display-l text-text">State pages</h2></div><p className="type-small text-text-2">{hubs.length} published guides</p></header>
-          {hubs.length ? <ul className={styles.hubGrid}>{hubs.map((state, index) => {
+        <section aria-labelledby="states-heading" className={`${hubStyles.browseGroups} scroll-mt-24`}>
+          <header className={hubStyles.hubGroupHead}><div className="grid gap-2"><p className={styles.kicker}>Find your place</p><h2 id="states-heading" className="type-display-l text-text">State pages</h2></div><p className="type-small text-text-2">{hubs.length} published guides</p></header>
+          {hubs.length ? <ul className={hubStyles.hubGrid}>{hubs.map((state, index) => {
             const image = pageMediaPlan(state.url, { family: "state", stateCode: state.stateCode ?? undefined }).images[0]!;
-            return <Reveal as="li" key={state.stateCode} delay={Math.min(index % 3, 2) * 45} className={styles.hubCard}><Link href={state.url}><figure className={styles.hubCardPhoto}><MediaFrame asset={image} alt="" sizes="(min-width: 1024px) 30vw, (min-width: 520px) 45vw, 100vw" /></figure><div className={styles.hubCardCopy}><span className={styles.hubCardMeta}>Your state guide <ArrowRightIcon size={17} /></span><h3>{state.h1}</h3><span className="type-small text-text-2">Coverage, city guides and local context →</span></div></Link></Reveal>;
+            return <Reveal as="li" key={state.stateCode} delay={Math.min(index % 3, 2) * 45} className={hubStyles.hubCard}><Link href={state.url}><figure className={hubStyles.hubCardPhoto}><MediaFrame asset={image} alt="" sizes="(min-width: 1024px) 30vw, (min-width: 520px) 45vw, 100vw" /></figure><div className={hubStyles.hubCardCopy}><span className={hubStyles.hubCardMeta}>Your state guide <ArrowRightIcon size={17} /></span><h3>{state.h1}</h3><span className="type-small text-text-2">Coverage, city guides and local context →</span></div></Link></Reveal>;
           })}</ul> : <p className="text-text">No state pages are published yet. We publish a state page only when it passes every publishing check, including at least <span className="tabular">{GEO_THRESHOLDS.state_hub.movers}</span> movers in our network with coverage there and checked facts about the state&apos;s own rules for movers. Until then, the ZIP check above and the quote survey show coverage for your move.</p>}
         </section>
 
-        <Reveal as="section" aria-labelledby="plan-heading" className="grid gap-6"><div className="grid gap-2"><p className={styles.kicker}>Every part of your move</p><h2 id="plan-heading" className="type-display-l text-text">Routes, services, costs and planning</h2></div><ul className={styles.hubGrid}>{nextSteps.map((link, index) => <li key={link.href} className={styles.hubCard}><Link href={link.href}><figure className={styles.hubCardPhoto}><MediaFrame asset={images[index % images.length]!} alt="" sizes="(min-width: 1024px) 30vw, 100vw" /></figure><div className={styles.hubCardCopy}><span className={styles.hubCardMeta}>Keep exploring <ArrowRightIcon size={17} /></span><h3>{link.label}</h3></div></Link></li>)}</ul></Reveal>
+        <Reveal as="section" aria-labelledby="plan-heading" className={hubStyles.hubGroup}><div className="grid gap-2"><p className={styles.kicker}>Every part of your move</p><h2 id="plan-heading" className="type-display-l text-text">Routes, services, costs and planning</h2></div><ul className={hubStyles.hubGrid}>{nextSteps.map((link, index) => <li key={link.href} className={hubStyles.hubCard}><Link href={link.href}><figure className={hubStyles.hubCardPhoto}><MediaFrame asset={images[index % images.length]!} alt="" sizes="(min-width: 1024px) 30vw, 100vw" /></figure><div className={hubStyles.hubCardCopy}><span className={hubStyles.hubCardMeta}>Keep exploring <ArrowRightIcon size={17} /></span><h3>{link.label}</h3></div></Link></li>)}</ul></Reveal>
 
         <Reveal as="section" aria-labelledby="how-heading" className={styles.section}>
           <header className={styles.sectionHead}><figure className={styles.sectionPhoto}><MediaFrame asset={images[3]!} alt="" sizes="128px" /></figure><div className={styles.sectionTitle}><span className={styles.sectionNo}>Clarity before contact</span><h2 id="how-heading">How coverage works</h2></div></header>

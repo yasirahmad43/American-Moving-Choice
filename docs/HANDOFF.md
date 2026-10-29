@@ -5,6 +5,19 @@ verifiable from the repository; nothing here depends on the previous assistant's
 
 ### Search and conversion review — 2026-10-29
 
+The owner's next visual brief supersedes deliberately scrollable public reference tables and
+mobile carousels: public pages must fit every container without sideways scrolling or cut-off
+text, use a compact shared spacing rhythm and balanced section/card edges, and show two or
+three phone cards where their content remains readable. Branch `codex/compact-responsive-layouts`
+implements adaptive records with native disclosures for wide tables, wrapped Markdown/JSX
+tables, compact topic/result grids, a native regional mobile state atlas, full-width article
+chapters and inline reading navigation. Complete authored values, links, headings and sources
+stay available, including without JavaScript. Shared table adaptation is opt-in on public calls;
+the admin's existing table API stays compatible. See `docs/design/compact-responsive-brief.md`.
+The preceding deployed source is `2eee0b4038fe40ef7c8092a04fda4f32f2c1ed20`; current candidate
+browser checks and any subsequent production proof must name their own actual source revision.
+Neither this visual pass nor its tests enable indexing, publish extra pages or change consent.
+
 Geographic-label follow-up (`codex/census-county-labels`): the full `67b2e82` inventory found
 malformed equivalent names such as “Colonial Heights (city County”, “City of Richmond County”,
 “Orleans County” in Louisiana, “Anchorage Municipality County” and “District of Columbia County”.

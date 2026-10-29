@@ -125,9 +125,10 @@ describe("comments, anchors and headings", () => {
     expect(html).not.toContain('<a id="badge">');
   });
 
-  it("wraps tables in a focusable, labeled scroll region", () => {
+  it("wraps tables in a named reference region without an unnecessary scroll tab stop", () => {
     const { html } = render("| A | B |\n|---|---|\n| 1 | 2 |\n");
-    expect(html).toMatch(/<div class="table-wrap" role="region" tabindex="0" aria-label="[^"]+"><table>/);
+    expect(html).toMatch(/<div class="table-wrap" role="region" aria-label="[^"]+"[^>]*><table>/);
+    expect(html).not.toContain('tabindex="0"');
     expect(html).toContain("<th>A</th>");
   });
 
@@ -136,9 +137,9 @@ describe("comments, anchors and headings", () => {
     const { html } = render(`## **Access** and parking\n\n${table}\n${table}\n## Delivery\n\n${table}`);
     const labels = [...html.matchAll(/class="table-wrap"[^>]*aria-label="([^"]+)"/g)].map(match => match[1]);
     expect(labels).toEqual([
-      "Access and parking: Table 1 (scrolls sideways on small screens)",
-      "Access and parking: Table 2 (scrolls sideways on small screens)",
-      "Delivery: Table 3 (scrolls sideways on small screens)",
+      "Access and parking: Table 1",
+      "Access and parking: Table 2",
+      "Delivery: Table 3",
     ]);
     expect(new Set(labels).size).toBe(3);
     expect(html.match(/<th>Item<\/th>/g)).toHaveLength(3);
@@ -149,10 +150,10 @@ describe("comments, anchors and headings", () => {
   it("keeps heading-free table names distinct and resets their numbering per document", () => {
     const table = "| A | B |\n|---|---|\n| 1 | 2 |\n";
     const { html } = render(`${table}\n${table}`);
-    expect(html).toContain('aria-label="Table 1 (scrolls sideways on small screens)"');
-    expect(html).toContain('aria-label="Table 2 (scrolls sideways on small screens)"');
+    expect(html).toContain('aria-label="Table 1"');
+    expect(html).toContain('aria-label="Table 2"');
     const next = render(table).html;
-    expect(next).toContain('aria-label="Table 1 (scrolls sideways on small screens)"');
+    expect(next).toContain('aria-label="Table 1"');
     expect(next).not.toContain('aria-label="Table 2');
   });
 });

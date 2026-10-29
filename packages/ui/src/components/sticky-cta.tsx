@@ -43,7 +43,7 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
     observer.observe(target);
     const updateFocus = () => {
       const el = document.activeElement;
-      setFormActive(Boolean(el instanceof HTMLElement && (el.closest("form") || el.matches("input, textarea, select") || el.isContentEditable)));
+      setFormActive(Boolean(el instanceof HTMLElement && !bar.current?.contains(el) && (el.closest("form") || el.matches("input, textarea, select, summary, button, a") || el.isContentEditable)));
     };
     // Focusout runs before the next control receives focus; evaluate the settled target.
     const onFocus = () => queueMicrotask(updateFocus);
@@ -75,7 +75,7 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
   return (
     <div ref={bar} className={cx("sticky-cta lg:hidden", className)} data-visible={shown ? "true" : "false"} aria-hidden={!shown || undefined}>
       <div className="surface-glass mx-auto flex max-w-content items-center gap-3 rounded-card p-2 shadow-e3 ring-1 ring-border">
-        {note ? <p className="min-w-0 flex-1 truncate pl-2 type-small text-text-2">{note}</p> : null}
+        {note ? <p className="min-w-0 flex-1 break-words pl-2 type-small text-text-2">{note}</p> : null}
         <Link
           href={href}
           tabIndex={shown ? 0 : -1}

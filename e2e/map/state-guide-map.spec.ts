@@ -7,18 +7,19 @@ test("national map names all51 states/district with native links and northeaster
   await page.setViewportSize({width:1440,height:1000});
   await page.emulateMedia({reducedMotion:"reduce"});
   expect((await page.goto(base+"/"))?.status()).toBe(200);
-  const map=page.locator(".state-guide-map");
+  const map=page.locator(".state-guide-map"),national=map.locator(".state-guide-map-viewport");
   await map.scrollIntoViewIfNeeded();
-  await expect(map.locator("a.state-guide-map-link")).toHaveCount(51);
-  await expect(map.locator("[data-state-name]")).toHaveCount(51);
-  expect(await map.locator("[data-state-name]").evaluateAll(nodes=>new Set(nodes.map(node=>node.getAttribute("data-state-name"))).size)).toBe(51);
-  await expect(map.locator(".state-guide-map-callout")).toHaveCount(9);
+  await expect(national).toBeVisible();
+  await expect(national.locator("a.state-guide-map-link")).toHaveCount(51);
+  await expect(national.locator("[data-state-name]")).toHaveCount(51);
+  expect(await national.locator("[data-state-name]").evaluateAll(nodes=>new Set(nodes.map(node=>node.getAttribute("data-state-name"))).size)).toBe(51);
+  await expect(national.locator(".state-guide-map-callout")).toHaveCount(9);
   for(const state of["California","Texas","North Carolina","Rhode Island","District of Columbia"]){
-    const label=map.locator(`[data-state-name="${state}"]`);
+    const label=national.locator(`[data-state-name="${state}"]`);
     await expect(label).toBeVisible();
     expect((await label.boundingBox())!.height).toBeGreaterThan(10);
   }
-  const hrefs=await map.locator("a.state-guide-map-link").evaluateAll(nodes=>nodes.map(node=>node.getAttribute("href")));
+  const hrefs=await national.locator("a.state-guide-map-link").evaluateAll(nodes=>nodes.map(node=>node.getAttribute("href")));
   expect(new Set(hrefs).size).toBe(51);
   expect(hrefs.every(href=>/^\/movers\/[a-z-]+\/$/.test(href??""))).toBe(true);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
@@ -26,33 +27,41 @@ test("national map names all51 states/district with native links and northeaster
   expect(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);
 });
 
-test("mobile map keeps readable names, keyboard scrolling and the native state selector",async({page})=>{
-  await page.setViewportSize({width:390,height:844});
+for(const width of[320,390,768,900,1024])test(`state atlas fits ${width}px without sideways scrolling and keeps native names`,async({page})=>{
+  await page.setViewportSize({width,height:844});
   await page.emulateMedia({reducedMotion:"reduce"});
   await page.goto(base+"/");
-  const map=page.locator(".state-guide-map"),viewport=map.getByRole("region",{name:"State guide map and labels"});
-  await viewport.scrollIntoViewIfNeeded();
-  await viewport.focus();
-  const before=await viewport.evaluate(node=>node.scrollLeft);
-  await page.keyboard.press("ArrowRight");
-  await expect.poll(()=>viewport.evaluate(node=>node.scrollLeft)).toBeGreaterThan(before);
-  const rhode=map.locator('[data-state-code="RI"]');
+  const map=page.locator(".state-guide-map"),atlas=map.getByRole("group",{name:"State guides by region"});
+  await atlas.scrollIntoViewIfNeeded();
+  await expect(map.locator(".state-guide-map-viewport")).not.toBeVisible();
+  await expect(atlas.locator(".state-guide-atlas-link")).toHaveCount(51);
+  await expect(atlas.locator("details")).toHaveCount(5);
+  const hrefs=await atlas.locator(".state-guide-atlas-link").evaluateAll(nodes=>nodes.map(node=>node.getAttribute("href")));
+  expect(new Set(hrefs).size).toBe(51);
+  await atlas.locator("summary").filter({hasText:"Northeast"}).click();
+  const rhode=atlas.locator('[data-state-code="RI"]');
   await rhode.focus();
   await expect(rhode).toBeFocused();
   await expect(rhode.locator("[data-state-name]")).toBeInViewport({ratio:.8});
   expect((await rhode.locator("[data-state-name]").boundingBox())!.height).toBeGreaterThan(12);
+  await atlas.locator("summary").filter({hasText:"Southwest"}).click();
+  await expect(atlas.locator("details[open]")).toHaveCount(1);
+  await expect(atlas.locator('[data-state-code="TX"]')).toBeVisible();
+  const overflow=await map.evaluate(node=>[node,...node.querySelectorAll<HTMLElement>("*")].filter(element=>element instanceof HTMLElement&&element.getClientRects().length&&getComputedStyle(element).display!=="none").filter(element=>element.scrollWidth>element.clientWidth+1).map(element=>({tag:element.tagName,className:element.className,extra:element.scrollWidth-element.clientWidth})));
+  expect(overflow).toEqual([]);
   await expect(page.locator("#home-guide-library-guide-state")).toBeAttached();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   const axe=await new AxeBuilder({page}).include(".state-guide-map").analyze();
   expect(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);
 });
 
-test("a labeled state remains a working native link without JavaScript",async({browser})=>{
-  const context=await browser.newContext({javaScriptEnabled:false,viewport:{width:1440,height:1000}});
+for(const width of[390,1440])test(`a labeled state remains a working native link without JavaScript at ${width}px`,async({browser})=>{
+  const context=await browser.newContext({javaScriptEnabled:false,viewport:{width,height:1000}});
   try{
     const page=await context.newPage();
     await page.goto(base+"/",{waitUntil:"domcontentloaded"});
-    const link=page.locator('.state-guide-map [data-state-code="CA"]');
+    if(width<1200)await page.locator('.state-guide-map-atlas').getByText("West",{exact:true}).click();
+    const link=page.locator(`.state-guide-map-${width<1200?"atlas":"viewport"} [data-state-code="CA"]`);
     await expect(link.locator('[data-state-name="California"]')).toBeVisible();
     await link.focus();
     await page.keyboard.press("Enter");
@@ -66,7 +75,7 @@ for(const route of["/movers/texas/austin/","/for-movers/"])test(`all document ID
   const duplicates=await page.evaluate(()=>{const ids=[...document.querySelectorAll<HTMLElement>("[id]")].map(node=>node.id);return[...new Set(ids.filter((id,index)=>ids.indexOf(id)!==index))];});
   expect(duplicates).toEqual([]);
   if(route.includes("austin")){
-    const tables=page.locator(".dt[id]");
+    const tables=page.locator(".dt[id],.dt-records[id]");
     expect(await tables.count()).toBeGreaterThan(1);
     const ids=await tables.evaluateAll(nodes=>nodes.map(node=>node.id));
     expect(ids.every(id=>/^seo-movers-texas-austin-s\d+-b\d+(?:-cost)?$/.test(id))).toBe(true);
