@@ -104,7 +104,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
       </ol>
       <div className="vsh-start__body" key={step}>
         <div className="vsh-start__heading"><Heading ref={heading} id={`${id}-heading`} tabIndex={-1}>{step === 0 ? (labels.routeHeading ?? "Where are you headed?") : (labels.detailsHeading ?? "Make it your move.")}</Heading><p>{step === 0 ? routeHint : "A little detail helps movers understand your move."}</p></div>
-        {step === 0 ? <div className="vsh-start__fields">
+        {step === 0 ? <div className="vsh-start__fields vsh-start__fields--route">
           <div><div className="vsh-start__field"><label htmlFor={`${id}-origin`}>Moving from · ZIP code</label><input ref={origin} id={`${id}-origin`} inputMode="numeric" autoComplete="postal-code" placeholder={`e.g. ${fromExample}`} value={originZip} onChange={(event) => { setOriginZip(cleanZip(event.target.value)); setErrors((old) => ({ ...old, originZip: undefined })); }} aria-invalid={Boolean(errors.originZip)} aria-describedby={errors.originZip ? `${id}-originZip-error` : undefined} /></div>{error("originZip")}</div>
           <div><div className="vsh-start__field"><label htmlFor={`${id}-destination`}>Moving to · ZIP code</label><input ref={destination} id={`${id}-destination`} inputMode="numeric" autoComplete="off" placeholder={`e.g. ${toExample}`} value={destZip} onChange={(event) => { setDestZip(cleanZip(event.target.value)); setErrors((old) => ({ ...old, destZip: undefined })); }} aria-invalid={Boolean(errors.destZip)} aria-describedby={errors.destZip ? `${id}-destZip-error` : undefined} /></div>{error("destZip")}</div>
         </div> : <>

@@ -6,6 +6,85 @@ const RETIRED_DIRECTORY_LINK = /\[[^\]]*\]\((?:https?:\/\/[^/\s)]+)?\/(?:compani
 const RETIRED_DIRECTORY_URL = /(?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)\/[^\s)"'<>]*/gi;
 const LEGACY_DISCLOSURE = /by name and USDOT|movers? named on (?:your|the) Review and send screen|every mover named before|review every name|the list above names them|remove any (?:named )?mover/i;
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const ZIP_RULE_COUNTS_NOTE = "Named counts are ZIP- or county-specific local rules; total matches can also include broader rules. These dated counts describe a representative local move. The quote survey checks the rules against your exact route and move details.";
+
+function legacyZipRuleCount(value: string): string {
+  const count = "(?:0|[1-9]\\d*|[1-9]\\d{0,2}(?:,\\d{3})+)";
+  const named = new RegExp(`^(${count}) of (${count})$`).exec(value);
+  if (named) return `${named[1]} named / ${named[2]} matches`;
+  // The old generator emitted only the total when its explicit named count was zero.
+  return new RegExp(`^${count}$`).test(value) ? `0 named / ${value} matches` : value;
+}
+
+// Exact published catalog wording, repaired at read time because completed SEO bootstraps
+// deliberately keep existing authored records. These are not general number/keyword rewrites.
+const MOVING_COPY_REPAIRS: Record<string, readonly (readonly [string, string])[]> = {
+  "/services/local/": [
+    ["Local moves are regulated by the state, not by FMCSA, and most local movers charge by the hour for a crew and a truck, plus a travel fee.", "Moves whose entire route stays within one state are generally state-regulated; a shipment between places in one state that passes through another state is interstate. Most local movers charge by the hour for a crew and a truck, plus a travel fee."],
+    ["The classification decides which movers' coverage rules apply and which pricing method the cost model uses.", "These site labels decide which movers' coverage rules apply and which pricing method the cost model uses. They do not determine legal jurisdiction: a same-state shipment that passes through another state is interstate."],
+    ["For a move within one state, the state's own rules apply, and they differ widely.", "For a move whose route stays within one state, the state's own rules generally apply, and they differ widely. A shipment between places in one state that passes through another state is interstate."],
+    ["FMCSA's rules don't reach a move between two points in the same state.", "A move between two places in the same state can be interstate if the shipment passes through another state. Moves whose entire route stays within one state are generally state-regulated."],
+  ],
+  "/services/long-distance/": [
+    ["but Texas rules, not FMCSA's Part 375, govern it.", "but Texas rules generally govern it when the entire route stays in Texas; a shipment that passes through another state is interstate."],
+    ["On a non-binding interstate estimate, the mover must hand over your goods once you pay up to 110% of the estimate at delivery; any remaining balance is billed later, no sooner than 30 days after delivery per FMCSA guidance.", "On a non-binding interstate estimate, delivery payment can include up to 110% of the estimate, services requested after the bill of lading, and impracticable-operations charges of no more than 15% of all other charges due at delivery. FMCSA guidance says the remaining estimate-based balance is billed no sooner than 30 days after delivery."],
+  ],
+  "/questions/what-is-a-binding-estimate/": [
+    ["at delivery the mover may collect no more than that amount, plus services you asked for afterwards.", "at delivery the mover may collect that amount, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+    ["but you never pay more than 110% of the estimate at delivery.", "but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+    ["and that you won't pay more than 110% of the estimate at delivery.", "and explain the delivery-payment rule: up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+  ],
+  "/questions/what-is-the-110-percent-rule/": [
+    ["On a non-binding interstate estimate the mover must release your goods once you pay up to 110% of the estimate at delivery; the rest is billed later. Source: 49 CFR 375.407.", "How the 110% delivery-payment rule works for non-binding interstate estimates, including later-requested services and capped impracticable-operations charges."],
+    ["plus any services you asked for after the bill of lading and any impracticable-operations charges.", "plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+    ["FMCSA's 2004 example:", "Assuming no services added after the bill of lading and no impracticable-operations charges, the FMCSA worked example from 2004:"],
+    ["Moves within one state: state rules apply.", "Moves whose route stays within one state: generally state rules apply. A same-state shipment passing through another state is interstate."],
+    ["On a non-binding interstate estimate, no. Refusing delivery", "A mover must release a full shipment when you offer the amount lawfully due at delivery. Refusing delivery"],
+    ["Refusing delivery after you pay 110% counts as failing to transport with reasonable dispatch, which exposes the mover to delay claims.", "Refusing delivery after you offer the amount lawfully due, including later-requested services and capped impracticable-operations charges, counts as failing to transport with reasonable dispatch, which exposes the mover to delay claims."],
+  ],
+  "/questions/what-if-a-mover-holds-my-belongings-hostage/": [
+    ["On a non-binding interstate estimate you owe no more than 110% at delivery; refusing delivery after that is a violation. Who to call and what to document.", "Understand delivery payment under a non-binding interstate estimate, including additional-service exceptions, and document a refusal to release your shipment."],
+    ["once you pay up to 110% of the estimate at delivery; a mover that refuses after that payment is violating federal rules.", "once you offer the amount lawfully due: up to 110% of the estimate, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. A mover that refuses after that offer is violating the federal release rule."],
+    ["Binding estimate: the binding amount, plus services you asked for after the bill of lading.", "Binding estimate: the binding amount, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+    ["No. It is a federal rule for interstate moves. Your state's regulator sets the rules for in-state moves.", "It is a federal rule for interstate moves, including a shipment between places in one state that passes through another state. For a move whose entire route stays within one state, check that state's rules."],
+  ],
+  "/questions/how-do-moving-companies-charge/": [
+    ["and the 110% cap at delivery on non-binding estimates.", "and the 110% delivery-payment rule for non-binding estimates, with additional amounts for later-requested services and capped impracticable operations."],
+  ],
+  "/questions/can-a-mover-charge-more-than-the-estimate/": [
+    ["Binding: no, except services you add. Non-binding: yes, but no more than 110% at delivery; the rest is billed later. What changes the bill.", "When a moving bill can change, and how binding and non-binding delivery payments account for later-requested services and capped impracticable operations."],
+    ["the mover may collect only the binding amount plus services you asked for after the bill of lading and any impracticable-operations charges.", "the delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+    ["but you never pay more than 110% of the estimate at delivery, and the mover bills the remainder later.", "but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later."],
+  ],
+  "/questions/what-is-a-moving-tariff/": [
+    ["within the 110% cap at delivery.", "subject to the non-binding delivery-payment rule, including later-requested services and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+  ],
+  "/questions/who-regulates-moving-companies/": [
+    ["Moves between two points in the same state are regulated by that state, and the rules differ:", "Moves whose entire route stays within one state are generally state-regulated; a same-state shipment passing through another state is interstate. State rules differ:"],
+  ],
+  "/questions/what-is-an-intrastate-move/": [
+    ["A move within one state. Beyond 50 miles it is in-state long distance on this site, priced by weight and regulated by the state, not FMCSA.", "An intrastate move stays within one state for its entire route. How this site's 50-mile local radius differs from the rules that legally govern your move."],
+  ],
+  "/planning/moving-out-of-state-checklist/": [
+    ["At delivery, pay what you owe (no more than 110% on a non-binding estimate), note any damage on the inventory, and keep every document.", "At delivery, confirm the amount due under your estimate, including any later-requested services and capped impracticable-operations charges, note any damage on the inventory, and keep every document."],
+  ],
+  "/planning/delivery-day-checklist/": [
+    ["(the binding amount, or no more than 110% of a non-binding estimate)", "(the binding amount, or up to 110% of a non-binding estimate, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery)"],
+    ["Binding estimate: the binding amount plus services added after the bill of lading.", "Binding estimate: the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
+    ["Non-binding estimate: up to 110% of the estimate; the rest is billed later.", "Non-binding estimate: up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later."],
+  ],
+};
+
+function repairMovingCopy(text: string, page: SeoPageRecord): string {
+  let result = text;
+  if (text.startsWith("FMCSA's household-goods rules (49 CFR Part 375) cover interstate moves, including")) result = result.replace("Moves between two points in the same state are regulated by that state.", "Moves whose entire route stays within one state are generally regulated by that state.");
+  if (text.startsWith("On a non-binding estimate, the mover must release your goods at delivery once")) result = result.replace("(plus services you asked for after the bill of lading and any impracticable-operations charges)", "(plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery)");
+  for (const [before, after] of MOVING_COPY_REPAIRS[page.url] ?? []) result = result.replaceAll(before, after);
+  // Exact city-regulator sentence pattern emitted by generate.ts; preserve the state,
+  // city, sourced regulator statement, link and access date that follow the colon.
+  if (page.family === "city") result = result.replace(/^Moves within ([^:]+) from ([^:]+) are regulated by the state:/, "Moves from $2 whose entire route stays within $1 are generally state-regulated:");
+  return result;
+}
 
 /**
  * Published content can predate the contact-introduction flow. Do not expose archived mover
@@ -17,7 +96,7 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
     .filter(Boolean))].sort((a, b) => b.length - a.length)
     .map((name) => new RegExp(escapeRegExp(name), "gi"));
   const redact = (text: string) => {
-    let result = text.replace(RETIRED_DIRECTORY_LINK, "[Request moving quotes](/get-quotes/)")
+    let result = repairMovingCopy(text, page).replace(RETIRED_DIRECTORY_LINK, "[Request moving quotes](/get-quotes/)")
       .replace(RETIRED_DIRECTORY_URL, "/get-quotes/");
     if (LEGACY_DISCLOSURE.test(result)) return CONTACT_EXPLANATION;
     for (const identity of identities) result = result.replace(identity, "a participating moving company");
@@ -45,8 +124,17 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   if (!result.metaDescription) result.metaDescription = PUBLIC_REQUEST_ASSURANCE;
   content.sections = content.sections.map((section) => {
     const paymentSection = /^What never changes with payment$/i.test(section.heading);
+    const cityZipSection = page.family === "city" && section.id === "zips";
+    const legacyZipTable = cityZipSection && section.blocks.some((block) => block.type === "table" && block.columns.includes("Movers naming it (local)"));
     const originalBlocks = page.content.sections.find((original) => original.id === section.id)?.blocks.filter((block) => block.type !== "movers") ?? [];
     const blocks = section.blocks.filter((block) => block.type !== "movers").map((block, index) => {
+      if (cityZipSection && block.type === "table") {
+        const countIndex = block.columns.indexOf("Movers naming it (local)");
+        if (countIndex >= 0) return { ...block,
+          columns: block.columns.map((column, index) => index === countIndex ? "Local rule counts (named / total matches)" : column),
+          rows: block.rows.map((row) => row.map((cell, index) => index === countIndex ? legacyZipRuleCount(cell) : cell)),
+        };
+      }
       if (block.type !== "paragraph") return block;
       const original = originalBlocks[index];
       if (paymentSection && original?.type === "paragraph" && /^What a mover pays never changes/i.test(original.text)) return {
@@ -55,9 +143,10 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
       };
       return block.text ? block : { ...block, text: PUBLIC_REQUEST_ASSURANCE };
     });
+    if (legacyZipTable && !blocks.some((block) => block.type === "note" && block.text === ZIP_RULE_COUNTS_NOTE)) blocks.push({ type: "note", text: ZIP_RULE_COUNTS_NOTE });
     return {
       ...section,
-      heading: paymentSection ? "Your moving company. Your choice." : page.family === "city" && /^Coverage for an? (.+) request$/i.test(section.heading) ? section.heading.replace(/^Coverage for an? (.+) request$/i, "Moving coverage in $1") : /preferred|listed movers|movers (?:in|near|serving)/i.test(section.heading) ? "Request quotes for your move" : section.heading,
+      heading: paymentSection ? "Your moving company. Your choice." : cityZipSection && /, with movers naming each$/.test(section.heading) ? section.heading.replace(/, with movers naming each$/, ", with local coverage-rule counts") : page.family === "city" && /^Coverage for an? (.+) request$/i.test(section.heading) ? section.heading.replace(/^Coverage for an? (.+) request$/i, "Moving coverage in $1") : /preferred|listed movers|movers (?:in|near|serving)/i.test(section.heading) ? "Request quotes for your move" : section.heading,
       blocks: blocks.length ? blocks : [{ type: "paragraph" as const, text: CONTACT_EXPLANATION }],
     };
   });

@@ -57,6 +57,15 @@
 .factValue { display:block; font-family:var(--font-display); font-size:1.5rem; line-height:1.15; font-weight:800; color:var(--text); padding-right:4.5rem; }
 .factBasis { display:block; font-size:.75rem; line-height:1.6; color:var(--text-2); }
 .factThumb { position:absolute; top:1rem; right:1rem; width:3.8rem; aspect-ratio:1; overflow:hidden; border-radius:.65rem; }
+.guideContents { display:none; margin-block:0 2rem; min-width:0; border:1px solid var(--border-strong); border-radius:1rem; background:var(--surface); }
+.guideContents summary { display:flex; align-items:center; justify-content:space-between; gap:1rem; min-height:3.5rem; padding:1rem 1.25rem; cursor:pointer; font-weight:800; color:var(--text); }
+.guideContents summary > span:last-child { font-size:1.4rem; line-height:1; color:var(--brand-red); }
+.guideContents[open] summary > span:last-child { transform:rotate(45deg); }
+.guideContents nav { display:grid; gap:.5rem; padding:.5rem 1.25rem 1rem; border-top:1px solid var(--border); }
+.guideContents ol,.guideContents ul { display:grid; list-style:none; padding:0; margin:0; min-width:0; }
+.guideContents ul { border-top:1px solid var(--border); padding-top:.5rem; }
+.guideContents a { display:flex; gap:.8rem; align-items:flex-start; min-height:2.75rem; padding:.65rem 0; font-size:.875rem; font-weight:650; line-height:1.5; color:var(--link); text-decoration:underline; text-underline-offset:.2em; overflow-wrap:anywhere; }
+.guideContents ol a > span:first-child { flex:none; color:var(--text-3); font-size:.75rem; font-variant-numeric:tabular-nums; padding-top:.1rem; }
 .rail { position:sticky; top:1.5rem; display:grid; gap:1.25rem; min-width:0; }
 .railCard { overflow:hidden; border:1px solid var(--border); border-radius:1rem; background:var(--surface); }
 .railPhoto { aspect-ratio:16/9; overflow:hidden; }
@@ -126,7 +135,7 @@
 .hubPageJump summary { display:flex; align-items:center; min-height:44px; width:fit-content; cursor:pointer; color:var(--brand-navy); font-size:.85rem; font-weight:700; }
 .hubPageJump summary::after { content:"+"; margin-left:1rem; }
 .hubPageJump[open] summary::after { content:"−"; }
-@media (max-width:1100px) { .bodyGrid { grid-template-columns:minmax(0,1fr); } .rail { position:static; display:none; } .relatedGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:1100px) { .bodyGrid { grid-template-columns:minmax(0,1fr); } .rail { position:static; display:none; } .guideContents { display:block; } .relatedGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:760px) { .lede,.hubLead { grid-template-columns:minmax(0,1fr); gap:1.5rem; } .ledeCopy { order:-1; } .photoComposition { max-width:36rem; width:100%; } .readingMap { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-block:2rem; } .mapIntro { grid-column:1/-1; padding:.5rem 0; } .mapTitle { padding:.8rem; font-size:.74rem; gap:.45rem; } .hubGrid { grid-template-columns:repeat(2,minmax(0,1fr)); } .hubStory { grid-template-columns:minmax(0,1fr); } .hubLead { padding-block:2rem; } }
 @media (max-width:520px) { .reader { padding-top:2rem; } .introFacts { gap:.75rem; } .sectionHead,.section:nth-child(even) .sectionHead { grid-template-columns:4.5rem minmax(0,1fr); gap:.9rem; padding:1.1rem 1.1rem 0; } .section:nth-child(even) .sectionPhoto { order:0; } .sectionBody { padding:1.1rem; } .sectionTitle h2 { font-size:1.4rem; } .sectionNo { font-size:.57rem; } .visualList { grid-template-columns:minmax(0,1fr); } .factGrid { grid-template-columns:minmax(0,1fr); } .faqLayout { grid-template-columns:minmax(0,1fr); } .faqVisual { aspect-ratio:16/7; } .quoteBand { grid-template-columns:minmax(0,1fr); } .quotePhoto { min-height:0; aspect-ratio:16/8; } .sources { padding:1.1rem; } .sourceList li { grid-template-columns:minmax(0,1fr); gap:0; } .relatedGrid,.hubGrid { grid-template-columns:minmax(0,1fr); } .relatedPhoto { aspect-ratio:16/7; } .readingMap { grid-template-columns:minmax(0,1fr); } .mapCard { grid-template-columns:5.25rem minmax(0,1fr); } .mapPhoto { aspect-ratio:1; } .mapTitle { align-items:center; font-size:.85rem; } }
 @media (max-width:520px) { .sectionFeature .sectionHead,.sectionFeature:nth-child(even) .sectionHead { grid-template-columns:minmax(0,1fr); } .sectionFeature .sectionPhoto { aspect-ratio:16/7; } }

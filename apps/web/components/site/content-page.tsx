@@ -51,10 +51,11 @@ export function ContentPageView({ page }: { page: ContentPage }) {
   const overview = guideOverview(editorial.body);
   const chapters = htmlChapters(overview.body);
   const media = storyMediaPlan(mediaManifest(), page.meta.url, chapters, page.h1);
+  const articleImage = media.chapterImages.find((image) => image !== null) ?? media.steps[0]?.image;
   return (
     <>
       {schema.includes("BreadcrumbList") ? <JsonLd data={breadcrumbListLd(WEB_URL, page.breadcrumbs)} /> : null}
-      {schema.includes("Article") ? <JsonLd data={{ ...webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description, type: "Article" }), ...(modified ? { dateModified: modified } : {}) }} /> : null}
+      {schema.includes("Article") ? <JsonLd data={{ ...webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description, type: "Article", image: articleImage }), ...(modified ? { dateModified: modified } : {}) }} /> : null}
       {schema.includes("WebPage") ? <JsonLd data={{ ...webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description }), ...(modified ? { dateModified: modified } : {}) }} /> : null}
       <EditorialHeader breadcrumbs={page.breadcrumbs} overline={page.meta.family} title={page.h1} lede={page.description} meta={updated ? <>Updated {updated}</> : null} />
       <Container className="pb-20">

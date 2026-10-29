@@ -24,7 +24,7 @@ export const NATIONAL_FACTS: FactSeed[] = [
     scope: "national",
     topic: "interstate_scope",
     claim:
-      "FMCSA's household-goods rules (49 CFR Part 375) cover interstate moves, including a move between two points in one state whose route passes through another state. Moves between two points in the same state are regulated by that state.",
+      "FMCSA's household-goods rules (49 CFR Part 375) cover interstate moves, including a move between two points in one state whose route passes through another state. Moves whose entire route stays within one state are generally regulated by that state.",
     sourceLabel: "FMCSA, What is an interstate move?",
     sourceUrl: "https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move",
     accessedOn: FMCSA,
@@ -60,7 +60,7 @@ export const NATIONAL_FACTS: FactSeed[] = [
     scope: "national",
     topic: "rule_110",
     claim:
-      "On a non-binding estimate, the mover must release your goods at delivery once you pay up to 110% of the estimate (plus services you asked for after the bill of lading and any impracticable-operations charges). FMCSA guidance says the mover bills any remaining balance no sooner than 30 days after delivery.",
+      "On a non-binding estimate, the mover must release your goods at delivery once you pay up to 110% of the estimate (plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery). FMCSA guidance says the mover bills any remaining balance no sooner than 30 days after delivery.",
     sourceLabel: "49 CFR 375.407 (Cornell LII mirror)",
     sourceUrl: "https://www.law.cornell.edu/cfr/text/49/375.407",
     accessedOn: FMCSA,

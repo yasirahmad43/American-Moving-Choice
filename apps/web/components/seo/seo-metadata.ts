@@ -8,11 +8,12 @@ import "server-only";
 import { env } from "@amc/server/env";
 import type { SeoPageRecord } from "@amc/server/seo";
 import type { Metadata } from "next";
-import { organizationId } from "@/components/site/json-ld";
+import { organizationId, pageImageLd, type VisiblePageImage } from "@/components/site/json-ld";
 import { publicSeoPage } from "./public-content";
 import { socialMetadata } from "@/components/site/social-metadata";
 
 export const NOINDEX: Metadata["robots"] = { index: false, follow: true, googleBot: { index: false, follow: true } };
+const DEMO_NOINDEX: Metadata["robots"] = { index: false, follow: false, googleBot: { index: false, follow: false } };
 
 export function seoMetadata(storedPage: SeoPageRecord): Metadata {
   const page = publicSeoPage(storedPage);
@@ -22,7 +23,9 @@ export function seoMetadata(storedPage: SeoPageRecord): Metadata {
     title: { absolute: page.title },
     description: page.metaDescription,
     ...(indexable ? { alternates: { canonical: `${WEB_URL}${page.canonicalUrl}` } } : {}),
-    ...(page.indexable ? {} : { robots: NOINDEX }),
+    // Next replaces the inherited robots object. Preserve the stricter demo policy even
+    // when a record's own noindex policy would normally allow following its links.
+    ...(!SITE_INDEXABLE ? { robots: DEMO_NOINDEX } : page.indexable ? {} : { robots: NOINDEX }),
     ...socialMetadata(page.url, page.title, page.metaDescription, { family: page.family, stateCode: page.stateCode ?? undefined, type: page.content.schemaType === "Article" ? "article" : "website" }),
   };
 }
@@ -40,22 +43,29 @@ export function breadcrumbLd(webUrl: string, crumbs: Crumb[]) {
   };
 }
 
-export function pageLd(webUrl: string, page: SeoPageRecord) {
+/** The same headline is used by the visible hero and the page's structured data. */
+export function seoPageHeading(page: Pick<SeoPageRecord, "family" | "h1">) {
+  return page.family === "city" ? page.h1.replace(/: compare screened moving companies$/i, "") : page.h1;
+}
+
+export function pageLd(webUrl: string, page: SeoPageRecord, visibleImage?: VisiblePageImage) {
   const url = `${webUrl}${page.url}`;
+  const heading = seoPageHeading(page);
   const base = {
     "@context": "https://schema.org",
     "@id": `${url}#page`,
     url,
-    name: page.h1,
+    name: heading,
     description: page.metaDescription,
     inLanguage: "en-US",
     isPartOf: { "@id": `${webUrl}/#website` },
     publisher: { "@id": organizationId(webUrl) },
+    ...(visibleImage ? { image: pageImageLd(webUrl, visibleImage) } : {}),
     ...(page.publishedAt ? { datePublished: page.publishedAt.toISOString() } : {}),
     dateModified: page.updatedAt.toISOString(),
   };
   if (page.content.schemaType === "Article") {
-    return { ...base, "@type": "Article", headline: page.h1, mainEntityOfPage: url, author: { "@id": organizationId(webUrl) } };
+    return { ...base, "@type": "Article", headline: heading, mainEntityOfPage: url };
   }
   return { ...base, "@type": page.content.schemaType };
 }

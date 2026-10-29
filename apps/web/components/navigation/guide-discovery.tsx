@@ -8,12 +8,14 @@ import { CategoryIcon } from "./category-icon";
 export interface GuideDiscoveryProps {
   overview: DiscoveryOverview | null;
   id: string;
+  /** Distinguish simultaneous search landmarks in the header, page and footer. */
+  searchLabel: string;
   dark?: boolean;
   /** A containing section can supply its own title without repeating the live-count heading. */
   showIntro?: boolean;
 }
 
-export function GuideDiscovery({ overview, id, dark = false, showIntro = true }: GuideDiscoveryProps) {
+export function GuideDiscovery({ overview, id, searchLabel, dark = false, showIntro = true }: GuideDiscoveryProps) {
   const text = dark ? "text-on-band" : "text-text";
   const muted = dark ? "text-on-band-2" : "text-text-2";
   const control = "min-h-12 w-full min-w-0 rounded-control border border-border-strong bg-white px-3 text-base text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-red";
@@ -26,7 +28,7 @@ export function GuideDiscovery({ overview, id, dark = false, showIntro = true }:
         </div> : null}
         <Link href="/explore/" className={`inline-flex min-h-11 items-center gap-2 font-bold underline underline-offset-4 ${text}`}>Browse every page <ArrowRightIcon size={17} /></Link>
       </div>
-      <form action="/explore/" method="get" role="search" aria-label={`${id === "footer" ? "Footer" : "Menu"} moving guide search`} className="grid gap-3 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_auto] sm:items-end">
+      <form action="/explore/" method="get" role="search" aria-label={searchLabel} className="grid gap-3 sm:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)_auto] sm:items-end">
         <div className="grid min-w-0 gap-2"><label htmlFor={`${id}-guide-query`} className="type-small font-semibold">What are you planning?</label><input id={`${id}-guide-query`} name="q" type="search" maxLength={80} placeholder="City, route, packing, moving costs…" className={control} /></div>
         <div className="grid min-w-0 gap-2"><label htmlFor={`${id}-guide-state`} className="type-small font-semibold">Where?</label><select id={`${id}-guide-state`} name="state" className={control}><option value="">All states</option>{STATES.filter((state) => !overview || overview.states.some((entry) => entry.code === state.code)).map((state) => <option key={state.code} value={state.code}>{state.name}</option>)}</select></div>
         <button type="submit" className="inline-flex min-h-12 items-center justify-center gap-3 rounded-control bg-brand-red px-6 font-bold text-white transition-colors hover:brightness-90">Find a guide <ArrowRightIcon size={18} /></button>

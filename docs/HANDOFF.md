@@ -3,6 +3,40 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Search and conversion review — 2026-10-29
+
+The owner requests a whole-site design, search/AI discovery and lead-conversion review. The
+starting deployed release is `78f124a59ee0a96ca6b16366879f2cb0c6396c26` (caption repair PR #13).
+The follow-up branch is `codex/search-conversion-readiness`. A subjective perfect rating or a
+promise to outrank every mover is not a verification result. Source/content changes are separate
+from production release and the fresh full-site audit; their exact revisions belong in the proof.
+
+This pass compacts the mobile ZIP starter without changing its fields, consent or permissions;
+uses complete, page-specific published guidance in guide heroes rather than repeated family
+copy or truncated search snippets; and adds complete native mobile/tablet reading navigation.
+Page structured data uses the actual visible headline/image, preserves the demo robots policy,
+and no longer assumes the publisher authored an article without an author record.
+
+Independent content review found overbroad same-state jurisdiction and delivery-payment
+statements. The corrected source and exact legacy public projection retain the FMCSA interstate
+route exception and the additional-service/impracticable-operation exceptions to the 110% rule.
+Completed catalogues are not regenerated: bootstrap version and stored dates, facts, links and
+publication gates remain intact. City ZIP tables must distinguish specifically named ZIP/county
+rules from all coverage matches rather than printing a broader match count under a naming label.
+
+The shared mobile quote bar now watches the real homepage hero and yields to focused forms and
+the visible closing survey so it cannot cover Continue. Real desktop/mobile, keyboard and
+JavaScript-disabled checks, plus retained before/after findings, are in the task's
+`outputs/search-conversion-audit/` proof directory.
+
+Live baseline checks confirm `robots.txt` disallows crawling and pages carry noindex/nofollow.
+`DEMO_MODE=true` and `SITE_INDEXABLE=false` remain intentional. This review does not approve a
+live marketplace launch, invent business contacts, convert fictional movers into verified real
+coverage, supply unsupported prices, manufacture customer reviews or claim measured leads.
+The deferred business/contact and policy work, real-market coverage, provider readiness and
+post-launch search/conversion measurement remain material limits. The 100,001 question/500
+checklist targets below are still in progress; this repair publishes no synthetic volume.
+
 ### Public caption and copy repair — 2026-10-29
 
 The owner found the visible caption “Tablet with a blurred form on a sofa” on

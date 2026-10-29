@@ -16,6 +16,17 @@ export function JsonLd({ data }: { data: unknown }) {
 /** The one Organization @id (site architecture §7.1). */
 export const organizationId = (webUrl: string) => `${webUrl}/#organization`;
 
+/** Only an image actually rendered in the page; callers supply the selected asset. */
+export interface VisiblePageImage {
+  src: string;
+  width: number;
+  height: number;
+}
+
+export function pageImageLd(webUrl: string, image: VisiblePageImage) {
+  return { "@type": "ImageObject", url: new URL(image.src, webUrl).href, width: image.width, height: image.height };
+}
+
 export function breadcrumbListLd(webUrl: string, items: { label: string; href: string }[]) {
   return {
     "@context": "https://schema.org",
@@ -29,13 +40,14 @@ export function breadcrumbListLd(webUrl: string, items: { label: string; href: s
   };
 }
 
-export function webPageLd(webUrl: string, page: { url: string; name: string; description: string; type?: "WebPage" | "Article" }) {
+export function webPageLd(webUrl: string, page: { url: string; name: string; description: string; type?: "WebPage" | "Article"; image?: VisiblePageImage }) {
   const base = {
     "@context": "https://schema.org",
     url: `${webUrl}${page.url}`,
     description: page.description,
     publisher: { "@id": organizationId(webUrl) },
     inLanguage: "en-US",
+    ...(page.image ? { image: pageImageLd(webUrl, page.image) } : {}),
   };
   return page.type === "Article"
     ? { ...base, "@type": "Article", headline: page.name, mainEntityOfPage: `${webUrl}${page.url}` }
