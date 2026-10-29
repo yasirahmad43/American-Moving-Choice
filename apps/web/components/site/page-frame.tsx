@@ -49,7 +49,7 @@ export function PageFrame({ url, h1, description, trail, lede, overline, legend 
             {legend ? <ReviewLegend /> : null}
           </div>
           {aside ? <aside className="grid gap-4 rounded-2xl border border-border bg-surface-2 p-5 lg:grid-cols-2">{aside}</aside> : null}
-          <StorySections chapters={chapters} images={media.chapterImages} planned />
+          <StorySections chapters={chapters} images={media.chapterImages} planned url={url} topic={h1} />
           <StoryNextSteps items={media.steps} />
         </div>
       </Container>

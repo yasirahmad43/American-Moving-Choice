@@ -3,10 +3,11 @@ import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
 import { Note } from "@/components/site/review-notes";
 import { BusinessIdentity, BusinessContactChannels } from "@/components/site/business-details";
+import { REVIEW_NOTES_IN_HTML } from "@/lib/review-mode";
 
 const URL = "/privacy/";
 const TITLE = "Privacy Policy | American Moving Choice";
-const DESCRIPTION = "Placeholder privacy policy for the American Moving Choice preview: what a move request collects, who receives it, and the sections counsel will write.";
+const DESCRIPTION = "How the American Moving Choice preview handles move-request details, contact choices and privacy questions. The final policy is awaiting legal review.";
 
 export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 
@@ -18,12 +19,12 @@ export default function PrivacyPage() {
       description={DESCRIPTION}
       trail={[{ label: "Privacy", href: URL }]}
       overline="Legal"
-      lede="This is a placeholder. Counsel writes the privacy policy; the outline below shows what it will cover and the facts the product already fixes."
-      waitingOn="Counsel writes this policy. Nothing on this page is the policy itself."
+      lede="See what a move request collects, who may receive your details and how to ask a privacy question. This preview explains the current flow; the final privacy policy is awaiting legal review before launch."
+      waitingOn="The final privacy policy and required notices await legal review."
     >
-      <p>
+      {REVIEW_NOTES_IN_HTML ? <p>
         <Note kind="counsel">counsel writes the full privacy policy, including the notice at collection that applicable state privacy laws require (consent draft §5; compliance facts §3)</Note>
-      </p>
+      </p> : null}
 
       <h2>Who we are</h2>
       <p>
@@ -51,19 +52,27 @@ export default function PrivacyPage() {
         movers receives only the information needed to respond through your chosen channels. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
         each step. Companies identify themselves when they contact you.
       </p>
-      <p>
+      {REVIEW_NOTES_IN_HTML ? <p>
         <Note kind="counsel">review the count-based contact permission, paid delivery of requests, state privacy disclosures and opt-out wording before real consumer requests are accepted</Note>
-      </p>
+      </p> : null}
 
       <h2>Service providers</h2>
       <p>
-        <Note kind="counsel">list the processors that handle personal data (hosting, database, email and text delivery, payments for movers) and what each does</Note>
+        The final policy will identify the providers that process personal details and explain their roles. That disclosure is still under legal review.
+        For a question about details you have shared, use <Link href="/report-a-concern/">our privacy form</Link> and choose &quot;My personal details&quot;.
       </p>
+      {REVIEW_NOTES_IN_HTML ? <p>
+        <Note kind="counsel">list the processors that handle personal data (hosting, database, email and text delivery, payments for movers) and what each does</Note>
+      </p> : null}
 
       <h2>How long we keep your details</h2>
       <p>
-        <Note kind="counsel">retention periods for requests, consent records and cases</Note>
+        Retention periods for move requests, consent records and cases have not yet been finalized in this preview policy. You can ask about a record or request deletion through{" "}
+        <Link href="/report-a-concern/">Report a concern</Link>; choose &quot;My personal details&quot;.
       </p>
+      {REVIEW_NOTES_IN_HTML ? <p>
+        <Note kind="counsel">retention periods for requests, consent records and cases</Note>
+      </p> : null}
 
       <h2>Your choices</h2>
       <ul>
@@ -74,9 +83,9 @@ export default function PrivacyPage() {
           (choose &quot;My personal details&quot;).
         </li>
       </ul>
-      <p>
+      {REVIEW_NOTES_IN_HTML ? <p>
         <Note kind="counsel">state-law rights and how to exercise them, and Global Privacy Control handling (site architecture §8.8)</Note>
-      </p>
+      </p> : null}
 
       <h2>Tracking on quote pages</h2>
       <p>

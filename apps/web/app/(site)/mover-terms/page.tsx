@@ -2,10 +2,11 @@ import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
 import { Note } from "@/components/site/review-notes";
+import { REVIEW_NOTES_IN_HTML } from "@/lib/review-mode";
 
 const URL = "/mover-terms/";
-const TITLE = "Mover Terms (Draft Summary) | American Moving Choice";
-const DESCRIPTION = "A draft summary of the terms movers agree to before joining American Moving Choice: eligibility, use of requests, conduct, pricing, reviews and data.";
+const TITLE = "Moving Company Terms (Preview) | American Moving Choice";
+const DESCRIPTION = "A preview summary for moving companies covering eligibility, use of requests, conduct, pricing, reviews and data. The final agreement is awaiting legal review.";
 
 export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 
@@ -14,16 +15,16 @@ export default function MoverTermsPage() {
   return (
     <PageFrame
       url={URL}
-      h1="Mover terms: draft summary"
+      h1="Moving company terms: preview summary"
       description={DESCRIPTION}
       trail={[{ label: "Mover terms", href: URL }]}
       overline="Legal · For movers"
-      lede="A summary of what movers agree to before they can buy requests. It is a draft for counsel, who writes the agreement itself."
-      waitingOn="Counsel drafts the mover agreement from this summary (consent draft §11)."
+      lede="Review the eligibility, contact and conduct rules described for participating moving companies. This summary is a preview; the final mover agreement is awaiting legal review before launch."
+      waitingOn="The final mover agreement and this public summary await legal review."
     >
-      <p>
+      {REVIEW_NOTES_IN_HTML ? <p>
         <Note kind="counsel">this summary follows consent draft §11; counsel drafts the agreement and approves any public summary of it</Note>
-      </p>
+      </p> : null}
       <ol>
         <li>
           <strong>Eligibility.</strong> Movers only. Keep active household-goods carrier authority, USDOT and MC numbers, the required insurance and

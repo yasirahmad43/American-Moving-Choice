@@ -3,6 +3,30 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Public caption and copy repair — 2026-10-29
+
+The owner found the visible caption “Tablet with a blurred form on a sofa” on
+`/which-companies-receive-my-request/`. The shared StoryPhoto component incorrectly used image
+alt descriptions when a section had no heading. It now accepts only explicit editorial caption
+text, and content wrappers pass page context. The request-page label is “You choose your contact
+limit.” Contextless photos omit a caption. Accurate image alt text and required credits remain.
+
+A before-release scout checked all 67 core sitemap pages plus the public application page and
+found 11 affected pages: contact permissions, the concern form, four carrier pages, the three legal
+pages and the Costs/calculator-method guides. Related cleanup removes empty review-note paragraph
+wrappers, replaces internal “placeholder/counsel writes” wording with honest preview/legal-review
+status, and turns a malformed missing-data range sentence into named explanatory fields. Original
+substantive legal text, reference tables/rows/anchors, links and actual model/data values remain.
+No policies, prices, provider identities or retention periods were invented.
+
+The optimized public build and 88 public content/media tests passed, including 20 new regression
+checks for caption/alt separation, rendered legal-preview copy and real-guide field preservation.
+The owner-requested full public visible-copy scan and affected-page desktop/mobile checks are
+recorded separately under the caption-cleanup proof outputs, with exact deployed source revisions.
+Image metadata and hydration JSON must be excluded from visible-copy findings; closed reader
+disclosures and streamed Next content must remain in scope. Do not hide a finding by weakening
+the detector or deleting substantive guidance.
+
 ### Editorial scale request — 2026-10-29, in progress
 
 The owner now requests more than 100,000 Moving Questions pages and at least 500 checklist pages.
