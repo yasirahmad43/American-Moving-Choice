@@ -1,6 +1,7 @@
 import type { SeoPageRecord } from "@amc/server/seo";
 import { normalizeLegacyCityCountyLabels } from "@amc/core";
 import { PUBLIC_REQUEST_ASSURANCE, publicMarketingText } from "../../lib/public-copy";
+import { repairCountyLabelContexts } from "./county-label-context";
 
 const CONTACT_EXPLANATION = "Tell us about your move and choose the maximum number of participating companies that may contact you. Companies introduce themselves when they reach out.";
 const RETIRED_DIRECTORY_LINK = /\[[^\]]*\]\((?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)\/[^)]*\)/gi;
@@ -170,5 +171,5 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   const fundingLink = (href: string) => /\/(?:advertising-disclosure|how-we-make-money)\//i.test(href);
   content.related = content.related.map((group) => ({ ...group, links: group.links.filter((link) => !fundingLink(link.href)) })).filter((group) => group.links.length);
   result.sources = result.sources.filter((source) => !fundingLink(source.url));
-  return result;
+  return repairCountyLabelContexts(result);
 }
