@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { inspectTextInsetContract } from "./content-inset-detector.mjs";
+import { inspectTextInsetContract, inspectPaintedReferenceInsets } from "./content-inset-detector.mjs";
 
 const css = readFileSync(new URL("../../apps/web/components/site/content-insets.css", import.meta.url), "utf8");
 const base = (process.env.E2E_WEB_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
@@ -9,6 +9,9 @@ const assertInsets = async page => {
   const results = await page.evaluate(inspectTextInsetContract);
   expect(results.length).toBeGreaterThan(0);
   expect(results.filter(item => !item.pass), "Visible text must retain its inset from the painted shell").toEqual([]);
+  const references = await page.evaluate(inspectPaintedReferenceInsets);
+  expect(references.filter(item => !item.pass), "Painted table cells and phone rows must retain the compact inset").toEqual([]);
+  if (new URL(page.url()).pathname === "/moving-costs/how-movers-charge/") expect(references.length).toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 };
 
@@ -36,7 +39,7 @@ for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     // Never send customer data while checking public layout.
     await context.route("**/*", route => ["GET", "HEAD"].includes(route.request().method()) ? route.continue() : route.abort());
-    for (const path of ["/", "/get-quotes/", "/moving-costs/", "/explore/", "/routes/", "/which-companies-receive-my-request/"]) {
+    for (const path of ["/", "/get-quotes/", "/moving-costs/", "/moving-costs/how-movers-charge/", "/explore/", "/routes/", "/which-companies-receive-my-request/"]) {
       await page.goto(base + path);
       await page.locator(".site-experience main").waitFor();
       await assertInsets(page);
