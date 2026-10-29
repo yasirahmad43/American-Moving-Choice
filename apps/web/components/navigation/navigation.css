@@ -10,3 +10,8 @@
 }
 .navigation-trigger { -webkit-tap-highlight-color: transparent; }
 .navigation-trigger:focus-visible { outline-offset: 4px; }
+
+/* Let the brand use the space left by the menu, including classic scrollbars. */
+.site-header-brand { flex-shrink:1; min-width:0; }
+.site-header-brand > a { max-width:100%; min-width:0; }
+.site-header-brand > a > span { max-width:min(100%,52vw,15rem); }

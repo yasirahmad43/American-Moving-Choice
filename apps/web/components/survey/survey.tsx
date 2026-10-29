@@ -29,7 +29,6 @@ import {
   consentTextSha256,
   countOptions,
   isSurveyMoveSize,
-  isSurveyService,
   parseDetails,
   parseNeed,
   parseSize,
@@ -39,7 +38,6 @@ import {
   type Channel,
   type FieldErrors,
   type Need,
-  type SurveyService,
   type SurveyStep,
 } from "@amc/core/src/survey";
 import type { SubmitResult, SurveyCoverageResult } from "@amc/server/leads";
@@ -47,25 +45,12 @@ import { Alert, Button, Checkbox, Field, FieldError, Input, RadioCardGroup, Step
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { ConfirmationView, type ConfirmationData } from "./confirmation-view";
+import { EMPTY_DRAFT, restoreSurveyDraft, type SurveyDraft as Draft } from "./draft";
 import { StoredTextLine, type SurveyTexts } from "./texts";
 
 type FoundState = Extract<SurveyCoverageResult, { ok: true }>;
 type Coverage = Extract<FoundState["coverage"], { ok: true }>;
 type Mover = Coverage["movers"][number];
-
-interface Draft {
-  entry: "full" | "household";
-  step: SurveyStep;
-  need: Need | null;
-  originZip: string;
-  destZip: string;
-  moveDate: string;
-  flexible: boolean;
-  latestDate: string;
-  moveSize: string;
-  services: SurveyService[];
-  profileCompanyId: string | null;
-}
 
 interface Contact {
   channels: Channel[];
@@ -81,20 +66,6 @@ interface Attribution {
   utmMedium: string | null;
   utmCampaign: string | null;
 }
-
-const EMPTY_DRAFT: Draft = {
-  entry: "full",
-  step: "need",
-  need: null,
-  originZip: "",
-  destZip: "",
-  moveDate: "",
-  flexible: false,
-  latestDate: "",
-  moveSize: "",
-  services: [],
-  profileCompanyId: null,
-};
 
 const EMPTY_CONTACT: Contact = { channels: [], firstName: "", lastName: "", email: "", phone: "" };
 
@@ -134,11 +105,6 @@ const FIELD_STEPS: Record<string, SurveyStep> = {
   phone: "details",
 };
 
-/** Steps a restored draft may reopen on: later steps need contact details, which are never stored. */
-const RESTORABLE: SurveyStep[] = ["need", "where", "when", "size"];
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 function readSession<T>(key: string, remove = false): T | null {
   try {
     const raw = window.sessionStorage.getItem(key);
@@ -158,48 +124,15 @@ function writeSession(key: string, value: unknown): void {
   }
 }
 
-/** Restores the draft, then applies a prefill and profile origin handed over by another page. */
+/** Apply one-shot carried answers once, then persist the continuation before exposing controls. */
 function initialDraft(): { draft: Draft; prefilled: boolean } {
   const stored = readSession<Partial<Draft>>(DRAFT_STORAGE_KEY);
-  const draft: Draft = { ...EMPTY_DRAFT };
-  if (stored) {
-    if (stored.entry === "household") draft.entry = "household";
-    if (typeof stored.step === "string" && RESTORABLE.includes(stored.step)) draft.step = stored.step;
-    if (typeof stored.need === "string" && ["household", "loading_help", "vehicle_only", "truck_rental"].includes(stored.need)) draft.need = stored.need;
-    for (const key of ["originZip", "destZip", "moveDate", "latestDate"] as const) {
-      if (typeof stored[key] === "string") draft[key] = stored[key].slice(0, 10);
-    }
-    draft.flexible = stored.flexible === true;
-    if (isSurveyMoveSize(stored.moveSize)) draft.moveSize = stored.moveSize;
-    if (Array.isArray(stored.services)) draft.services = stored.services.filter(isSurveyService);
-    // Profile-specific acquisition is retired; restored drafts always use the central flow.
-  }
-
-  let prefilled = false;
   const prefill = readSession<Record<string, unknown>>(PREFILL_STORAGE_KEY, true);
   const profile = readSession<Record<string, unknown>>(PROFILE_STORAGE_KEY, true);
   const params = new URLSearchParams(window.location.search);
-  if (prefill || profile || params.get("entry") === "household") {
-    if (draft.entry !== "household") {
-      draft.entry = "household";
-      if (draft.step === "need") draft.step = "where";
-    }
-    if (!draft.need) draft.need = "household";
-  }
-  if (prefill) {
-    // Carried values are shown for the visitor to confirm, never silently accepted (implications §2.2).
-    if (typeof prefill.originZip === "string" && cleanZip(prefill.originZip).length === 5) draft.originZip = cleanZip(prefill.originZip);
-    // Two writers: the home page sends destZip, the cost calculator destinationZip.
-    const destZip = typeof prefill.destZip === "string" ? prefill.destZip : prefill.destinationZip;
-    if (typeof destZip === "string" && cleanZip(destZip).length === 5) draft.destZip = cleanZip(destZip);
-    if (isSurveyMoveSize(prefill.moveSize)) draft.moveSize = prefill.moveSize;
-    if (typeof prefill.moveDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(prefill.moveDate)) draft.moveDate = prefill.moveDate;
-    if (Array.isArray(prefill.services)) draft.services = prefill.services.filter(isSurveyService);
-    prefilled = Boolean(draft.originZip || draft.destZip || draft.moveSize || draft.moveDate);
-    draft.step = "where";
-  }
-
-  return { draft, prefilled };
+  const restored = restoreSurveyDraft({ stored, prefill, householdEntry: Boolean(profile) || params.get("entry") === "household", today: localToday() });
+  writeSession(DRAFT_STORAGE_KEY, restored.draft);
+  return restored;
 }
 
 function readAttribution(): Attribution {
@@ -276,6 +209,8 @@ function SurveyFlow({
   attribution,
 }: SurveyProps & { initial: Draft; prefilled: boolean; today: string; attribution: Attribution }) {
   const [draft, setDraft] = useState<Draft>(initial);
+  const draftRef = useRef(initial);
+  const [editingSize, setEditingSize] = useState(false);
   const [contact, setContact] = useState<Contact>(EMPTY_CONTACT);
   const [found, setFound] = useState<FoundState | null>(null);
   const [limit, setLimit] = useState<number | null>(null);
@@ -299,11 +234,6 @@ function SurveyFlow({
 
   const steps = useMemo(() => (draft.entry === "household" ? SURVEY_STEPS.filter((s) => s !== "need") : [...SURVEY_STEPS]), [draft.entry]);
   const stepIndex = Math.max(0, steps.indexOf(draft.step));
-
-  // Move details persist across reloads; contact details never do.
-  useEffect(() => {
-    if (!done) writeSession(DRAFT_STORAGE_KEY, draft);
-  }, [draft, done]);
 
   // Focus the step heading and announce the step on every change (VD §9.3), except on first load.
   useEffect(() => {
@@ -330,7 +260,14 @@ function SurveyFlow({
     target?.focus();
   }, [errors, alert]);
 
-  const update = useCallback((patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch })), []);
+  // Persist each checkpoint synchronously, before a route remount or browser Back can occur.
+  // This ref also composes multiple patches in one event without stale closure values.
+  const update = useCallback((patch: Partial<Draft>) => {
+    const next = { ...draftRef.current, ...patch };
+    draftRef.current = next;
+    writeSession(DRAFT_STORAGE_KEY, next);
+    setDraft(next);
+  }, []);
 
   const goTo = useCallback(
     (step: SurveyStep) => {
@@ -386,7 +323,7 @@ function SurveyFlow({
     const result = parseWhere(draft);
     if (!result.ok) return showErrors(result.errors);
     update({ originZip: result.value.originZip, destZip: result.value.destZip });
-    goTo("when");
+    goTo(draft.starterComplete && parseWhen(draft, today).ok ? "size" : "when");
   };
 
   const submitWhen = (event: FormEvent) => {
@@ -679,7 +616,7 @@ function SurveyFlow({
         body = (
           <form noValidate onSubmit={submitWhere} className="grid gap-5">
             {heading("Where are you moving?", draft.entry === "household" ? (
-              <button type="button" className="link type-small" onClick={() => { update({ entry: "full", step: "need" }); setErrors({}); }}>
+              <button type="button" className="link type-small" onClick={() => { update({ entry: "full", step: "need", need: null, starterComplete: false }); setErrors({}); }}>
                 Not a household move?
               </button>
             ) : null)}
@@ -763,9 +700,22 @@ function SurveyFlow({
       case "size":
         body = (
           <form noValidate onSubmit={submitSize} className="grid gap-6">
-            {heading("How big is your move?")}
+            {heading(draft.starterComplete ? "Anything else for your move?" : "How big is your move?", draft.starterComplete ? "Your route, estimated date and home size are saved. Add any services you need, or continue without extras." : undefined)}
             {formAlert}
-            <RadioCardGroup
+            {draft.starterComplete ? <section className="grid min-w-0 gap-3 rounded-card border border-border bg-surface-2 p-4" data-content-inset="card" aria-labelledby="saved-move-heading">
+              <h3 id="saved-move-heading" className="text-lg font-bold leading-[1.45] text-text">Your saved move</h3>
+              <dl className="grid min-w-0 gap-2 type-small">
+                <div><dt className="font-semibold text-text">Route</dt><dd className="text-text-2 tabular">{draft.originZip} → {draft.destZip}</dd></div>
+                <div><dt className="font-semibold text-text">Estimated move date</dt><dd className="text-text-2">{formatAbsoluteDate(draft.moveDate)}</dd></div>
+                <div><dt className="font-semibold text-text">Home size</dt><dd className="text-text-2">{isSurveyMoveSize(draft.moveSize) ? MOVE_SIZE_LABELS[draft.moveSize] : draft.moveSize}</dd></div>
+              </dl>
+              <div className="flex min-w-0 flex-wrap gap-2">
+                <Button type="button" variant="secondary" size="sm" onClick={() => goTo("where")}>Edit route</Button>
+                <Button type="button" variant="secondary" size="sm" onClick={() => goTo("when")}>Edit date</Button>
+                <Button type="button" variant="secondary" size="sm" aria-expanded={editingSize} onClick={() => setEditingSize(value => !value)}>Edit home size</Button>
+              </div>
+            </section> : null}
+            {!draft.starterComplete || editingSize ? <RadioCardGroup
               id="move-size"
               name="moveSize"
               legend="Size of your move"
@@ -774,7 +724,7 @@ function SurveyFlow({
               onValueChange={(value) => update({ moveSize: value })}
               error={errors.moveSize}
               options={SURVEY_MOVE_SIZES.map((size) => ({ value: size, label: MOVE_SIZE_LABELS[size] }))}
-            />
+            /> : null}
             <fieldset id="services" className="m-0 grid gap-1 border-0 p-0" aria-describedby={errors.services ? errorId("services") : "services-help"}>
               <legend className="mb-1 p-0 text-[0.9375rem] font-semibold text-text">Services you need (optional)</legend>
               <p id="services-help" className="type-small text-text-3">
@@ -825,9 +775,10 @@ function SurveyFlow({
                   id={`channel-${channel}`}
                   label={CHANNEL_LABELS[channel]}
                   checked={contact.channels.includes(channel)}
-                  onChange={(e) =>
-                    setContact((c) => ({ ...c, channels: e.target.checked ? [...c.channels, channel] : c.channels.filter((x) => x !== channel) }))
-                  }
+                  onChange={(e) => {
+                    setContact((c) => ({ ...c, channels: e.target.checked ? [...c.channels, channel] : c.channels.filter((x) => x !== channel) }));
+                    setConsentChecked(false);
+                  }}
                   {...(errors.channels ? { "aria-invalid": true } : {})}
                 />
               ))}
@@ -983,7 +934,7 @@ function SurveyFlow({
             <MoveSidebar draft={draft} coverage={coverage} texts={texts} />
           </div>
         </details>
-        <Stepper current={stepIndex + 1} total={steps.length} label={infoPath ? STEP_LABELS.need : STEP_LABELS[draft.step]} />
+        <Stepper current={stepIndex + 1} total={steps.length} label={infoPath ? STEP_LABELS.need : draft.starterComplete && draft.step === "size" ? "Services" : STEP_LABELS[draft.step]} />
         {draft.step !== "size" && draft.step !== "review" ? formAlert : null}
         {body}
         <p aria-live="polite" role="status" className="sr-only">

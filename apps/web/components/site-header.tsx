@@ -36,7 +36,7 @@ export async function SiteHeader() {
   return <header className="site-header relative z-40 border-b border-border/70 bg-surface">
     <div className="border-b border-border/70 bg-surface-2"><div className="mx-auto flex min-h-9 max-w-content flex-wrap items-center justify-between gap-x-4 gap-y-1 py-1 gutter type-small text-text-2"><span className="hidden sm:inline">A new home starts with a good move.</span><Link href="/explore/" className="ml-auto inline-flex min-h-8 items-center underline decoration-border-strong underline-offset-4">Moving guidance, wherever you're going<ArrowRightIcon size={13} className="ml-2" /></Link></div></div>
     <div className="mx-auto flex min-h-24 max-w-content items-center justify-between gap-3 py-2 gutter xl:gap-6">
-      <div className="min-w-0 shrink-0"><Wordmark href="/" className="max-w-[min(52vw,15rem)]" /></div>
+      <div className="site-header-brand min-w-0"><Wordmark href="/" className="max-w-[min(52vw,15rem)]" /></div>
       <nav aria-label="Primary" className="ml-auto hidden xl:block"><ul className="flex items-center gap-1">
         <li><NavDisclosure label="Plan a move"><MegaPanel><div className="grid gap-8 lg:grid-cols-[1fr_1fr_1.15fr]"><NavGroup group={group("move")} /><NavGroup group={group("cost")} /><NavFeature kind="plan" /></div></MegaPanel></NavDisclosure></li>
         <li><NavDisclosure label={<span>All moving guides <span className="ml-1 rounded-pill bg-surface-3 px-2 py-0.5 text-xs tabular">{overview?.total.toLocaleString("en-US") ?? "Explore"}</span></span>}><MegaPanel><GuideDiscovery overview={overview} id="header" searchLabel="Header moving guide search" /></MegaPanel></NavDisclosure></li>

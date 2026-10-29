@@ -254,7 +254,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
           <div className={styles.photoComposition}>
             <figure className={styles.photoMain} data-editorial-image={images[0]!.id}>
               <MediaFrame asset={images[0]!} sizes="(min-width: 1024px) 40vw, 100vw" />
-              <figcaption className={styles.photoLabel}>Your next chapter</figcaption>
+              <figcaption className={styles.photoLabel} data-content-inset="compact">Your next chapter</figcaption>
               <span className={styles.photoSymbol}><Icon3D name={familyIcon} size={58} float /></span>
             </figure>
             <div className={styles.photoStrip} aria-label="Moving in focus">

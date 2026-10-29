@@ -89,7 +89,7 @@ export default async function HomePage() {
       <Link href="/how-we-verify-movers/" className="home-text-link">How our network is screened<LineIcon name="arrow-right" size={18} /></Link>
     </div></section>
     <Section aria-labelledby="plan-ahead" className="home-planning"><div className="home-planning-grid">
-      <div className="home-planning-art" data-motion="scale"><MediaFrame asset={planning} sizes="(min-width: 1024px) 48vw, 100vw" /><div className="home-planning-stamp"><Icon3D name="calculator" size={60} /><span>A clearer plan.<br /><strong>A calmer move.</strong></span></div></div>
+      <div className="home-planning-art" data-motion="scale"><div className="home-planning-media"><MediaFrame asset={planning} sizes="(min-width: 1024px) 48vw, 100vw" /></div><div className="home-planning-stamp" data-content-inset="card"><Icon3D name="calculator" size={60} /><span>A clearer plan.<br /><strong>A calmer move.</strong></span></div></div>
       <div className="home-planning-copy" data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />Before the first box</p><h2 id="plan-ahead">Know a little more.<br />Worry a little less.</h2><p>From understanding an estimate to planning your packing, a little preparation goes a long way.</p><div className="home-resource-list">{RESOURCES.map((r) => <Link href={r.href} key={r.href} data-content-inset="compact"><Icon3D name={r.icon} size={42} /><span><strong>{r.title}</strong><small>{r.body}</small></span><LineIcon name="arrow-right" size={18} /></Link>)}</div></div>
     </div></Section>
     <Section tone="alt" aria-labelledby="home-faq" className="home-faq-section"><div className="home-faq-grid">
