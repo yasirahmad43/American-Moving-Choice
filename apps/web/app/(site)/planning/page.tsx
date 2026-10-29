@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { HubPage, hubMetadata, type HubSpec } from "@/components/seo/hub-page";
+import { notFound, permanentRedirect } from "next/navigation";
+import { HubPage, hubMetadata, hubPageUrl } from "@/components/seo/hub-page";
+import { PLANNING_HUB } from "@/components/seo/editorial-hub-specs";
+import { parseHubPageNumber } from "@/components/seo/hub-pagination";
 
-const SPEC: HubSpec = {
-  url: "/planning/",
-  family: "planning",
-  title: "Moving Planning Checklists Built on the Rules | American Moving Choice",
-  h1: "Moving planning",
-  description: "Checklists and timelines for a move, ordered around the documents an interstate mover owes you: survey, written estimate, booklets, bill of lading, weighing and delivery.",
-  lede: "Practical checklists that follow the paperwork order federal rules set for interstate moves, with the practical steps around them.",
-};
+export const metadata: Metadata = hubMetadata(PLANNING_HUB);
 
-export const metadata: Metadata = hubMetadata(SPEC);
-
-export default async function PlanningHub() {
+export default async function PlanningHub({ searchParams }: { searchParams: Promise<{ page?: string | string[] }> }) {
   await connection();
-  return <HubPage spec={SPEC} />;
+  const { page } = await searchParams;
+  if (page !== undefined) {
+    const number = parseHubPageNumber(page);
+    if (number === null) notFound();
+    permanentRedirect(hubPageUrl(PLANNING_HUB, number));
+  }
+  return <HubPage spec={PLANNING_HUB} />;
 }

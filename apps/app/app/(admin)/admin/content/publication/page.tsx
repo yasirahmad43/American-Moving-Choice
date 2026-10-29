@@ -1,6 +1,6 @@
 import { KNOWN_RESEARCH_FILES, PIPELINE_STEP_LABELS, publicationDashboard } from "@amc/server/admin";
 import { hasAdminRole, requireAdmin } from "@amc/server/auth";
-import { SEO_FAMILIES } from "@amc/server/seo";
+import { EDITORIAL_PUBLICATION_TARGETS, SEO_FAMILIES, SEO_SITEMAP_SEGMENTS } from "@amc/server/seo";
 import { Alert, Card, Checkbox, Field, Input, PageHeader, Select, Table } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -19,6 +19,12 @@ export default async function PublicationPage() {
   const d = await publicationDashboard();
   const canRun = hasAdminRole(adminRole, ROLES.content);
   const familyOptions = SEO_FAMILIES.filter((f) => f !== "mover-profile");
+  const editorialTargets = (["question", "planning"] as const).map((family) => {
+    const counts = d.counts.find((row) => row.family === family);
+    const target = EDITORIAL_PUBLICATION_TARGETS[family];
+    const published = counts?.published ?? 0;
+    return { family, label: family === "question" ? "Moving questions" : "Moving checklists", target, published, remaining: Math.max(0, target - published), candidates: counts?.planned ?? 0 };
+  });
   return (
     <div className="grid gap-8">
       <PageHeader size="portal" title={item.label} description={item.description} />
@@ -35,6 +41,25 @@ export default async function PublicationPage() {
           <StatTile label="Ready to publish" value={d.totals.ready} href={`/admin/content${qs({ status: "ready" })}`} note={`${d.totals.review} in review · ${d.totals.draft} draft`} />
           <StatTile label="Blocked by a gate" value={d.totals.blocked} href={`/admin/content${qs({ blocked: "yes" })}`} note={`${d.totals.hypothesis} pages on a hypothesis keyword`} />
         </div>
+      </section>
+      <section aria-labelledby="editorial-targets">
+        <SectionTitle id="editorial-targets" description="Targets are goals. Published counts come from the content store. Authored candidates are the available catalog entries; drafts and blocked pages do not count as published.">
+          Questions and checklist progress
+        </SectionTitle>
+        <Table
+          caption="Editorial publication targets and actual counts"
+          hideCaption
+          compact
+          rowKey={(row) => row.family}
+          rows={editorialTargets}
+          columns={[
+            { key: "family", header: "Collection", cell: (row) => <Link href={`/admin/content${qs({ family: row.family })}`} className="font-semibold text-link underline">{row.label}</Link> },
+            { key: "target", header: "Target", numeric: true, cell: (row) => row.target.toLocaleString("en-US") },
+            { key: "published", header: "Actual published", numeric: true, cell: (row) => row.published.toLocaleString("en-US") },
+            { key: "remaining", header: "Still to publish", numeric: true, cell: (row) => row.remaining.toLocaleString("en-US") },
+            { key: "candidates", header: "Authored candidates", numeric: true, cell: (row) => row.candidates.toLocaleString("en-US") },
+          ]}
+        />
       </section>
       <section aria-labelledby="families">
         <SectionTitle id="families" description="The pipeline report (pnpm seo:report): planned is the candidate pool in the geo tables and catalog; researched counts pages whose primary keyword has a measured Semrush row.">
@@ -79,7 +104,7 @@ export default async function PublicationPage() {
           />
         </section>
         <section aria-labelledby="sitemaps">
-          <SectionTitle id="sitemaps" description={`Segmented sitemaps (apps/web/lib/sitemaps.ts): core.xml and companies.xml always exist; a family segment appears once it has indexable pages, in files of 1,000 URLs. Last build (latest lastmod): ${d.sitemap.lastBuild ? d.sitemap.lastBuild.toISOString() : "no indexable page yet"}.`}>
+          <SectionTitle id="sitemaps" description={`Only core.xml always exists. A family segment appears once it has indexable pages; numbered families use files of up to 1,000 URLs. Latest content change: ${d.sitemap.lastBuild ? d.sitemap.lastBuild.toISOString() : "no indexable page yet"}.`}>
             Sitemap status: {d.sitemap.files} files, {d.sitemap.urls.toLocaleString("en-US")} programmatic URLs
           </SectionTitle>
           <Table sortable
@@ -89,7 +114,7 @@ export default async function PublicationPage() {
             rowKey={(r) => r.name}
             rows={d.sitemap.segments}
             columns={[
-              { key: "segment", header: "Segment", cell: (r) => <Mono>{r.name}{r.files > 1 ? `-1…${r.files}` : ""}.xml</Mono> },
+              { key: "segment", header: "Segment", cell: (r) => <Mono>{r.name}{SEO_SITEMAP_SEGMENTS.find((segment) => segment.name === r.name)?.chunked ? r.files > 1 ? `-1…${r.files}` : "-1" : ""}.xml</Mono> },
               { key: "files", header: "Files", numeric: true, cell: (r) => r.files },
               { key: "urls", header: "URLs", numeric: true, cell: (r) => r.urls },
               { key: "lastmod", header: "Last change", cell: (r) => <When value={r.lastmod} /> },

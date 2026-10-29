@@ -121,9 +121,26 @@ export async function publishedPages(family: SeoFamily, db: Queryable = getPool(
   return result.rows.map((r) => ({ url: r.url, title: r.title, h1: r.h1, family: r.family, stateCode: r.state_code, updatedAt: r.updated_at, indexable: r.indexable }));
 }
 
-/** Published, indexable pages for a sitemap segment (never noindex or draft pages). */
-export async function sitemapEntries(family: SeoFamily, db: Queryable = getPool()): Promise<{ url: string; lastmod: Date }[]> {
-  const result = await db.query<{ url: string; updated_at: Date }>("select url, updated_at from seo_pages where family = $1 and status = 'published' and indexable order by url", [family]);
+export interface SitemapPageOptions { limit?: number; offset?: number }
+type SitemapEntry = { url: string; lastmod: Date };
+
+/**
+ * Bounded reads for one sitemap segment. The historical (family, db) form remains available
+ * to internal callers; public XML handlers pass explicit bounds rather than loading a family
+ * and slicing it in JavaScript.
+ */
+export function sitemapEntries(family: SeoFamily, db?: Queryable): Promise<SitemapEntry[]>;
+export function sitemapEntries(family: SeoFamily, options: SitemapPageOptions, db?: Queryable): Promise<SitemapEntry[]>;
+export async function sitemapEntries(family: SeoFamily, optionsOrDb?: SitemapPageOptions | Queryable, explicitDb?: Queryable): Promise<SitemapEntry[]> {
+  const legacy = optionsOrDb && "query" in optionsOrDb;
+  const db = legacy ? optionsOrDb as Queryable : explicitDb ?? getPool();
+  const options = !legacy ? optionsOrDb as SitemapPageOptions | undefined : undefined;
+  const limit = options?.limit ?? 1000, offset = options?.offset ?? 0;
+  if (options && (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000 || !Number.isSafeInteger(offset) || offset < 0)) throw new RangeError("Invalid sitemap page bounds");
+  const result = await db.query<{ url: string; updated_at: Date }>(
+    "select url, updated_at from seo_pages where family = $1 and status = 'published' and indexable order by url" + (options ? " limit $2 offset $3" : ""),
+    options ? [family, limit, offset] : [family],
+  );
   return result.rows.map((r) => ({ url: r.url, lastmod: r.updated_at }));
 }
 

@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { HubPage, hubMetadata, type HubSpec } from "@/components/seo/hub-page";
+import { notFound, permanentRedirect } from "next/navigation";
+import { HubPage, hubMetadata, hubPageUrl } from "@/components/seo/hub-page";
+import { QUESTIONS_HUB } from "@/components/seo/editorial-hub-specs";
+import { parseHubPageNumber } from "@/components/seo/hub-pagination";
 
-const SPEC: HubSpec = {
-  url: "/questions/",
-  family: "question",
-  title: "Moving Questions Answered From the Rules | American Moving Choice",
-  h1: "Moving questions",
-  description: "Direct answers to common moving questions, each built on 49 CFR Part 375, FMCSA consumer guidance or the platform's own rules, with the source and the date it was read.",
-  lede: "Every answer names its source and the date we read it. Where no rule exists, the page says so instead of guessing.",
-};
+export const metadata: Metadata = hubMetadata(QUESTIONS_HUB);
 
-export const metadata: Metadata = hubMetadata(SPEC);
-
-export default async function QuestionsHub() {
+export default async function QuestionsHub({ searchParams }: { searchParams: Promise<{ page?: string | string[] }> }) {
   await connection();
-  return <HubPage spec={SPEC} />;
+  const { page } = await searchParams;
+  if (page !== undefined) {
+    const number = parseHubPageNumber(page);
+    if (number === null) notFound();
+    permanentRedirect(hubPageUrl(QUESTIONS_HUB, number));
+  }
+  return <HubPage spec={QUESTIONS_HUB} />;
 }

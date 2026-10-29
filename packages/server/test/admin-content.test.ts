@@ -601,7 +601,7 @@ describe("pipeline jobs and dashboards", () => {
     expect(dashboard.blockedReasons.map((r) => r.reason)).toEqual(expect.arrayContaining(["blocked: insufficient evidence", "blocked: below 40% unique content"]));
     const routes = dashboard.sitemap.segments.find((s) => s.name === "routes")!;
     expect(routes).toMatchObject({ files: 1, urls: 2 });
-    expect(dashboard.sitemap.files).toBe(2 + dashboard.sitemap.segments.filter((s) => s.urls > 0).length);
+    expect(dashboard.sitemap.files).toBe(1 + dashboard.sitemap.segments.reduce((sum, segment) => sum + segment.files, 0));
     expect(dashboard.sitemap.lastBuild).not.toBeNull();
     expect(dashboard.runs.map((r) => r.job_name)).toContain("seo_publish");
     const report = join(webRoot, "crawl-report.md");

@@ -8,7 +8,9 @@
  * `related` names other catalog slugs and families the page links to; the generator resolves
  * them to published URLs only.
  */
-import type { ContentBlock, FaqItem } from "./types";
+import type { ContentBlock, FaqItem, SourceRef } from "./types";
+import { QUESTION_EXPANSION_CATALOG, QUESTION_EXPANSION_SOURCES } from "./question-expansion-catalog";
+import { PLANNING_EXPANSION } from "./planning-expansion-catalog";
 
 export interface CatalogEntry {
   family: "service" | "question" | "planning";
@@ -24,6 +26,8 @@ export interface CatalogEntry {
   sections: { heading: string; blocks: ContentBlock[] }[];
   /** National fact topics (facts.ts) rendered as a sourced facts block. */
   factTopics: string[];
+  /** Additional primary references for the entry's material/model-specific advice. */
+  sources?: SourceRef[];
   faq: FaqItem[];
   /** Links: "service:local", "cost:state", "question:<slug>", "planning:<slug>", "movers:index". */
   related: string[];
@@ -1259,7 +1263,11 @@ export const PLANNING: CatalogEntry[] = [
   ),
 ];
 
-export const CATALOG: CatalogEntry[] = [...SERVICES, ...QUESTIONS, ...PLANNING];
+export const CATALOG: CatalogEntry[] = [
+  ...SERVICES, ...QUESTIONS, ...PLANNING,
+  ...QUESTION_EXPANSION_CATALOG.map(entry => ({ ...entry, sources: QUESTION_EXPANSION_SOURCES[entry.slug] ?? [] })),
+  ...PLANNING_EXPANSION,
+];
 
 export function catalogEntry(family: CatalogEntry["family"], slug: string): CatalogEntry | null {
   return CATALOG.find((e) => e.family === family && e.slug === slug) ?? null;

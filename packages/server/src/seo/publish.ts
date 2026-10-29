@@ -28,6 +28,8 @@ export interface PublishOptions {
   status?: "ready" | "review" | "draft";
   family?: SeoFamily;
   limit?: number;
+  /** Explicit reviewed cohort; unrelated ready drafts must not be published by a batch job. */
+  urls?: string[];
   log?: (line: string) => void;
 }
 
@@ -44,12 +46,12 @@ export async function publishPages(db: Queryable, options: PublishOptions = {}):
     `with chosen as (
        select id from seo_pages where status = $1 and blocked_reason is null
          and not exists (select 1 from jsonb_each(gate_results) g where g.value->>'passed' = 'false')
-         and ($2::text is null or family = $2) order by family, url limit $3
+         and ($2::text is null or family = $2) and ($4::text[] is null or url = any($4::text[])) order by family, url limit $3
      )
      update seo_pages p set status = 'published', published_at = coalesce(p.published_at, now()), indexable = (p.blocked_reason is null), canonical_url = p.url
        from chosen where chosen.id = p.id
      returning p.url, p.indexable`,
-    [status, options.family ?? null, options.limit ?? 100_000],
+    [status, options.family ?? null, options.limit ?? 100_000, options.urls ?? null],
   );
   log(`published ${result.rows.length} pages (${result.rows.filter((r) => r.indexable).length} indexable)`);
   const redirects = await syncRouteRedirects(db);
