@@ -23,7 +23,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const { WEB_URL, SITE_INDEXABLE } = env();
   const filters = catalogFilters(await searchParams);
   const filtered = filters.query || filters.state || filters.type !== "all" || filters.page > 1;
-  return { title: "All Moving Guides & Pages | American Moving Choice", description: DESCRIPTION,
+  return { title: "All Moving Guides & Pages", description: DESCRIPTION,
     ...(filtered ? { robots: { index: false, follow: true } } : SITE_INDEXABLE ? { alternates: { canonical: `${WEB_URL}/explore/` } } : {}),
     ...socialMetadata(catalogUrl(filters), "All Moving Guides & Pages | American Moving Choice", DESCRIPTION, { family: filters.type === "all" ? undefined : filters.type, stateCode: filters.state || undefined }) };
 }

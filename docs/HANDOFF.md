@@ -5,6 +5,29 @@ verifiable from the repository; nothing here depends on the previous assistant's
 
 ### Search and conversion review — 2026-10-29
 
+Geographic-label follow-up (`codex/census-county-labels`): the full `67b2e82` inventory found
+malformed equivalent names such as “Colonial Heights (city County”, “City of Richmond County”,
+“Orleans County” in Louisiana, “Anchorage Municipality County” and “District of Columbia County”.
+The shared formatter now uses 135 exact current-FIPS names from the official 2025 Census
+national county Gazetteer: 41 independent cities plus 64 Louisiana parishes, 29 Alaska
+equivalents and DC. Carson City retains its exact name. Retired source FIPS 02232 is deliberately
+unmapped; its complete old literal is protected from accidentally matching the current
+Hoonah-Angoon suffix. No boundary or FIPS reassignment is inferred.
+
+Saved-label repair runs after private-company redaction. The 23 Louisiana aliases that also
+name ordinary counties elsewhere require immediate explicit Louisiana wording or verified
+structured context. Own-location fields use the page's primary County data point; mixed-state
+County rows use their State/City marker or matching route-end Page-row link, including plain
+below-threshold “City, LA” markers. A route's origin state never authorizes pagewide parish
+replacement. Ordinary NY/VT Orleans County, TN Franklin County and MS Jackson/DeSoto County
+are covered by preservation tests. URLs, IDs, hashes, dates, numbers, stored records, matching,
+publication gates and bootstrap version remain unchanged. This is a display correction, not an
+availability, demographic or market-data update. Focused validation: 141 core tests and 108 web
+tests pass; core, server and web typechecks pass. Final release checks must use the complete
+frozen `67b2e82` inventory plus fresh affected pages and reconcile the unchanged remainder.
+The same batch removes a duplicated layout brand suffix from the `/explore/` document title;
+its social metadata and page body remain intact.
+
 Reader follow-up: the initial release `721ee96328689fd4ef9ea6736024f743e6291262` has a
 preserved **partial** 584-page post-release crawl, not a final whole-site verification. The next
 candidate uses complete authored metadata sentences for brief hero previews, with a complete

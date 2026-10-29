@@ -1,11 +1,14 @@
 import type { SeoPageRecord } from "@amc/server/seo";
+import { normalizeLegacyCityCountyLabels } from "@amc/core";
 import { PUBLIC_REQUEST_ASSURANCE, publicMarketingText } from "../../lib/public-copy";
+import { repairCountyLabelContexts } from "./county-label-context";
 
 const CONTACT_EXPLANATION = "Tell us about your move and choose the maximum number of participating companies that may contact you. Companies introduce themselves when they reach out.";
 const RETIRED_DIRECTORY_LINK = /\[[^\]]*\]\((?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)\/[^)]*\)/gi;
 const RETIRED_DIRECTORY_URL = /(?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)\/[^\s)"'<>]*/gi;
 const LEGACY_DISCLOSURE = /by name and USDOT|movers? named on (?:your|the) Review and send screen|every mover named before|review every name|the list above names them|remove any (?:named )?mover/i;
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const COUNTY_DISPLAY_EXCLUDED_KEYS = new Set(["id", "url", "href", "slug", "canonicalUrl", "parentUrl", "contentHash", "mediaIds"]);
 const ZIP_RULE_COUNTS_NOTE = "Named counts are ZIP- or county-specific local rules; total matches can also include broader rules. These dated counts describe a representative local move. The quote survey checks the rules against your exact route and move details.";
 const BINDING_ESTIMATE_DESCRIPTION = "Compare binding and non-binding interstate estimates, the extra charges that can apply, and what may be due at delivery.";
 const LEGACY_BINDING_DESCRIPTIONS = new Set([
@@ -102,11 +105,12 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
     .flatMap((block) => block.type === "movers" ? block.items.map((mover) => mover.name) : [])
     .filter(Boolean))].sort((a, b) => b.length - a.length)
     .map((name) => new RegExp(escapeRegExp(name), "gi"));
-  const redact = (text: string) => {
+  const redact = (text: string, countyDisplay = true) => {
     let result = repairMovingCopy(text, page).replace(RETIRED_DIRECTORY_LINK, "[Request moving quotes](/get-quotes/)")
       .replace(RETIRED_DIRECTORY_URL, "/get-quotes/");
     if (LEGACY_DISCLOSURE.test(result)) return CONTACT_EXPLANATION;
     for (const identity of identities) result = result.replace(identity, "a participating moving company");
+    if (countyDisplay) result = normalizeLegacyCityCountyLabels(result);
     // Population-eligible cities are not necessarily published after the quality gates.
     // Keep the geographic counts; never present them as counts of available guides.
     if (page.family === "state") result = result
@@ -117,11 +121,11 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
       .replace(/(\d[\d,]*) city pages?\b/gi, "$1 city records");
     return publicMarketingText(result);
   };
-  const strings = <T,>(value: T): T => {
-    if (typeof value === "string") return redact(value) as T;
+  const strings = <T,>(value: T, countyDisplay = true): T => {
+    if (typeof value === "string") return redact(value, countyDisplay) as T;
     if (value instanceof Date) return new Date(value.getTime()) as T;
-    if (Array.isArray(value)) return value.map(strings) as T;
-    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, strings(item)])) as T;
+    if (Array.isArray(value)) return value.map(item => strings(item, countyDisplay)) as T;
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, strings(item, countyDisplay && !COUNTY_DISPLAY_EXCLUDED_KEYS.has(key))])) as T;
     return value;
   };
   // Copy all fields, not just the content body: sources and metadata can repeat old identities.
@@ -167,5 +171,5 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   const fundingLink = (href: string) => /\/(?:advertising-disclosure|how-we-make-money)\//i.test(href);
   content.related = content.related.map((group) => ({ ...group, links: group.links.filter((link) => !fundingLink(link.href)) })).filter((group) => group.links.length);
   result.sources = result.sources.filter((source) => !fundingLink(source.url));
-  return result;
+  return repairCountyLabelContexts(result);
 }
