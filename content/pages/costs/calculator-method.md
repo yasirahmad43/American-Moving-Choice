@@ -32,14 +32,13 @@ depends_on:
   - "Owner: name the author, the reviewer and the data owner (brief §11 Q9; implications §11 Q17)"
   - "Owner: the review note's AI line and the author's 'Edited by' label; default shown: the editorial policy's defaults (content/pages/trust/editorial-policy.md, 'How we tell you')"
   - "Owner: whether and how a route page hands its route to the calculator (site architecture §3.2 vs §1.2, §8.8; calculator brief §10 item 11)"
-  - "Owner: the calculator runs the coverage check after every result; default shown (implications §2.2; backlog 4.1.6; build plan §7.3)"
-  - "Owner and counsel: a planning range from the cost model at What we found, when data allows; default shown (implications §2.2; build plan §7.2 lists only the count and names; consumer-moving-rules note, counsel item 1; compliance facts §2). If declined, the What we found sentences in 'When does the calculator show no range?' and 'How do I read the label on a range?' go, as on Which companies receive my request"
+  - "Owner decision 2026-10-29: valid move requests can be saved independently of calculator price-data thresholds."
 last_updated: 2026-10-29
 ---
 
 # How the moving cost calculator works
 
-The moving cost calculator on American Moving Choice shows a planning range for a household move, wherever enough movers in our network give us rate cards that cover it. We apply each mover's own rates to a typical move like yours and show the middle of the results. A range isn't a quote or an estimate.
+The moving cost calculator on American Moving Choice shows a planning range for a household move, wherever enough participating movers give us rate cards that cover it. We apply each mover's own rates to a typical move like yours and show the middle of the results. A range isn't a quote or an estimate.
 
 <!-- ST-6 -->
 > Movers set their own prices. American Moving Choice doesn't give quotes or estimates. These ranges are for planning only; only a mover's written estimate tells you what your move will cost.
@@ -101,7 +100,7 @@ For a long-distance move, the distance also sets the distance band. Once you've 
 
 [Data: v1 proposal; the defaults below match build plan §7.3, and the data owner confirms them before launch: the rate-card format; both formulas (every interstate move uses the long-distance formula, however short; local ranges don't change with distance); which movers count, including the every-service rule; the storage period and the specialty-item definition; how typical hours, weights and crew sizes are set; the percentiles; the rounding units; and the distance bands]
 
-Each range comes from rate cards: what movers in our network tell us they charge. We apply each mover's stated rates to the same typical job, then take the middle of the results.
+Each range comes from rate cards: what participating movers tell us they charge. We apply each mover's stated rates to the same typical job, then take the middle of the results.
 
 ### What a rate card holds
 
@@ -117,7 +116,7 @@ The rate-card format used by the model lists:
 
 ### Which movers count
 
-A mover's rate card goes into your range only if the mover is currently in our network, its rate card covers the state you're moving from, and it has rates for your move type, distance band, home size and every service you pick. We call these movers the contributing movers. A range needs at least {{cost.method.min_movers}} of them. Movers under common ownership count as one. [Build: rate cards count only while the mover's account is active: approved and not suspended] [Data: the area is the origin state for every move type in v1 (build plan §7.3); a later version may narrow it to counties for local moves] [Owner: extend implications §11 Q12 (one purchase per corporate family) to range counting — default shown: yes; the data owner says which brand's rate card counts] [Build: counting a corporate family as one mover needs family data (implications §9.5); until it exists, each company counts separately, so this sentence waits for that data]
+A mover's rate card goes into your range only if the mover is an active participant, its rate card covers the state you're moving from, and it has rates for your move type, distance band, home size and every service you pick. We call these movers the contributing movers. A range needs at least {{cost.method.min_movers}} of them. Movers under common ownership count as one. [Build: rate cards count only while the mover's account is active: approved and not suspended] [Data: the area is the origin state for every move type in v1 (build plan §7.3); a later version may narrow it to counties for local moves] [Owner: extend implications §11 Q12 (one purchase per corporate family) to range counting — default shown: yes; the data owner says which brand's rate card counts] [Build: counting a corporate family as one mover needs family data (implications §9.5); until it exists, each company counts separately, so this sentence waits for that data]
 
 Under our proposed rules, movers who serve a market where the calculator shows ranges give us a rate card when they join. [Owner: whether rate-card submission is required at onboarding — default shown: required for movers in markets with a published range (new question; not in implications §11)]
 
@@ -163,15 +162,15 @@ We don't raise or lower any mover's figures; rounding the range outward is the o
 
 A range shows only when at least {{cost.method.min_movers}} contributing movers price your move (see [Which movers count](#which-movers-count)). With fewer, the calculator shows no range, because a range resting on too few movers could mislead you. A range also stops showing when too few of its rate cards are recent enough; see [how the method is updated](#how-is-the-method-updated).
 
-When there's no range, the calculator says it doesn't have enough data for this move yet and names the cause: for example, too few movers' rate cards cover your area, move type and home size, or too few movers price a service you picked, which you can remove to see a range. The calculator still tells you how many movers in our network serve your move. [Owner: the calculator runs the coverage check after every result — default shown, as on the calculator page (implications §2.2; backlog 4.1.6; build plan §7.3 says "offered")] [Owner: names or a count before contact (implications §11 Q1); matches the calculator's cta.button] If any do, you can [request quotes from them](/get-quotes/); if none does, the calculator tells you so.
+When there's no range, the calculator says it doesn't have enough data for this move yet and names the pricing-data cause: for example, too few recent rate cards cover the area, move type and home size, or too few price every service you picked. Removing a service may allow the calculator to show a range for a different selection; it does not prove that service is free.
 
-The "What we found" step of the quote survey follows the same rule. It always shows how many movers serve your move, and adds a range from this model, with the same label, when the data allows. Otherwise it says why there's no range. [Owner: a planning range at What we found — default shown (implications §2.2); build plan §7.2 lists only the count and names. If declined, this paragraph keeps only the count and the mentions of What we found under "How do I read the label on a range?" go] [Counsel: a planning range inside the request flow, before contact details (consumer-moving-rules note, counsel item 1; compliance facts §2)] [Build: the no-range state names its cause, such as too few rate cards for the area and move or too few that price a picked service, and still offers the coverage check; with no coverage it says no mover serves the move and offers no request (lead lifecycle §2 coverage pre-check); the "What we found" step uses the same model and thresholds (implications §2.2)]
+You can [continue to a moving request](/get-quotes/) with your move details whether or not a planning range is shown. The request is a separate step: review your answers, choose your contact preferences and send only after reviewing the permission text. A missing calculator range does not prevent a valid request from being saved.
 
 ## Where does the data come from?
 
 We use these sources in this order of preference. Only the first one sets a calculator range. [Data: the role of each source; site architecture §6.3 rule 2(d) also allows cited studies as a range source, so limiting calculator ranges to rate cards is this draft's proposal]
 
-1. **Rate cards from movers in our network.** The source of every calculator range, including the typical hours and weights. A range needs at least {{cost.method.min_movers}} contributing movers (see [Which movers count](#which-movers-count)).
+1. **Rate cards from participating movers.** The source of every calculator range, including the typical hours and weights. A range needs at least {{cost.method.min_movers}} contributing movers (see [Which movers count](#which-movers-count)).
 2. **Totals from consented move requests sent through our site**, combined so no single request shows. Only for facts that aren't prices, and never for prices. We use them only with at least {{cost.method.request_min_n}} requests per area over at least {{cost.method.request_min_days}} days, and we hide any group of fewer than {{cost.method.request_suppress_below}} requests. If we show figures built from requests, we call them "recent request mix by route and size", never "recent estimates". [Owner: apply site architecture §7.5's 90-day period to request data in the cost model — default shown (new question)] [Counsel: confirm the consent basis for aggregate use of request data and that the privacy policy permits it, and review the "recent request mix" block (site architecture §6.3 rule 7, §7.5, §11)]
 3. **Public data**, such as Bureau of Labor Statistics wage data for the occupation "Laborers and Freight, Stock, and Material Movers, Hand" (SOC 53-7062). We use it only as context on labor costs. It never sets or changes a range. [Verify: confirm the occupation title against the BLS occupational profile and link it before publishing; docs/research/content-claims/consumer-moving-rules.md C20 gives this title]
 4. **Third-party studies that publish their method**, cited by name and date, but never figures from other moving-request or review sites. They give context and never set a calculator range. [Owner: README §5 bars naming competitors in consumer copy, while site architecture §6.3 rule 2 allows competitor figures as cited context — default shown, as in the editorial policy ("Where our facts come from")]
@@ -208,7 +207,7 @@ They use this model and its exclusions. Each row names its area, the distance ba
 
 ## How do I read the label on a range?
 
-Every range from this model carries this label, wherever it appears: in the calculator, in its results view and, if a range is adopted there, in the "What we found" step of the quote survey (see the [Owner] marker under "When does the calculator show no range?").
+Every range from this model carries this label in the calculator and its results view.
 
 <!-- ST-7 -->
 > **Planning range, not a quote:** {{cost.result.range}} for {{cost.result.scope}}. Based on {{cost.result.basis}}; data as of {{cost.result.as_of}}; model {{cost.model.version}}. [How this range is calculated]
@@ -223,7 +222,7 @@ Every range from this model carries this label, wherever it appears: in the calc
 | "data as of …" | The date of the oldest rate card behind the range, so every rate card in it is at least that recent |
 | "model …" | The model version, the same one shown in the Current version table on this page |
 
-Wherever a range appears, it also lists the services and season it assumes and what it leaves out. A range never appears without them, or without its scope, source, date and a link to this page. [Build: the calculator, its results view and, if adopted, the "What we found" step show the site architecture §6.3 rule 1 assumptions beside the label (implications §8.3, §2.2)]
+Wherever a range appears, it also lists the services and season it assumes and what it leaves out. A range never appears without them, or without its scope, source, date and a link to this page. [Build: the calculator and its results view show the assumptions beside the label.]
 
 ## Why do we call it a planning range?
 
@@ -238,13 +237,13 @@ An estimate comes from a mover, for your move. [Our guide to how movers charge](
 The cost model uses eligible rate cards and the moving details described above.
 
 - **Only active sources count toward a range.** Only movers with active accounts count, so a suspended mover's rate card drops out until the mover is reinstated. [Build: the cost model reads no purchase, spend, balance, budget or plan data, and account status is its only account input; a fixture test shows ranges don't change when a mover's spending does (implications §9.2)]
-- **Giving us a rate card earns a mover no placement.** It doesn't change where the mover appears in our directory, on our location pages or in the list of movers you see before you send a request. [Build: rate-card status is not an input to any order; under the onboarding default it affects only whether a mover can join (implications §9.2)]
+- **Giving us a rate card earns a mover no placement.** It doesn't change where the mover appears in our directory, on our location pages or in the contact preferences you choose for a request. [Build: rate-card status is not an input to any order; under the onboarding default it affects only whether a mover can join (implications §9.2)]
 
 <a id="how-is-the-method-updated"></a>
 
 ## How is the method updated?
 
-We rebuild the ranges from the latest rate cards at least every {{cost.method.refresh_months}} months, and sooner when a source changes: for example, when a mover updates its rate card, or joins or leaves our network. A rate card more than {{cost.method.max_data_age_months}} months old stops counting toward any range until the mover updates it. If that leaves too few contributing movers, the range stops showing. [Owner: apply site architecture §4.3's 12-month cost-data limit to the calculator, rate card by rate card — default shown (new question)]
+We rebuild the ranges from the latest rate cards at least every {{cost.method.refresh_months}} months, and sooner when a source changes: for example, when a mover updates its rate card, or a rate card is added or withdrawn. A rate card more than {{cost.method.max_data_age_months}} months old stops counting toward any range until the mover updates it. If that leaves too few contributing movers, the range stops showing. [Owner: apply site architecture §4.3's 12-month cost-data limit to the calculator, rate card by rate card — default shown (new question)]
 
 Every change to the method or its values gets a new model version, and every rebuild of the data gets a new dataset version. Each new version gets a dated entry in this changelog. [Build: version each dataset rebuild, log it in the changelog, and rebuild at least every {{cost.method.refresh_months}} months and whenever a rate card changes (not in build plan §7.3, which computes from active rate cards)]
 
@@ -268,7 +267,7 @@ The Federal Motor Carrier Safety Administration (FMCSA) lists estimates given by
 
 - You don't need to give any contact details to see a range.
 - Your ZIP codes, home size and other answers never go into the page's web address, and we don't send them to analytics tools.
-- We use your answers only to work out the range and how many movers in our network serve your move. We don't store them unless you continue to the quote survey. There, the survey shows your answers for you to confirm or change, and keeps your progress as you go.
+- We use your answers to work out the planning range. We don't store them unless you continue to the quote survey. There, the survey shows your answers for you to confirm or change, and keeps your progress as you go.
 - Calculator results are never indexed by search engines.
 
 If you continue, [Which companies receive my request](/which-companies-receive-my-request/) explains who can receive your details.
@@ -281,7 +280,7 @@ If a range, or anything on this page, looks wrong, use [our contact form](/repor
 
 ## Worked example: what a missing service does
 
-**Illustrative eligibility example, not a price example or a report of current mover availability.** Suppose the threshold is {{cost.method.min_movers}} contributing movers and exactly that many otherwise eligible rate cards cover your route and home size.
+**Illustrative rate-card example, not a price example.** Suppose the threshold is {{cost.method.min_movers}} contributing movers and exactly that many otherwise eligible rate cards cover your route and home size.
 
 If you add storage and one of those cards does not price the selected storage service, that card no longer supports this calculation. The eligible sample falls below the threshold, so no range should appear. Removing the unsupported service can change eligibility; it does not prove that storage is free or that a mover can store your goods.
 

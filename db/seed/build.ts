@@ -29,7 +29,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import bcrypt from "bcryptjs";
-import { CONTACT_INTRODUCTION_BODY, CONTACT_INTRODUCTION_VERSION, SURVEY_FORM_VERSION, renderConsentText } from "@amc/core/src/survey";
+import { REQUEST_INTAKE_BODY, REQUEST_INTAKE_VERSION, SURVEY_FORM_VERSION, renderConsentText } from "@amc/core/src/survey";
 import {
   classifyMove,
   matchCompany,
@@ -151,7 +151,7 @@ const ids = {
 const ADMIN = ids.user(1);
 const MOVER_OWNER = ids.user(2);
 const POLICY = "share-stepdown-v1-proposal";
-const CONSENT_VERSION = CONTACT_INTRODUCTION_VERSION;
+const CONSENT_VERSION = REQUEST_INTAKE_VERSION;
 /** The Terms and privacy acknowledgment text (a separate control from contact consent). */
 const TERMS_ACK_VERSION = "terms-ack-v0-draft";
 const CHANNELS = ["call", "sms", "email"];
@@ -753,7 +753,7 @@ function match(r: RequestSpec): Matched {
 
 /** The rendered consent text, assembled in SQL around the stored consent body (alias v). */
 function renderedConsentSql(m: Matched): string {
-  return lit(renderConsentText(CONTACT_INTRODUCTION_BODY, {
+  return lit(renderConsentText(REQUEST_INTAKE_BODY, {
     movers: m.named.map((c) => ({ displayName: c.name, usdotNumber: usdotOf(c) })),
     limit: m.request.limit,
     channels: ["call", "sms", "email"],
@@ -1140,7 +1140,7 @@ end $$;\n`);
       channels: CHANNELS,
     });
     consentStatements.push(insertSelect("consent_records", {
-      id: ids.consent(r.i), lead_id: ids.lead(r.i), consent_text_version_id: sql("v.id"), recipient_disclosure_mode: "contact_introduction", rendered_text: sql("r.rendered_text"),
+      id: ids.consent(r.i), lead_id: ids.lead(r.i), consent_text_version_id: sql("v.id"), recipient_disclosure_mode: "request_intake", rendered_text: sql("r.rendered_text"),
       rendered_text_sha256: sql("encode(sha256(convert_to(r.rendered_text, 'UTF8')), 'hex')"),
       named_company_ids: uuidArray(m.named.map((c) => ids.company(c.n))),
       removed_company_ids: uuidArray(m.removed.map((c) => ids.company(c.n))), selected_limit: r.limit,
@@ -1382,7 +1382,7 @@ end $$;\n`);
   section("sanity checks",
     `do $$ begin
   if (select count(*) from companies where is_demo and status = 'approved') < 12 then raise exception 'seed check: fewer than 12 approved demo companies'; end if;
-  if (select count(*) from consent_records) <> ${REQUESTS.length} then raise exception 'seed check: a consent record is missing (is contact-introduction-v1-draft seeded?)'; end if;
+  if (select count(*) from consent_records) <> ${REQUESTS.length} then raise exception 'seed check: a consent record is missing (is contact-request-intake-v1 seeded?)'; end if;
   if not exists (select 1 from purchase_attempts where payment_ref = 'demo_seed' and status = 'succeeded') then raise exception 'seed check: live demo purchase missing'; end if;
   if not exists (select 1 from lead_groups g where g.sharing_limit = 1 and g.status = 'available' and g.expires_at > now()
                  and not exists (select 1 from purchases p where p.group_id = g.id)) then raise exception 'seed check: no open exclusive request'; end if;

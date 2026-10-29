@@ -14,7 +14,7 @@ export const STEP_LABELS: Record<SurveyStep, string> = {
   where: "Where",
   when: "When",
   size: "Size and services",
-  found: "What we found",
+  found: "Your move",
   details: "Your details",
   count: "How many movers",
   review: "Review and send",

@@ -92,7 +92,7 @@ test.describe("moving cost calculator", () => {
     await calculate(page, "82001", "82601", "2 bedrooms");
     await expect(page.getByRole("heading", { level: 2, name: "Not enough data for a range yet" })).toBeFocused();
     await expect(page.getByText(/A range needs rate cards from at least 5 different movers/)).toBeVisible();
-    await expect(page.getByText("Check coverage for this move and choose how many movers may contact you.")).toBeVisible();
+    await expect(page.getByText("Continue with your move details and choose your contact preferences.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Request moving quotes" })).toBeVisible();
     await expect(page.getByTestId("range-label")).toHaveCount(0);
   });

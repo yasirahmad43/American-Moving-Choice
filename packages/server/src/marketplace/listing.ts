@@ -139,7 +139,7 @@ const LISTING_SQL = `
   where e.company_id = $1 and e.named_in_consent
     and company_can_purchase(c)
     and g.status = 'available' and g.expires_at > now()
-    and l.status = 'qualified' and l.withdrawn_at is null
+    and l.status = 'qualified' and l.withdrawn_at is null and not g.request_intake_pending
     and (select count(*) from purchases p where p.group_id = g.id) < g.sharing_limit
     and not exists (select 1 from purchases p where p.group_id = g.id and p.company_id = e.company_id)`;
 

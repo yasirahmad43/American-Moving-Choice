@@ -20,7 +20,7 @@ import type { Confirmation, ConfirmationMover } from "./submit";
 /** Manage-page lookups and withdrawals per IP address (build plan §6). */
 export const MANAGE_RATE_LIMIT = { limit: 30, windowSeconds: 15 * 60 } as const;
 
-export type RequestStatus = "open" | "in_review" | "sold_out" | "closed" | "withdrawn";
+export type RequestStatus = "open" | "received" | "in_review" | "sold_out" | "closed" | "withdrawn";
 
 export interface BuyerView {
   displayName: string;
@@ -109,6 +109,7 @@ async function findLead(token: string, db: Queryable, lock = false): Promise<Lea
 
 function statusOf(row: LeadRow, now: Date): RequestStatus {
   if (row.group_status === "withdrawn" || row.withdrawn_at) return "withdrawn";
+  if (row.status === "unmatched") return "received";
   if (row.status === "needs_review") return "in_review";
   if (row.group_status === "sold_out") return "sold_out";
   if (row.group_status === "expired" || row.expires_at < now) return "closed";

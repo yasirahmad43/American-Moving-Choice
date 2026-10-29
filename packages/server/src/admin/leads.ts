@@ -236,7 +236,7 @@ export async function decideLead(actor: AdminActor, leadId: string, decision: Le
         break;
       }
       case "reject": {
-        if (!["needs_review", "submitted", "qualified"].includes(lead.status)) throw new AdminError("This request can't be rejected in its current state.", "bad_status");
+        if (!["needs_review", "submitted", "qualified", "unmatched"].includes(lead.status)) throw new AdminError("This request can't be rejected in its current state.", "bad_status");
         const sold = await client.query<{ n: number }>("select count(*)::int as n from purchases where group_id = $1", [lead.group_id]);
         if ((sold.rows[0]?.n ?? 0) > 0) throw new AdminError("Movers already bought this request. Use refunds for invalid purchases instead.", "already_sold");
         await client.query("update leads set status = 'rejected' where id = $1", [leadId]);

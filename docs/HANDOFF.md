@@ -3,6 +3,25 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Always capture valid requests — owner follow-up, 2026-10-29
+
+The household and loading-help survey must accept a valid, consented request even when no
+current company can receive it. Availability is an internal routing concern: the customer sees
+"Your move details" and "Request received", without matching language, availability counts or
+a no-mover rejection. The customer explicitly chooses a contact ceiling (1–5 by default),
+contact methods and permissions; nothing is preselected. Calculator handoffs follow the same rule.
+
+Migration `250_request_intake.sql` introduces `contact-request-intake-v1` consent and a pending
+intake guard. Empty-recipient requests are saved as `unmatched`, appear in the admin Unmatched
+tab and receive a generic customer receipt. No company notices or contact-data disclosure occur
+without actual eligibility. Duplicate-group reservation/settlement guards also protect pending
+intakes. Preserve legacy consent validation and actual stored permission history.
+
+Run server/core/DB tests and `e2e/survey-continuity.config.ts` after changing this journey. The
+uncovered-route browser cases exercise Albany 12207 to Melrose 12121 through review at phone
+and desktop widths. The final-send case is local-test-database-only and withdraws its own record;
+never use it against production. Production verification stops before sending a real request.
+
 ### Survey continuity and contained overlays — owner follow-up, 2026-10-29
 
 The hero and closing starter are the first two steps of the same seven-step household journey.

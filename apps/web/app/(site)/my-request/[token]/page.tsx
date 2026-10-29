@@ -17,6 +17,11 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const STATUS: Record<RequestStatus, { label: string; tone: StatusTone; explain: (r: ManagedRequest) => string }> = {
+  received: {
+    label: "Request received",
+    tone: "info",
+    explain: () => "Your move details and contact preferences are saved. You can review or withdraw your request here.",
+  },
   open: {
     label: "Open",
     tone: "info",
@@ -25,7 +30,7 @@ const STATUS: Record<RequestStatus, { label: string; tone: StatusTone; explain: 
   in_review: {
     label: "Being checked",
     tone: "warning",
-    explain: () => "We're checking your request before matching companies can receive it.",
+    explain: () => "We're checking your request before participating companies can receive it.",
   },
   sold_out: {
     label: "Complete",
@@ -35,7 +40,7 @@ const STATUS: Record<RequestStatus, { label: string; tone: StatusTone; explain: 
   closed: {
     label: "Closed",
     tone: "neutral",
-    explain: () => "The matching period for this request has ended. No additional movers can receive your contact details through it.",
+    explain: () => "The contact period for this request has ended. No additional movers can receive your contact details through it.",
   },
   withdrawn: {
     label: "Withdrawn",
@@ -110,7 +115,7 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
               <dd className="text-text-2">{MOVE_SIZE_LABELS[r.moveSize]}</dd>
             </>
           ) : null}
-          <dt className="font-semibold text-text">Movers may contact you by</dt>
+          <dt className="font-semibold text-text">Your contact methods</dt>
           <dd className="text-text-2">{r.channels.map((c) => CHANNEL_LABELS[c]).join(", ")}</dd>
           <dt className="font-semibold text-text">Maximum movers who may contact you</dt>
           <dd className="tabular text-text-2">{r.limit}</dd>
@@ -122,10 +127,10 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
         ) : null}
       </Card>
 
-      <Card contentInset="card" as="section" title="What happens next" titleAs="h2">
+      {r.status !== "withdrawn" ? <Card contentInset="card" as="section" title="What happens next" titleAs="h2">
         <p className="text-text-2">Up to {r.limit} participating moving {r.limit === 1 ? "company" : "companies"} may contact you using the methods you chose. Each company will identify itself when it contacts you.</p>
-        <p className="mt-3 type-small text-text-2">{r.buyerCount ? `${r.buyerCount} ${r.buyerCount === 1 ? "company has" : "companies have"} received your request.` : "No company has received your contact details from us yet."}</p>
-      </Card>
+        {r.buyerCount > 0 ? <p className="mt-3 type-small text-text-2">{r.buyerCount} {r.buyerCount === 1 ? "company has" : "companies have"} received your request.</p> : null}
+      </Card> : null}
 
       {r.canWithdraw ? (
         <Card contentInset="card" as="section" title="Withdraw your request" titleAs="h2">

@@ -44,10 +44,10 @@ export function ConfirmationView({
       <header className="grid gap-2">
         <p className="type-overline text-text-2">Confirmation</p>
         <Heading ref={headingRef} tabIndex={-1} className="type-display-l text-text focus:outline-none">
-          Request sent
+          Request received
         </Heading>
         <p className="type-lede text-text-2">
-          Your reference number is <strong className="tabular text-text">{c.referenceCode}</strong>. We're sending a copy to your email address.
+          Your move details and contact preferences are saved. Your reference number is <strong className="tabular text-text">{c.referenceCode}</strong>.
         </p>
       </header>
 
@@ -74,7 +74,7 @@ export function ConfirmationView({
               {formatAbsoluteDate(c.moveDate, { month: "long" })}
             </span>
           </dd>
-          <dt className="font-semibold text-text">Movers may contact you by</dt>
+          <dt className="font-semibold text-text">Your contact methods</dt>
           <dd className="text-text-2">{channelList}</dd>
         </dl>
       </Card>
@@ -84,8 +84,8 @@ export function ConfirmationView({
           What happens next
         </h2>
         <ol className="grid list-decimal gap-2 pl-6 text-text">
-          <li>We match your request with participating moving companies that serve your move, within the limit you chose.</li>
-          <li>Each company introduces itself when it contacts you directly, only in the ways you chose. Ask for its USDOT number and written estimate.</li>
+          <li>Keep your reference number and use your private manage link to review your request.</li>
+          <li>If a moving company contacts you, it will introduce itself and use only the contact methods you chose. Ask for its USDOT number and written estimate.</li>
           <li>A reputable mover will offer an in-home or virtual survey before giving a written estimate. You're never obligated to hire anyone.</li>
         </ol>
         <p className="text-text-2">We can't promise when, or whether, any mover will get in touch.</p>
