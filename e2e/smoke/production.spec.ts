@@ -174,7 +174,7 @@ test("a demo consumer submits one anonymous request and withdraws it", async ({ 
   await page.locator("#email").fill(`amc-release-${Date.now()}@example.com`);
   await page.getByLabel("Phone number").fill("20255501" + String(Date.now() % 100).padStart(2, "0"));
   await page.locator('label[for="limit-1"]').click();
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(page.locator("#submit-notice")).toContainText("1 moving company");
   await anonymous(page);
   await expect(page.locator("#consent,#terms")).toHaveCount(0);

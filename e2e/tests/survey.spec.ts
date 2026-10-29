@@ -48,7 +48,7 @@ async function throughSize(page: Page, from: string, to: string, startAtNeed = t
 async function details(page: Page, email: string, phone: string, firstName = "Avery") {
   await expect(page.getByRole("heading", { name: "Your details" })).toBeVisible();
   await expect(page.locator('input[id^="channel-"]')).toHaveCount(0);
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(page.getByLabel("First name", { exact: true })).toBeFocused();
   await page.getByLabel("First name").fill(firstName);
   await page.getByLabel("Last name").fill("Lindqvist");
@@ -73,7 +73,7 @@ test.describe("quote survey", () => {
     await expect(page.locator('input[name="limit"]:disabled')).toHaveCount(0);
     await expectNoAxeViolations(page, "count");
     await page.locator('label[for="limit-3"]').click();
-    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Review my request", exact: true }).click();
 
     await expect(page.getByRole("heading", { name: "Review and send" })).toBeVisible();
     const roleStatement = page.locator("#main").getByText("American Moving Choice connects people planning a move with independent moving companies.");
@@ -149,7 +149,7 @@ test.describe("quote survey", () => {
       await throughSize(page, "75201", "77002");
       await details(page, email, phone);
       await page.locator(`label[for="limit-${limit}"]`).click();
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Review my request", exact: true }).click();
       await page.waitForTimeout(MIN_COMPLETION_MS);
       await page.getByRole("button", { name: "Send my request" }).click();
       await expect(page.getByRole("heading", { name: "Request received" })).toBeVisible({ timeout: 15_000 });
@@ -206,7 +206,7 @@ test.describe("quote survey", () => {
     await details(page, `profile.${Date.now()}@example.com`, uniquePhone());
     await expect(page.getByLabel(/^Only Demo /)).toHaveCount(0);
     await page.locator('label[for="limit-1"]').click();
-    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Review my request", exact: true }).click();
     await expect(page.locator("#submit-notice")).toContainText("1 moving company");
     expect(await page.content()).not.toMatch(/Demo Mesquite|9000004/);
   });

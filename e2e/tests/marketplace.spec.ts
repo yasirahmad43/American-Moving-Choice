@@ -51,7 +51,7 @@ async function sendExclusiveRequest(browser: Browser, person: { firstName: strin
   await page.locator("#email").fill(person.email);
   await page.getByLabel("Phone number").fill(person.phone);
   await page.locator('label[for="limit-1"]').click();
-  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(page.locator("#consent,#terms")).toHaveCount(0);
   await expect(page.locator("#submit-notice")).toContainText("1 moving company");
   await page.waitForTimeout(8_500); // the minimum completion time since the coverage check

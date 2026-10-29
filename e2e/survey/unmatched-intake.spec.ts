@@ -57,7 +57,7 @@ async function reachReview(page: Page, info: TestInfo, phone: string, email: str
   await expect(full.locator('input[name="limit"]:checked')).toHaveCount(0);
   for (const choice of await counts.all()) await expect(choice).toBeEnabled();
   await full.locator('label[for="limit-5"]').click();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
+  await full.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(full.getByRole("heading", { name: "Review and send", exact: true })).toBeVisible();
   await expect(full).toContainText("Step 5 of 5");
   await expect(full).not.toContainText(availabilityCopy);

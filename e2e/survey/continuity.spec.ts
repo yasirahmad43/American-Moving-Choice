@@ -75,7 +75,7 @@ test("completed starter advances services, contact details and review without ex
   await full.locator("#email").fill("survey-continuity@example.com");
   await full.getByLabel("Phone number", { exact: true }).fill("2025550168");
   await full.locator('label[for="limit-2"]').click();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
+  await full.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(full).toContainText("Step 5 of 5");
   await expect(full.getByRole("heading", { name: "Review and send" })).toBeVisible();
   await expect(full.locator("#consent,#terms")).toHaveCount(0);
@@ -88,7 +88,7 @@ test("completed starter advances services, contact details and review without ex
   await expect(full.locator("#email")).toHaveValue("survey-continuity@example.com");
   await full.locator("#email").fill("survey-continuity-edited@example.com");
   await full.locator('label[for="limit-3"]').click();
-  await full.getByRole("button", { name: "Continue", exact: true }).click();
+  await full.getByRole("button", { name: "Review my request", exact: true }).click();
   await expect(full).toContainText("Step 5 of 5");
   await expect(full.locator("#submit-notice")).toContainText("up to 3 moving companies");
   await expect(full).toContainText("survey-continuity-edited@example.com");

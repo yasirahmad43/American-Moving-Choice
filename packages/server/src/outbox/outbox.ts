@@ -144,7 +144,13 @@ function anonymousConsumerNotice(message: ClaimedMessage, deliveredBody: string)
     return message.subject === "An update on your moving request"
       && bodies.every((body) => body.includes("The company will identify itself when it contacts you."));
   }
-  return bodies.every((body) => body.includes("Each company will identify itself when it contacts you using the contact methods you chose."));
+  // Keep queued anonymous receipts deliverable across the compact-form copy update.
+  // Both plaintext previews and encrypted deliverables must carry an approved marker.
+  const receiptMarkers = [
+    "Each company will identify itself when it contacts you using the contact methods you chose.",
+    "We have saved your move details and contact preferences. Each company will identify itself and use the contact methods recorded with your request.",
+  ];
+  return bodies.every((body) => receiptMarkers.some((marker) => body.includes(marker)));
 }
 
 /**
