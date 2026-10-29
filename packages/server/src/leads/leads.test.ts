@@ -410,17 +410,33 @@ describe("submitRequest", () => {
       const { input } = await draft({ limit: 2, email: "legacy@example.com", phone: "2145550166" });
       expect(await submitRequest({ ...input, shownCompanyIds: [...input.shownCompanyIds, id(4)] }, meta("198.51.100.206"))).toMatchObject({ ok: false, kind: "movers_changed" });
       expect(await submitRequest({ ...input, originZip: "99501", destZip: "99503", shownCompanyIds: [] }, meta("198.51.100.207"))).toMatchObject({ ok: false, kind: "no_coverage" });
+      const fast = await draft({ ticketAgeMs: 1000, email: "legacy-fast@example.com", phone: "2145550172" });
+      const fastNow = new Date(Number(fast.input.ticket.split(".")[0]) + 1000);
+      expect(await submitRequest(fast.input, { ...meta("198.51.100.217"), now: fastNow })).toEqual({ ok: false, kind: "rejected", reason: "automated" });
     } finally {
       await pool().query("update platform_settings set value='\"contact-request-submit-v1\"'::jsonb where key='active_consent_version'");
     }
   });
 
-  it("rejects a filled honeypot, a too-fast submission and a forged ticket, storing nothing", async () => {
+  it("accepts a fast valid compact submission and records elapsed time as a quality flag", async () => {
+    const fast = await draft({ ticketAgeMs: 1000, email: "fast-human@example.com", phone: "2145550171" });
+    const submittedAt = new Date(Number(fast.input.ticket.split(".")[0]) + 1000);
+    const result = await submitRequest(fast.input, { ...meta("198.51.100.216"), now: submittedAt });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const lead = (await pool().query("select id,status,risk_score from leads where reference_code=$1", [result.confirmation.referenceCode])).rows[0];
+    expect(lead).toMatchObject({ status: "qualified", risk_score: 15 });
+    expect((await pool().query("select result,reason from lead_validation_results where lead_id=$1 and check_type='min_completion_time'", [lead.id])).rows[0]).toMatchObject({ result: "flag", reason: expect.stringContaining("Sent 1 seconds") });
+  });
+
+  it("rejects a filled honeypot and forged, future or expired compact tickets, storing nothing", async () => {
     const honeypot = await draft({ website: "http://spam.example", email: "bot1@example.com", phone: "2145550104" });
     expect(await submitRequest(honeypot.input, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
-    const fast = await draft({ ticketAgeMs: 1000, email: "bot2@example.com", phone: "2145550105" });
-    expect(await submitRequest(fast.input, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
-    expect(await submitRequest({ ...fast.input, ticket: `${Date.now() - 60_000}.${"a".repeat(32)}` }, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
+    const invalid = await draft({ email: "bot2@example.com", phone: "2145550105" });
+    const checkedAt = Date.now();
+    expect(await submitRequest({ ...invalid.input, ticket: `${checkedAt - 60_000}.${"a".repeat(32)}` }, meta())).toEqual({ ok: false, kind: "rejected", reason: "automated" });
+    expect(await submitRequest({ ...invalid.input, ticket: issueSurveyTicket(hmacSecret(), checkedAt + 60_000) }, { ...meta(), now: new Date(checkedAt) })).toEqual({ ok: false, kind: "rejected", reason: "automated" });
+    expect(await submitRequest({ ...invalid.input, ticket: issueSurveyTicket(hmacSecret(), checkedAt - 7 * 3600_000) }, { ...meta(), now: new Date(checkedAt) })).toEqual({ ok: false, kind: "expired" });
     const n = await pool().query("select count(*)::int as n from leads where email like 'bot%'");
     expect(n.rows[0].n).toBe(0);
   });
@@ -539,9 +555,13 @@ describe("quality helpers", () => {
     const now = Date.now();
     const ticket = issueSurveyTicket(secret, now);
     expect(checkSurveyTicket(secret, ticket, now + 1000)).toEqual({ ok: false, reason: "too_fast" });
+    expect(checkSurveyTicket(secret, ticket, now + 1000, 0)).toEqual({ ok: true, elapsedSeconds: 1 });
     expect(checkSurveyTicket(secret, ticket, now + MIN_COMPLETION_SECONDS * 1000 + 1)).toMatchObject({ ok: true });
     expect(checkSurveyTicket("t".repeat(40), ticket, now + 60_000)).toEqual({ ok: false, reason: "invalid" });
     expect(checkSurveyTicket(secret, ticket, now + 7 * 3600_000)).toEqual({ ok: false, reason: "expired" });
+    expect(checkSurveyTicket("t".repeat(40), ticket, now + 1000, 0)).toEqual({ ok: false, reason: "invalid" });
+    expect(checkSurveyTicket(secret, ticket, now - 1000, 0)).toEqual({ ok: false, reason: "invalid" });
+    expect(checkSurveyTicket(secret, ticket, now + 7 * 3600_000, 0)).toEqual({ ok: false, reason: "expired" });
   });
 
   it("scores risk with reasons", () => {

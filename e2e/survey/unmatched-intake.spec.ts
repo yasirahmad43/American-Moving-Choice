@@ -40,7 +40,7 @@ async function reachReview(page: Page, info: TestInfo, phone: string, email: str
   await expect(full).toContainText("Step 3 of 5");
   await full.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(full.getByRole("heading", { name: "Your details", exact: true })).toBeVisible({ timeout: 20_000 });
-  const checkedAt = Date.now();
+  const lookupCompletedAt = Date.now();
   await expect(full).toContainText("Step 4 of 5");
   await expect(full).toContainText("Albany, NY");
   await expect(full).toContainText("Melrose, NY");
@@ -80,7 +80,7 @@ async function reachReview(page: Page, info: TestInfo, phone: string, email: str
   const noticeText = ((await notice.textContent()) ?? "").trim();
   await notice.screenshot({ path: info.outputPath("submit-notice.png") });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
-  return { full, checkedAt, noticeText };
+  return { full, noticeText, lookupCompletedAt };
 }
 
 for (const width of [319, 1440]) {
@@ -108,20 +108,22 @@ test("uncovered request is stored and can be withdrawn on the isolated local sit
   });
   expect(phone).toBeTruthy();
   const email = `uncovered-intake-${Date.now()}@example.com`;
-  const { full, checkedAt, noticeText } = await reachReview(page, info, phone!, email);
-  // Respect the existing eight-second anti-bot minimum without changing signed tickets.
-  const remaining = 9_000 - (Date.now() - checkedAt);
-  if (remaining > 0) await page.waitForTimeout(remaining);
+  const { full, noticeText, lookupCompletedAt } = await reachReview(page, info, phone!, email);
+  const clientCompletionMs = Date.now() - lookupCompletedAt;
   await full.getByRole("button", { name: "Send my request", exact: true }).click();
-  await expect(full.getByRole("heading", { name: "Request received", exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page).toHaveURL(base + "/get-quotes/confirmation/");
-  await expect(full).not.toContainText(availabilityCopy);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  const receipt = page.getByRole("heading", { name: "Request received", exact: true }).locator("xpath=../..");
+  await expect(receipt).toBeVisible({ timeout: 20_000 });
+  await expect(receipt).not.toContainText(availabilityCopy);
   const saved = await withDatabase(async db => {
     await db.query("set search_path to amc, public");
-    return (await db.query<{ id: string; group_id: string; status: string; channel_scope: string[]; request_intake_pending: boolean; eligible: number; mover_notices: number; recipient_count: number; checkbox_state: boolean; authorization_method: string; contact_automation: string; terms_accepted: boolean; privacy_acknowledged: boolean; rendered_text: string; consent_text_version_id: string; form_version: string; recipient_disclosure_mode: string }>(
+    return (await db.query<{ id: string; group_id: string; status: string; channel_scope: string[]; request_intake_pending: boolean; eligible: number; mover_notices: number; recipient_count: number; checkbox_state: boolean; authorization_method: string; contact_automation: string; terms_accepted: boolean; privacy_acknowledged: boolean; rendered_text: string; consent_text_version_id: string; form_version: string; recipient_disclosure_mode: string; completion_result: string; completion_reason: string }>(
       `select l.id,l.group_id,l.status,l.channel_scope,g.request_intake_pending,
               c.checkbox_state,c.authorization_method,c.contact_automation,c.terms_accepted,c.privacy_acknowledged,c.rendered_text,
               c.consent_text_version_id,c.form_version,c.recipient_disclosure_mode,
+              (select v.result from lead_validation_results v where v.lead_id=l.id and v.check_type='min_completion_time') completion_result,
+              (select v.reason from lead_validation_results v where v.lead_id=l.id and v.check_type='min_completion_time') completion_reason,
               (select count(*)::int from lead_eligibility e where e.group_id=l.group_id and e.named_in_consent) eligible,
               (select count(*)::int from messages m where m.related_id=l.group_id and m.template='lead_available') mover_notices,
               cardinality(c.named_company_ids) recipient_count
@@ -130,8 +132,13 @@ test("uncovered request is stored and can be withdrawn on the isolated local sit
   });
   expect(saved).toMatchObject({ status: "unmatched", channel_scope: ["call", "email"], request_intake_pending: true, eligible: 0, mover_notices: 0, recipient_count: 0, checkbox_state: false, authorization_method: "submit_button", contact_automation: "manual_only", terms_accepted: true, privacy_acknowledged: true, consent_text_version_id: "contact-request-submit-v1", form_version: "survey-v3-compact-submit", recipient_disclosure_mode: "request_intake" });
   expect(saved!.rendered_text).toBe(noticeText);
-  await full.screenshot({ path: info.outputPath("request-received.png") });
-  await full.getByRole("link", { name: "Manage your request", exact: true }).click();
+  const serverSeconds = Number(/^Sent (\d+) seconds/.exec(saved!.completion_reason)?.[1]);
+  if (serverSeconds < 8) {
+    expect(saved).toMatchObject({ completion_result: "flag", completion_reason: expect.stringContaining("Accepted compact request") });
+  }
+  await info.attach("submission-timing", { body: JSON.stringify({ clientCompletionMs, artificialWait: false, serverResult: saved!.completion_result, serverReason: saved!.completion_reason }), contentType: "application/json" });
+  await receipt.screenshot({ path: info.outputPath("request-received.png") });
+  await receipt.getByRole("link", { name: "Manage your request", exact: true }).click();
   await expect(page.getByText("Request received", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Withdraw my request", exact: true }).click();
   await page.getByRole("button", { name: "Yes, withdraw it", exact: true }).click();

@@ -40,6 +40,7 @@ import { anonymousCoverage, matchMovers, type CoverageResult } from "./coverage"
 import { requestAvailableEmail, requestReceivedEmail, type RouteText } from "./messages";
 import {
   RISK_REVIEW_THRESHOLD,
+  MIN_COMPLETION_SECONDS,
   checkSurveyTicket,
   cleanUtm,
   riskScore,
@@ -139,7 +140,10 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     if (!limit.allowed) return { ok: false, kind: "rejected", reason: "rate_limited" };
   }
   if (input.website.trim() !== "") return { ok: false, kind: "rejected", reason: "automated" };
-  const ticket = checkSurveyTicket(hmacSecret(), input.ticket, now.getTime());
+  // A fast autofilled compact request still needs a valid signed ticket and full active-notice
+  // validation below. Speed alone is a quality flag, never a reason to discard that request.
+  const compactTicket = input.authorizationMethod === "submit_button" && input.consentVersionId === REQUEST_SUBMIT_VERSION;
+  const ticket = checkSurveyTicket(hmacSecret(), input.ticket, now.getTime(), compactTicket ? 0 : MIN_COMPLETION_SECONDS);
   if (!ticket.ok) return ticket.reason === "expired" ? { ok: false, kind: "expired" } : { ok: false, kind: "rejected", reason: "automated" };
 
   // ---------------------------------------------------------------- the steps, again
@@ -320,7 +324,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
 
         const validations: ValidationRow[] = [
           { check_type: "honeypot", result: "pass", reason: "Hidden field left empty." },
-          { check_type: "min_completion_time", result: "pass", reason: `Sent ${Math.round(ticket.elapsedSeconds)} seconds after the coverage check.` },
+          { check_type: "min_completion_time", result: ticket.elapsedSeconds < MIN_COMPLETION_SECONDS ? "flag" : "pass", reason: `Sent ${Math.round(ticket.elapsedSeconds)} seconds after the coverage check.${ticket.elapsedSeconds < MIN_COMPLETION_SECONDS ? " Accepted compact request; short completion time contributes to quality scoring." : ""}` },
           { check_type: "rate_limit", result: meta.ip ? "pass" : "skipped", reason: meta.ip ? "Under the per-IP submission limit." : "No client IP address available." },
           { check_type: "phone_format", result: "pass", reason: "Valid NANP number." },
           { check_type: "phone_line_type", result: "skipped", reason: "No carrier lookup provider is configured." },

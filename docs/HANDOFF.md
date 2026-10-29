@@ -18,6 +18,10 @@ calls and email only, with no SMS or automated/prerecorded call permission. Lega
 records remain unchanged. Private contact views show this narrower scope, including when
 a manual-only request joins a group with older permission evidence.
 
+Fast autofill submissions in this compact mode must not be rejected solely for completing in
+under eight seconds. The signed ticket, expiry, honeypot and rate limits still apply; completion
+speed remains a recorded risk signal. Preserve the historical timing rule for legacy forms.
+
 Run the eight cases in `e2e/survey-continuity.config.ts`, server/core/DB tests, typechecks and
 content tests after changing this journey. Real submission tests are isolated-local-only;
 production verification stops at Review and send. Keep the visible notice and stored hash exact.
