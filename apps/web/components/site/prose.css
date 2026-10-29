@@ -149,7 +149,7 @@
   .prose td {
     text-align: left;
     vertical-align: top;
-    padding: 0.7rem 0.9rem;
+    padding: 0.8rem 0.9rem;
     border-bottom: 1px solid var(--border);
     min-width: 0;
     overflow-wrap: anywhere;

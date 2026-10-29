@@ -44,3 +44,20 @@ export function inspectInsetFamilies() {
     return{family,index,tag:e.tagName.toLowerCase(),classes:String(e.className),marked:e.hasAttribute('data-content-inset'),profile:e.dataset.contentInset??null,required,padding:[s.paddingTop,s.paddingRight,s.paddingBottom,s.paddingLeft],text,width:b.width,height:b.height,pass:!text||Object.values(text).every(v=>v>=required-.5),sample:e.textContent.replace(/\s+/g,' ').trim().slice(0,90)};
   }));
 }
+
+/** Native reference cells own desktop insets; mobile reference row cards own their insets. */
+export function inspectPaintedReferenceInsets(){
+  const visible=e=>{
+    for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;if(p.tagName==='DETAILS'&&!p.open&&p!==e&&!p.querySelector(':scope>summary')?.contains(e))return false;}
+    return !e.closest('[hidden],[aria-hidden="true"],.sr-only')&&e.getClientRects().length>0;
+  };
+  const candidates=[...document.querySelectorAll('.site-experience .table-wrap :is(th,td)')].filter(e=>visible(e)&&getComputedStyle(e).display==='table-cell').map(e=>[e,'native-cell']);
+  candidates.push(...[...document.querySelectorAll('.site-experience .table-wrap tbody tr')].filter(e=>visible(e)&&getComputedStyle(e).display==='grid').map(e=>[e,'mobile-row']));
+  return candidates.map(([e,kind],index)=>{
+    const s=getComputedStyle(e),b=e.getBoundingClientRect(),rects=[],w=document.createTreeWalker(e,NodeFilter.SHOW_TEXT);
+    while(w.nextNode()){const n=w.currentNode;if(!n.textContent.trim()||!visible(n.parentElement))continue;const r=document.createRange();r.selectNodeContents(n);for(const q of r.getClientRects())if(q.width>0&&q.height>0)rects.push(q);}
+    const padding={top:parseFloat(s.paddingTop),right:parseFloat(s.paddingRight),bottom:parseFloat(s.paddingBottom),left:parseFloat(s.paddingLeft)},text=rects.length?{top:Math.min(...rects.map(r=>r.top-b.top)),right:Math.min(...rects.map(r=>b.right-r.right)),bottom:Math.min(...rects.map(r=>b.bottom-r.bottom)),left:Math.min(...rects.map(r=>r.left-b.left))}:null;
+    const paddingPass=Object.values(padding).every(v=>v>=11.5),textPass=!text||Object.values(text).every(v=>v>=11.5);
+    return{index,kind,tag:e.tagName.toLowerCase(),classes:e.className,profile:'compact',required:12,padding,text,paddingPass,textPass,pass:paddingPass&&textPass,width:b.width,height:b.height,sample:e.textContent.replace(/\s+/g,' ').trim().slice(0,90)};
+  });
+}

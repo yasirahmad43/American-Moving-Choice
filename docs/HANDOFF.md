@@ -14,6 +14,8 @@ survive missing/malformed tokens and ordinary later route styles. Section gutter
 16/24/32px profiles. Text depth transforms must not project through the content inset.
 Shared Card/TiltCard/ExpandableCard expose optional `contentInset` props; TiltCard targets its
 inner body and ExpandableCard its summary/body, preserving existing private-app defaults.
+Native editorial table cells use the compact floor in `prose.css`. On phones, the painted
+row owns this gap and its unboxed inner cells retain zero padding to avoid doubling it.
 
 Run `E2E_WEB_URL=<running public URL> pnpm --filter @amc/e2e exec playwright test --config
 content-insets.config.ts` after changing these shared layouts. It measures visible text
