@@ -17,7 +17,7 @@
 .closing-survey__credit a{color:inherit;text-decoration:underline}
 .closing-survey__form{min-width:0;width:100%;max-width:480px;justify-self:center}
 .closing-survey .vsh-start{box-shadow:0 17px 55px #0d30571c}
-.closing-survey .vsh-start__heading h3{margin:0;color:#102743;font-family:var(--font-display);font-size:31px;font-weight:800;line-height:1.05;letter-spacing:-.025em}
+.closing-survey .vsh-start__heading h3{margin:0;color:#102743;font-family:var(--font-display);font-size:31px;font-weight:800;line-height:1.2;letter-spacing:-.025em}
 @media(max-width:800px){.closing-survey__inner{grid-template-columns:minmax(0,1fr);gap:26px;max-width:600px}.closing-survey__visual{min-height:410px}.closing-survey__copy{gap:18px;padding:30px}.closing-survey__copy h2{font-size:43px}.closing-survey__form{max-width:none}.closing-survey__copy ul{padding-top:16px}}
 @media(max-width:380px){.closing-survey{padding-inline:16px}.closing-survey__copy{padding:26px}.closing-survey__copy h2{font-size:37px}}
 @media(prefers-reduced-motion:reduce){.closing-survey *, .closing-survey *::before,.closing-survey *::after{animation:none!important;transition:none!important}}

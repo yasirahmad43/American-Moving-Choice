@@ -50,7 +50,7 @@
   .story-next-card .story-photo { aspect-ratio:16/10; border-radius:0; }
   .story-next-card .story-photo figcaption { font-size:.75rem; bottom:.8rem; left:1rem; }
   .story-next-card > div { display:grid; gap:.7rem; padding:1.4rem; }
-  .story-next-card h3 { font-size:1.2rem; font-weight:800; line-height:1.2; }
+  .story-next-card h3 { font-size:1.2rem; font-weight:800; line-height:1.45; }
   .story-next-card p { color:var(--text-2); font-size:.9rem; }
   .story-next-card a { display:flex; justify-content:space-between; align-items:center; min-height:44px; color:var(--brand-navy); font-size:.9rem; font-weight:750; }
   .story-guide-notes { padding-block:1rem; border-bottom:1px solid var(--border); font-size:.85rem; color:var(--text-2); }

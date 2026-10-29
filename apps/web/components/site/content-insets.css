@@ -33,3 +33,9 @@
 @media (min-width:1280px) {
   .site-experience .gutter { padding-inline:2rem !important; }
 }
+
+/* Body-font FAQ titles need a full line box as well as padding: a tight line
+   height lets font ascenders/descenders extend into the protected inset. */
+.site-experience .expandable > summary[data-content-inset] :is(h2,h3,h4) {
+  line-height:1.45;
+}
