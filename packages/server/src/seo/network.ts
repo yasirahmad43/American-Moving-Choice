@@ -10,6 +10,7 @@
 import {
   COST_MODEL_V1,
   computeCost,
+  countyDisplayName,
   matchCompany,
   type CompanyMatchProfile,
   type CostRange,
@@ -217,7 +218,7 @@ export function moverItems(movers: NetworkMover[], coverageNote: (m: NetworkMove
 export function countyLabel(fips: string | null): string | null {
   if (!fips) return null;
   const county = countyByFips(fips);
-  return county ? `${county.name} County, ${county.state}` : null;
+  return county ? `${countyDisplayName(county.name, county.fips)}, ${county.state}` : null;
 }
 
 // ------------------------------------------------------------------ cost ranges

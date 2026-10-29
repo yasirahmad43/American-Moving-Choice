@@ -1,3 +1,5 @@
+export { countyDisplayName, normalizeLegacyCityCountyLabels } from "./county-label";
+
 /** ZIP codes are always 5-character strings. Never store or compare them as numbers. */
 export type Zip5 = string & { readonly __zip5: unique symbol };
 

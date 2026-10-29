@@ -12,7 +12,7 @@
  * site architecture §4.1 G7), and the status is set: `ready` when every automated gate passes,
  * else `draft`. Human review (G9) is recorded separately (reviewed_by, last_reviewed_at).
  */
-import { TRANSIT_MODEL_V1, estimateRoadTransit, type CostRateCard, type MoveType } from "@amc/core";
+import { TRANSIT_MODEL_V1, countyDisplayName, estimateRoadTransit, type CostRateCard, type MoveType } from "@amc/core";
 import type { Queryable } from "../db/pool";
 import { countyByFips, distanceMiles, lookupZip } from "../geo/geo";
 import { STATES, type StateInfo } from "../geo/states";
@@ -525,20 +525,20 @@ function stateDraft(ctx: Context, state: StateRec): Draft {
       heading: pick(seed, 2, [`Cities in ${state.name} with their own pages`, `Where ${state.name} moves start: the largest cities`, `${state.name} cities by population`]),
       blocks: [
         { type: "paragraph", text: `${plural(withPages.length, "city", "cities")} in ${state.name} ${withPages.length === 1 ? "has" : "have"} ${n(CITY_PAGE_MIN_POPULATION)} residents or more and ${withPages.length === 1 ? "its" : "their"} own page${top.length < cities.length ? `; the ${top.length} largest are listed here` : ""}. ${largest ? `${largest.name} alone has ${plural(largest.zips.length, "ZIP code")}${largest.housingUnits ? ` and ${n(largest.housingUnits)} housing units` : ""}` : ""}${second ? `, ${second.name} ${n(second.zips.length)}${second.housingUnits ? ` and ${n(second.housingUnits)}` : ""}` : ""}.` },
-        { type: "table", caption: `Population and housing units (${ACS_VINTAGE}), ZIP codes and county`, columns: ["City", "Population", "Housing units", "ZIP codes", "County"], rows: top.map((c) => [`[${c.name}](${cityUrl(state, c)})`, c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", n(c.zips.length), c.countyName ? `${c.countyName} County` : "n/a"]) },
+        { type: "table", caption: `Population and housing units (${ACS_VINTAGE}), ZIP codes and county`, columns: ["City", "Population", "Housing units", "ZIP codes", "County"], rows: top.map((c) => [`[${c.name}](${cityUrl(state, c)})`, c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", n(c.zips.length), c.countyName ? countyDisplayName(c.countyName, c.countyFips) : "n/a"]) },
       ],
     });
   }
   if (counties.length) {
     const rows = counties.slice(0, 12).map((c) => {
       const rec = ctx.counties.get(c.fips);
-      return [`${c.name} County`, n(c.zips), rec?.population ? n(rec.population) : "n/a", rec?.housingUnits ? n(rec.housingUnits) : "n/a", rec?.timeZone ? tzLabel(rec.timeZone)! : "n/a"];
+      return [countyDisplayName(c.name, c.fips), n(c.zips), rec?.population ? n(rec.population) : "n/a", rec?.housingUnits ? n(rec.housingUnits) : "n/a", rec?.timeZone ? tzLabel(rec.timeZone)! : "n/a"];
     });
     sections.push({
       id: "counties",
       heading: pick(seed, 8, [`${state.name} counties by ZIP code count`, `Where ${state.name}'s ZIP codes and people are`, `The ${state.name} counties movers name most`]),
       blocks: [
-        { type: "paragraph", text: `Movers name counties in their coverage rules, so a county's ZIP count is a rough measure of how much of the state a county rule covers. ${counties[0]!.name} County holds ${plural(counties[0]!.zips, "ZIP code")}${ctx.counties.get(counties[0]!.fips)?.population ? ` and ${n(ctx.counties.get(counties[0]!.fips)!.population!)} residents` : ""}, ${counties[1] ? `${counties[1].name} County ${n(counties[1].zips)}` : ""}${counties[2] ? ` and ${counties[2].name} County ${n(counties[2].zips)}` : ""}; the twelve largest by ZIP count together hold ${n(counties.slice(0, 12).reduce((s, c) => s + c.zips, 0))} of the state's ${n(state.zipCount)}.` },
+        { type: "paragraph", text: `Movers name counties in their coverage rules, so a county's ZIP count is a rough measure of how much of the state a county rule covers. ${countyDisplayName(counties[0]!.name, counties[0]!.fips)} holds ${plural(counties[0]!.zips, "ZIP code")}${ctx.counties.get(counties[0]!.fips)?.population ? ` and ${n(ctx.counties.get(counties[0]!.fips)!.population!)} residents` : ""}, ${counties[1] ? `${countyDisplayName(counties[1].name, counties[1].fips)} ${n(counties[1].zips)}` : ""}${counties[2] ? ` and ${countyDisplayName(counties[2].name, counties[2].fips)} ${n(counties[2].zips)}` : ""}; the twelve largest by ZIP count together hold ${n(counties.slice(0, 12).reduce((s, c) => s + c.zips, 0))} of the state's ${n(state.zipCount)}.` },
         { type: "table", caption: `Population and housing units are ${ACS_VINTAGE}; time zones per county`, columns: ["County", "ZIP codes", "Population", "Housing units", "Time zone"], rows },
       ],
     });
@@ -654,7 +654,7 @@ function finishStateDraft(ctx: Context, state: StateRec, seed: number, kw: Retur
     });
     const distLargest = largest && second ? distanceMiles(largest, second) : null;
     const faq: FaqItem[] = [
-      { question: `How many ZIP codes and counties does ${state.name} have?`, answer: `${n(state.zipCount)} ZIP codes and ${n(state.countyCount)} counties in the GeoNames postal dataset (built 2026-10-28)${counties[0] ? `; ${counties[0].name} County alone has ${n(counties[0].zips)}` : ""}.` },
+      { question: `How many ZIP codes and counties does ${state.name} have?`, answer: `${n(state.zipCount)} ZIP codes and ${n(state.countyCount)} counties in the GeoNames postal dataset (built 2026-10-28)${counties[0] ? `; ${countyDisplayName(counties[0].name, counties[0].fips)} alone has ${n(counties[0].zips)}` : ""}.` },
       { question: `How do I check moving coverage in ${state.name}?`, answer: coverage.interstate.matched.length || coverage.local.matched.length ? `As of ${ctx.today}: ${coverageSentence(coverage.local, "local moves", state.name)}, and ${coverageSentence(coverage.interstate, "moves between states", state.name)}. The survey checks your exact ZIP codes, shows the eligible count and lets you choose how many movers may contact you.` : `None as of ${ctx.today}. The survey will tell you so before asking for contact details.` },
     ];
     if (largest && second && distLargest !== null) faq.push({ question: `Is a move from ${largest.name} to ${second.name} a local move?`, answer: `${distLargest <= 50 ? "Yes: " : "No: "}the two centroids are ${milesText(distLargest)} apart (${driveText(distLargest, state.code, state.code)}), so it counts as ${typeWords[classify(true, distLargest)]}${distLargest > 50 ? ", priced by weight and distance rather than by the hour" : ""}.` });
@@ -684,8 +684,8 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
   const regulator = factsFor(ctx, `state:${state.code}`, ["regulator"]);
   const accessorials = factsFor(ctx, "national", ["accessorials"]);
   const ambiguous = city.slug !== slugify(city.name);
-  const kw = keywordFor(researchForCity(ctx.research, state.slug, state.code, city.slug), `moving companies ${city.name.toLowerCase()}${ambiguous && city.countyName ? ` ${city.countyName.toLowerCase()} county` : ""} ${state.code.toLowerCase()}`, "commercial");
-  const county = city.countyName ? `${city.countyName} County` : countyLabel(city.countyFips)?.replace(/, [A-Z]{2}$/, "") ?? "its county";
+  const kw = keywordFor(researchForCity(ctx.research, state.slug, state.code, city.slug), `moving companies ${city.name.toLowerCase()}${ambiguous && city.countyName ? ` ${countyDisplayName(city.countyName, city.countyFips).toLowerCase()}` : ""} ${state.code.toLowerCase()}`, "commercial");
+  const county = city.countyName ? countyDisplayName(city.countyName, city.countyFips) : countyLabel(city.countyFips)?.replace(/, [A-Z]{2}$/, "") ?? "its county";
   const countyRec = city.countyFips ? ctx.counties.get(city.countyFips) : undefined;
   const largestInState = ctx.citiesByState.get(state.code)?.[0];
   const toLargest = largestInState && largestInState.id !== city.id ? distanceMiles(city, largestInState) : null;
@@ -919,7 +919,7 @@ function zipDraft(ctx: Context, zip: string, city: CityRec, rec: ZipRec | undefi
   ];
   if (rec?.population) dataPoints.push({ label: "Population (ZCTA)", value: n(rec.population), basis: CENSUS_BASIS });
   if (rec?.housingUnits) dataPoints.push({ label: "Housing units (ZCTA)", value: n(rec.housingUnits), basis: CENSUS_BASIS });
-  const glance: string[][] = [["Place", `${loc.city}, ${state.name}`], ["County", county + (distinctCounty ? ` (the ${city.name} page's main county is ${city.countyName} County)` : "")], ["Centroid", `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`]];
+  const glance: string[][] = [["Place", `${loc.city}, ${state.name}`], ["County", county + (distinctCounty ? ` (the ${city.name} page's main county is ${countyDisplayName(String(city.countyName), city.countyFips)})` : "")], ["Centroid", `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`]];
   if (rec?.population) glance.push(["Population (ZCTA)", `${n(rec.population)} (${ACS_VINTAGE}); postal and city boundaries can differ`]);
   if (rec?.housingUnits) glance.push(["Housing units", `${n(rec.housingUnits)}${perUnit(rec.population, rec.housingUnits) ? ` (${perUnit(rec.population, rec.housingUnits)} residents per unit)` : ""}`]);
   if (rec?.landAreaSqMi) glance.push(["Land area", `${n(Math.round(rec.landAreaSqMi * 100) / 100)} sq mi${dens !== null ? ` (${n(dens)} people per sq mi)` : ""}`]);
@@ -1104,7 +1104,7 @@ function routeDraft(ctx: Context, route: RouteRec, evidenceBrief = false): Draft
   const destRows = destSide.map((c) => {
     const miles = distanceMiles(originPoint, c);
     const dd = density(c.population, c.landAreaSqMi);
-    return [cityLink(c), mi(miles), compass(originPoint, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", dd !== null ? n(dd) : "n/a", n(c.zips.length), c.countyName ? `${c.countyName} County` : "n/a"];
+    return [cityLink(c), mi(miles), compass(originPoint, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", dd !== null ? n(dd) : "n/a", n(c.zips.length), c.countyName ? countyDisplayName(c.countyName, c.countyFips) : "n/a"];
   });
   // Cities along the way: within 40 miles of the straight line, ordered by distance from the origin.
   const alongRows = citiesAlong(ctx, originPoint, destPoint, route.distanceMiles, oc?.id ?? null, dc?.id ?? null).map(({ city: c, along, offset }) => [cityLink(c), mi(along), (Math.round(offset * 10) / 10).toFixed(1), compass(originPoint, c), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", mi(distanceMiles(c, destPoint))]);
@@ -1120,7 +1120,7 @@ function routeDraft(ctx: Context, route: RouteRec, evidenceBrief = false): Draft
   const endRows: string[][] = isCity
     ? [
         ["Page", `[${originName}](${cityUrl(o, oc!)})`, `[${destName}](${cityUrl(d, dc!)})`],
-        ["County", oc!.countyName ? `${oc!.countyName} County` : "n/a", dc!.countyName ? `${dc!.countyName} County` : "n/a"],
+        ["County", oc!.countyName ? countyDisplayName(oc!.countyName, oc!.countyFips) : "n/a", dc!.countyName ? countyDisplayName(dc!.countyName, dc!.countyFips) : "n/a"],
         ["Population", oc!.population ? `${n(oc!.population)}` : "n/a", dc!.population ? `${n(dc!.population)}` : "n/a"],
         ["Housing units", oc!.housingUnits ? n(oc!.housingUnits) : "n/a", dc!.housingUnits ? n(dc!.housingUnits) : "n/a"],
         ["Density (per sq mi)", density(oc!.population, oc!.landAreaSqMi) !== null ? n(density(oc!.population, oc!.landAreaSqMi)!) : "n/a", density(dc!.population, dc!.landAreaSqMi) !== null ? n(density(dc!.population, dc!.landAreaSqMi)!) : "n/a"],

@@ -5,6 +5,17 @@ verifiable from the repository; nothing here depends on the previous assistant's
 
 ### Search and conversion review — 2026-10-29
 
+Geographic-label follow-up (`codex/census-county-labels`): the full `67b2e82` inventory found
+malformed city/county-equivalent names such as “Colonial Heights (city County” and “City of
+Richmond County”. All 41 affected raw labels have exact FIPS matches in the official 2025
+Census national county Gazetteer; Carson City retains its exact name. A shared display formatter
+repairs future generated text, while the public projection repairs only those known saved label
+literals after private-company redaction. Ordinary counties, geographic IDs, links, dates,
+figures, stored records and publication/coverage logic remain unchanged. This is a name-display
+correction, not a boundary, availability or market-data update. The full `67b2e82` crawl is
+before-fix evidence for this finding; the scoped follow-up must check every affected URL on the
+verified new release and reconcile the unchanged remainder, without calling an older scan final.
+
 Reader follow-up: the initial release `721ee96328689fd4ef9ea6736024f743e6291262` has a
 preserved **partial** 584-page post-release crawl, not a final whole-site verification. The next
 candidate uses complete authored metadata sentences for brief hero previews, with a complete
