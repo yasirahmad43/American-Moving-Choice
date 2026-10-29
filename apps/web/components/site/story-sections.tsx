@@ -52,10 +52,10 @@ function planningLabelFields(original: string): string {
   const fields = /Planning range, not a quote:\s*([\s\S]*?)\s+for\s+([\s\S]*?)\.\s*Based on\s+([\s\S]*?);\s*data as of\s+([\s\S]*?);\s*model\s+([\s\S]*?)\.(?=\s*(?:<a\b|$))/i.exec(label);
   if (!fields) return original;
   const labels = ["Planning range", "Move and area", "Rate-card sources and sample", "Data as of", "Calculation model"];
-  const cells = labels.map((name, index) => `<div class="rounded-control bg-surface-2 p-4"><dt class="type-small font-semibold text-text-2">${name}</dt><dd class="mt-1 text-base font-bold text-text">${availableField(fields[index + 1]!)}</dd></div>`).join("");
+  const cells = labels.map((name, index) => `<div class="rounded-control bg-surface-2 p-4" data-content-inset="compact"><dt class="type-small font-semibold text-text-2">${name}</dt><dd class="mt-1 text-base font-bold text-text">${availableField(fields[index + 1]!)}</dd></div>`).join("");
   // Anchors or explanatory links outside the specimen sentence retain their original markup.
   const before = label.slice(0, fields.index), after = label.slice(fields.index + fields[0].length);
-  return `<div class="planning-availability">${before}<p class="planning-availability-kicker">Understanding the estimate</p><h3>What a complete planning range identifies</h3><p><strong>Planning range, not a quote.</strong> A useful range names the move it covers and the data behind it. These reference fields explain the label; they are not a calculated result for your move.</p><dl class="mt-4 grid gap-3 sm:grid-cols-2">${cells}</dl>${after.trim() ? `<p class="mt-4">${after}</p>` : ""}</div>`;
+  return `<div class="planning-availability" data-content-inset="card">${before}<p class="planning-availability-kicker">Understanding the estimate</p><h3>What a complete planning range identifies</h3><p><strong>Planning range, not a quote.</strong> A useful range names the move it covers and the data behind it. These reference fields explain the label; they are not a calculated result for your move.</p><dl class="mt-4 grid gap-3 sm:grid-cols-2">${cells}</dl>${after.trim() ? `<p class="mt-4">${after}</p>` : ""}</div>`;
 }
 
 /** Present missing reference data coherently while retaining records, sources and real values. */
@@ -64,7 +64,7 @@ export function presentEditorialHtml(html: string): string {
     const table = original.replace(/(<td\b[^>]*>)([\s\S]*?)(<\/td>)/gi, (_cell, open: string, value: string, close: string) => `${open}${availableField(value)}${close}`);
     const unavailable = original.match(/not yet available|data pending|\[pending[^\]]*\]/gi) ?? [];
     if (unavailable.length < 3 || !/planning range|what the range covers|sample size/i.test(original) || /[$£€]\s*\d/.test(original)) return table;
-    return `<div class="planning-availability"><p class="planning-availability-kicker">Rate information</p><h3>A useful range needs enough recent data.</h3><p>No supported price range is provided in this reference table. Its columns show the information a published range needs: the move it covers, the range, its source, the sample size and the data date. A field marked “Not available” has no verified value here.</p><a class="link" href="/moving-cost-calculator/">Check a planning range for your move</a><details><summary>View every reference row and its availability</summary>${table}</details></div>`;
+    return `<div class="planning-availability" data-content-inset="card"><p class="planning-availability-kicker">Rate information</p><h3>A useful range needs enough recent data.</h3><p>No supported price range is provided in this reference table. Its columns show the information a published range needs: the move it covers, the range, its source, the sample size and the data date. A field marked “Not available” has no verified value here.</p><a class="link" href="/moving-cost-calculator/">Check a planning range for your move</a><details><summary>View every reference row and its availability</summary>${table}</details></div>`;
   });
   const usedLabels = new Set([...available.matchAll(/\baria-label\s*=\s*["']([^"']+)["']/gi)].map(match => match[1]));
   let formulaNumber = 0;
@@ -120,7 +120,7 @@ export function StorySections({ chapters, images, planned = false, url, topic }:
     const image = storyImageAt(images, index, planned);
     const caption = storyCaption({ heading: chapter.heading, url, topic });
     return <section key={chapter.key}
-    className={`story-chapter story-chapter-${index % 4} story-chapter-${chapter.kind ?? "narrative"}${!chapter.headingContent ? " story-chapter-intro" : ""}${chapter.compactLists ? " story-chapter-compact-list" : ""}`} data-story-chapter="" data-motion="rise">
+    className={`story-chapter story-chapter-${index % 4} story-chapter-${chapter.kind ?? "narrative"}${!chapter.headingContent ? " story-chapter-intro" : ""}${chapter.compactLists ? " story-chapter-compact-list" : ""}`} data-content-inset="card" data-story-chapter="" data-motion="rise">
     <header className="story-chapter-header">
       <div className="story-chapter-heading"><div className="story-chapter-marker" aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><i /><LineIcon name={storyIcon(chapter.heading, chapter.kind)} size={21} /></div>{chapter.headingContent ?? (caption ? <p className="story-chapter-context">{caption}</p> : null)}</div>
       {image ? <div className="story-chapter-visual"><StoryPhoto asset={image} /></div> : null}
@@ -136,7 +136,7 @@ export function StoryNextSteps({ items, images = [], usedCount = 0, url }: { ite
   if (!steps.length) return null;
   return <section className="story-next" aria-labelledby="story-next-title">
     <div className="story-next-heading" data-motion="rise"><p className="type-overline text-brand-red">Your next chapter</p><h2 id="story-next-title">A little planning.<br /><span>A better start.</span></h2><p>Turn what you've learned into your next step.</p></div>
-    <div className="story-next-grid" data-motion="stagger">{steps.map((step) => <article className="story-next-card" key={step.image.id}><StoryPhoto asset={step.image} caption={step.title} /><div><h3>{step.title}</h3><p>{step.text}</p>{step.href.startsWith("#")
+    <div className="story-next-grid" data-motion="stagger">{steps.map((step) => <article className="story-next-card" key={step.image.id}><StoryPhoto asset={step.image} caption={step.title} /><div data-content-inset="card"><h3>{step.title}</h3><p>{step.text}</p>{step.href.startsWith("#")
       ? <a href={step.href}>{step.action ?? step.title} <span aria-hidden="true">↑</span></a>
       : <StoryActionLink href={step.href} label={step.action ?? step.title} />}</div></article>)}</div>
   </section>;

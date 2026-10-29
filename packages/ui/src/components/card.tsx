@@ -16,6 +16,8 @@ export interface CardProps {
   /** "bezel" nests the card in a tray (double bezel, VD §7); "plain" is the hairline card. */
   frame?: "plain" | "bezel";
   padding?: "md" | "lg" | "none";
+  /** Opt in to the public text inset contract on this card's content shell. */
+  contentInset?: "card" | "compact";
   className?: string;
   children?: ReactNode;
   "aria-labelledby"?: string;
@@ -31,6 +33,7 @@ export function Card({
   interactive,
   frame = "plain",
   padding = "md",
+  contentInset,
   className,
   children,
   ...aria
@@ -38,6 +41,7 @@ export function Card({
   const pad = padding === "none" ? "" : padding === "lg" ? "p-6 sm:p-8" : "p-5 sm:p-6";
   const body = (
     <Tag
+      data-content-inset={contentInset}
       className={cx(
         "min-w-0 rounded-card bg-surface",
         frame === "bezel" ? "bezel-inner" : "shadow-e1",

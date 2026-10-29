@@ -58,7 +58,7 @@ export function ConfirmationView({
         </Alert>
       ) : null}
 
-      <Card as="section" title="Who can receive your request" titleAs="h2">
+      <Card contentInset="card" as="section" title="Who can receive your request" titleAs="h2">
         <p className="mb-4 text-text">
           {c.limit === 1
             ? "Only 1 participating moving company may receive your details and contact you."
@@ -91,7 +91,7 @@ export function ConfirmationView({
         <p className="text-text-2">We can't promise when, or whether, any mover will get in touch.</p>
       </section>
 
-      <Card as="section" title="Changed your mind?" titleAs="h2">
+      <Card contentInset="card" as="section" title="Changed your mind?" titleAs="h2">
         <p className="text-text">
           You can see your request status and contact preferences, and withdraw it at any time. Withdrawing stops additional movers from receiving your
           contact details, and we tell movers that already received them to stop contacting you. It cannot take back details already shared.

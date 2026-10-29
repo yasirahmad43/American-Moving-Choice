@@ -109,7 +109,7 @@ function Block({ id, block, tableLabel, allow }: { id: string; block: ContentBlo
       );
     case "note":
       return (
-        <p className="not-prose flex gap-3 rounded-control border border-border border-l-4 border-l-brand-navy bg-surface-2 px-4 py-3 type-small text-text-2">
+        <p data-content-inset="compact" className="not-prose flex gap-3 rounded-control border border-border border-l-4 border-l-brand-navy bg-surface-2 px-4 py-3 type-small text-text-2">
           <span className="sr-only">Note: </span>
           <InlineText text={block.text} allow={allow} />
         </p>
@@ -119,7 +119,7 @@ function Block({ id, block, tableLabel, allow }: { id: string; block: ContentBlo
       return (
         <Tag className={`${styles.visualList} ${block.items.every(item => item.length <= 160) ? styles.visualListCompact : ""}`}>
           {block.items.map((item, i) => (
-            <li key={i}>
+            <li key={i} data-content-inset="compact">
               <span className={`${styles.listPhoto} ${styles.utilityGlyph}`} aria-hidden="true"><LineIcon name={topicIcon(item)} size={25} /></span>
               <span className={styles.listBody}>{block.ordered ? <strong className="mr-1 tabular text-brand-red">{i + 1}.</strong> : null}<InlineText text={item} allow={allow} /></span>
             </li>
@@ -154,7 +154,7 @@ function Block({ id, block, tableLabel, allow }: { id: string; block: ContentBlo
     case "cost": {
       const c = block.block;
       return (
-        <section aria-label={`Cost range: ${c.scope}`} className="not-prose grid gap-4 rounded-card border border-border bg-surface p-5 shadow-e1 sm:p-6">
+        <section aria-label={`Cost range: ${c.scope}`} data-content-inset="card" className="not-prose grid gap-4 rounded-card border border-border bg-surface p-5 shadow-e1 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h3 className="type-h3 text-text">{c.scope}</h3>
             <span className="rounded-tag bg-surface-3 px-2 py-0.5 text-[0.8125rem] font-bold uppercase tracking-[0.08em] text-text-2">Planning range, not a quote</span>
@@ -272,7 +272,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
 
         {page.content.sections.length ? <nav aria-label="Guide highlights" className={styles.readingMap}>
           <div className={styles.mapIntro}><p className={styles.kicker}>Make it your move</p><p className="type-h3 text-text">Start with what matters to you.</p></div>
-          {page.content.sections.slice(0, 3).map((section, index) => <a href={`#${section.id}`} key={section.id} className={styles.mapCard}>
+          {page.content.sections.slice(0, 3).map((section, index) => <a href={`#${section.id}`} key={section.id} className={styles.mapCard} data-content-inset="compact">
             <span className={styles.mapGlyph} aria-hidden="true"><LineIcon name={topicIcon(section.heading)} size={34} /></span>
             <span className={styles.mapTitle}><span className={styles.mapNumber}>{String(index + 1).padStart(2, "0")}</span>{section.heading}</span>
           </a>)}
@@ -286,11 +286,11 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
             {page.content.sections.map((section, index) => {
               const image = chapterImages[index];
               return <Reveal as="section" key={section.id} id={section.id} aria-labelledby={`${section.id}-h`} delay={(index % 3) * 35} className={`${styles.section} ${index % 3 === 0 ? styles.sectionFeature : ""}`}>
-                <header className={styles.sectionHead}>
+                <header className={styles.sectionHead} data-content-inset="card">
                   {image ? <figure className={styles.sectionPhoto} data-editorial-image={image.id}><MediaFrame asset={image} sizes="(min-width: 1100px) 55vw, 100vw" /></figure> : <span className={`${styles.sectionPhoto} ${styles.utilityGlyph}`} aria-hidden="true"><LineIcon name={topicIcon(section.heading)} size={38} /></span>}
                   <div className={styles.sectionTitle}><span className={styles.sectionNo}>Field notes / {String(index + 1).padStart(2, "0")}</span><h2 id={`${section.id}-h`}>{section.heading}</h2></div>
                 </header>
-                <div className={`prose max-w-none ${styles.sectionBody} ${section.blocks.every(block => block.type === "paragraph") && section.blocks.reduce((length, block) => length + (block.type === "paragraph" ? block.text.length : 0), 0) > 220 ? styles.narrativeColumns : ""}`}>
+                <div data-content-inset="card" className={`prose max-w-none ${styles.sectionBody} ${section.blocks.every(block => block.type === "paragraph") && section.blocks.reduce((length, block) => length + (block.type === "paragraph" ? block.text.length : 0), 0) > 220 ? styles.narrativeColumns : ""}`}>
                   {section.blocks.map((block, i) => <Block key={i} id={`${tablePrefix}-s${index + 1}-b${i + 1}`} tableLabel={`${consumerText(section.heading)}: table ${index + 1}.${i + 1}`} block={block} allow={allow} />)}
                 </div>
               </Reveal>;
@@ -298,7 +298,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
 
             {facts.length ? <Reveal as="section" id="facts-and-sources" aria-labelledby="facts-and-sources-heading" className={styles.factSection}>
               <div className="grid gap-2"><p className={styles.kicker}>The whole picture</p><h2 id="facts-and-sources-heading" className="type-display-l text-text">Facts and sources</h2><p className="type-small text-text-2">The complete figures and their sources, as of {page.content.dataAsOf}. Planning assumptions are identified below.</p></div>
-              <dl className={styles.factGrid}>{facts.map((fact, i) => <div key={`${fact.label}-${i}`} className={styles.factCard}>
+              <dl className={styles.factGrid}>{facts.map((fact, i) => <div key={`${fact.label}-${i}`} className={styles.factCard} data-content-inset="card">
                 <dt>{fact.label}</dt><dd><span className={`${styles.factThumb} ${styles.utilityGlyph}`} aria-hidden="true"><LineIcon name={topicIcon(fact.label)} size={27} /></span><span className={styles.factValue}>{fact.value}</span><span className={styles.factBasis}><InlineText text={fact.basis} allow={allow} /></span></dd>
               </div>)}</dl>
             </Reveal> : null}
@@ -307,16 +307,16 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
               <SectionHeader id="faq-h" overline="Good questions. Clear answers." title="Questions about this page" />
               <div className={styles.faqLayout}>
                 <figure className={styles.faqVisual} data-editorial-image={faqImage!.id}><MediaFrame asset={faqImage!} sizes="(min-width: 1024px) 20vw, 100vw" /><figcaption className={styles.faqCaption}>A little clarity goes a long way.</figcaption></figure>
-                <div className={`${styles.faqCards} ${page.content.faq.every(item => item.question.length <= 88) ? styles.faqCardsCompact : ""}`}>{page.content.faq.map((item) => <ExpandableCard key={item.question} title={item.question} name="seo-faq"><p><InlineText text={item.answer} allow={allow} /></p></ExpandableCard>)}</div>
+                <div className={`${styles.faqCards} ${page.content.faq.every(item => item.question.length <= 88) ? styles.faqCardsCompact : ""}`}>{page.content.faq.map((item) => <ExpandableCard key={item.question} title={item.question} name="seo-faq" contentInset="compact"><p><InlineText text={item.answer} allow={allow} /></p></ExpandableCard>)}</div>
               </div>
             </Reveal> : null}
 
             <Reveal as="section" aria-labelledby="quote-heading" className={styles.quoteBand}>
               <figure className={styles.quotePhoto} data-editorial-image={images[4]!.id}><MediaFrame asset={images[4]!} sizes="(min-width: 1024px) 30vw, 100vw" /></figure>
-              <div className={styles.quoteCopy}><p className="type-overline">The next step is yours</p><h2 id="quote-heading">{quote.heading}</h2><p>{quote.text}</p><div><QuoteEntryButton originZip={quote.originZip} destZip={quote.destZip} label={quote.cta} /></div><p className="flex items-start gap-2"><IdCardIcon size={18} />Movers only. You choose how many can contact you. Companies introduce themselves when they contact you.</p></div>
+              <div className={styles.quoteCopy} data-content-inset="card"><p className="type-overline">The next step is yours</p><h2 id="quote-heading">{quote.heading}</h2><p>{quote.text}</p><div><QuoteEntryButton originZip={quote.originZip} destZip={quote.destZip} label={quote.cta} /></div><p className="flex items-start gap-2"><IdCardIcon size={18} />Movers only. You choose how many can contact you. Companies introduce themselves when they contact you.</p></div>
             </Reveal>
 
-            <footer id="sources-and-methodology" className={styles.sources}>
+            <footer id="sources-and-methodology" className={styles.sources} data-content-inset="card">
               <h2 className="type-h3 text-text">Sources and editorial notes</h2>
               <p className={styles.kicker}>Made to be checked</p>
               <p>Data as of {page.content.dataAsOf}. Last updated {page.updatedAt.toISOString().slice(0, 10)}.{page.reviewedBy && page.lastReviewedAt ? ` Reviewed by ${page.reviewedBy} on ${page.lastReviewedAt.toISOString().slice(0, 10)}.` : ""}</p>
@@ -334,7 +334,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
         <Reveal><SectionHeader overline="There is more to your move" title="Keep the plan moving." /></Reveal>
         <nav aria-label="Related pages" className={styles.relatedGrid}>{related.map((group, index) => <Reveal key={group.heading} delay={index * 40} className={styles.relatedCard}>
           <figure className={styles.relatedPhoto} data-editorial-image={relatedImages.get(group.heading)!.id}><MediaFrame asset={relatedImages.get(group.heading)!} alt="" sizes="(min-width: 1024px) 22vw, (min-width: 520px) 45vw, 100vw" /></figure>
-          <div className={styles.relatedCopy}><h2 className="type-overline text-text-2">{group.heading}</h2><ul>{group.links.slice(0, 3).map((link) => <li key={`${link.href}-${link.relation}`}><Link href={link.href} className="link">{link.label}</Link></li>)}</ul>
+          <div className={styles.relatedCopy} data-content-inset="card"><h2 className="type-overline text-text-2">{group.heading}</h2><ul>{group.links.slice(0, 3).map((link) => <li key={`${link.href}-${link.relation}`}><Link href={link.href} className="link">{link.label}</Link></li>)}</ul>
             {group.links.length > 3 ? <details className={styles.relatedMore}><summary>View all {group.links.length} pages</summary><ul>{group.links.slice(3).map((link) => <li key={`${link.href}-${link.relation}`}><Link href={link.href} className="link">{link.label}</Link></li>)}</ul></details> : null}
           </div>
         </Reveal>)}</nav>

@@ -7,7 +7,7 @@ describe("complete guide navigation on narrow screens", () => {
     const sections = Array.from({ length: 9 }, (_, index) => ({ id: `chapter-${index + 1}`, heading: `Moving detail ${index + 1}` }));
     const html = renderToStaticMarkup(createElement(GuideContents, { sections, hasFacts: true, hasFaq: true }));
     expect(html).toContain("<details");
-    expect(html).toContain("<summary>");
+    expect(html).toContain("<summary ");
     for (const section of sections) expect(html).toContain(`href="#${section.id}"`);
     expect(html).toContain('href="#facts-and-sources"');
     expect(html).toContain('href="#faq"');

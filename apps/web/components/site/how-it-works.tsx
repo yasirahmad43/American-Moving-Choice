@@ -88,7 +88,7 @@ export function HowItWorks({
                       </span>
                     </span>
                     <div data-pin-step="">
-                      <TiltCard max={7} depth={18} padding="md" className="h-full" bodyClassName="grid h-full content-start gap-4">
+                      <TiltCard max={7} depth={18} padding="md" contentInset="card" className="h-full" bodyClassName="grid h-full content-start gap-4">
                         {images?.[index] ? <div className="relative aspect-[16/10] overflow-hidden rounded-xl" data-page-photo={images[index]!.id}>
                           <MediaFrame asset={images[index]!} sizes="(min-width: 1024px) 23vw, 90vw" />
                           <span className="absolute bottom-2 right-2 rounded-xl bg-white/95 p-1"><Icon3D name={stop.icon} size={48} /></span>
