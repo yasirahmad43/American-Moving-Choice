@@ -130,6 +130,31 @@ describe("comments, anchors and headings", () => {
     expect(html).toMatch(/<div class="table-wrap" role="region" tabindex="0" aria-label="[^"]+"><table>/);
     expect(html).toContain("<th>A</th>");
   });
+
+  it("gives repeated table regions unique names with their section context without changing cells", () => {
+    const table = "| Item | Value |\n|---|---|\n| Stairs | 12 |\n";
+    const { html } = render(`## **Access** and parking\n\n${table}\n${table}\n## Delivery\n\n${table}`);
+    const labels = [...html.matchAll(/class="table-wrap"[^>]*aria-label="([^"]+)"/g)].map(match => match[1]);
+    expect(labels).toEqual([
+      "Access and parking: Table 1 (scrolls sideways on small screens)",
+      "Access and parking: Table 2 (scrolls sideways on small screens)",
+      "Delivery: Table 3 (scrolls sideways on small screens)",
+    ]);
+    expect(new Set(labels).size).toBe(3);
+    expect(html.match(/<th>Item<\/th>/g)).toHaveLength(3);
+    expect(html.match(/<td>Stairs<\/td>/g)).toHaveLength(3);
+    expect(html.match(/<td>12<\/td>/g)).toHaveLength(3);
+  });
+
+  it("keeps heading-free table names distinct and resets their numbering per document", () => {
+    const table = "| A | B |\n|---|---|\n| 1 | 2 |\n";
+    const { html } = render(`${table}\n${table}`);
+    expect(html).toContain('aria-label="Table 1 (scrolls sideways on small screens)"');
+    expect(html).toContain('aria-label="Table 2 (scrolls sideways on small screens)"');
+    const next = render(table).html;
+    expect(next).toContain('aria-label="Table 1 (scrolls sideways on small screens)"');
+    expect(next).not.toContain('aria-label="Table 2');
+  });
 });
 
 describe("sanitization", () => {

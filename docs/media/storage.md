@@ -7,7 +7,7 @@ deployment. SEO media ownership remains authoritative in `seo_media_usage`.
 
 ## Verified setup status — 2026-10-29
 
-- Supabase project `american-moving-choice` has an empty `amc-media` bucket, verified public,
+- Supabase project `american-moving-choice` has an `amc-media` bucket, verified public,
   restricted to `image/webp`, with a **4 MiB (4,194,304-byte)** object limit.
 - Vercel `amc-app` has `SUPABASE_URL=https://ctpqgtststuxabtvejyi.supabase.co` and
   `SUPABASE_MEDIA_BUCKET=amc-media` configured for **Production and Preview**.
@@ -16,13 +16,22 @@ deployment. SEO media ownership remains authoritative in `seo_media_usage`.
   was transferred directly through the signed-in dashboards; it was not written to the repository,
   chat or a local file. The temporary clipboard and transfer variable were cleared.
 - Production deployment `dpl_8w3P723A8KsNR2fNJuRjCETnrp2z` rebuilt the tested release
-  `5b276b260d8e7707c45096e8a967c7740fb6aca0` with this configuration and is Ready and active.
+  `5b276b260d8e7707c45096e8a967c7740fb6aca0` with this configuration and was Ready and active.
   Its build log records a successful **live 800×450 WebP write, exact-byte public read and cleanup**.
   The one-time `AMC_VERIFY_MEDIA_STORAGE` flag was then set to `false` for subsequent builds.
-  No customer data, manifest row or permanent test image was created. This proves the provider
-  connection; it does not claim a production administrator's full upload/assignment journey was run.
+  No customer data, manifest row or permanent test image was created by that provider probe.
+- The owner subsequently signed into the live Super admin dashboard without an authenticator.
+  The actual admin upload saved the exact approved logo as
+  `upload-american-moving-choice-logo-28ae2633e4b5f400`, with 800×400 (13,074-byte) and
+  1344×672 (21,676-byte) optimized WebP variants. A fresh library navigation retained its alt,
+  owner attribution, license and tags. Anonymous public GETs of both files returned valid images
+  of the recorded dimensions. An identical second upload was rejected without adding objects.
+  The library increased from 418 to 419 assets and contains two stored objects. The uploaded
+  asset is unclaimed; no public page assignment changed and both headers retain the original PNG.
+  This verifies upload, persistence, public read and deduplication; production assignment was
+  deliberately not changed. The active app source for this journey was `dd5a29e` (PR #9).
 - Local focused verification passed **23/23 tests** with mocked Storage in a disposable database;
-  no live storage upload was made. The final integration suite passed 487 automated tests and all
+  no live storage upload was made by those tests. The earlier integration suite passed 487 automated tests and all
   package TypeScript checks. Those results do not replace post-deployment storage verification.
 
 The setup instructions below describe the full configuration for a fresh environment. For the

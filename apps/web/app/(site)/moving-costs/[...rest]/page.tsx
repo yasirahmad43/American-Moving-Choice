@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { CatalogPage, catalogMetadata } from "@/components/seo/catalog-route";
 import { ContentPageView } from "@/components/site/content-page";
 import { contentPageByUrl } from "@/lib/content/pages";
+import { socialMetadata } from "@/components/site/social-metadata";
 
 type Params = Promise<{ rest: string[] }>;
 
@@ -20,7 +21,7 @@ function contentFor(rest: string[]) {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { rest } = await params;
   const content = contentFor(rest);
-  if (content) return { title: { absolute: content.title }, description: content.description, alternates: { canonical: content.meta.url } };
+  if (content) return { title: { absolute: content.title }, description: content.description, alternates: { canonical: content.meta.url }, ...socialMetadata(content.meta.url, content.title, content.description, { family: "cost", type: content.meta.schema.includes("Article") ? "article" : "website" }) };
   if (rest.length !== 1) return { title: "Page not found", robots: { index: false, follow: false } };
   return catalogMetadata("/moving-costs/", rest[0]!);
 }
