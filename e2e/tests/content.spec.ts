@@ -58,8 +58,9 @@ test.describe("content pages", () => {
 test.describe("home page hand-off", () => {
   test("the hero ZIP form cleans the ZIPs and opens the survey at Where with them carried over", async ({ page }) => {
     await page.goto(`${WEB_URL}/`);
+    const headerQuote = page.getByRole("banner").getByRole("link", { name: "Get quotes", exact: true });
     // On the home page the header's Get quotes link is secondary; the hero form is the main action.
-    await expect(page.locator('header a[href="/get-quotes/"]').first()).toHaveClass(/bg-surface/);
+    await expect(headerQuote).toHaveClass(/bg-surface/);
     const starter = page.locator(".vsh-start");
     await expect(starter).toHaveAttribute("data-ready", "true");
     await starter.getByRole("button", { name: "Continue to move details" }).click();
@@ -81,7 +82,7 @@ test.describe("home page hand-off", () => {
     expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.prefill"))).toBeNull();
 
     await page.goto(`${WEB_URL}/about/`);
-    await expect(page.locator('header a[href="/get-quotes/"]').first()).toHaveClass(/bg-cta/);
+    await expect(headerQuote).toHaveClass(/bg-cta/);
   });
 });
 

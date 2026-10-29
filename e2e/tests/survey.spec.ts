@@ -85,7 +85,10 @@ test.describe("quote survey", () => {
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page.getByRole("heading", { name: "Review and send" })).toBeVisible();
-    await expect(page.locator("#main").getByText("American Moving Choice is an online service")).toBeVisible();
+    const roleStatement = page.locator("#main").getByText("American Moving Choice connects people planning a move with independent moving companies.");
+    await expect(roleStatement).toBeVisible();
+    await expect(roleStatement).toContainText("We don't transport belongings, give moving estimates, or book your move.");
+    await expect(roleStatement).toContainText("Companies introduce themselves when they contact you.");
     const consent = page.locator("#consent");
     const consentLabel = page.locator('label[for="consent"]');
     await expect(consent).not.toBeChecked();

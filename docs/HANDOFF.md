@@ -20,10 +20,17 @@ Existing exclusively assigned media and uploads retain their ownership; licensed
 illustrations may repeat across pages under `docs/media/editorial-reuse.md`.
 
 This is a new visual review, not the earlier deployed pass-2 proof. Comparison against all six
-owner-supplied references is recorded separately; pass 1 was 6.1/10 and pass 2 was 7.9/10 before
-the final map, local-context, photo-deduplication and tool-priority refinements. These are subjective
-critiques, not an objective claim of perfection. Do not label an unfinished review 10/10.
-Production remains `bbbdfb9` until this branch's final checks and release are recorded here.
+owner-supplied references is recorded separately: 6.1/10, then 7.9/10, then **8.9/10** after the
+map, local-context, photo-deduplication, tool-priority and final spacing refinements. The sampled
+review has no outstanding concrete visual findings; scores are subjective, not a guarantee that
+the owner will rate the result 10/10. See `docs/design/immersive-verification.md`.
+
+Release candidate `87b16f0` passed both optimized builds, all package typechecks, **527 unit/content/
+database checks**, 22 hero/tool browser checks, 30 main-page and 30 populated-guide views on the
+optimized build, and all **60 executable full browser scenarios**. Two stale browser assertions
+were updated and passed on a focused rerun. One existing empty `test.fixme` for the admin-approval
+walkthrough remains explicitly skipped; admin authentication and portal/admin journeys do run.
+PR **#8** is the current redesign review. Production remains `bbbdfb9` until its release is recorded.
 
 ### 2026-10-28 Codex continuation
 
@@ -56,7 +63,7 @@ fix makes wide plain-text tables keyboard accessible before hydration and remove
 stops in mobile card layouts. ZIP attachment now prefers matching GeoNames place/state and a stable
 semantic fallback rather than database row order. No production reimport/regeneration was needed.
 
-Current verification: **507 unique automated checks passed** (core 84, UI 8, DB 58, server 328,
+Baseline verification: **507 unique automated checks passed** (core 84, UI 8, DB 58, server 328,
 web content 29), with exact-commit GitHub CI, both Vercel previews and both local builds passing.
 The complete local browser suite passed **56 scenarios**, with one pre-existing intentional skip;
 three additional table regressions passed. Eighteen populated local SEO screens and a 2,497-page
