@@ -122,9 +122,11 @@ test("uncovered request is stored and can be withdrawn on the isolated local sit
   await expect(page.getByText("Request received", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Withdraw my request", exact: true }).click();
   await page.getByRole("button", { name: "Yes, withdraw it", exact: true }).click();
-  await expect(page.getByText("Your request is withdrawn", { exact: true })).toBeVisible();
   await withDatabase(async db => {
     await db.query("set search_path to amc, public");
-    expect((await db.query("select status from lead_groups where id=$1", [saved!.group_id])).rows[0]?.status).toBe("withdrawn");
+    await expect.poll(async () => (await db.query("select status from lead_groups where id=$1", [saved!.group_id])).rows[0]?.status).toBe("withdrawn");
   });
+  await expect(page.getByText("Withdrawn", { exact: true })).toBeVisible();
+  await expect(page.getByText(/You withdrew this request on/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What happens next", exact: true })).toHaveCount(0);
 });

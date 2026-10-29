@@ -127,10 +127,10 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
         ) : null}
       </Card>
 
-      <Card contentInset="card" as="section" title="What happens next" titleAs="h2">
+      {r.status !== "withdrawn" ? <Card contentInset="card" as="section" title="What happens next" titleAs="h2">
         <p className="text-text-2">Up to {r.limit} participating moving {r.limit === 1 ? "company" : "companies"} may contact you using the methods you chose. Each company will identify itself when it contacts you.</p>
         {r.buyerCount > 0 ? <p className="mt-3 type-small text-text-2">{r.buyerCount} {r.buyerCount === 1 ? "company has" : "companies have"} received your request.</p> : null}
-      </Card>
+      </Card> : null}
 
       {r.canWithdraw ? (
         <Card contentInset="card" as="section" title="Withdraw your request" titleAs="h2">
