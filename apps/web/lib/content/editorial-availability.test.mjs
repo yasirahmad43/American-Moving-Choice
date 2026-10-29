@@ -16,6 +16,23 @@ const table = '<div class="table-wrap" role="region" tabindex="0" aria-label="Mo
 const specimen = '<blockquote><p><a id="range-label"></a><strong>Planning range, not a quote:</strong> not yet available for not yet available. Based on not yet available; data as of not yet available; model cost-model-v1 (proposal). <a href="/moving-cost-calculator/method/">How this range is calculated</a></p></blockquote>';
 
 describe("missing cost data in public editorial presentation", () => {
+  it("names multiple formula regions distinctly while retaining code, custom attributes and supplied labels", () => {
+    const first = '<pre class="language-text" data-example="hourly"><code>rate * hours\nkeep  these spaces &lt; 3</code></pre>';
+    const custom = '<pre id="custom-formula" aria-label="Recorded worksheet" data-source="model"><code>supplied source</code></pre>';
+    const labelled = '<pre tabindex="0" role="region" aria-labelledby="formula-title"><code>existing accessible formula</code></pre>';
+    const second = '<pre><code>weight * band_rate</code></pre>';
+    const original = first + custom + labelled + second;
+    const shown = presentEditorialHtml(original);
+    const labels = [...shown.matchAll(/<pre\b[^>]*\baria-label="([^"]+)"/g)].map(match => match[1]);
+    expect(labels).toEqual(["Formula or worked example 1 (scroll sideways if needed)", "Recorded worksheet", "Formula or worked example 2 (scroll sideways if needed)"]);
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(shown).toContain('class="language-text" data-example="hourly"');
+    expect(shown).toContain('id="custom-formula" aria-label="Recorded worksheet" data-source="model"');
+    expect(shown).toContain(labelled);
+    const code = html => [...html.matchAll(/<code>([^]*?)<\/code>/g)].map(match => match[1]);
+    expect(code(shown)).toEqual(code(original));
+    expect(presentEditorialHtml(shown)).toBe(shown);
+  });
   it("turns missing cells into named-field statuses without losing a column, row, anchor or link", () => {
     const html = presentEditorialHtml(table);
     expect(html).not.toContain("not yet available");

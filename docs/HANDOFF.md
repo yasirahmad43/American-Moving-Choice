@@ -19,8 +19,9 @@ status, and turns a malformed missing-data range sentence into named explanatory
 substantive legal text, reference tables/rows/anchors, links and actual model/data values remain.
 No policies, prices, provider identities or retention periods were invented.
 
-The optimized public build and 88 public content/media tests passed, including 20 new regression
-checks for caption/alt separation, rendered legal-preview copy and real-guide field preservation.
+The optimized public build and 89 public content/media tests passed, including 21 new regression
+checks for caption/alt separation, rendered legal-preview copy, real-guide field preservation and
+distinct accessible labels on formula/example regions.
 The owner-requested full public visible-copy scan and affected-page desktop/mobile checks are
 recorded separately under the caption-cleanup proof outputs, with exact deployed source revisions.
 Image metadata and hydration JSON must be excluded from visible-copy findings; closed reader

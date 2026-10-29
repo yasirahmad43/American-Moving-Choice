@@ -59,7 +59,21 @@ export function presentEditorialHtml(html: string): string {
     if (unavailable.length < 3 || !/planning range|what the range covers|sample size/i.test(original) || /[$£€]\s*\d/.test(original)) return table;
     return `<div class="planning-availability"><p class="planning-availability-kicker">Rate information</p><h3>A useful range needs enough recent data.</h3><p>No supported price range is provided in this reference table. Its columns show the information a published range needs: the move it covers, the range, its source, the sample size and the data date. A field marked “Not available” has no verified value here.</p><a class="link" href="/moving-cost-calculator/">Check a planning range for your move</a><details><summary>View every reference row and its availability</summary>${table}</details></div>`;
   });
-  return available.replace(/<pre(\s[^>]*)?>/gi, (original, attributes = "") => /\btabindex=/i.test(attributes) ? original : `<pre${attributes} tabindex="0" role="region" aria-label="Formula or worked example (scroll sideways if needed)">`).replace(/<blockquote>[\s\S]*?<\/blockquote>/gi, planningLabelFields);
+  const usedLabels = new Set([...available.matchAll(/\baria-label\s*=\s*["']([^"']+)["']/gi)].map(match => match[1]));
+  let formulaNumber = 0;
+  const formulas = available.replace(/<pre(\s[^>]*)?>/gi, (original, attributes = "") => {
+    if (/\btabindex\s*=/i.test(attributes)) return original;
+    let additions = ' tabindex="0"';
+    if (!/\brole\s*=/i.test(attributes)) additions += ' role="region"';
+    if (!/\baria-(?:label|labelledby)\s*=/i.test(attributes)) {
+      let label: string;
+      do { label = `Formula or worked example ${++formulaNumber} (scroll sideways if needed)`; } while (usedLabels.has(label));
+      usedLabels.add(label);
+      additions += ` aria-label="${label}"`;
+    }
+    return `<pre${attributes}${additions}>`;
+  });
+  return formulas.replace(/<blockquote>[\s\S]*?<\/blockquote>/gi, planningLabelFields);
 }
 
 function nodesOf(children: ReactNode): ReactNode[] {
