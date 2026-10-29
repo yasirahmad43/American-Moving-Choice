@@ -10,7 +10,7 @@ import { CategoryIcon } from "./navigation/category-icon";
 export async function SiteFooter() {
   const { APP_URL, SITE_INDEXABLE } = env();
   const overview = await navigationOverview();
-  return <footer data-band="" className="relative isolate overflow-hidden bg-brand-navy text-on-band">
+  return <footer tabIndex={-1} data-band="" className="relative isolate overflow-hidden bg-brand-navy text-on-band">
     <div className="pointer-events-none absolute -right-36 -top-24 -z-10 h-[34rem] w-[52rem] opacity-25 [mask-image:radial-gradient(closest-side,black,transparent)]" aria-hidden="true"><RouteMapArt gradientId="site-footer-route-glow" /></div>
     <div className="mx-auto max-w-content gutter">
       <div className="grid gap-8 border-b border-white/20 py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:items-center lg:gap-16">

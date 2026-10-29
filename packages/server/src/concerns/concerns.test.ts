@@ -67,7 +67,14 @@ describe("createConcernCase", () => {
 
     const entry = (await getPool().query("select * from audit_log where entity = 'case' and entity_id = $1", [result.caseId])).rows[0];
     expect(entry).toMatchObject({ actor_type: "consumer", action: "case.report" });
-    const serialized = JSON.stringify(entry.after);
+    expect(entry.after).toEqual({
+      source: "public_form", case_type: "broker_activity", reference: result.reference,
+      contact_given: true, company_matched: false,
+    });
+    // Random case codes can legitimately contain "555"; verify their format above,
+    // then check the remaining allowlisted audit data for contact/description leakage.
+    const { reference: _reference, ...auditData } = entry.after;
+    const serialized = JSON.stringify(auditData);
     for (const secret of ["Pat", "example.com", "555", "another carrier"]) expect(serialized).not.toContain(secret);
   });
 

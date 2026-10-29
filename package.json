@@ -17,7 +17,7 @@
     "test": "pnpm -r test",
     "test:db": "pnpm --filter @amc/db test",
     "test:server": "pnpm --filter @amc/server test",
-    "test:content": "pnpm --filter @amc/server exec vitest run --root ../../apps/web --globals lib/content lib/page-media-plan.test.mjs lib/public-copy.test.mjs lib/sitemaps.test.mjs components/seo components/site/adaptive-react-tables.test.mjs",
+    "test:content": "pnpm --filter @amc/server exec vitest run --root ../../apps/web --globals lib/content lib/page-media-plan.test.mjs lib/public-copy.test.mjs lib/sitemaps.test.mjs components/seo components/survey components/site/adaptive-react-tables.test.mjs",
     "geo:build": "pnpm --filter @amc/server build:zip-data",
     "e2e": "pnpm --filter @amc/e2e e2e",
     "db:migrate": "pnpm --filter @amc/db migrate",

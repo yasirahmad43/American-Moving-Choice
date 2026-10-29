@@ -70,12 +70,12 @@ test("starter validates, preserves back-navigation and hands only move details t
   await starter.getByLabel("What are you moving?").selectOption("2br");
   const future = new Date(); future.setDate(future.getDate() + 30);
   const moveDate = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, "0")}-${String(future.getDate()).padStart(2, "0")}`;
-  await starter.getByLabel("Move date · optional").fill(moveDate);
+  await starter.getByLabel("Estimated move date").fill(moveDate);
   await starter.getByRole("button", { name: "Continue to my request" }).click();
   await expect(page).toHaveURL(base + "/get-quotes/");
   expect(new URL(page.url()).search).toBe("");
   const carried = await page.evaluate(() => JSON.parse(sessionStorage.getItem("test.hero-prefill")!));
-  expect(carried).toEqual({ entry: "household", originZip: "02108", destZip: "10001", moveSize: "2br", moveDate });
+  expect(carried).toEqual({ source: "quote-starter", entry: "household", originZip: "02108", destZip: "10001", moveSize: "2br", moveDate });
   await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem("amc.survey.draft") ?? "{}").moveDate)).toBe(moveDate);
   const draft = await page.evaluate(() => JSON.parse(sessionStorage.getItem("amc.survey.draft")!));
   expect(draft).toMatchObject({ originZip: "02108", destZip: "10001", moveSize: "2br", moveDate });
@@ -97,6 +97,8 @@ test("blocked session storage still opens the survey without putting move data i
   await starter.getByLabel("Moving to · ZIP code").fill("10001");
   await starter.getByRole("button", { name: "Continue to move details" }).click();
   await starter.getByLabel("What are you moving?").selectOption("studio");
+  const future = new Date(); future.setDate(future.getDate() + 30);
+  await starter.getByLabel("Estimated move date").fill(`${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, "0")}-${String(future.getDate()).padStart(2, "0")}`);
   await starter.getByRole("button", { name: "Continue to my request" }).click();
   await expect(page).toHaveURL(base + "/get-quotes/");
   expect(new URL(page.url()).search).toBe("");

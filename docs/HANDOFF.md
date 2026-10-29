@@ -3,6 +3,23 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Survey continuity and contained overlays — owner follow-up, 2026-10-29
+
+The hero and closing starter are the first two steps of the same seven-step household journey.
+They collect route, move size and an estimated date once, then open a fresh quote page at step 3
+with an editable saved-move summary. A new starter replaces stale move intent and date flags;
+non-contact draft checkpoints are written before advancing so cached navigation/reload cannot
+silently restart the journey. Contact data and permission choices are never persisted in drafts.
+The direct full-survey entry still supports other move needs. Run the dedicated
+`e2e/survey-continuity.config.ts` regression against a local test instance before editing this flow.
+
+The home planning image and callout occupy separate rows of an auto-height card. Captions/icons
+on compact guide photos use separate horizontal lanes. Sticky quote bars yield to both the closing
+survey and footer. New overlays must remain within their owning media/card and must not cover
+unrelated copy or active form controls. The inset browser regression now uses real native
+scrollbars, checks usable client width (including the 319px case), whole-word heading wraps and
+contained overlays. Keep the logo flexible within the space left by the menu.
+
 ### Public content inset rule — owner follow-up, 2026-10-29
 
 Every painted public text container must opt into `data-content-inset="card"` (16–24px on

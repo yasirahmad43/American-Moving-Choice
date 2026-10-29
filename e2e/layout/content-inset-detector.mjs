@@ -61,3 +61,25 @@ export function inspectPaintedReferenceInsets(){
     return{index,kind,tag:e.tagName.toLowerCase(),classes:e.className,profile:'compact',required:12,padding,text,paddingPass,textPass,pass:paddingPass&&textPass,width:b.width,height:b.height,sample:e.textContent.replace(/\s+/g,' ').trim().slice(0,90)};
   });
 }
+
+/** Complements the frozen detector for classic scrollbars that consume layout width. */
+export function inspectClientViewportGeometry(){
+  const root=document.documentElement,body=document.body,clientWidth=root.clientWidth;
+  const visible=e=>{
+    if(e.closest('[hidden],[aria-hidden="true"],.sr-only'))return false;
+    for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;if(p.tagName==='DETAILS'&&!p.open&&p!==e&&!p.querySelector(':scope>summary')?.contains(e))return false;}
+    return e.getClientRects().length>0;
+  };
+  const documentOverflow=root.scrollWidth>clientWidth+2,bodyOverflow=body.scrollWidth>body.clientWidth+2;
+  const offenders=[...document.querySelectorAll('body *')].filter(visible).map(e=>{const r=e.getBoundingClientRect();return{tag:e.tagName.toLowerCase(),classes:String(e.className),left:r.left,right:r.right,width:r.width};}).filter(r=>r.width>1&&(r.left< -2||r.right>clientWidth+2)).slice(0,30);
+  return{innerWidth,clientWidth,documentScrollWidth:root.scrollWidth,bodyClientWidth:body.clientWidth,bodyScrollWidth:body.scrollWidth,scrollbarWidth:innerWidth-clientWidth,documentOverflow,bodyOverflow,offenders,pass:!documentOverflow&&!bodyOverflow};
+}
+
+/** Ordinary heading line breaks are allowed; splitting a single benefit-title word is not. */
+export function inspectBenefitHeadingWords(){
+  return[...document.querySelectorAll('.home-benefit-body h3')].map((e,index)=>{
+    const splits=[],w=document.createTreeWalker(e,NodeFilter.SHOW_TEXT);
+    while(w.nextNode()){const n=w.currentNode;for(const m of n.textContent.matchAll(/\S+/gu)){const r=document.createRange();r.setStart(n,m.index);r.setEnd(n,m.index+m[0].length);const rects=[...r.getClientRects()].filter(q=>q.width>0&&q.height>0),tops=[...new Set(rects.map(q=>Math.round(q.top*2)/2))];if(tops.length>1)splits.push({word:m[0],lineTops:tops});}}
+    const s=getComputedStyle(e);return{index,title:e.textContent.trim(),width:e.getBoundingClientRect().width,paddingRight:s.paddingRight,splits,pass:splits.length===0};
+  });
+}

@@ -63,6 +63,8 @@
 .vsh--embedded .vsh__survey{border-radius:24px;background:#fff;color:#14243a;padding:6px;box-shadow:0 24px 70px #00102555}
 .vsh-start{overflow:hidden;display:grid;background:#fff;color:#15273e;border:1px solid #e2e8f0;border-radius:22px;box-shadow:0 26px 70px #00152c4d,0 1px 0 #ffffffb3 inset}
 .vsh-start__topline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:19px 26px 17px;border-top:4px solid var(--vsh-red);border-bottom:1px solid #e7edf4;font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}
+.vsh-start__progress{display:grid;gap:3px;min-width:0;line-height:1.4}
+.vsh-start__progress strong{font-size:11px;font-weight:700;letter-spacing:.025em;text-transform:none;color:#526379}
 .vsh-start__free{display:flex;align-items:center;gap:5px;flex-shrink:0;font-size:10px;letter-spacing:0;color:#247053;text-transform:none}
 .vsh-start__steps{display:grid;grid-template-columns:1fr 1fr;gap:16px;list-style:none;margin:0;padding:22px 26px 0}
 .vsh-start__steps li{display:flex;align-items:center;gap:8px;padding-bottom:13px;border-bottom:2px solid #e5eaf1;color:#68768b;font-size:12px;font-weight:700}

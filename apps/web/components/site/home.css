@@ -438,27 +438,34 @@
 .home-planning-art {
   position:relative;
   min-width:0;
-  aspect-ratio:.95;
+  display:grid;
+  grid-template-rows:minmax(16rem,1fr) auto;
+  overflow:hidden;
   border-radius:1.4rem;
+  background:var(--surface);
   isolation:isolate
 }
-.home-planning-art>img {
-  border-radius:inherit;
+.home-planning-media {
+  position:relative;
+  min-width:0;
+  min-height:16rem
+}
+.home-planning-media>img {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
   object-position:center
 }
 .home-planning-stamp {
-  position:absolute;
-  bottom:1.5rem;
-  right:1rem;
-  left:1rem;
   display:flex;
   align-items:center;
   gap:.75rem;
+  min-width:0;
   background:var(--surface);
-  border-radius:1rem;
-  padding:.8rem 1rem;
-  box-shadow:0 12px 35px -16px #04254f55;
-  transform:rotate(2deg)
+  border-top:2px solid var(--brand-red);
+  padding:1rem;
+  line-height:1.5
 }
 .home-planning-stamp>span {
   font-size:.9rem;
@@ -724,15 +731,6 @@
   .home-planning-grid {
     grid-template-columns:minmax(0,1fr) minmax(0,1fr);
     gap:5rem
-  }
-  .home-planning-art {
-    aspect-ratio:1
-  }
-  .home-planning-stamp {
-    left:auto;
-    right:-1.3rem;
-    bottom:2.5rem;
-    padding:1.1rem 1.5rem
   }
   .home-faq-grid {
     grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);

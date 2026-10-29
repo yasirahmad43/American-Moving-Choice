@@ -62,7 +62,7 @@
 .site-experience .home-service-card h3 { font-size:clamp(1rem,1.8vw,1.4rem); line-height:1.25; }
 .site-experience .home-service-card p { font-size:.9375rem; line-height:1.55; }
 .site-experience .home-benefit-body { min-height:0; height:100%; gap:.75rem; padding:clamp(1rem,1.8vw,1.5rem); }
-.site-experience .home-benefit-body h3 { max-width:none; padding-right:1.5rem; font-size:clamp(1.1rem,1.8vw,1.5rem); }
+.site-experience .home-benefit-body h3 { max-width:none; padding-right:0; font-size:clamp(1.1rem,1.8vw,1.5rem); }
 .site-experience .home-benefit-photo { margin-bottom:1rem; }
 .site-experience .home-benefit-body > :last-child { margin-top:auto; }
 .site-experience .home-card-index { top:var(--layout-card-pad); right:var(--layout-card-pad); padding:.25rem .5rem; border-radius:.4rem; background:var(--surface); }
@@ -148,8 +148,8 @@
   .site-experience .home-benefit-body h3 { font-size:1.1rem; }
   .site-experience .home-benefit-body p { font-size:.875rem; line-height:1.55; }
   .site-experience .home-benefit-photo { aspect-ratio:16/9; margin-bottom:.75rem; }
-  .site-experience .home-planning-art { min-height:0; aspect-ratio:21/9; }
-  .site-experience .home-planning-stamp { position:static; margin:.75rem; }
+  .site-experience .home-planning-art { min-height:0; aspect-ratio:auto; grid-template-rows:auto auto; }
+  .site-experience .home-planning-media { min-height:0; aspect-ratio:21/9; }
   .site-experience .home-faq-grid .home-benefit-photo { flex:none; min-height:0; aspect-ratio:21/9; }
   .site-experience .home-faq-grid > div:first-child { grid-template-columns:minmax(0,1fr); }
   .site-experience .home-faq-grid > div:first-child > :is(h2,p.home-faq-intro,a) { grid-column:1; grid-row:auto; }

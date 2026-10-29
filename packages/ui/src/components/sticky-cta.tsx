@@ -2,7 +2,7 @@
 
 /**
  * Mobile sticky CTA bar (VD §9.10): appears below 1024px once the element with id `watch` has
- * scrolled out of view, hides during form interaction or while the closing survey is visible,
+ * scrolled out of view, hides during form interaction or while the closing survey/footer is visible,
  * respects the safe area and adds
  * scroll-padding so focused elements are never hidden behind it (WCAG 2.4.11).
  */
@@ -26,6 +26,7 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
   const [visible, setVisible] = useState(false);
   const [formActive, setFormActive] = useState(false);
   const [closingVisible, setClosingVisible] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
   const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,18 +55,26 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
       setClosingVisible(onScreen);
     }, { threshold: 0 }) : null;
     if (closing) closingObserver?.observe(closing);
+    const footer = document.querySelector<HTMLElement>("footer");
+    const footerObserver = footer ? new IntersectionObserver(([entry]) => {
+      const onScreen = Boolean(entry?.isIntersecting);
+      if (onScreen) yieldFocus(footer.matches("[tabindex]") ? footer : footer.querySelector<HTMLElement>("a,button,[tabindex]") ?? target);
+      setFooterVisible(onScreen);
+    }, { threshold: 0 }) : null;
+    if (footer) footerObserver?.observe(footer);
     updateFocus();
     document.addEventListener("focusin", onFocus);
     document.addEventListener("focusout", onFocus);
     return () => {
       observer.disconnect();
       closingObserver?.disconnect();
+      footerObserver?.disconnect();
       document.removeEventListener("focusin", onFocus);
       document.removeEventListener("focusout", onFocus);
     };
   }, [watch]);
 
-  const shown = visible && !formActive && !closingVisible;
+  const shown = visible && !formActive && !closingVisible && !footerVisible;
   useEffect(() => {
     if (shown) document.documentElement.setAttribute("data-sticky-cta", "");
     else document.documentElement.removeAttribute("data-sticky-cta");

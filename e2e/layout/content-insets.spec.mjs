@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { inspectTextInsetContract, inspectPaintedReferenceInsets } from "./content-inset-detector.mjs";
+import { inspectOwnedOverlays } from "./owned-overlay-detector.mjs";
+import { inspectTextInsetContract, inspectPaintedReferenceInsets, inspectClientViewportGeometry, inspectBenefitHeadingWords } from "./content-inset-detector.mjs";
 
 const css = readFileSync(new URL("../../apps/web/components/site/content-insets.css", import.meta.url), "utf8");
 const base = (process.env.E2E_WEB_URL || "http://127.0.0.1:3000").replace(/\/+$/, "");
@@ -12,7 +13,8 @@ const assertInsets = async page => {
   const references = await page.evaluate(inspectPaintedReferenceInsets);
   expect(references.filter(item => !item.pass), "Painted table cells and phone rows must retain the compact inset").toEqual([]);
   if (new URL(page.url()).pathname === "/moving-costs/how-movers-charge/") expect(references.length).toBeGreaterThan(0);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  expect((await page.evaluate(inspectClientViewportGeometry)).pass, "The layout must fit the usable width beside native scrollbars").toBe(true);
+  expect((await page.evaluate(inspectBenefitHeadingWords)).filter(item => !item.pass), "Headings should wrap between words").toEqual([]);
 };
 
 test("inset protection survives token failure and conflicting late padding without padding image shells", async ({ page }) => {
@@ -34,7 +36,7 @@ test("inset protection survives token failure and conflicting late padding witho
   expect((await page.evaluate(inspectTextInsetContract)).some(item => !item.pass)).toBe(true);
 });
 
-for (const width of [320, 390, 768, 1440]) {
+for (const width of [319, 320, 390, 768, 1440]) {
   test(`public cards and client navigation keep readable insets at ${width}px`, async ({ page, context }) => {
     await page.setViewportSize({ width, height: 900 });
     // Never send customer data while checking public layout.
@@ -43,6 +45,26 @@ for (const width of [320, 390, 768, 1440]) {
       await page.goto(base + path);
       await page.locator(".site-experience main").waitFor();
       await assertInsets(page);
+      const photo = page.locator('figure[class*="photoMain"]').first();
+      if (await photo.count()) {
+        await photo.scrollIntoViewIfNeeded();
+        expect((await page.evaluate(inspectOwnedOverlays)).filter(check => !check.pass)).toEqual([]);
+      }
+      if (path === "/") {
+        await page.locator(".home-planning-art").scrollIntoViewIfNeeded();
+        const planning = await page.locator(".home-planning-art").evaluate(e => {
+          const card = e.getBoundingClientRect(), stamp = e.querySelector(".home-planning-stamp").getBoundingClientRect();
+          const copy = e.parentElement.querySelector(".home-planning-copy").getBoundingClientRect();
+          const overlaps = Math.min(stamp.right, copy.right) - Math.max(stamp.left, copy.left) > 1 && Math.min(stamp.bottom, copy.bottom) - Math.max(stamp.top, copy.top) > 1;
+          return { contained: stamp.left >= card.left - 1 && stamp.right <= card.right + 1 && stamp.top >= card.top - 1 && stamp.bottom <= card.bottom + 1, overlaps };
+        });
+        expect(planning.contained).toBe(true);
+        expect(planning.overlaps).toBe(false);
+        expect((await page.evaluate(inspectOwnedOverlays)).filter(check => !check.pass)).toEqual([]);
+        await page.locator("footer p").last().scrollIntoViewIfNeeded();
+        await expect(page.locator('.sticky-cta[data-visible="true"]')).toHaveCount(0);
+        expect((await page.evaluate(inspectOwnedOverlays)).filter(check => !check.pass)).toEqual([]);
+      }
       if (path === "/" && width < 1200) {
         // All state names must retain spacing when their native regions are opened.
         for (const summary of await page.locator(".state-guide-region > summary").all()) {
