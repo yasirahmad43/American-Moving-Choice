@@ -7,7 +7,6 @@ import { WEB_URL, withDatabase } from "./env";
 import { expectNoSeriousAxeViolations } from "./helpers";
 
 const CONTENT_PAGES = [
-  "/advertising-disclosure/",
   "/how-we-verify-movers/",
   "/movers-vs-brokers/",
   "/review-methodology/",
@@ -19,6 +18,11 @@ const CONTENT_PAGES = [
 ];
 
 test.describe("content pages", () => {
+  test("the retired funding article redirects to the current About page", async ({ request }) => {
+    const response = await request.get(`${WEB_URL}/advertising-disclosure/`, { maxRedirects: 0 });
+    expect(response.status()).toBe(308);
+    expect(new URL(response.headers().location!, WEB_URL).pathname).toBe("/about/");
+  });
   for (const path of CONTENT_PAGES) {
     test(`${path} renders with breadcrumbs, one h1, its canonical URL and no reviewer notes`, async ({ page }) => {
       const response = await page.goto(`${WEB_URL}${path}`);
@@ -56,16 +60,20 @@ test.describe("home page hand-off", () => {
     await page.goto(`${WEB_URL}/`);
     // On the home page the header's Get quotes link is secondary; the hero form is the main action.
     await expect(page.locator('header a[href="/get-quotes/"]').first()).toHaveClass(/bg-surface/);
-    await page.getByRole("button", { name: "Get my moving quotes" }).click();
+    const starter = page.locator(".vsh-start");
+    await expect(starter).toHaveAttribute("data-ready", "true");
+    await starter.getByRole("button", { name: "Continue to move details" }).click();
     await expect(page.getByText("Enter the 5-digit ZIP code you're moving from.")).toBeVisible();
 
-    await page.getByLabel("Moving from (ZIP code)").fill(" 02108-1234");
-    await page.getByLabel("Moving to (ZIP code)").fill("10001");
-    await expect(page.getByLabel("Moving from (ZIP code)")).toHaveValue("02108");
-    await page.getByRole("button", { name: "Get my moving quotes" }).click();
+    await starter.getByLabel("Moving from · ZIP code").fill(" 02108-1234");
+    await starter.getByLabel("Moving to · ZIP code").fill("10001");
+    await expect(starter.getByLabel("Moving from · ZIP code")).toHaveValue("02108");
+    await starter.getByRole("button", { name: "Continue to move details" }).click();
+    await starter.getByLabel("What are you moving?").selectOption("2br");
+    await starter.getByRole("button", { name: "Continue to my request" }).click();
 
     await expect(page).toHaveURL(`${WEB_URL}/get-quotes/`);
-    // The home page's prefill shape ({ entry, originZip, destZip }) is read once and cleared.
+    // The route and household details are read once and cleared; contact permissions stay unset.
     await expect(page.getByText("Check the answers we carried over")).toBeVisible();
     await expect(page.getByLabel("ZIP code you're moving from")).toHaveValue("02108");
     await expect(page.getByLabel("ZIP code you're moving to")).toHaveValue("10001");

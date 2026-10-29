@@ -62,7 +62,7 @@ test.describe("moving cost calculator", () => {
     await expect(label.getByRole("link", { name: "How this range is calculated" })).toHaveAttribute("href", "/moving-cost-calculator/method/#how-is-the-range-built");
     await expect(page.getByTestId("st-6")).toContainText("Movers set their own prices.");
     await expect(page.getByRole("heading", { level: 3, name: "What the range leaves out" })).toBeVisible();
-    await expect(page.getByTestId("money-line")).toContainText("Free to use.");
+    await expect(page.getByTestId("money-line")).toContainText("Free to request.");
     // Answers never reach the address.
     expect(page.url()).toBe(CALCULATOR);
 

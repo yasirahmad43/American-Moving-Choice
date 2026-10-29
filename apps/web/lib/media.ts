@@ -4,7 +4,9 @@ import "server-only";
  * Media contract: every image and video on the public site comes from
  * content/media/manifest.json (docs/media/inventory.md; `pnpm media:check` validates it against
  * the files on disk). One loader serves both the hand-built pages and the programmatic SEO
- * templates, and it guarantees that no asset id is used on more than one page:
+ * templates for exclusive slots. Those claims guarantee one owning page per asset. Reusable
+ * commissioned editorial illustrations and video backgrounds use the separate, read-only
+ * pageMediaPlan contract (docs/media/editorial-reuse.md), without changing these claims:
  *
  * - An asset reserves itself for one page with `usedOn: ["/route/"]`. The hand-built pages pin
  *   their assets this way; the SEO generator claims free assets (seo_media_usage) and

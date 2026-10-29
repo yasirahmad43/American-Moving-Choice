@@ -1,11 +1,13 @@
-import { Breadcrumbs, Container, PageHero, Reveal, TrustStrip } from "@amc/ui";
+import { Container, Reveal, TrustStrip } from "@amc/ui";
 import type { Metadata } from "next";
 import { Calculator } from "@/components/calculator/calculator";
 import { calculatorPageContent, renderTokens } from "@/components/calculator/content";
 import { COPY, MOVING_COSTS } from "@/components/calculator/copy";
-import { MediaFrame } from "@/components/media/media-frame";
-import { claimMediaById } from "@/lib/media";
-import { storedText, storedTextParts } from "@/lib/stored-texts";
+import { VideoSurveyHero } from "@/components/site/video-survey-hero";
+import { StorySections, StoryNextSteps } from "@/components/site/story-sections";
+import { pageMediaPlan } from "@/lib/page-media";
+import { PUBLIC_REQUEST_ASSURANCE, publicMarketingHtml } from "@/lib/public-copy";
+import { storedText } from "@/lib/stored-texts";
 
 const PAGE = "/moving-cost-calculator/";
 
@@ -29,8 +31,7 @@ const proseClasses =
  */
 export default function MovingCostCalculatorPage() {
   const page = calculatorPageContent();
-  // Distance drives most of a long-distance price: the aerial highway loop.
-  const art = claimMediaById(PAGE, "long-distance-hero-aerial-highway-dawn");
+  const plan = pageMediaPlan(PAGE, { topic: "cost calculator pricing" });
   const tokenCopy = {
     "form.services.storage.help": renderTokens("Storage for {{cost.method.storage_assumption}}."),
     "form.services.specialty_items.help": renderTokens("Covers {{cost.method.specialty_items}}."),
@@ -43,13 +44,12 @@ export default function MovingCostCalculatorPage() {
   };
   return (
     <>
-      <PageHero
-        media={<MediaFrame asset={art} priority sizes="(min-width: 1024px) 50vw, 100vw" />}
-        breadcrumbs={<Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Moving cost calculator" }]} />}
-        overline="Planning range, not a quote"
-        title={page.h1}
-        lede="A range built from movers' own rate cards, shown only when enough different movers have shared recent rates for a move like yours."
-      />
+      <VideoSurveyHero url={PAGE} title={page.h1} eyebrow="Planning range, not a quote"
+        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Moving cost calculator" }]}
+        mobileActionHref="#planning-calculator" mobileActionLabel="Use cost calculator"
+        description="A range built from movers' own rate cards, shown only when enough different movers have shared recent rates for a move like yours.">
+        <a href="#planning-calculator" className="vsh__tool-action">Use cost calculator <span aria-hidden="true">↓</span></a>
+      </VideoSurveyHero>
 
       <Container className="grid gap-12 section-pad">
         <Reveal>
@@ -63,32 +63,14 @@ export default function MovingCostCalculatorPage() {
           />
         </Reveal>
 
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:gap-16">
-          <div className="grid min-w-0 gap-10">
-            <div className={proseClasses} dangerouslySetInnerHTML={{ __html: page.introHtml }} />
-
-            <noscript>
-              <p className="text-text">
-                The calculator needs JavaScript. You can turn it on in your browser, or read{" "}
-                <a href={MOVING_COSTS} className="link">
-                  Moving costs
-                </a>{" "}
-                to see what affects the price of a move.
-              </p>
-            </noscript>
-
-            <section aria-label={COPY["form.name"]} className="max-w-[48rem]">
-              <div className="bezel">
-                <div className="bezel-inner p-5 sm:p-8">
-                  <Calculator tokenCopy={tokenCopy} st7={storedText("ST-7")} st6={storedText("ST-6")} st1b={storedTextParts("ST-1b")} />
-                </div>
-              </div>
-            </section>
-
-            <div className={proseClasses} dangerouslySetInnerHTML={{ __html: page.outroHtml }} />
-          </div>
-
-          <aside aria-label="Related" className="grid content-start gap-4 lg:sticky lg:top-6 lg:self-start">
+        <StorySections images={plan.images} chapters={[
+          { key: "calculator-intro", heading: "A clearer starting point", content: <div className={proseClasses} dangerouslySetInnerHTML={{ __html: publicMarketingHtml(page.introHtml) }} /> },
+          { key: "calculator-tool", heading: "Plan for your move", content: <section id="planning-calculator" tabIndex={-1} aria-label={COPY["form.name"]} className="min-w-0 scroll-mt-24">
+              <noscript><p className="mb-4 text-text">The calculator needs JavaScript. You can turn it on in your browser, or read <a href={MOVING_COSTS} className="link">Moving costs</a> to see what affects the price of a move.</p></noscript>
+              <div className="bezel"><div className="bezel-inner p-5 sm:p-6"><Calculator tokenCopy={tokenCopy} st7={storedText("ST-7")} st6={storedText("ST-6")} st1b={[{ kind: "text", text: PUBLIC_REQUEST_ASSURANCE }]} /></div></div>
+            </section> },
+          { key: "calculator-context", heading: "Know what your range means", content: <div className="grid gap-8"><div className={proseClasses} dangerouslySetInnerHTML={{ __html: publicMarketingHtml(page.outroHtml) }} />
+            <nav aria-label="Related calculator guides" className="grid gap-4">
             <div className="rounded-card border border-border bg-surface-2 p-5">
               <p className="type-overline text-text-2">Read next</p>
               <ul className="mt-3 grid gap-1">
@@ -112,8 +94,10 @@ export default function MovingCostCalculatorPage() {
                 Request quotes
               </a>
             </div>
-          </aside>
-        </div>
+            </nav>
+          </div> },
+        ]} />
+        <StoryNextSteps images={plan.images} usedCount={3} />
       </Container>
     </>
   );

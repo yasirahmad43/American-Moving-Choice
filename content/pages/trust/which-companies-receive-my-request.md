@@ -74,7 +74,7 @@ Your confirmation gives you a reference and the maximum number you chose. Compan
 
 Movers see a limited preview of a request before buying. Your contact details are released only after an eligible purchase, within your chosen maximum. A company that doesn't meet the purchase checks can't buy the request.
 
-American Moving Choice is free for consumers. Movers pay us for the requests they buy. [How AMC makes money](/advertising-disclosure/) explains that relationship. You arrange any estimate, booking and move directly with the company you choose to hire.
+American Moving Choice is free for consumers. You arrange any estimate, booking and move directly with the company you choose to hire.
 
 ## Changing your mind
 

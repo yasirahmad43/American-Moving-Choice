@@ -20,7 +20,7 @@ test.describe("design pass 2", () => {
       await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto(WEB_URL + "/");
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(/A better move\.\s*On your terms\./);
-      await expect(page.getByRole("button", { name: "Get my moving quotes" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Continue to move details" })).toBeVisible();
       await expect(page.locator('a[href^="/companies/"],a[href^="/directory/"]')).toHaveCount(0);
       await expectNoSeriousAxeViolations(page);
       await noOverflow(page);
@@ -37,7 +37,7 @@ test.describe("design pass 2", () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto(WEB_URL + "/");
-    const video = page.locator(".home-hero-film video");
+    const video = page.locator(".vsh__media video");
     const pause = page.getByRole("button", { name: "Pause background video", exact: true });
     await expect(video).toHaveJSProperty("paused", false, { timeout: 15000 });
     await pause.click();

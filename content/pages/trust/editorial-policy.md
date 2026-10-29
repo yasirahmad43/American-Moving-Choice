@@ -63,18 +63,16 @@ This policy covers what we write and publish. Invitation-only customer feedback 
 ### What we don't publish
 
 - **Pages with nothing new.** If a page wouldn't tell you anything you can't easily find already, we don't write it. If two of our own pages would be near copies, we merge them before either goes live.
-- **"Best movers" lists.** We publish no rankings or best-of lists at launch, and no "best movers" posts for a city alongside our city pages. If we add a comparison later, it will follow a published method, treat movers the same whether or not they're in our network or pay us, and won't rank a mover, or call it "top" or "best," on a rating from fewer than {{setting.rank_min_reviews}} eligible reviews of that experience.
+- **"Best movers" lists.** We publish no rankings or best-of lists at launch, and no "best movers" posts for a city alongside our city pages. If we add a comparison later, it will follow a published method, treat movers the same whether or not they're in our network, and won't rank a mover, or call it "top" or "best," on a rating from fewer than {{setting.rank_min_reviews}} eligible reviews of that experience.
 - **Pages for places we don't cover.** There's no page for a place no mover in our network serves, and there are no pages for single ZIP codes.
 - **Pages made mainly to rank in search**, such as near-identical pages for every city, ZIP code or service, or question-and-answer blocks written for search features rather than for you.
 - **Advice beyond what we know.** For example, we don't recommend neighborhoods or schools, because we have no expertise there.
 
-## Can movers pay for coverage?
+## How is coverage decided?
 
-No. American Moving Choice is paid by movers in our network for the move requests they buy, not by you; [How AMC makes money](/advertising-disclosure/) explains how that works.
+Only approved movers in good standing count toward coverage, and no company is named or promoted on location pages.
 
-A mover's payment buys it move requests, nothing more. Only approved movers in good standing count toward coverage, and no company is named or promoted on location pages. [How AMC makes money](/advertising-disclosure/) explains the relationship.
-
-No mover can pay for:
+Our publishing rules exclude:
 
 - a guide, article or other coverage about it, or a mention in one;
 - a ranking, a higher place in a list, or an award;
@@ -246,5 +244,4 @@ When we change this policy, we update this page and record the change here with 
 
 - [How we verify movers](/how-we-verify-movers/): every check we run on movers, and how often we recheck.
 - [Review methodology](/review-methodology/): who can review a mover, how reviews are checked and how ratings are worked out.
-- [How AMC makes money](/advertising-disclosure/): who pays us, and what payment never changes.
 - [How the calculator works](/moving-cost-calculator/method/): how our cost ranges are built.

@@ -99,6 +99,7 @@ function ResultHeading({ children, headingRef }: { children: ReactNode; headingR
 
 export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
   const router = useRouter();
+  const [ready, setReady] = useState(false);
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [size, setSize] = useState<string | null>(null);
@@ -113,6 +114,7 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const routeRequest = useRef(0);
   const [errorAttempt, setErrorAttempt] = useState(0);
+  useEffect(() => { setReady(true); }, []);
 
   const answers = useMemo(() => ({ origin, destination, size, services: canonicalServices(services) }), [origin, destination, size, services]);
   const answersKey = JSON.stringify(answers);
@@ -221,14 +223,13 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
     missing.length === 0 ? COPY["form.progress.done"] : `Still needed: ${joinWithAnd(missing.map((field) => COPY[`form.progress.${field}`]))}`;
 
   return (
-    <div className="grid gap-8">
-      <form ref={formRef} aria-label={COPY["form.name"]} noValidate onSubmit={onSubmit} className="grid gap-7 rounded-card border border-border bg-surface p-4 sm:p-6">
+    <div className="grid gap-8" data-calculator-ready={ready || undefined}>
+      <form ref={formRef} aria-label={COPY["form.name"]} action="/moving-cost-calculator/" method="get" noValidate onSubmit={onSubmit} className="grid gap-7 rounded-card border border-border bg-surface p-4 sm:p-6">
         <fieldset className="m-0 grid min-w-0 gap-4 border-0 p-0">
           <legend className="mb-1 p-0 type-h4 text-text">{COPY["form.route.legend"]}</legend>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field id="calc-origin" label={COPY["form.origin.label"]} help={zipHelp("origin")} error={zipError("origin")}>
               <Input
-                name="origin"
                 type="text"
                 inputMode="numeric"
                 autoComplete="off"
@@ -241,7 +242,6 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
             </Field>
             <Field id="calc-destination" label={COPY["form.destination.label"]} help={zipHelp("destination")} error={zipError("destination")}>
               <Input
-                name="destination"
                 type="text"
                 inputMode="numeric"
                 autoComplete="off"
@@ -274,7 +274,7 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
 
         <RadioCardGroup
           id="calc-size"
-          name="size"
+          name={ready ? "size" : ""}
           legend={COPY["form.size.legend"]}
           help={COPY["form.size.help"]}
           error={errors.size}
@@ -298,7 +298,6 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
               <Checkbox
                 key={service}
                 id={`calc-service-${service}`}
-                name="services"
                 value={service}
                 label={SERVICE_LABELS[service]}
                 description={helpId ? tokenCopy[helpId] : COPY["form.services.packing.help"]}
@@ -316,7 +315,7 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
             {progressText}
           </p>
           <div>
-            <Button type="submit" variant="primary" loading={pending} loadingLabel={COPY["form.submit.busy"]}>
+            <Button type="submit" variant="primary" disabled={!ready} loading={pending} loadingLabel={COPY["form.submit.busy"]}>
               {COPY["form.submit"]}
             </Button>
           </div>

@@ -66,19 +66,19 @@ function choreograph(gsap: Gsap, ScrollTrigger: ScrollTriggerType): () => void {
       },
     });
 
-    // Entrances, once.
+    // Entrances, once. Reading content stays visible even after a fast scroll or a delayed refresh.
     for (const el of document.querySelectorAll<HTMLElement>('[data-motion="rise"]')) {
       if (!belowFold(el)) continue;
-      gsap.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } });
+      gsap.fromTo(el, { opacity: 1, y: 24 }, { opacity: 1, y: 0, duration: 0.65, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } });
     }
     for (const el of document.querySelectorAll<HTMLElement>('[data-motion="scale"]')) {
       if (!belowFold(el)) continue;
-      gsap.fromTo(el, { opacity: 0, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.9, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } });
+      gsap.fromTo(el, { opacity: 1, scale: 0.97 }, { opacity: 1, scale: 1, duration: 0.7, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 92%", once: true } });
     }
     for (const el of document.querySelectorAll<HTMLElement>('[data-motion="stagger"]')) {
       const items = (Array.from(el.children) as HTMLElement[]).filter(belowFold);
       if (!items.length) continue;
-      gsap.fromTo(items, { opacity: 0, y: 24 }, {
+      gsap.fromTo(items, { opacity: 1, y: 24 }, {
         opacity: 1,
         y: 0,
         duration: 0.75,
@@ -186,7 +186,7 @@ function choreograph(gsap: Gsap, ScrollTrigger: ScrollTriggerType): () => void {
         if (route) gsap.set(route, { strokeDasharray: 1, strokeDashoffset: 0 });
         steps.forEach((step, index) => {
           if (!belowFold(step)) return;
-          gsap.fromTo(step, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.65, ease: "power3.out", delay: index * 0.04, scrollTrigger: { trigger: step, start: "top 92%", once: true } });
+          gsap.fromTo(step, { opacity: 1, y: 18 }, { opacity: 1, y: 0, duration: 0.65, ease: "power3.out", delay: index * 0.04, scrollTrigger: { trigger: step, start: "top 92%", once: true } });
         });
       }
     });

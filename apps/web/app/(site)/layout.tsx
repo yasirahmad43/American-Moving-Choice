@@ -3,7 +3,7 @@ import { env } from "@amc/server/env";
 import type { ReactNode } from "react";
 import { SiteChrome } from "@/components/site-chrome";
 import { JsonLd, organizationId } from "@/components/site/json-ld";
-import { storedText } from "@/lib/stored-texts";
+import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
 
 /**
  * Public pages: preview banner, header, footer (build plan §8), and the sitewide Organization
@@ -22,7 +22,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           "@id": organizationId(WEB_URL),
           name: "American Moving Choice",
           url: `${WEB_URL}/`,
-          description: storedText("ST-1a"),
+          description: PUBLIC_ROLE_STATEMENT,
         }}
       />
       {children}

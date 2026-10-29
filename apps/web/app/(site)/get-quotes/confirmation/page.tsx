@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { ConfirmationView } from "@/components/survey/confirmation-view";
 import { CONFIRMATION_COOKIE } from "@/components/survey/cookie";
 import { storedText } from "@/lib/stored-texts";
+import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
 
 export const metadata: Metadata = {
   title: "Request Sent",
@@ -28,7 +29,7 @@ export default async function ConfirmationPage() {
         <ConfirmationView
           confirmation={confirmation}
           manageUrl={`${env().WEB_URL}/my-request/${token}/`}
-          texts={{ st1a: storedText("ST-1a"), st4b: storedText("ST-4b") }}
+          texts={{ st1a: PUBLIC_ROLE_STATEMENT, st4b: storedText("ST-4b") }}
         />
       ) : (
         <div className="grid gap-6">

@@ -3,6 +3,9 @@
   background:#f7f8fa;
   color:var(--text)
 }
+.home-benefit-photo { aspect-ratio:16/10; overflow:hidden; border-radius:1rem; margin-bottom:1.25rem; width:100%; }
+.home-benefit-photo img { transition:transform .6s ease; }
+.home-benefit-card:hover .home-benefit-photo img { transform:scale(1.04); }
 .home-hero-grid {
   display:grid;
   gap:3rem;

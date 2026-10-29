@@ -41,3 +41,17 @@ The build entrypoint logs the actual application role's transaction/default read
 Supabase documents read-only protection at high physical disk usage; the 500 MB database billing quota alone is a different limit. WAL contributes to physical usage. A current read-only check from another role or connection does not prove the application's connection can write. See [Supabase database and disk size, including read-only recovery](https://supabase.com/docs/guides/platform/database-size).
 
 Attempt the ordinary tested migrator first, without project-setting changes or automatic read-only overrides. If the actual application role is still read-only, use a separately reviewed recovery following the provider's instructions and the verified cache-only migration. Do not delete application tables, reset the database, retry the old row-per-shingle writer, or rebuild the old index. Migration 230 must retain all saved content/checkpoints and free the derived legacy cache before the compact rebuild begins.
+
+## Observed production recovery
+
+On 2026-10-28 the fresh application-role preflight reported both read-only flags **off**. The normal
+migrator applied 230, repaired all 2,869 saved page records, retained completed state/geo/research
+checkpoints and resumed the remaining generation. Bootstrap completed at 20:24:37 UTC with **2,468
+published/indexable pages**. No setting override or manual data cleanup was needed.
+
+Independent read-only aggregates confirmed all 17 migrations, 4,782 source/packed records, zero
+missing/stale cache entries and zero failed published-page quality/privacy checks. The database
+measured 191.08 MiB and the compact cache 27.24 MiB at 20:29:30 UTC. The slight publication difference
+from the 2,467-page local baseline is documented in `expansion-verification.md`; it does not reflect
+a change to the uniqueness rule. Production reports and filtered recovery logs are included in the
+proof package, separately from the local equivalence benchmark above.

@@ -9,6 +9,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { CONTENT_RENDER_MODE } from "@/lib/review-mode";
 import { storedText } from "@/lib/stored-texts";
+import { publicMarketingHtml, publicMarketingText } from "@/lib/public-copy";
 import { parseFrontMatter } from "./front-matter";
 import { renderMarkdown, type RenderStats } from "./markdown";
 import { createTokenResolver, resolveTokensInText, type RawTokens, type TokenValue } from "./tokens";
@@ -55,7 +56,7 @@ export interface ContentPage {
  */
 const RESERVED_PREFIXES = ["/get-quotes/", "/my-request/", "/directory/", "/companies/", "/movers/", "/verify-a-mover/", "/routes/", "/services/", "/questions/", "/planning/"];
 /** S3 owns the calculator page itself; its method page (/moving-cost-calculator/method/) is served here. */
-const RESERVED_EXACT = ["/moving-cost-calculator/"];
+const RESERVED_EXACT = ["/moving-cost-calculator/", "/advertising-disclosure/"];
 
 export function isReservedUrl(url: string): boolean {
   return RESERVED_EXACT.includes(url) || RESERVED_PREFIXES.some((prefix) => url.startsWith(prefix));
@@ -168,13 +169,13 @@ function loadPage(dir: string, file: string): ContentPage {
     file,
     meta,
     title: resolveTokensInText(meta.title, resolve),
-    description: resolveTokensInText(meta.meta_description, resolve),
+    description: publicMarketingText(resolveTokensInText(meta.meta_description, resolve)),
     h1: resolveTokensInText(meta.h1, resolve),
     breadcrumbs: breadcrumbsFor(meta.breadcrumb || `Home › ${meta.h1}`, meta.url, resolve),
     author: person(meta.author, resolve),
     reviewer: person(meta.reviewer, resolve),
     dataOwner: person(meta.data_owner, resolve),
-    html: rendered.html,
+    html: publicMarketingHtml(rendered.html),
     stats: rendered.stats,
   };
 }

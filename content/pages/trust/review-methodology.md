@@ -48,15 +48,15 @@ These labels describe the evidence available for a feedback record. They aren't 
 
 Feedback goes through moderation. We review its relationship to the request and check for unrelated content, conflicts of interest, threats, abuse or private personal information. A low rating or negative account is not, on its own, a reason to reject feedback.
 
-Movers can't edit or delete a consumer's submission. A company may respond or raise a concern through its account, and our team records moderation decisions. Payment doesn't buy a better rating, favorable moderation or removal of a complaint.
+Movers can't edit or delete a consumer's submission. A company may respond or raise a concern through its account, and our team records moderation decisions. Moderation follows the same standards for every submission.
 
 Supporting documents and contact details aren't presented in public company listings. Avoid including other people's private information in your account of what happened.
 
-## Payment and feedback
+## Request history and feedback
 
-Movers pay us for the requests they buy. A request purchase is also what establishes which consumer-company interaction can receive a feedback invitation. Buying more requests can therefore create more invitations; that isn't evidence of better service.
+Feedback invitations relate to a specific consumer-company interaction recorded for a request. A larger number of invitations isn't evidence of better service.
 
-We don't use feedback to publish a list of “best” or “preferred” movers. [How AMC makes money](/advertising-disclosure/) explains our financial relationship with companies, and [How we verify movers](/how-we-verify-movers/) describes the separate screening process.
+We don't use feedback to publish a list of “best” or “preferred” movers. [How we verify movers](/how-we-verify-movers/) describes the separate screening process.
 
 ## Reporting a problem
 

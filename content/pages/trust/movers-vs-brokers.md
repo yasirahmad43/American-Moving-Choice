@@ -241,9 +241,9 @@ We don't:
 - negotiate prices or terms, for you or for any mover;
 - give estimates or quotes. [Counsel: stored-texts ST-1 notes ask whether the cost calculator's planning ranges fit this statement (compliance facts §2).]
 
-What we do is connect you with movers you choose to hear from, and those movers pay us for the move requests they choose to buy. Only eligible movers recorded for your request can buy it, within your chosen maximum and contact channels. Company names aren't shown before contact; movers introduce themselves when they contact you directly. You pay us nothing.
+What we do is connect you with movers you choose to hear from. Only eligible movers recorded for your request may receive it, within your chosen maximum and contact channels. Company names aren't shown before contact; movers introduce themselves when they contact you directly. Requesting quotes is free.
 
-[How AMC makes money](/advertising-disclosure/) explains how we're paid, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can buy your request.
+[Which companies receive my request](/which-companies-receive-my-request/) explains who may receive your request.
 
 ## What if a company you heard from through us is a broker?
 

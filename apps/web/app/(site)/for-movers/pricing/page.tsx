@@ -260,7 +260,6 @@ export default function PricingPage() {
       <h2>What you can&apos;t buy</h2>
       <p>
         Public company showcases aren't part of the service. No ranking, award, reviews or editorial coverage is for sale, and spending doesn't bypass screening.{" "}
-        <Link href="/advertising-disclosure/">How AMC makes money</Link>
       </p>
 
       <ApplyCta note="Applying is free, and you can read every rule here before you buy a single lead." />

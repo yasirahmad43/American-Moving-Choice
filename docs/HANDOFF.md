@@ -3,6 +3,28 @@
 Written 2026-10-28 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Latest owner brief and immersive redesign (in review)
+
+The owner rejected the earlier public design and requested a video hero with a right-side
+survey on every public page, at least five different relevant images per page, engaging varied
+reading layouts with all substantive content retained, topic-specific graphics/motion, the exact
+supplied national-map/truck logo, and complete menu/footer discovery of the published catalog.
+Public AMC funding promotion is retired; contact permissions and historical evidence remain intact.
+The authoritative current visual brief is `docs/design/immersive-experience-brief.md`.
+
+`codex/immersive-site-redesign` implements that new framework and a searchable `/explore/`
+catalog. Home exposes the real published count, a native state-guide map and state/topic search.
+Long reference tables keep every record in bounded keyboard-accessible scrollers. Place guides
+use real state outlines; tool pages have direct calculator/USDOT entry actions as well as quotes.
+Existing exclusively assigned media and uploads retain their ownership; licensed editorial
+illustrations may repeat across pages under `docs/media/editorial-reuse.md`.
+
+This is a new visual review, not the earlier deployed pass-2 proof. Comparison against all six
+owner-supplied references is recorded separately; pass 1 was 6.1/10 and pass 2 was 7.9/10 before
+the final map, local-context, photo-deduplication and tool-priority refinements. These are subjective
+critiques, not an objective claim of perfection. Do not label an unfinished review 10/10.
+Production remains `bbbdfb9` until this branch's final checks and release are recorded here.
+
 ### 2026-10-28 Codex continuation
 
 The owner's latest instruction supersedes the earlier named-mover acquisition flow:
@@ -14,25 +36,41 @@ eligibility snapshots remain recorded, explicitly marked as internal rather than
 See `docs/product/contact-introduction-flow.md`. Apply migration 200 before deploying this flow;
 historical consent text and evidence remain unchanged. Reviews require recorded contact evidence.
 
-Design pass 2 now has an editorial, quote-first home page, responsive portal/admin navigation,
+Design pass 2 has an editorial, quote-first home page, responsive portal/admin navigation,
 sortable React-managed tables with mobile cards, keyboard-accessible depth cards, and background
-video controls that respect reduced motion. **PR #6 merged the design/contact-flow work into
-`claude/fervent-bohr-u9rg4y`. Production still runs the previous `main` version.** See
-`docs/design/pass-2-verification.md` for the design proof.
+video controls that respect reduced motion. **PRs #6 and #7 were integrated, and PR #5 merged to
+`main` as `1c77e2e`.** The public redesign is deployed and was checked at 1440, 390 and 360 pixels.
+See `docs/design/pass-2-verification.md` for design and browser evidence.
 
-The SEO expansion and persistent media upload implementation are also complete in the integration
-checkout and await release. Local SEO validation published **2,467 pages** with all publication
-gates passing; the production bootstrap, saved-phase resume and repeat-run behavior were exercised
-locally. The local counts do not establish production counts or search-engine indexing. See
-`docs/seo/expansion-verification.md`.
+The first production app build applied migrations 170–220, then stopped during city generation
+with a read-only transaction error. It retained 51 published state pages and 2,818 city drafts.
+The old derived shingle index amplified database/WAL storage. **Repair `c8a3bc0` successfully
+restored production through the normal migrator, without read-only overrides.** Migration 230 drops only the rebuildable cache,
+then reconstructs compact records from saved content, including checkpointed families. All 4,782
+local scores matched exactly, 2,467 published pages were retained, and cache storage fell from
+1,125.56 to 27.11 MiB. See `docs/seo/compact-corpus.md`. Local counts do not establish production
+counts or search-engine indexing.
 
-Current verification: **497 unique automated checks passed** across full suites and focused follow-ups (core 84, UI 8, DB 58, server 318, web content
-29), and all package TypeScript checks passed. The focused media run passed **23 tests** against
-an isolated local database with mocked Storage; it is a focused subset, not 23 additional tests.
-Both final local application builds passed. The expanded browser suite is running at this update;
-post-deployment smoke/browser checks remain release steps. Six additional deployment storage-probe
-unit cases passed separately (12 protocol/probe cases total); these are six new unique checks beyond
-the 487-test complete integration run, for 493 distinct checks verified across those runs.
+**Current application release `bbbdfb9` is deployed to both production projects.** Its follow-up
+fix makes wide plain-text tables keyboard accessible before hydration and removes redundant tab
+stops in mobile card layouts. ZIP attachment now prefers matching GeoNames place/state and a stable
+semantic fallback rather than database row order. No production reimport/regeneration was needed.
+
+Current verification: **507 unique automated checks passed** (core 84, UI 8, DB 58, server 328,
+web content 29), with exact-commit GitHub CI, both Vercel previews and both local builds passing.
+The complete local browser suite passed **56 scenarios**, with one pre-existing intentional skip;
+three additional table regressions passed. Eighteen populated local SEO screens and a 2,497-page
+local crawl passed. **Production smoke passed 5/5**, including all seven SEO families at both
+desktop/mobile widths and a fictional request submitted then withdrawn. **Production keyboard/table
+tests passed 3/3**, including JavaScript-disabled access, with zero axe issues in the affected ZIP
+section. Private portal/admin journeys were tested locally, without resetting production logins.
+
+Independent production aggregates confirmed **17 migrations, 2,468 published/indexable pages**,
+4,782 complete compact records and zero requested quality/privacy/unsupported-transport violations.
+The full production crawl passed **2,498/2,498 HTML pages** and ten sitemap files, with zero broken
+links or metadata/structure issues. The database measured 191.08 MiB and its compact cache 27.24 MiB.
+`DEMO_MODE=true` on both projects and `SITE_INDEXABLE=false` on the web project were checked directly
+as nonsecret flags. See the proof package's `production/` reports; this is not a search indexing claim.
 
 The Supabase `amc-media` bucket was created and verified empty, public, WebP-only, with a
 **4 MiB (4,194,304-byte)** object limit. `SUPABASE_URL` and `SUPABASE_MEDIA_BUCKET` are configured
@@ -50,22 +88,23 @@ Three surfaces, one monorepo:
 
 | Surface | App | Production | Notes |
 |---|---|---|---|
-| Public website (SEO site, quote survey, directory, calculator) | `apps/web` | https://amc-web-three.vercel.app | Vercel project `amc-web`, root `apps/web` |
+| Public website (SEO guides, central quote survey, calculator) | `apps/web` | https://amc-web-three.vercel.app | Vercel project `amc-web`, root `apps/web` |
 | Mover portal + admin + API/cron | `apps/app` | https://amc-app-sable.vercel.app | Vercel project `amc-app`, root `apps/app` |
 | Database | Supabase project `american-moving-choice` (ref `ctpqgtststuxabtvejyi`, us-east-1) | schema `amc`, role `amc_app` | Dedicated IPv4 pooler, port 6543 |
 
-Production currently runs `main` (the state before the redesign). The unreleased integration
-continues through `claude/fervent-bohr-u9rg4y` and **PR #5**; its earlier CI-green status predates
-the final SEO/media integration and must not substitute for final release checks:
+The redesign/SEO/media release merged through **PR #5**. Both applications deploy from `main`;
+the compact recovery and final table/import fixes are deployed, and the SEO bootstrap is complete:
 https://github.com/yasirahmad43/American-Moving-Choice/pull/5
 
 ## 2. Branches
 
 | Branch | State | What it holds |
 |---|---|---|
-| `main` | deployed previous version | MVP: survey, marketplace, portal, admin, billing, ops jobs (PRs #3, #4); redesign/SEO/media release still pending |
-| `claude/fervent-bohr-u9rg4y` | unreleased integration; PR #5 | Original redesign/library/SEO/admin work plus design/contact-flow PR #6, now merged; final SEO/media integration awaits release |
-| `design/pass-2` | design completed and merged via PR #6 | Current shared integration checkout also holds the completed SEO expansion and Storage implementation; check the working tree before switching or committing |
+| `main` | deployed and verified | PR #5, compact repair `c8a3bc0`, and final table/import fix `bbbdfb9`; later handoff-only updates do not change application behavior |
+| `claude/fervent-bohr-u9rg4y` | merged integration; PR #5 complete | Original redesign/library/SEO/admin work plus PRs #6 and #7; use current main for continuation |
+| `design/pass-2` | merged through PRs #6 and #7 | Completed design, private quote flow, expanded SEO and Storage implementation |
+| `codex/compact-seo-index` | fast-forwarded to main | Exact CI-green repair; the GitHub connector could not create its PR, so a normal non-force fast-forward released the tested commit |
+| `codex/table-keyboard-access` | fast-forwarded to main | Exact CI-green table accessibility, deterministic ZIP attachment, and demo-policy smoke checks |
 | `seo/expand` | historical stopped WIP source | Its Census/chunked-generation work was ported, corrected and verified in the integration checkout; use the integrated implementation and bootstrap, not a fresh blind merge of this old branch |
 
 Historical slice branches (`slice/s1`…`s7`, `slice/e2e`, `research/*`, `audit/*`, `media/*`,
@@ -93,7 +132,7 @@ pnpm db:seed:build       # needs SEED_ADMIN_EMAIL/PASSWORD, SEED_MOVER_EMAIL/PAS
                          # APP_ENCRYPTION_KEY, HMAC_SECRET, WEB_URL (see .env.example); random values are fine
 pnpm db:reset            # creates amc_dev, applies db/migrations/*.sql, loads the seed
 pnpm seo:import-geo && pnpm seo:import-research docs/research/*.csv && pnpm seo:generate state && pnpm seo:publish --status ready && pnpm seo:media-sync
-pnpm -r typecheck && pnpm -r test     # latest: core 81, ui 8, db 58, server 311, web content 29
+pnpm -r typecheck && pnpm -r test     # latest: core 84, ui 8, db 58, server 328, web content 29
 pnpm build:web && pnpm build:app
 pnpm e2e                 # Playwright, see e2e/tests/env.ts for env
 pnpm media:check         # manifest validity, no asset used on two pages
@@ -106,9 +145,9 @@ pnpm seo:crawl -- --base http://localhost:3000 --out docs/seo/crawl-report.md
 - `apps/app`'s build command runs `db/scripts/vercel-deploy.ts` first in production: it applies
   pending migrations, loads the demo seed only when needed, then calls the resumable SEO bootstrap
   even if admin accounts already exist. New release migrations include 170/180 plus 190 (SEO
-  expansion), 200 (contact disclosure evidence), 210 (DB media manifest) and 220 (bootstrap leases).
-  Confirm the actual production `schema_migrations` after release; no production application of
-  these integration migrations has been claimed here.
+  expansion), 200 (contact disclosure evidence), 210 (DB media manifest), 220 (bootstrap leases),
+  and 230 (compact rebuildable SEO corpus). All 17 migrations and completed bootstrap were verified
+  in production; later completed builds preserve the initialized catalogue instead of regenerating it.
 - Env vars on both Vercel projects: `DATABASE_URL` (secret), `DATABASE_HOST/PORT/USER` overrides
   (dedicated pooler host, 6543, `amc_app`), `DATABASE_SSL=verify`, `DATABASE_SSL_CA`,
   `HMAC_SECRET`, `APP_ENCRYPTION_KEY`, `WEB_URL`, `APP_URL`, `DEMO_MODE=true`; web also
@@ -122,8 +161,9 @@ pnpm seo:crawl -- --base http://localhost:3000 --out docs/seo/crawl-report.md
   publishes only passing pages, rebuilds links and syncs media ownership into the DB. Migration
   220 supplies a renewable deployment lease and durable phase checkpoints for the transaction
   pooler. An initialized editorial catalogue is left alone; incomplete bootstrap phases resume.
-  Local validation retained 2,467 published/indexable pages on a repeat complete call. Verify
-  production counts and gates after deployment; local counts are not production evidence.
+  Local validation retained 2,467 published/indexable pages on a repeat complete call. Actual
+  production has 2,468, independently verified; the East Peoria ZIP-source difference is explained
+  in `docs/seo/expansion-verification.md`. Do not replace actual production evidence with local counts.
 
 ## 6. Demo accounts (production and previews)
 
@@ -137,15 +177,15 @@ pnpm seo:crawl -- --base http://localhost:3000 --out docs/seo/crawl-report.md
 
 ## 7. What is still open (in priority order)
 
-The original implementation priorities are code-complete locally: design/contact flow merged
-through PR #6, SEO expansion exceeded 2,000 published pages with the bootstrap verified locally,
-and uploads now use Storage plus a DB manifest. Remaining work is release/configuration and proof:
+The implementation is on main: design/private quote flow, expanded SEO, compact bootstrap recovery
+and Storage plus a DB manifest. Remaining work at this update is deployment verification and the
+missing media credential:
 
-1. **Complete final integration checks and release PR #5 to `main`.** Both Vercel projects deploy
-   from `main`. Preserve the current branch's local integration changes until committed/reviewed;
-   do not lose them by switching to the old WIP branches. Final local web/app builds passed; the
-   expanded browser suite is running at this update. Verify the production migrator/bootstrap
-   instead of assuming local results apply.
+1. **Verify the compact repair deployment and bootstrap.** PR #5 is already merged. Both projects
+   deploy from main `c8a3bc0`; do not rerun the old row-per-shingle writer. Inspect the fresh app-role
+   preflight and ordinary migration 230 result, then actual completed bootstrap/counts. No read-only
+   override has been performed. Any recovery should follow `docs/seo/compact-corpus.md` and target
+   only the verified rebuildable cache.
 2. **Finish the sole media credential step.** Add `SUPABASE_SECRET_KEY` directly in Vercel on
    `amc-app` Production and Preview, then redeploy. Bucket creation and URL/bucket variables are
    already verified. Run a small live editorial upload only after configuration and migration 210;
@@ -155,7 +195,7 @@ and uploads now use Storage plus a DB manifest. Remaining work is release/config
    set `AMC_VERIFY_MEDIA_STORAGE=true` in Vercel after adding the key. It writes, publicly reads and
    removes one fresh test image; see the exact success log in `docs/media/storage.md`. No successful
    live probe has been recorded at this update.
-3. **Verify the deployed applications.** Check `/api/health` reports success and all 16 migrations
+3. **Verify the deployed applications.** Check `/api/health` reports success and all 17 migrations
    for this release, verify the actual production SEO counts/quality gates, and run production smoke
    and browser tests. Check central quote submission, consent evidence, anonymous confirmations,
    contact-gated reviews, admin/portal access, and representative SEO pages on desktop/mobile.

@@ -63,6 +63,8 @@ export interface TableProps<Row> {
   id?: string;
   /** Vertical scrolling with the sticky header past this height, e.g. "32rem". */
   maxHeight?: string;
+  /** Dense reference data stays a bounded table on phones; action lists keep card layout. */
+  mobileLayout?: "cards" | "scroll";
   /** Lets each row carry an href: the primary cell becomes a link covering the row on hover. */
   className?: string;
 }
@@ -121,6 +123,7 @@ export function Table<Row>({
   sortable: allSortable,
   id,
   maxHeight,
+  mobileLayout = "cards",
   className,
 }: TableProps<Row>) {
   if (!loading && rows.length === 0 && empty) return <>{empty}</>;
@@ -144,7 +147,7 @@ export function Table<Row>({
           <TableControls />
         </div>
       )}
-      <div id={tableId} className="dt dt-responsive">
+      <div id={tableId} className={cx("dt", mobileLayout === "cards" && "dt-responsive")}>
         <TableScroll caption={caption} maxHeight={maxHeight}>
           <table role="table" aria-busy={loading ? true : undefined}>
             <caption className="sr-only">{caption}</caption>

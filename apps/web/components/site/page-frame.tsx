@@ -4,8 +4,12 @@
  * (draft banner, legend) render only in review builds (lib/review-mode.ts).
  */
 import { env } from "@amc/server/env";
-import { Breadcrumbs, Container } from "@amc/ui";
+import { Container } from "@amc/ui";
 import type { ReactNode } from "react";
+import { pageMediaPlan } from "@/lib/page-media";
+import { VideoSurveyHero } from "./video-survey-hero";
+import { CarrierEligibilityStart } from "./carrier-eligibility-start";
+import { reactChapters, StoryNextSteps, StorySections } from "./story-sections";
 import { DraftBanner } from "./draft-banner";
 import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
 import { ReviewLegend } from "./review-notes";
@@ -30,20 +34,23 @@ export interface PageFrameProps {
 export function PageFrame({ url, h1, description, trail, lede, overline, legend = true, waitingOn, aside, children }: PageFrameProps) {
   const { WEB_URL } = env();
   const crumbs = [{ label: "Home", href: "/" }, ...trail];
+  const images = pageMediaPlan(url).images;
+  const chapters = reactChapters(children);
   return (
     <>
       <JsonLd data={breadcrumbListLd(WEB_URL, crumbs)} />
       <JsonLd data={webPageLd(WEB_URL, { url, name: h1, description })} />
       <EditorialHeader breadcrumbs={crumbs} overline={overline} title={h1} lede={lede} />
-      <Container className={aside ? "grid gap-12 pb-20 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,19rem)] lg:gap-16" : "grid gap-6 pb-20 pt-10"}>
+      <Container className="pb-16">
         <div className="grid min-w-0 gap-6">
           <div className="grid max-w-[72ch] gap-3 empty:hidden">
             <DraftBanner status="draft-v0" author={null} reviewer={null} waitingOn={waitingOn} />
             {legend ? <ReviewLegend /> : null}
           </div>
-          <div className="prose">{children}</div>
+          {aside ? <aside className="grid gap-4 rounded-2xl border border-border bg-surface-2 p-5 lg:grid-cols-2">{aside}</aside> : null}
+          <StorySections chapters={chapters} images={images} />
+          <StoryNextSteps images={images} usedCount={chapters.length} />
         </div>
-        {aside ? <aside className="grid content-start gap-4 lg:sticky lg:top-6 lg:self-start">{aside}</aside> : null}
       </Container>
     </>
   );
@@ -63,22 +70,9 @@ export function EditorialHeader({
   lede?: ReactNode;
   meta?: ReactNode;
 }) {
-  return (
-    <div className="mesh-light border-b border-border">
-      <Container className="grid gap-5 py-10 sm:py-14">
-        <Breadcrumbs items={breadcrumbs.map((crumb, index) => (index === breadcrumbs.length - 1 ? { label: crumb.label } : crumb))} />
-        <header className="grid max-w-[56rem] gap-4">
-          {overline ? (
-            <p className="flex items-center gap-3 type-overline text-text-2">
-              <span aria-hidden="true" className="h-px w-8 bg-brand-red" />
-              {overline}
-            </p>
-          ) : null}
-          <h1 className="type-display-xl text-text">{title}</h1>
-          {lede ? <div className="type-lede max-w-[60ch] text-text-2">{lede}</div> : null}
-          {meta ? <div className="type-small text-text-3">{meta}</div> : null}
-        </header>
-      </Container>
-    </div>
-  );
+  const url = breadcrumbs[breadcrumbs.length - 1]?.href ?? "/";
+  const carrier = url.startsWith("/for-movers/") || url === "/mover-terms/";
+  return <VideoSurveyHero url={url} title={title} description={lede} eyebrow={overline} breadcrumbs={breadcrumbs}
+    survey={carrier ? <CarrierEligibilityStart appUrl={env().APP_URL} /> : undefined}
+    surveyLabel={carrier ? "Check carrier eligibility" : undefined} mobileActionLabel={carrier ? "Check eligibility" : undefined}>{meta}</VideoSurveyHero>;
 }

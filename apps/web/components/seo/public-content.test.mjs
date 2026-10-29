@@ -68,4 +68,57 @@ describe("public SEO projection", () => {
     expect(projected.content.sections[0].blocks[0].text).toBe("[Request moving quotes](/get-quotes/) or /get-quotes/");
     expect(publicSeoPage(projected)).toEqual(projected);
   });
+
+  it("replaces obsolete funding copy while preserving historical records and moving price facts", () => {
+    const stored = legacyPage();
+    stored.metaDescription = "Plan your move. Movers pay us for requests.";
+    stored.content.intro.answer = "Movers pay us for requests.";
+    stored.content.sections = [{ id: "payment", heading: "What never changes with payment", blocks: [
+      { type: "paragraph", text: "What a mover pays never changes its screening result, its ratings, how its reviews are shown, or where it appears on this site. [How AMC makes money](/advertising-disclosure/) has the full statement; [How we verify movers](/how-we-verify-movers/) lists the checks every mover passes." },
+      { type: "table", columns: ["Service", "Rate"], rows: [["Hourly moving crew", "$180 per hour"], ["Deposit", "Ask your mover what you pay before booking"]] },
+    ] }];
+    stored.content.related = [{ heading: "Helpful pages", links: [{ href: "/advertising-disclosure/", label: "How AMC makes money", relation: "planning" }, { href: "/how-we-verify-movers/", label: "How we verify movers", relation: "planning" }] }];
+    stored.sources = [{ label: "How AMC makes money", url: "/advertising-disclosure/", accessedOn: "2026-10-28" }, { label: "Census", url: "https://www.census.gov/", accessedOn: "2026-10-28" }];
+    const before = JSON.stringify(stored);
+    const projected = publicSeoPage(stored);
+    expect(JSON.stringify(stored)).toBe(before);
+    expect(JSON.stringify(projected)).not.toMatch(/pay us|makes money|advertising-disclosure|what a mover pays/i);
+    expect(projected.content.sections[0].id).toBe("payment");
+    expect(projected.content.sections[0].heading).toBe("Your moving company. Your choice.");
+    expect(projected.content.sections[0].blocks[0].text).toContain("screening checks");
+    expect(projected.content.sections[0].blocks[1]).toEqual(stored.content.sections[0].blocks[1]);
+    expect(projected.sources).toEqual([stored.sources[1]]);
+    expect(projected.content.related[0].links.map((link) => link.href)).toEqual(["/how-we-verify-movers/"]);
+  });
+
+  it("does not present a state's population-eligible city count as published guide availability", () => {
+    const stored = legacyPage();
+    stored.family = "state";
+    stored.metaDescription = "Texas: 218 city pages, cost factors and sourced facts.";
+    stored.content.intro.answer = "Texas has 254 counties, and 218 cities of 10,000 people or more have their own pages.";
+    stored.content.sections = [{ id: "cities", heading: "Cities in Texas with their own pages", blocks: [
+      { type: "paragraph", text: "218 cities in Texas have 10,000 residents or more and their own page; the 20 largest are listed here. Houston has 178 ZIP codes." },
+      { type: "table", columns: ["City", "Population"], rows: [["Houston", "2,300,419"], ["Austin", "967,862"]] },
+    ] }];
+    const before = JSON.stringify(stored);
+    const projected = publicSeoPage(stored);
+    expect(JSON.stringify(stored)).toBe(before);
+    expect(projected.content.intro.answer).toBe("Texas has 254 counties, and 218 cities have 10,000 residents or more.");
+    expect(projected.content.sections[0].heading).toBe("Cities in Texas by population");
+    expect(projected.content.sections[0].blocks[0].text).toBe("218 cities in Texas have 10,000 residents or more; the 20 largest are listed here. Houston has 178 ZIP codes.");
+    expect(projected.content.sections[0].blocks[1]).toEqual(stored.content.sections[0].blocks[1]);
+    expect(projected.metaDescription).toBe("Texas: 218 city records, cost factors and sourced facts.");
+    expect(projected.content.intro.dataPoints).toEqual(stored.content.intro.dataPoints);
+    const city = { ...stored, family: "city" };
+    expect(publicSeoPage(city).content.intro.answer).toBe(stored.content.intro.answer);
+  });
+
+  it("uses a grammatical coverage heading for any city name without changing its data", () => {
+    const stored = legacyPage();
+    stored.content.sections.push({ id: "request", heading: "Coverage for a Austin request", blocks: [{ type: "table", columns: ["Coverage", "Count"], rows: [["Interstate", "2"]] }] });
+    const projected = publicSeoPage(stored);
+    expect(projected.content.sections.at(-1).heading).toBe("Moving coverage in Austin");
+    expect(projected.content.sections.at(-1).blocks).toEqual(stored.content.sections.at(-1).blocks);
+    expect(stored.content.sections.at(-1).heading).toBe("Coverage for a Austin request");
+  });
 });

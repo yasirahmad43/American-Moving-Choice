@@ -327,7 +327,7 @@ If one estimate is much lower than the others, ask what it leaves out.
 
 ## Where does American Moving Choice fit?
 
-We don't set or check movers' prices, and we don't give quotes or estimates. Movers in our network pay us for the move requests they buy; you pay us nothing. [How AMC makes money](/advertising-disclosure/) explains who pays us and what payment never changes.
+We don't set or check movers' prices, and we don't give quotes or estimates. Requesting quotes is free. You choose how many companies may contact you and the channels they may use.
 
 [Counsel: the first two sentences above restate ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). content/stored-texts.md now holds ST-1e (proposed), which replaces these two sentences (stored-texts ST-1e; content/README.md §9). Once counsel approves ST-1e, it renders here after an `<!-- ST-1e -->` key comment and joins stored_texts; until then counsel reviews these sentences with ST-1a in one pass. ST-1e's "isn't … a moving broker" is a legal conclusion about AMC (stored-texts ST-1 notes; carrier-vs-broker note, counsel items 1 to 4)]
 
