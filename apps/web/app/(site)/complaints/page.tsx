@@ -39,8 +39,8 @@ export default function ComplaintsPage() {
         <li>You get a case reference straight away. Quote it if you write to us about the same problem.</li>
         <li>Someone on our team reviews the report and may contact you if you left contact details.</li>
         <li>
-          A report of broker activity or wrong credentials starts a full recheck of the company. If a check fails, we stop the company from buying
-          requests while we look into it.{" "}
+          A report of broker activity or wrong credentials starts a full recheck of the company. If a check fails, we stop the company from receiving
+          new requests while we look into it.{" "}
           <Link href="/how-we-verify-movers/">How we verify movers</Link>
         </li>
         <li>We record what we decided and why. We can&apos;t settle a claim or a price dispute between you and a mover.</li>

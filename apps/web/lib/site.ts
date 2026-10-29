@@ -46,14 +46,6 @@ export const PUBLIC_NAV_GROUPS: PublicNavGroup[] = [
     { href: "/complaints/", label: "Complaints & help" },
     { href: "/report-a-concern/", label: "Report a concern" },
   ] },
-  { id: "business", label: "For moving companies", description: "Build your next chapter with American Moving Choice.", links: [
-    { href: "/for-movers/", label: "Join the mover network" },
-    { href: "/for-movers/moving-leads/", label: "How moving leads work" },
-    { href: "/for-movers/pricing/", label: "Pricing & buying rules" },
-    { href: "/for-movers/eligibility/", label: "Who can join" },
-    { href: "/for-movers/reviews-and-reputation/", label: "Reviews & reputation" },
-    { href: "/mover-terms/", label: "Mover terms" },
-  ] },
   { id: "legal", label: "Policies", description: "Your information. Your choices.", links: [
     { href: "/privacy/", label: "Privacy policy" },
     { href: "/terms/", label: "Terms of use" },
@@ -82,7 +74,6 @@ export const PRIMARY_NAV: NavLink[] = [
   { href: "/moving-costs/", label: "Moving costs" },
   { href: "/planning/", label: "Moving guides" },
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/for-movers/", label: "For movers" },
 ];
 
 export const GET_QUOTES: NavLink = { href: "/get-quotes/", label: "Get quotes" };

@@ -348,7 +348,7 @@ Our [moving cost calculator](/moving-cost-calculator/) shows a planning range, b
 
 [Counsel: approve ST-6 (site architecture §6.3 rule 3; stored-texts ST-6 notes). On this page it follows the calculator sentence, so "These ranges" refers to the calculator's ranges.]
 
-When you're ready, [request quotes from movers](/get-quotes/) who serve your move. Movers that buy your request contact you directly. Ask each for a written estimate, and compare them using [the table above](#how-do-you-compare-quotes-like-for-like).
+When you're ready, [request quotes from movers](/get-quotes/) who serve your move. Eligible movers contact you directly within your chosen contact limit and channels. Ask each for a written estimate, and compare them using [the table above](#how-do-you-compare-quotes-like-for-like).
 
 ## Worked example: crew-hours are not worker-hours
 

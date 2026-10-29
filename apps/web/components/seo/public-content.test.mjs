@@ -121,4 +121,31 @@ describe("public SEO projection", () => {
     expect(projected.content.sections.at(-1).blocks).toEqual(stored.content.sections.at(-1).blocks);
     expect(stored.content.sections.at(-1).heading).toBe("Coverage for a Austin request");
   });
+
+  it("projects saved request-sales and retired business links into consumer-only guidance", () => {
+    const stored = legacyPage();
+    stored.content.sections = [{ id: "choices", heading: "How matching works", blocks: [
+      { type: "paragraph", text: "Only eligible movers recorded for your request may purchase it, within the contact limit and channels you choose. Companies identify themselves during contact." },
+      { type: "list", ordered: true, items: ["Only eligible companies recorded for your request may purchase it. They introduce themselves when they contact you directly."] },
+      { type: "paragraph", text: "A company with broker authority on its record cannot buy requests here." },
+      { type: "paragraph", text: "[How AMC makes money](/advertising-disclosure/) explains our paid relationship with movers." },
+      { type: "table", columns: ["Service", "Price"], rows: [["Packing boxes", "You may buy boxes for $80"], ["Insurance", "You may purchase separate insurance"]] },
+    ] }];
+    stored.content.faq = [{ question: "Who can receive my details?", answer: "Only eligible movers recorded for your request that complete a purchase, never more than the maximum you choose and only through your permitted contact channels. Company names are introduced during contact." }];
+    stored.content.related = [{ heading: "Next", links: [
+      { href: "/for-movers/pricing/", label: "Lead pricing", relation: "planning" },
+      { href: "/mover-terms/", label: "Mover terms", relation: "planning" },
+      { href: "/planning/", label: "Plan your move", relation: "planning" },
+    ] }];
+    stored.sources = [{ label: "How requests are bought", url: "/for-movers/moving-leads/", accessedOn: "2026-10-28" }];
+    const before = JSON.stringify(stored);
+    const projected = publicSeoPage(stored);
+    expect(JSON.stringify(stored)).toBe(before);
+    expect(JSON.stringify(projected)).not.toMatch(/may purchase it|complete a purchase|buy requests|paid relationship|lead pricing|for-movers|mover-terms/i);
+    expect(projected.content.sections[0].blocks[0].text).toContain("within the contact limit and channels you choose");
+    expect(projected.content.sections[0].blocks[4]).toEqual(stored.content.sections[0].blocks[4]);
+    expect(projected.content.related[0].links.map(link => link.href)).toEqual(["/planning/"]);
+    expect(projected.sources).toEqual([]);
+    expect(projected.content.quote.text).toContain("Companies introduce themselves");
+  });
 });

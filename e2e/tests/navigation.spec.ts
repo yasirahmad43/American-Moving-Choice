@@ -148,9 +148,10 @@ test("footer search opens the complete catalog and preserves useful filters", as
   await expect(page).toHaveURL(/\/explore\/\?q=packing&state=TX/);
   await expect(page.getByLabel("Search moving guides")).toHaveValue("packing");
   await expect(page.getByLabel("State", { exact: true })).toHaveValue("TX");
-  for (const href of ["/moving-cost-calculator/", "/verify-a-mover/", "/mover-terms/", "/for-movers/moving-leads/", "/for-movers/reviews-and-reputation/", "/moving-cost-calculator/method/"]) {
+  for (const href of ["/moving-cost-calculator/", "/verify-a-mover/", "/moving-cost-calculator/method/"]) {
     await expect(footer.locator(`a[href="${href}"]`)).toHaveCount(1);
   }
+  await expect(footer.locator('a[href^="/for-movers"],a[href^="/mover-terms"]')).toHaveCount(0);
 });
 
 test("mobile menu and catalog search work without JavaScript", async ({ browser }) => {
@@ -161,6 +162,7 @@ test("mobile menu and catalog search work without JavaScript", async ({ browser 
     const header = page.getByRole("banner");
     await header.locator("summary").filter({ hasText: "Menu" }).first().click();
     const mobile = page.getByRole("navigation", { name: "Primary mobile" });
+    await expect(mobile.locator('a[href^="/for-movers"],a[href^="/mover-terms"]')).toHaveCount(0);
     await mobile.getByText("Costs & tools", { exact: true }).click();
     await expect(mobile.getByRole("link", { name: "How the calculator works", exact: true })).toBeVisible();
     await header.locator("summary").filter({ hasText: "Menu" }).first().click();

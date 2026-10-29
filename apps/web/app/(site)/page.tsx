@@ -33,7 +33,7 @@ const FAQ = [
   { q: "How many moving companies will contact me?", a: "You choose the maximum before sending your request. We share it only with eligible participating companies, up to that limit. Each company identifies itself when it contacts you." },
   { q: "Are you a moving company?", a: "We're a platform connecting people with independent moving carriers. We don't transport belongings, book your move, or give estimates on a mover's behalf. The companies provide their own quotes directly." },
   { q: "What if you don't cover my route?", a: "We'll tell you before asking for your contact details. You can still use our moving guides and planning resources." },
-  { q: "Can I withdraw my request?", a: "Yes. Use the secure link on your confirmation page or in your confirmation email. Withdrawing stops new purchases of your request and notifies companies that already received it." },
+  { q: "Can I withdraw my request?", a: "Yes. Use the secure link on your confirmation page or in your confirmation email. Withdrawing stops additional movers from receiving your contact details, and we tell companies that already received them to stop contacting you. It cannot take back details already shared." },
 ];
 const SERVICES = [
   { title: "Across town.", label: "Local moving", body: "A new neighborhood. A little more room. Plan a local move with the details in hand.", href: "/services/local/", asset: "home-family-carrying-labeled-boxes-toward" },

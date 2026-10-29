@@ -3,14 +3,15 @@ import "server-only";
 /**
  * Content tokens and stored texts for the directory pages. Tokens come from content/tokens.json
  * (content/README.md §3); a null token renders a visible "pending" placeholder. Stored texts render
- * from content/stored-texts.md through the shell's reader, unchanged except for token values and
- * "[Label]" links mapped by the caller.
+ * from the archived content/stored-texts.md through the shell's reader, with current public
+ * consumer wording applied before token values and "[Label]" links are rendered.
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { storedTextParts } from "@/lib/stored-texts";
+import { publicMarketingText } from "@/lib/public-copy";
 
 let tokenCache: Record<string, unknown> | undefined;
 
@@ -43,7 +44,7 @@ export interface LinkTarget {
  * pending marker); `links` maps each "[Label]" to a URL. A label without a target renders as text.
  */
 export function StoredText({ id, values = {}, links = {} }: { id: string; values?: Record<string, ReactNode>; links?: Record<string, LinkTarget> }) {
-  const parts = storedTextParts(id);
+  const parts = storedTextParts(id).filter(part => part.kind !== "link" || part.label !== "How AMC makes money");
   const fill = (text: string, key: number): ReactNode[] => {
     const out: ReactNode[] = [];
     const pattern = /\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g;
@@ -62,7 +63,7 @@ export function StoredText({ id, values = {}, links = {} }: { id: string; values
   return (
     <>
       {parts.map((part, index) => {
-        if (part.kind === "text") return <span key={index}>{fill(part.text, index)}</span>;
+        if (part.kind === "text") return <span key={index}>{fill(publicMarketingText(part.text), index)}</span>;
         const target = links[part.label];
         if (!target) return <span key={index}>{part.label}</span>;
         return target.external ? (

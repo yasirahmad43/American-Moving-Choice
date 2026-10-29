@@ -124,7 +124,7 @@ test.describe("public shell accessibility", () => {
     test(`no serious axe violations in ${colorScheme} mode`, async ({ browser }) => {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme });
       const page = await context.newPage();
-      for (const path of ["/", "/how-we-verify-movers/", "/for-movers/pricing/", "/report-a-concern/", "/advertising-disclosure/"]) {
+      for (const path of ["/", "/how-we-verify-movers/", "/privacy/", "/report-a-concern/", "/advertising-disclosure/"]) {
         await page.goto(`${WEB_URL}${path}`);
         await expectNoSeriousAxeViolations(page, `${colorScheme} ${path}`);
       }
@@ -134,7 +134,7 @@ test.describe("public shell accessibility", () => {
 
   test("no horizontal scrolling at 320px wide", async ({ browser }) => {
     const page = await browser.newPage({ viewport: { width: 320, height: 800 } });
-    for (const path of ["/", "/for-movers/pricing/", "/report-a-concern/", "/moving-costs/"]) {
+    for (const path of ["/", "/privacy/", "/report-a-concern/", "/moving-costs/"]) {
       await page.goto(`${WEB_URL}${path}`);
       const [scrollWidth, innerWidth] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
       expect(scrollWidth, path).toBeLessThanOrEqual(innerWidth);

@@ -1,5 +1,4 @@
 import { ArrowRightIcon, MenuIcon, Wordmark } from "@amc/ui";
-import { env } from "@amc/server/env";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { GET_QUOTES, PUBLIC_NAV_GROUPS, type PublicNavGroup } from "@/lib/site";
@@ -42,7 +41,6 @@ export async function SiteHeader() {
         <li><NavDisclosure label="Plan a move"><MegaPanel><div className="grid gap-8 lg:grid-cols-[1fr_1fr_1.15fr]"><NavGroup group={group("move")} /><NavGroup group={group("cost")} /><NavFeature kind="plan" /></div></MegaPanel></NavDisclosure></li>
         <li><NavDisclosure label={<span>All moving guides <span className="ml-1 rounded-pill bg-surface-3 px-2 py-0.5 text-xs tabular">{overview?.total.toLocaleString("en-US") ?? "Explore"}</span></span>}><MegaPanel><GuideDiscovery overview={overview} id="header" searchLabel="Header moving guide search" /></MegaPanel></NavDisclosure></li>
         <li><NavDisclosure label="About & help"><MegaPanel><div className="grid gap-7 lg:grid-cols-[1.1fr_1fr_1fr]"><NavGroup group={group("trust")} /><div className="grid content-start gap-6"><NavGroup group={group("help")} /><NavGroup group={group("legal")} /></div><NavFeature kind="trust" /></div></MegaPanel></NavDisclosure></li>
-        <li><NavDisclosure label="For movers"><MegaPanel><div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]"><NavGroup group={group("business")} /><div className="rounded-card bg-surface-2 p-7"><p className="type-overline text-text-3">Already part of the network?</p><p className="mt-3 font-display text-3xl font-extrabold text-text">Your next opportunity is waiting.</p><p className="mt-3 text-text-2">Manage your coverage, requests and company details in your account.</p><a href={`${env().APP_URL}/login`} className="mt-5 inline-flex min-h-12 items-center gap-3 font-bold text-link underline underline-offset-4">Company sign-in <ArrowRightIcon size={18} /></a></div></div></MegaPanel></NavDisclosure></li>
       </ul></nav>
       <div className="flex shrink-0 items-center gap-2"><span className="hidden sm:block"><HeaderCta /></span><div className="xl:hidden"><NavDisclosure mobile label={<><MenuIcon size={20} /><span>Menu</span></>} summaryClassName="border border-border-strong px-3">
         <div className="navigation-panel absolute inset-x-0 top-full max-h-[calc(100dvh-9rem)] overflow-y-auto overscroll-contain border-y border-border bg-surface shadow-e3"><nav aria-label="Primary mobile" className="mx-auto grid max-w-content gap-5 py-5 gutter">

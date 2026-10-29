@@ -168,8 +168,8 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
     ? { ...item, answer: CONTACT_EXPLANATION }
     : { ...item, answer: item.answer || PUBLIC_REQUEST_ASSURANCE });
   content.quote = { ...content.quote, heading: "Your move. Your contact preferences.", text: CONTACT_EXPLANATION, cta: "Get moving quotes" };
-  const fundingLink = (href: string) => /\/(?:advertising-disclosure|how-we-make-money)\//i.test(href);
-  content.related = content.related.map((group) => ({ ...group, links: group.links.filter((link) => !fundingLink(link.href)) })).filter((group) => group.links.length);
-  result.sources = result.sources.filter((source) => !fundingLink(source.url));
+  const retiredBusinessLink = (href: string) => /\/(?:advertising-disclosure|how-we-make-money|for-movers|mover-terms)(?:\/|$|[?#])/i.test(href);
+  content.related = content.related.map((group) => ({ ...group, links: group.links.filter((link) => !retiredBusinessLink(link.href)) })).filter((group) => group.links.length);
+  result.sources = result.sources.filter((source) => !retiredBusinessLink(source.url));
   return repairCountyLabelContexts(result);
 }

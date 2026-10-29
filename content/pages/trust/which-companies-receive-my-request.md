@@ -24,7 +24,7 @@ last_updated: 2026-10-29
 
 # Which companies receive my request?
 
-Your request can be purchased only by eligible movers recorded for your move, and never by more than the maximum number you choose. You choose how they may contact you. American Moving Choice doesn't display company names, preferred-mover lists or individual company quote buttons before contact. Each company introduces itself when it contacts you.
+Only eligible movers recorded for your move may receive your details, and never more than the maximum number you choose. You choose how they may contact you. American Moving Choice doesn't display company names, preferred-mover lists or individual company quote buttons before contact. Each company introduces itself when it contacts you.
 
 <!-- ST-1b -->
 > {{text.ST-1b}}
@@ -58,12 +58,12 @@ The survey asks: “How many moving companies would you like to hear from?” No
 
 | Your choice | What it means |
 |---|---|
-| 1 | Only one eligible mover may purchase the request and receive your details from us. |
-| 2 to {{setting.max_movers}} | Up to the number you choose may purchase it and receive your details. |
+| 1 | Only one eligible mover may receive your details from us. |
+| 2 to {{setting.max_movers}} | Up to the number you choose may receive your details. |
 
-The available choices are limited by current coverage and our maximum of {{setting.max_movers}}. Your choice is a ceiling, not a promise that you will hear from that many companies. The number isn't increased because a mover buys more requests or pays more.
+The available choices are limited by current coverage and our maximum of {{setting.max_movers}}. Your choice is a ceiling, not a promise that you will hear from that many companies. We do not increase the contact limit you choose.
 
-Choosing one mover doesn't select a particular company. An eligible mover can purchase the request while it remains available. Company identities aren't displayed in the survey or on the confirmation page.
+Choosing one mover doesn't select a particular company. Only eligible movers may receive the request while it remains active. Company identities aren't displayed in the survey or on the confirmation page.
 
 <a id="review-and-send"></a>
 
@@ -82,13 +82,13 @@ We keep a record of the permission text, your choices, the time you agreed, and 
 
 Your confirmation gives you a reference and the maximum number you chose. Companies introduce themselves when they contact you using your permitted channels. Ask the company for its legal name, USDOT number, written estimate and relevant credentials before deciding whether to hire it.
 
-Movers see a limited preview of a request before buying. Your contact details are released only after an eligible purchase, within your chosen maximum. A company that doesn't meet the purchase checks can't buy the request.
+Your contact details are shared only with eligible movers, within your chosen maximum. A company that doesn't meet our screening and coverage checks cannot receive a new request.
 
 American Moving Choice is free for consumers. You arrange any estimate, booking and move directly with the company you choose to hire.
 
 ## Changing your mind
 
-The secure request-management link on your confirmation lets you withdraw the request. Withdrawal stops further purchases and tells existing buyers. It can't make a company forget details it already received. You can also tell a contacting company to stop, and report contact outside your permission or chosen channels.
+The secure request-management link on your confirmation lets you withdraw the request. Withdrawal stops new companies from receiving it and notifies companies that already received it. It can't make a company forget details it already received. You can also tell a contacting company to stop, and report contact outside your permission or chosen channels.
 
 If you need help, use [Report a concern](/report-a-concern/) and include your request reference. Tell us the company name it gave you during contact, if available, and what happened. Avoid sending payment-card details or unrelated private documents.
 
@@ -96,7 +96,7 @@ If you need help, use [Report a concern](/report-a-concern/) and include your re
 
 If you choose a maximum of two companies and only one contacts you, that is still within your choice. It is not a promise that a second company will call. Choosing one does not let you select a particular company by name.
 
-If your plans change, open the secure management link and withdraw the request. That stops further purchases and notifies existing buyers; it does not erase information already released. Tell a contacting company directly if you want it to stop contacting you, and use [Report a concern](/report-a-concern/) if contact does not follow your choices.
+If your plans change, open the secure management link and withdraw the request. That stops new companies from receiving it and notifies companies that already received it; it does not erase information already released. Tell a contacting company directly if you want it to stop contacting you, and use [Report a concern](/report-a-concern/) if contact does not follow your choices.
 
 Keep the request reference and the company identity it supplied during contact. Do not post the secure management link or other people's private details in a public message.
 

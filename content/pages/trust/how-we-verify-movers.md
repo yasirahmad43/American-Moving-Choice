@@ -46,7 +46,7 @@ last_updated: 2026-10-29
 
 # How we verify movers
 
-American Moving Choice accepts only moving carriers: companies that perform moves themselves. Before approval, we check each company's federal record for an active USDOT number, household-goods carrier authority, no broker authority and insurance filings, and a person reviews the file. We recheck that record weekly. If a check fails, the mover can't buy new requests.
+American Moving Choice accepts only moving carriers: companies that perform moves themselves. Before approval, we check each company's federal record for an active USDOT number, household-goods carrier authority, no broker authority and insurance filings, and a person reviews the file. We recheck that record weekly. If a check fails, the mover can't receive new requests.
 
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
@@ -124,7 +124,7 @@ If a company offers in-state moves in a state like these, we check its number ag
 
 ### Our movers-only terms
 
-Every company agrees to our terms for movers. Among them: it won't resell or share your request, it won't hand your move to another company, and the carrier that quotes your move is the carrier that does it. [Counsel: the mover terms are still a summary for counsel to draft (consent draft §11 item 2; mover verification §1 item 5); confirm these three terms match the final agreement.]
+Every company agrees to our terms for movers. Among them: it keeps your request within its own company, it won't hand your move to another company, and the carrier that quotes your move is the carrier that does it. [Counsel: the mover terms are still a summary for counsel to draft (consent draft §11 item 2; mover verification §1 item 5); confirm these three terms match the final agreement.]
 
 ## What we check before a mover joins
 
@@ -154,7 +154,7 @@ No company is approved automatically. After the automated and document checks, s
 
 Every check leaves a dated evidence record: where the data came from, a copy of what we retrieved, when we retrieved it, the result, and who reviewed it and what they decided. We add to these records but never edit them.
 
-Once approved, a company can purchase eligible requests that match its coverage and capabilities. We keep its company identity and screening evidence in our records; there is no public company showcase or individual quote button. If we turn a company down, we tell it why, and it can reapply once it has fixed the problem. [Build: the rejection reason goes to the applicant, and reapplication is allowed (mover verification §3)]
+Once approved, a company may receive requests that match its coverage and capabilities, within each consumer's contact choices. We keep its company identity and screening evidence in our records; there is no public company showcase or individual quote button. If we turn a company down, we tell it why, and it can reapply once it has fixed the problem. [Build: the rejection reason goes to the applicant, and reapplication is allowed (mover verification §3)]
 
 ### Ties to our team
 
@@ -167,8 +167,8 @@ Passing once isn't enough to stay in our network.
 - **Every week:** we recheck every approved mover's FMCSA record for its USDOT status, operating authority and insurance filings.
 - **Before documents expire:** we alert the mover {{setting.credential_alert_days}} days before its certificate of insurance or a state credential expires, and again on the day it expires.
 - **Every year:** we run every check again for every mover.
-- **Right away after certain events:** we run every check again when someone reports broker activity, when someone complains about a mover's credentials, when a mover's ownership changes, or when we see a pattern of chargebacks (reversed card payments) on its account with us.
-- **At every purchase:** before a mover can buy a request, our system confirms from our records that it's still approved, has no broker authority on file, has its numbers on file and has no expired credentials.
+- **Right away after certain events:** we run every check again when someone reports broker activity, when someone complains about a mover's credentials, when a mover's ownership changes, or when an account review raises a concern.
+- **Before sharing a request:** our system confirms from our records that the mover is still approved, has no broker authority on file, has its numbers on file and has no expired credentials.
 
 [Build: weekly FMCSA recheck job; expiry alerts at 30, 14, 7 and 0 days; annual full re-verification; immediate re-verification on a broker-activity report, credential complaint, ownership change or chargeback pattern; automatic suspension; the purchase-time check (mover verification §3, §8 Phase 6; implications §9.6)]
 
@@ -176,15 +176,14 @@ Passing once isn't enough to stay in our network.
 
 If a check fails and we can't confirm that the mover still meets our rules:
 
-- it can't buy new requests (this happens automatically);
-- it becomes ineligible for new request purchases; and
+- it automatically becomes ineligible for new requests; and
 - we tell the company.
 
 [Owner: the wording of the profile notice, "Verification under review" (mover verification §3) or "not currently part of the American Moving Choice network" (site architecture §2.5), and whether it differs by the reason for suspension. Mover verification §3 also allows removal from the directory "per policy" instead of a notice; the copy follows site architecture §2.5, which removes every suspended company from the directory and location pages and keeps a notice on its profile.]
 
-The same happens when we suspend a mover for broker activity, fraud, reselling a request or unpaid charges. [Owner: confirmed resale suspends the company — default shown (implications §9.7)] If a weekly recheck finds broker authority on a mover's record, alone or beside carrier authority, the mover becomes ineligible to purchase new requests.
+The same happens when we suspend a mover for broker activity, fraud, passing a request to another company or an account-standing issue. [Owner: confirmed resale suspends the company — default shown (implications §9.7)] If a weekly recheck finds broker authority on a mover's record, alone or beside carrier authority, the mover becomes ineligible to receive new requests.
 
-A suspended mover can't buy your request, even if it was eligible when you sent it, because every purchase rechecks the mover's standing first. Requests it bought before the suspension stay with it, along with its records, its invoices and its access to our support team.
+A suspended mover can't receive a new request, even if it was eligible when you sent it, because we recheck the mover's standing before sharing your details. Suspension cannot erase information a company already received. You can still report a concern to our support team.
 
 If you're dealing with a mover that has been suspended, you can check its current federal record yourself (see below), [report a concern](/report-a-concern/), or [withdraw your request](/which-companies-receive-my-request/).
 

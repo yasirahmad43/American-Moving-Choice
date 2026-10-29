@@ -1,4 +1,3 @@
-import { env } from "@amc/server/env";
 import { MediaCreditLine, MediaFrame } from "@/components/media/media-frame";
 import { mediaById } from "@/lib/media";
 import { ClosingSurveyPanel } from "./closing-survey-panel";
@@ -14,9 +13,7 @@ function ClosingPhoto({ id }: { id: string }) {
   </div>;
 }
 
-/** Curated chrome media stays on the server; the client only chooses its audience and form. */
+/** Curated chrome media stays on the server. */
 export function ClosingSurvey() {
-  return <ClosingSurveyPanel appUrl={env().APP_URL}
-    consumerPhoto={<ClosingPhoto id="home-family-carrying-labeled-boxes-toward" />}
-    carrierPhoto={<ClosingPhoto id="for-movers-fleet-of-white-moving-trucks" />} />;
+  return <ClosingSurveyPanel consumerPhoto={<ClosingPhoto id="home-family-carrying-labeled-boxes-toward" />} />;
 }

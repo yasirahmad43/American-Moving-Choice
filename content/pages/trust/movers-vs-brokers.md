@@ -207,7 +207,7 @@ To arrange moves between states, a broker must register with FMCSA and keep a [$
 We chose differently for our network: every company in it must be a mover that carries out its own moves. Our reasons:
 
 - **One company from quote to delivery.** Movers in our network agree that the company that quotes your move is the company that carries it out, so you know from the start whose record to check. [Counsel: the mover terms are still a summary for counsel to draft; confirm this term (consent draft §11 item 2).]
-- **No hand-offs.** Movers in our network agree not to resell your request or hand your move to another company.
+- **No hand-offs.** Movers in our network agree to keep your request within their own company and not hand your move to another company.
 
 [Owner: the reasons for movers-only — default shown (mover verification §1 states the rule, "companies that physically perform and are responsible for the move", but not the reasons; these are drawn from consent draft §11 item 2, mover verification §1 item 5 and FMCSA's consumer advice in carrier-vs-broker note B13)]
 

@@ -53,8 +53,8 @@ export function ConfirmationView({
 
       {c.joinedReferenceCode ? (
         <Alert tone="info" title="We already had a request from you for this route">
-          This request joins your earlier request {c.joinedReferenceCode}. The lowest number of movers you chose applies, and movers that bought your
-          first request count toward it.
+          This request joins your earlier request {c.joinedReferenceCode}. The lowest number of movers you chose applies, and movers that received your
+          contact details through the first request count toward it.
         </Alert>
       ) : null}
 
@@ -63,7 +63,7 @@ export function ConfirmationView({
           {c.limit === 1
             ? "Only 1 participating moving company may receive your details and contact you."
             : `Up to ${c.limit} participating moving companies may receive your details and contact you.`}{" "}
-          A mover may decide not to buy it or not to quote, so you might hear from fewer.
+          Each mover decides whether to respond, so you might hear from fewer.
         </p>
         <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-border pt-4 type-small sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold text-text">Move</dt>
@@ -88,13 +88,13 @@ export function ConfirmationView({
           <li>Each company introduces itself when it contacts you directly, only in the ways you chose. Ask for its USDOT number and written estimate.</li>
           <li>A reputable mover will offer an in-home or virtual survey before giving a written estimate. You're never obligated to hire anyone.</li>
         </ol>
-        <p className="text-text-2">We can't promise when, or whether, any mover buys your request or gets in touch.</p>
+        <p className="text-text-2">We can't promise when, or whether, any mover will get in touch.</p>
       </section>
 
       <Card as="section" title="Changed your mind?" titleAs="h2">
         <p className="text-text">
-          You can see your request status and contact preferences, and withdraw it at any time. Withdrawing stops any new mover from buying it, and we tell
-          movers that already bought it to stop contacting you.
+          You can see your request status and contact preferences, and withdraw it at any time. Withdrawing stops additional movers from receiving your
+          contact details, and we tell movers that already received them to stop contacting you. It cannot take back details already shared.
         </p>
         <p className="mt-3">
           <a href={manageUrl} className="link font-semibold" rel="noreferrer">
