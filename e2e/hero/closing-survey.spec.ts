@@ -61,16 +61,21 @@ test("the closing starter keeps its route independent and carries only approved 
   expect(new URL(page.url()).search).toBe("");
 });
 
-test("retired company pages do not expose a closing recruitment form", async ({ page }) => {
+test("retired company pages show one native recovery document without recruitment forms", async ({ page }) => {
   const posts: string[] = [];
   page.on("request",request => {if(request.method()==="POST")posts.push(request.url());});
   for (const path of ["/for-movers/", "/mover-terms/"]) {
     expect((await page.goto(base + path))?.status()).toBe(404);
+    await expect(page.getByRole("banner")).toHaveCount(1);
+    await expect(page.getByRole("main")).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "Go to the home page", exact: true })).toBeVisible();
+    await expect(page.locator('a[href="/get-quotes/"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/explore/"]').first()).toBeVisible();
     await expect(page.locator("[data-carrier-starter]")).toHaveCount(0);
     await expect(page.getByRole("link",{name:/Start my application|Continue to carrier application/})).toHaveCount(0);
-    const closing = page.locator("[data-closing-survey]");
-    await expect(closing).toHaveAttribute("data-audience", "consumer");
-    await expect(closing.locator('[data-vsh-starter="quote"]')).toHaveCount(1);
+    await expect(page.locator('form[action*="/signup"],form[action*="/for-movers"],[data-closing-survey]')).toHaveCount(0);
+    await expect(page.locator('a[href^="/for-movers"],a[href^="/mover-terms"],a[href$="/signup"],a[href$="/signup/"]')).toHaveCount(0);
   }
   expect(posts).toEqual([]);
 });

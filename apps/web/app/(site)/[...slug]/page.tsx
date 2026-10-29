@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ContentPageView } from "@/components/site/content-page";
-import { isReservedUrl, servedContentPages } from "@/lib/content/pages";
+import { contentPageByUrl, isReservedUrl, servedContentPages } from "@/lib/content/pages";
 import { socialMetadata } from "@/components/site/social-metadata";
 
 /**
  * Every content draft in content/pages, served at its front-matter url (build plan §8). Pages are
- * generated at build time; unknown paths pass the same guarded resolver and return a rendered
- * 404. URLs other slices own
+ * generated at build time; any other path is a 404 (dynamicParams false). URLs other slices own
  * (the survey, calculator, directory, profiles, geo pages, verify-a-mover) are never served here.
  */
-// Let notFound() render the normal recovery page instead of an early empty error document.
-export const dynamicParams = true;
+export const dynamicParams = false;
 
 type Params = { slug: string[] };
 
@@ -22,7 +20,7 @@ export function generateStaticParams(): Params[] {
 function pageFor(slug: string[]) {
   const url = `/${slug.map((part) => decodeURIComponent(part)).join("/")}/`;
   if (isReservedUrl(url)) return null;
-  return servedContentPages().find((page) => page.meta.url === url) ?? null;
+  return contentPageByUrl(url);
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
