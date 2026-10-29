@@ -14,7 +14,7 @@ import { SiteHeader } from "./site-header";
  */
 export function SiteChrome({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="site-experience flex min-h-dvh flex-col">
       <IconSprite />
       <SkipLink />
       <ScrollProgress />

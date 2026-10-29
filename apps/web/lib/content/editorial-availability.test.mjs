@@ -24,7 +24,7 @@ describe("missing cost data in public editorial presentation", () => {
     const original = first + custom + labelled + second;
     const shown = presentEditorialHtml(original);
     const labels = [...shown.matchAll(/<pre\b[^>]*\baria-label="([^"]+)"/g)].map(match => match[1]);
-    expect(labels).toEqual(["Formula or worked example 1 (scroll sideways if needed)", "Recorded worksheet", "Formula or worked example 2 (scroll sideways if needed)"]);
+    expect(labels).toEqual(["Formula or worked example 1", "Recorded worksheet", "Formula or worked example 2"]);
     expect(new Set(labels).size).toBe(labels.length);
     expect(shown).toContain('class="language-text" data-example="hourly"');
     expect(shown).toContain('id="custom-formula" aria-label="Recorded worksheet" data-source="model"');

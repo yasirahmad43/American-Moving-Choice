@@ -71,20 +71,19 @@ function ContentTable({ id, caption, accessibleCaption, columns, rows, allow }: 
     return Number.isFinite(n) ? n : null;
   };
   const max = columns.map((_, j) => (numeric[j] ? Math.max(1, ...rows.map((r) => parse(r[j]) ?? 0)) : 1));
-  const barColumn = columns.findIndex((c, j) => numeric[j] && /distance|miles|population|movers|zip/i.test(c));
+  const barColumn = columns.findIndex((c, j) => numeric[j] && /distance|miles|population|movers|zip (?:codes|count)|number of zips/i.test(c));
   return (
     <div className="not-prose grid min-w-0 gap-2">
-      {rows.length > 5 ? <p className="type-legal text-text-2"><span aria-hidden="true">↔ </span>All {rows.length.toLocaleString("en-US")} records are included. Scroll within the table to explore every column and row.</p> : null}
+      {rows.length > 5 ? <p className="type-legal text-text-2">All {rows.length.toLocaleString("en-US")} records are included.{columns.length > 4 ? " Open a record for its complete details." : ""}</p> : null}
       <Table<{ id: string; cells: string[] }>
         id={id}
         caption={caption || accessibleCaption}
         hideCaption={!caption}
         compact
+        layout="adaptive"
         densityToggle={rows.length > 8}
         rowKey={(r) => r.id}
         rows={rows.map((cells, i) => ({ id: String(i), cells }))}
-        maxHeight={rows.length > 5 ? "28rem" : undefined}
-        mobileLayout={rows.length > 5 ? "scroll" : "cards"}
         columns={columns.map((header, j) => ({
           key: `c${j}`,
           header,
@@ -118,7 +117,7 @@ function Block({ id, block, tableLabel, allow }: { id: string; block: ContentBlo
     case "list": {
       const Tag = block.ordered ? "ol" : "ul";
       return (
-        <Tag className={styles.visualList}>
+        <Tag className={`${styles.visualList} ${block.items.every(item => item.length <= 160) ? styles.visualListCompact : ""}`}>
           {block.items.map((item, i) => (
             <li key={i}>
               <span className={`${styles.listPhoto} ${styles.utilityGlyph}`} aria-hidden="true"><LineIcon name={topicIcon(item)} size={25} /></span>
@@ -167,6 +166,7 @@ function Block({ id, block, tableLabel, allow }: { id: string; block: ContentBlo
                 caption={`Planning ranges: ${c.scope}`}
                 hideCaption
                 compact
+                layout="adaptive"
                 densityToggle={false}
                 rowKey={(r) => r.homeSize}
                 rows={c.rows}
@@ -279,6 +279,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
         </nav> : null}
 
         <GuideContents sections={page.content.sections} hasFacts={facts.length > 0} hasFaq={page.content.faq.length > 0} className={styles.guideContents} />
+        <p className={styles.readingMeta}><span><strong className="tabular">{page.evidenceCount}</strong> sourced data points</span><span>Data as of {page.content.dataAsOf}</span></p>
 
         <div className={styles.bodyGrid}>
           <div className={styles.main}>
@@ -289,7 +290,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
                   {image ? <figure className={styles.sectionPhoto} data-editorial-image={image.id}><MediaFrame asset={image} sizes="(min-width: 1100px) 55vw, 100vw" /></figure> : <span className={`${styles.sectionPhoto} ${styles.utilityGlyph}`} aria-hidden="true"><LineIcon name={topicIcon(section.heading)} size={38} /></span>}
                   <div className={styles.sectionTitle}><span className={styles.sectionNo}>Field notes / {String(index + 1).padStart(2, "0")}</span><h2 id={`${section.id}-h`}>{section.heading}</h2></div>
                 </header>
-                <div className={`prose max-w-none ${styles.sectionBody}`}>
+                <div className={`prose max-w-none ${styles.sectionBody} ${section.blocks.every(block => block.type === "paragraph") && section.blocks.reduce((length, block) => length + (block.type === "paragraph" ? block.text.length : 0), 0) > 220 ? styles.narrativeColumns : ""}`}>
                   {section.blocks.map((block, i) => <Block key={i} id={`${tablePrefix}-s${index + 1}-b${i + 1}`} tableLabel={`${consumerText(section.heading)}: table ${index + 1}.${i + 1}`} block={block} allow={allow} />)}
                 </div>
               </Reveal>;
@@ -306,7 +307,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
               <SectionHeader id="faq-h" overline="Good questions. Clear answers." title="Questions about this page" />
               <div className={styles.faqLayout}>
                 <figure className={styles.faqVisual} data-editorial-image={faqImage!.id}><MediaFrame asset={faqImage!} sizes="(min-width: 1024px) 20vw, 100vw" /><figcaption className={styles.faqCaption}>A little clarity goes a long way.</figcaption></figure>
-                <div className="grid min-w-0 gap-3">{page.content.faq.map((item) => <ExpandableCard key={item.question} title={item.question} name="seo-faq"><p><InlineText text={item.answer} allow={allow} /></p></ExpandableCard>)}</div>
+                <div className={`${styles.faqCards} ${page.content.faq.every(item => item.question.length <= 88) ? styles.faqCardsCompact : ""}`}>{page.content.faq.map((item) => <ExpandableCard key={item.question} title={item.question} name="seo-faq"><p><InlineText text={item.answer} allow={allow} /></p></ExpandableCard>)}</div>
               </div>
             </Reveal> : null}
 
@@ -326,18 +327,6 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
             </footer>
           </div>
 
-          <aside className={styles.rail}>
-            <div className={styles.railCard}><div className={styles.railSymbol} aria-hidden="true"><LineIcon name="clipboard" size={32} /></div><div className={styles.railContent}>
-              <p className={styles.kicker}>Your field guide</p>
-              <nav aria-label="On this page" className={styles.railLinks}>
-                {page.content.sections.map((section, index) => <a key={section.id} href={`#${section.id}`}><span>{String(index + 1).padStart(2, "0")}</span>{section.heading}</a>)}
-                {facts.length ? <a href="#facts-and-sources">Facts and sources</a> : null}
-                {page.content.faq.length ? <a href="#faq">Questions</a> : null}
-                <a href="#sources-and-methodology">Sources and editorial notes</a>
-              </nav>
-              <p className="type-small text-text-2"><strong className="tabular text-text">{page.evidenceCount}</strong> sourced data points.<br />Data as of {page.content.dataAsOf}.</p>
-            </div></div>
-          </aside>
         </div>
       </Container>
 

@@ -562,6 +562,152 @@
     }
   }
 
+  /* Public reference data fits the actual panel, including a narrow desktop reading column. */
+  .dt-adaptive {
+    container-type: inline-size;
+    container-name: data-table;
+  }
+  .dt-adaptive :is(.dt, .dt-scroll) {
+    overflow: visible;
+    max-height: none;
+  }
+  .dt-adaptive table {
+    table-layout: fixed;
+    max-width: 100%;
+  }
+  .dt-adaptive :is(th, td, .dt-sort) {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dt-adaptive :is(th, td, dd) .whitespace-nowrap { white-space: normal !important; }
+  .dt-adaptive :is(td, dd) :is(a, code, time) { max-width: 100%; overflow-wrap: anywhere; }
+  .dt-adaptive .dt-sort {
+    width: 100%;
+    align-items: flex-start;
+    text-align: inherit;
+  }
+  .dt-adaptive .dt-sort svg { flex: 0 0 12px; margin-top: 0.2rem; }
+  .dt-record-shell .dt-mobile-sort { display: block; }
+  .dt-adaptive .dt-controls { max-width: 100%; }
+  .dt-sort-picker { min-width: 0; width: min(24rem, 100%); max-width: 100%; }
+  .dt-sort-picker > summary { display: flex; align-items: center; justify-content: space-between; min-height: 2.75rem; gap: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--border-strong); border-radius: var(--r-control); background: var(--surface); color: var(--text); list-style: none; cursor: pointer; }
+  .dt-sort-picker > summary::-webkit-details-marker { display: none; }
+  .dt-sort-picker > summary > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+  .dt-sort-picker > summary > svg { flex: 0 0 16px; transition: transform 150ms var(--ease-std); }
+  .dt-sort-picker[open] > summary > svg { transform: rotate(180deg); }
+  .dt-sort-kicker { display: block; margin-bottom: 0.125rem; color: var(--text-2); font-size: 0.75rem; font-weight: 600; }
+  .dt-sort-current { display: block; font-size: 0.875rem; line-height: 1.4; font-weight: 700; }
+  .dt-sort-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; padding-top: 0.5rem; }
+  .dt-sort-options > button { min-width: 0; min-height: 2.75rem; padding: 0.625rem; border: 1px solid var(--border); border-radius: var(--r-control); background: var(--surface-2); color: var(--text); text-align: left; overflow-wrap: anywhere; font-size: 0.875rem; line-height: 1.4; cursor: pointer; }
+  .dt-sort-options > button > span, .dt-sort-options > button > small { display: block; }
+  .dt-sort-options > button > small { margin-top: 0.25rem; color: var(--text-2); font-size: 0.75rem; }
+  .dt-sort-options > button[aria-pressed="true"] { border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+  .dt-sort-options > button:first-child { grid-column: 1 / -1; }
+  .dt-records, .dt-records :is(article, dl, div, dt, dd, details, summary) { min-width: 0; }
+  .dt-record-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .dt-record-grid > .dt-record:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .dt-record {
+    display: flex;
+    flex-direction: column;
+    padding: 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r-control);
+    background: var(--surface);
+    box-shadow: var(--sh-depth-1);
+  }
+  .dt-record-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 0.75rem;
+    margin: 0;
+  }
+  .dt-record-field { overflow-wrap: anywhere; }
+  .dt-record-field dt {
+    margin: 0 0 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+  .dt-record-field dd {
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .dt-record-primary { grid-column: 1 / -1; }
+  .dt-record-primary dd { font-size: 1rem; font-weight: 700; }
+  .dt-record-details { margin-top: auto; padding-top: 0.75rem; }
+  .dt-record-details summary, .dt-record-more > summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+    color: var(--primary);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.4;
+    cursor: pointer;
+    list-style: none;
+    overflow-wrap: anywhere;
+  }
+  .dt-record-details summary::-webkit-details-marker, .dt-record-more > summary::-webkit-details-marker { display: none; }
+  .dt-record-details summary > span, .dt-record-more > summary > span { flex: 0 0 auto; font-size: 1.25rem; }
+  .dt-record-details[open] > summary > span, .dt-record-more[open] > summary > span { transform: rotate(45deg); }
+  .dt-record-details[open] .dt-record-fields { padding-top: 0.25rem; }
+  .dt-record-more { margin-top: 0.75rem; }
+  .dt-record-more > summary { padding: 0.5rem 0.875rem; border: 1px solid var(--border-strong); border-radius: var(--r-control); background: var(--surface-2); }
+  .dt-record-more[open] > .dt-record-grid { margin-top: 0.75rem; }
+  .dt-record-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  .dt-record-spark, .dt-record .mini-bar { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .dt-shell[data-density="compact"] .dt-record { padding: 0.625rem; }
+  .dt-shell[data-density="compact"] .dt-record-fields { gap: 0.5rem; }
+  @container data-table (min-width: 54rem) {
+    .dt-record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dt-record-grid > .dt-record:last-child { grid-column: auto; }
+    .dt-record-grid > .dt-record:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
+    .dt-record-grid > .dt-record:last-child:nth-child(3n + 2) { grid-column: span 2; }
+    .dt-record-grid > .dt-record:last-child:nth-child(3n + 1) > .dt-record-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dt-record-grid > .dt-record:last-child:nth-child(3n + 1) > .dt-record-fields > .dt-record-primary { grid-column: auto; }
+  }
+  @container data-table (max-width: 27rem) {
+    .dt-record-fields { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+    .dt-record { padding: 0.625rem; }
+    .dt-record-primary { grid-column: auto; }
+  }
+  @container data-table (max-width: 20rem) {
+    .dt-record-grid { grid-template-columns: minmax(0, 1fr); }
+    .dt-record-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dt-record-primary { grid-column: 1 / -1; }
+  }
+  @container data-table (max-width: 42rem) {
+    .dt-adaptive .dt-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .dt-adaptive .dt-controls, .dt-adaptive .dt-sort-picker { width: 100%; }
+    .dt-adaptive .dt-responsive { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+    .dt-adaptive .dt-responsive thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; visibility: visible; }
+    .dt-adaptive .dt-responsive thead .dt-sort { display: none; }
+    .dt-adaptive .dt-responsive, .dt-adaptive .dt-responsive :is(.dt-scroll, table, tbody, tr, td) { display: block; }
+    .dt-adaptive .dt-responsive tbody { display: grid; gap: 0.75rem; }
+    .dt-adaptive .dt-responsive tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--r-control); background: var(--surface); }
+    .dt-adaptive .dt-responsive tbody td { display: block; min-width: 0; padding: 0 !important; border: 0; text-align: left; }
+    .dt-adaptive .dt-responsive tbody td.dt-primary { grid-column: 1 / -1; text-align: left; }
+    .dt-adaptive .dt-responsive tbody td[data-label]::before { display: block; margin-bottom: 0.25rem; padding: 0; font-size: 0.75rem; letter-spacing: 0; text-transform: none; color: var(--text-2); }
+    .dt-adaptive .dt-responsive .dt-value { max-width: 100%; white-space: normal; }
+    .dt-adaptive .dt-mobile-sort { display: block; }
+  }
+
   /* --- Mini bars and sparklines in cells --------------------------------------------------- */
   .mini-bar {
     display: inline-flex;

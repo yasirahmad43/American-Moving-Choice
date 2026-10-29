@@ -16,6 +16,15 @@ const LABELS: Record<string, { x?: number; y?: number; size?: number; rotate?: n
   "48": { size: 24 }, "51": { x: 804, y: 305, size: 15, rotate: -12 }, "54": { x: 765, y: 283, size: 12.5 },
 };
 
+/** Narrow screens use a readable atlas instead of a cropped national canvas. */
+const REGIONS: readonly { name: string; codes: readonly string[] }[] = [
+  { name: "Northeast", codes: ["CT", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"] },
+  { name: "Midwest", codes: ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"] },
+  { name: "South", codes: ["AL", "AR", "DE", "DC", "FL", "GA", "KY", "LA", "MD", "MS", "NC", "SC", "TN", "VA", "WV"] },
+  { name: "Southwest", codes: ["AZ", "NM", "OK", "TX"] },
+  { name: "West", codes: ["AK", "CA", "CO", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "WY"] },
+];
+
 function StateName({ shape }: { shape: (typeof shapes)[number] }) {
   const calloutY = CALLOUTS[shape.fips];
   if (calloutY) return <g className="state-guide-map-callout" aria-hidden="true">
@@ -44,8 +53,8 @@ export function StateGuideMap({ guides, overview }: { guides: readonly StateGuid
       <div><p className="type-overline">Your next chapter, on the map</p><h3 id="state-guide-map-title">Explore state guides.</h3></div>
       <a href="#home-guide-library-guide-state">Search by state <span aria-hidden="true">↓</span></a>
     </figcaption>
-    <p id="state-guide-map-help" className="state-guide-map-help"><span aria-hidden="true">↔</span> On smaller screens, scroll the map to read each state name, or use the state selector.</p>
-    <div className="state-guide-map-viewport" role="region" aria-label="State guide map and labels" aria-describedby="state-guide-map-help" tabIndex={0}>
+    <p id="state-guide-map-help" className="state-guide-map-help">Choose a state on the map for local facts and moving guides.</p>
+    <div className="state-guide-map-viewport" role="region" aria-label="State guide map and labels" aria-describedby="state-guide-map-help">
     <svg viewBox="-85 -10 1325 640" className="state-guide-map-art" role="group" aria-label="Map links to published state moving guides">
       <defs><pattern id="guide-map-grid" width="28" height="28" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="currentColor" /></pattern></defs>
       <rect x="-85" y="-10" width="1325" height="640" fill="url(#guide-map-grid)" className="state-guide-map-grid" />
@@ -60,6 +69,27 @@ export function StateGuideMap({ guides, overview }: { guides: readonly StateGuid
         return guide ? <a key={state.code} href={guide.url} aria-label={label} className="state-guide-map-link" data-state-code={state.code}><title>{label}</title>{content}</a> : <g key={state.code} className="state-guide-map-unpublished">{content}</g>;
       })}
     </svg>
+    </div>
+    <div className="state-guide-map-atlas" role="group" aria-label="State guides by region">
+      <p>Choose a region to see its state guides.</p>
+      {REGIONS.map(region => {
+        const entries = STATES.filter(state => region.codes.includes(state.code) && links.has(state.code));
+        if (!entries.length) return null;
+        return <details key={region.name} name="state-guide-region" className="state-guide-region">
+          <summary><span>{region.name}</span><span>{entries.length} guides <span className="state-guide-region-toggle" aria-hidden="true" /></span></summary>
+          <ul className="state-guide-atlas-grid">
+            {entries.map(state => {
+              const guide = links.get(state.code)!;
+              const shape = byFips.get(state.fips);
+              const count = counts.get(state.code);
+              return <li key={state.code}><a href={guide.url} className="state-guide-atlas-link" data-state-code={state.code}>
+                {shape ? <svg viewBox={shape.viewBox} aria-hidden="true" focusable="false" className="state-guide-atlas-shape"><path d={shape.path} /></svg> : null}
+                <span className="state-guide-atlas-copy"><span data-state-name={state.name}>{state.name}</span><small>{count ? `${count.toLocaleString("en-US")} guides` : "State moving guide"}</small></span>
+              </a></li>;
+            })}
+          </ul>
+        </details>;
+      })}
     </div>
     <div className="state-guide-map-note"><span><i aria-hidden="true" />{guides.length} state &amp; district guides</span><p>Choose a place. Get local facts, city guides and a clearer starting point.</p></div>
   </figure>;

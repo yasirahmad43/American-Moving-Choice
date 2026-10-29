@@ -13,6 +13,7 @@ interface TableState {
   density: Density;
   setDensity: (density: Density) => void;
   densityToggle: boolean;
+  adaptive: boolean;
   columns: { key: string; label: string }[];
 }
 const Context = createContext<TableState | null>(null);
@@ -23,11 +24,12 @@ function useTable() {
 }
 
 /** Keyboard access also works before hydration; card layouts shed the unnecessary tab stop. */
-export function TableScroll({ caption, maxHeight, children }: { caption: ReactNode; maxHeight?: string; children: ReactNode }) {
+export function TableScroll({ caption, maxHeight, children, adaptive = false }: { caption: ReactNode; maxHeight?: string; children: ReactNode; adaptive?: boolean }) {
   const scroll = useRef<HTMLDivElement>(null);
   const labelId = useId();
-  const [scrollable, setScrollable] = useState(true);
+  const [scrollable, setScrollable] = useState(!adaptive);
   useLayoutEffect(() => {
+    if (adaptive) return;
     const node = scroll.current;
     if (!node) return;
     const measure = () => {
@@ -43,23 +45,24 @@ export function TableScroll({ caption, maxHeight, children }: { caption: ReactNo
     if (table) observer?.observe(table);
     window.addEventListener("resize", measure);
     return () => { observer?.disconnect(); window.removeEventListener("resize", measure); };
-  }, [children]);
+  }, [children, adaptive]);
   return (
     <div ref={scroll} className="dt-scroll" tabIndex={scrollable ? 0 : -1} role={scrollable ? "region" : undefined}
-      aria-labelledby={scrollable ? labelId : undefined} style={maxHeight ? ({ "--dt-max-height": maxHeight } as CSSProperties) : undefined}>
-      <span id={labelId} className="sr-only" aria-hidden={!scrollable}>{caption}: scrollable table</span>
+      aria-labelledby={scrollable ? labelId : undefined} style={!adaptive && maxHeight ? ({ "--dt-max-height": maxHeight } as CSSProperties) : undefined}>
+      {!adaptive ? <span id={labelId} className="sr-only" aria-hidden={!scrollable}>{caption}: scrollable table</span> : null}
       {children}
     </div>
   );
 }
 
 /** Cells are rendered by the server; the client receives React nodes, never cell functions. */
-export function TableEnhancer({ tableId, sortable, defaultSort, density, densityToggle, children, className }: {
+export function TableEnhancer({ tableId, sortable, defaultSort, density, densityToggle, adaptive = false, children, className }: {
   tableId: string;
   sortable: { key: string; label: string }[];
   defaultSort?: Exclude<Sort, null>;
   density: Density;
   densityToggle: boolean;
+  adaptive?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -77,7 +80,7 @@ export function TableEnhancer({ tableId, sortable, defaultSort, density, density
   };
   const column = sortable.find((item) => item.key === sort?.key);
   return (
-    <Context.Provider value={{ id: tableId, sort, setSort, density: current, setDensity, densityToggle, columns: sortable }}>
+    <Context.Provider value={{ id: tableId, sort, setSort, density: current, setDensity, densityToggle, adaptive, columns: sortable }}>
       <div className={className} data-density={current}>
         {children}
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
@@ -89,10 +92,24 @@ export function TableEnhancer({ tableId, sortable, defaultSort, density, density
 }
 
 export function TableControls() {
-  const { sort, setSort, density, setDensity, densityToggle, columns, id } = useTable();
+  const { sort, setSort, density, setDensity, densityToggle, columns, id, adaptive } = useTable();
+  const chooser = useRef<HTMLDetailsElement>(null);
+  const selected = columns.find(column => column.key === sort?.key);
+  const choose = (next: Sort) => {
+    setSort(next);
+    // Keep focus on a visible control before the chosen button's disclosure closes.
+    chooser.current?.querySelector("summary")?.focus();
+    if (chooser.current) chooser.current.open = false;
+  };
   return (
-    <div className="flex min-w-0 flex-wrap items-center gap-3">
-      {columns.length > 0 ? (
+    <div className="dt-controls flex min-w-0 flex-wrap items-center gap-3">
+      {columns.length > 0 && adaptive ? <details ref={chooser} className="dt-sort-picker" data-adaptive-sort="">
+        <summary aria-controls={id}><span><span className="dt-sort-kicker">Sort records</span><span className="dt-sort-current">{sort && selected ? `${selected.label} · ${sort.dir === "ascending" ? "Ascending" : "Descending"}` : "Original order"}</span></span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
+        <div className="dt-sort-options" role="group" aria-label="Sort displayed records">
+          <button type="button" aria-controls={id} aria-pressed={!sort} onClick={() => choose(null)}>Original order</button>
+          {columns.flatMap(column => (["ascending", "descending"] as const).map(direction => <button key={`${column.key}:${direction}`} type="button" data-sort-choice={`${column.key}:${direction}`} aria-controls={id} aria-pressed={sort?.key === column.key && sort.dir === direction} onClick={() => choose({ key: column.key, dir: direction })}><span>{column.label}</span><small>{direction === "ascending" ? "Ascending" : "Descending"}</small></button>))}
+        </div>
+      </details> : columns.length > 0 ? (
         <label className="dt-mobile-sort min-w-0 text-[0.8125rem] font-semibold text-text-2">
           <span className="sr-only">Sort displayed rows</span>
           <select
@@ -127,13 +144,13 @@ export function TableControls() {
   );
 }
 
-export function SortableTableHeader({ columnKey, label, children, className, right, initialSort }: {
-  columnKey: string; label: string; children: ReactNode; className?: string; right?: boolean; initialSort?: "ascending" | "descending" | "none";
+export function SortableTableHeader({ columnKey, label, children, className, right, initialSort, staticLabel }: {
+  columnKey: string; label: string; children: ReactNode; className?: string; right?: boolean; initialSort?: "ascending" | "descending" | "none"; staticLabel?: boolean;
 }) {
   const { sort, setSort, id } = useTable();
   const direction = sort ? sort.key === columnKey ? sort.dir : undefined : initialSort;
   return (
-    <th role="columnheader" scope="col" aria-sort={direction && direction !== "none" ? direction : undefined} className={className}>
+    <th role="columnheader" scope="col" aria-label={staticLabel ? label : undefined} aria-sort={direction && direction !== "none" ? direction : undefined} className={className}>
       <button type="button" aria-label={`Sort by ${label}`} aria-controls={id} className={cx("dt-sort", right && "flex-row-reverse")} onClick={() => {
         setSort(sort?.key === columnKey ? sort.dir === "ascending" ? { key: columnKey, dir: "descending" } : null : { key: columnKey, dir: "ascending" });
       }}>
@@ -165,4 +182,27 @@ export function TableBody({ rows }: { rows: { key: string; content: ReactNode }[
   const position = new Map(order.map((key, index) => [key, index]));
   const ordered = order.length > 0 ? [...rows].sort((a, b) => (position.get(a.key) ?? rows.length) - (position.get(b.key) ?? rows.length)) : rows;
   return <tbody ref={body} role="rowgroup">{ordered.map((row) => row.content)}</tbody>;
+}
+
+/** All records are server rendered once; sorting includes records inside the native disclosure. */
+export function TableRecords({ rows, previewCount = 4, label }: { rows: { key: string; content: ReactNode }[]; previewCount?: number; label: string }) {
+  const { sort } = useTable();
+  const root = useRef<HTMLDivElement>(null);
+  const [order, setOrder] = useState<string[]>([]);
+  useLayoutEffect(() => {
+    const values = new Map(Array.from(root.current?.querySelectorAll<HTMLElement>("[data-record-key]") ?? []).map((record) => {
+      const cell = Array.from(record.querySelectorAll<HTMLElement>("[data-col]")).find((item) => item.dataset.col === sort?.key);
+      return [record.dataset.recordKey!, tableSortValue(cell?.dataset.sort ?? cell?.textContent ?? "", cell?.querySelector("time[datetime]")?.getAttribute("datetime") ?? undefined)] as const;
+    }));
+    const next = [...rows];
+    if (sort) next.sort((a, b) => compareTableValues(values.get(a.key) ?? null, values.get(b.key) ?? null, sort.dir));
+    const keys = next.map((row) => row.key);
+    setOrder((previous) => previous.length === keys.length && previous.every((key, index) => key === keys[index]) ? previous : keys);
+  }, [rows, sort?.key, sort?.dir]);
+  const positions = new Map(order.map((key, index) => [key, index]));
+  const ordered = order.length ? [...rows].sort((a, b) => (positions.get(a.key) ?? rows.length) - (positions.get(b.key) ?? rows.length)) : rows;
+  return <div ref={root} data-record-list="" data-record-count={rows.length}>
+    <div className="dt-record-grid" role="list" aria-label={`${label}: preview`}>{ordered.slice(0, previewCount).map((row) => row.content)}</div>
+    {rows.length > previewCount ? <details className="dt-record-more"><summary>View all {rows.length.toLocaleString("en-US")} records <span aria-hidden="true">+</span></summary><div className="dt-record-grid" role="list" aria-label={`${label}: remaining records`}>{ordered.slice(previewCount).map((row) => row.content)}</div></details> : null}
+  </div>;
 }

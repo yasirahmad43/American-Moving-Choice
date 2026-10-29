@@ -12,7 +12,7 @@
  * - {{tokens}} resolve through the caller's resolver; pending values render as a visible
  *   placeholder (<span class="token-pending">). Tokens inside code stay literal.
  * - Headings get ids (rehype-slug, explicit anchors win) and a "#" link. Tables sit in a
- *   focusable, labeled scroll region.
+ *   labeled, responsive reference regions with every original cell retained.
  * - The output is sanitized (rehype-sanitize, GitHub's schema plus the classes added here).
  */
 import rehypeSanitize, { defaultSchema, type Options as SanitizeSchema } from "rehype-sanitize";
@@ -310,11 +310,38 @@ function rehypeAmc() {
     node.children = node.children.map((child) => {
       if (child.type !== "element") return child;
       if (child.tagName === "table") {
-        const label = `${sectionHeading ? `${sectionHeading}: ` : ""}Table ${++tableNumber} (scrolls sideways on small screens)`;
+        const label = `${sectionHeading ? `${sectionHeading}: ` : ""}Table ${++tableNumber}`;
+        const head = child.children?.find(part => part.tagName === "thead");
+        const headings = head?.children?.find(part => part.tagName === "tr")?.children?.filter(part => part.tagName === "th") ?? [];
+        for (const heading of headings) {
+          if (!textOf(heading).trim() && (heading.children ?? []).every(part => part.type === "text" && !(part.value ?? "").trim())) heading.children = [{ type: "text", value: "Item" }];
+        }
+        const columnLabels = headings.map(textOf);
+        const reflow = headings.length > 2;
+        const hasLink = (part: HNode): boolean => part.tagName === "a" || Boolean(part.children?.some(hasLink));
+        if (reflow) {
+          child.properties = { ...child.properties, role: "table" };
+          for (const group of child.children ?? []) {
+            if (group.tagName !== "thead" && group.tagName !== "tbody") continue;
+            group.properties = { ...group.properties, role: "rowgroup" };
+            for (const row of group.children ?? []) {
+              if (row.tagName !== "tr") continue;
+              row.properties = { ...row.properties, role: "row" };
+              let column = 0;
+              for (const cell of row.children ?? []) {
+                if (cell.tagName !== "th" && cell.tagName !== "td") continue;
+                cell.properties = { ...cell.properties, role: cell.tagName === "th" ? "columnheader" : "cell",
+                  ...(cell.tagName === "th" ? { scope: "col" } : { dataLabel: columnLabels[column] ?? `Column ${column + 1}`, dataColIndex: column }) };
+                column += 1;
+              }
+            }
+          }
+        }
         return {
           type: "element",
           tagName: "div",
-          properties: { className: ["table-wrap"], role: "region", tabIndex: 0, ariaLabel: label },
+          properties: { className: ["table-wrap"], role: "region", ariaLabel: label, dataColumnCount: headings.length,
+            ...(reflow ? { dataReflow: "true" } : {}), ...(headings.length > 4 ? { dataWide: "true" } : {}), ...(headings.some(hasLink) ? { dataRichHeader: "true" } : {}) },
           children: [child],
         };
       }
@@ -353,7 +380,13 @@ const schema: SanitizeSchema = {
     ...defaultSchema.attributes,
     mark: [["className", "review-note", /^review-note--(counsel|owner|data|verify|build)$/]],
     span: [["className", "review-note__label", "token-pending", "token-public"]],
-    div: [...(defaultSchema.attributes?.div ?? []), ["className", "table-wrap"], ["role", "region"], "ariaLabel", "tabIndex"],
+    div: [...(defaultSchema.attributes?.div ?? []), ["className", "table-wrap"], ["role", "region"], "ariaLabel", "dataColumnCount", "dataReflow", "dataWide", "dataRichHeader"],
+    table: [...(defaultSchema.attributes?.table ?? []), ["role", "table"]],
+    thead: [...(defaultSchema.attributes?.thead ?? []), ["role", "rowgroup"]],
+    tbody: [...(defaultSchema.attributes?.tbody ?? []), ["role", "rowgroup"]],
+    tr: [...(defaultSchema.attributes?.tr ?? []), ["role", "row"]],
+    th: [...(defaultSchema.attributes?.th ?? []), ["role", "columnheader"], ["scope", "col"]],
+    td: [...(defaultSchema.attributes?.td ?? []), ["role", "cell"], "dataLabel", "dataColIndex"],
     // One className rule per tag: the default's footnote class plus the heading anchor.
     a: [...(defaultSchema.attributes?.a ?? []).filter((rule) => !(Array.isArray(rule) && rule[0] === "className")), ["className", "heading-anchor", "data-footnote-backref"]],
   },

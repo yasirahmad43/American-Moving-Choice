@@ -140,3 +140,109 @@
 @media (max-width:520px) { .reader { padding-top:2rem; } .introFacts { gap:.75rem; } .sectionHead,.section:nth-child(even) .sectionHead { grid-template-columns:4.5rem minmax(0,1fr); gap:.9rem; padding:1.1rem 1.1rem 0; } .section:nth-child(even) .sectionPhoto { order:0; } .sectionBody { padding:1.1rem; } .sectionTitle h2 { font-size:1.4rem; } .sectionNo { font-size:.57rem; } .visualList { grid-template-columns:minmax(0,1fr); } .factGrid { grid-template-columns:minmax(0,1fr); } .faqLayout { grid-template-columns:minmax(0,1fr); } .faqVisual { aspect-ratio:16/7; } .quoteBand { grid-template-columns:minmax(0,1fr); } .quotePhoto { min-height:0; aspect-ratio:16/8; } .sources { padding:1.1rem; } .sourceList li { grid-template-columns:minmax(0,1fr); gap:0; } .relatedGrid,.hubGrid { grid-template-columns:minmax(0,1fr); } .relatedPhoto { aspect-ratio:16/7; } .readingMap { grid-template-columns:minmax(0,1fr); } .mapCard { grid-template-columns:5.25rem minmax(0,1fr); } .mapPhoto { aspect-ratio:1; } .mapTitle { align-items:center; font-size:.85rem; } }
 @media (max-width:520px) { .sectionFeature .sectionHead,.sectionFeature:nth-child(even) .sectionHead { grid-template-columns:minmax(0,1fr); } .sectionFeature .sectionPhoto { aspect-ratio:16/7; } }
 @media (prefers-reduced-motion:reduce) { .photoMain img,.hubCard img,.mapCard,.sectionPhoto img { transition:none; } .photoComposition:hover .photoMain img,.hubCard:hover img,.mapCard:hover,.section:hover .sectionPhoto img { transform:none; } }
+
+/* Compact field guide: one useful reading lane, shared rhythm and complete wrapping. */
+.reader { padding-block:var(--layout-section-space,2.5rem); }
+.lede { gap:var(--layout-gap,1.25rem); align-items:stretch; }
+.ledeCopy { gap:1rem; align-content:center; }
+.ledeCopy h2,.sectionTitle h2,.mapTitle,.kicker { overflow-wrap:anywhere; }
+.introText { font-size:1rem; line-height:1.65; }
+.photoComposition { display:grid; grid-template-rows:minmax(14rem,1fr) auto; gap:.5rem; padding:0; }
+.photoMain { aspect-ratio:auto; min-height:0; border-radius:1rem; }
+.photoStrip { position:static; width:100%; margin:0; padding:0; border:0; border-radius:.7rem; box-shadow:none; gap:.5rem; }
+.photoSmall { aspect-ratio:16/8; }
+.introFacts { padding-block:.875rem; gap:.75rem; }
+.readingMap { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-block:var(--layout-section-space,2rem); }
+.mapIntro { grid-column:1/-1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; padding:0; }
+.mapCard { grid-template-columns:2.25rem minmax(0,1fr); align-items:center; padding:.75rem; gap:.75rem; }
+.mapGlyph { min-height:0; background:none; border:0; }
+.mapTitle { padding:0; align-items:center; gap:.5rem; }
+.bodyGrid { display:block; }
+.main { gap:var(--layout-gap,1.25rem); }
+.section { border-radius:1rem; }
+.sectionHead,.section:nth-child(even) .sectionHead,.sectionFeature .sectionHead,.sectionFeature:nth-child(even) .sectionHead { grid-template-columns:6rem minmax(0,1fr); gap:1rem; padding:var(--layout-card-pad,1.25rem) var(--layout-card-pad,1.25rem) 0; }
+.sectionPhoto,.sectionFeature .sectionPhoto { aspect-ratio:4/3; width:100%; order:0!important; border-radius:.65rem; }
+.sectionTitle h2 { font-size:clamp(1.3rem,2.1vw,1.85rem); line-height:1.2; }
+.sectionNo { font-size:.65rem; letter-spacing:.1em; }
+.sectionBody { padding:var(--layout-card-pad,1.25rem); font-size:1rem; line-height:1.65; overflow-wrap:anywhere; }
+.sectionBody :global(p) { max-width:none; }
+.visualList { gap:.75rem; margin-block:1rem!important; }
+.visualList li { grid-template-columns:1.75rem minmax(0,1fr); gap:.625rem; padding:.75rem!important; font-size:.9375rem; line-height:1.6; }
+.listPhoto { display:grid; place-items:center; border-radius:.4rem; }
+.listPhoto svg { max-width:100%; }
+.factSection { gap:1rem; }
+.factGrid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; }
+.factCard { padding:1rem; gap:.5rem; border-radius:.8rem; }
+.factCard dt { padding:0; min-height:0; font-size:.8125rem; line-height:1.5; overflow-wrap:anywhere; }
+.factCard dd { grid-template-columns:minmax(0,1fr) 1.75rem; column-gap:.5rem; row-gap:.5rem; }
+.factValue { grid-column:1; grid-row:1; padding:0; font-size:clamp(1.1rem,1.7vw,1.5rem); line-height:1.25; overflow-wrap:anywhere; }
+.factThumb { position:static; grid-column:2; grid-row:1; width:1.75rem; height:1.75rem; border-radius:.4rem; }
+.factThumb svg { max-width:100%; }
+.factBasis { grid-column:1/-1; font-size:.75rem; line-height:1.5; }
+.guideContents { display:block; margin-bottom:.75rem; }
+.guideContents nav { grid-template-columns:minmax(0,1fr) minmax(0,.45fr); gap:1.5rem; }
+.guideContents ol { grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 1rem; }
+.guideContents ul { border:0; padding:0; }
+.readingMeta { display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; margin-bottom:1rem; color:var(--text-2); font-size:.8125rem; }
+.faqLayout { grid-template-columns:minmax(0,1fr); gap:1rem; }
+.faqVisual { aspect-ratio:auto; height:9rem; }
+.faqCards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; min-width:0; }
+.faqCards :global(summary) { overflow-wrap:anywhere; }
+.relatedGrid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--layout-gap,1rem); }
+.relatedCopy { padding:1rem; gap:.5rem; }
+.relatedCopy a { font-size:.875rem; overflow-wrap:anywhere; }
+.quoteBand { margin:0; }
+.quotePhoto { align-self:stretch; min-height:0; }
+.quoteCopy { padding:var(--layout-card-pad,1.25rem); }
+.sources { padding:var(--layout-card-pad,1.25rem); }
+@media (min-width:960px) {
+  .narrativeColumns { columns:2; column-gap:1.5rem; }
+  .narrativeColumns :global(p) { margin-top:0; margin-bottom:1rem; }
+}
+@media (max-width:900px) {
+  .factGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .relatedGrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .guideContents nav { grid-template-columns:minmax(0,1fr); gap:.5rem; }
+}
+@media (max-width:760px) {
+  .lede { grid-template-columns:minmax(0,1fr); gap:1rem; }
+  .photoComposition { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:auto auto; gap:.5rem; }
+  .photoMain { grid-column:1/-1; aspect-ratio:21/9; }
+  .photoStrip { grid-column:1/-1; }
+  .photoSmall { aspect-ratio:21/9; }
+  .introFacts dd { font-size:1.15rem; }
+}
+@media (max-width:600px) {
+  .reader { padding-block:1.5rem; }
+  .sectionHead,.section:nth-child(even) .sectionHead,.sectionFeature .sectionHead,.sectionFeature:nth-child(even) .sectionHead { grid-template-columns:3.5rem minmax(0,1fr); gap:.75rem; }
+  .sectionPhoto,.sectionFeature .sectionPhoto { aspect-ratio:1; }
+  .sectionTitle h2 { font-size:1.2rem; }
+  .sectionNo { font-size:.625rem; }
+  .factCard { padding:.75rem; }
+  .factCard dt { font-size:.75rem; }
+  .factCard dd { grid-template-columns:minmax(0,1fr) 1.5rem; gap:.4rem; }
+  .factThumb { width:1.5rem; height:1.5rem; }
+  .factValue { font-size:1.05rem; }
+  .visualList { grid-template-columns:minmax(0,1fr); }
+  .visualListCompact { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .visualListCompact li { grid-template-columns:minmax(0,1fr); gap:.5rem; font-size:.875rem; }
+  .visualListCompact .listPhoto { width:1.75rem; }
+  .faqCards { grid-template-columns:minmax(0,1fr); }
+  .faqCardsCompact { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .faqCardsCompact :global(summary) { font-size:.875rem; padding:.75rem; }
+  .relatedPhoto { aspect-ratio:16/9; }
+  .relatedCopy { padding:.75rem; }
+  .relatedCopy :global(h2) { font-size:.7rem; overflow-wrap:anywhere; }
+  .relatedCopy a { font-size:.8125rem; }
+  .quoteBand { grid-template-columns:minmax(0,1fr); }
+  .quotePhoto { aspect-ratio:21/8; }
+}
+@media (max-width:520px) {
+  .readingMap { grid-template-columns:repeat(2,minmax(0,1fr)); margin-block:1.5rem; }
+  .mapCard { grid-template-columns:1.5rem minmax(0,1fr); gap:.5rem; }
+  .mapCard:last-child:nth-child(even) { grid-column:1/-1; }
+  .mapTitle { font-size:.8125rem; }
+  .guideContents summary { padding:.875rem; }
+  .guideContents nav { padding:.5rem .875rem .875rem; }
+  .guideContents ol { grid-template-columns:minmax(0,1fr); }
+}
