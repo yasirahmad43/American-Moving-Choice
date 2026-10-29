@@ -3,6 +3,22 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Editorial scale request — 2026-10-29, in progress
+
+The owner now requests more than 100,000 Moving Questions pages and at least 500 checklist pages.
+These targets are configured separately from actual published counts and are **not yet met**.
+This bounded source release adds 20 substantive questions and 20 checklists, with protected original
+content and unchanged publication gates. Its final local clone has 33 published questions and 27
+planning pages, not 100,001/500. New public pagination, segmented SQL-backed sitemaps and explicit
+admin target progress support continued sourcing. Synthetic 100k capacity fixtures are strictly
+local and must never be copied into production or counted as authored content. See
+`docs/seo/editorial-expansion.md` for sources, release/rollback behavior, proofs and remaining scope.
+
+The preceding verified public/admin release is `5646d1a378311d777d89990e0fd5cac4aef65df3`
+(PR #11); both aliases were Ready and active. It closed the one baseline sharing-image exception
+and the sampled landmark-name warnings with eight fresh live desktop/mobile checks. The older
+01ebe/dd5 proofs below retain their original revisions; they are not claims of a full crawl on 5646.
+
 ### Released owner follow-up — 2026-10-29
 
 The owner rejected the earlier assessment: non-home design is about 6/10 and SEO/content about

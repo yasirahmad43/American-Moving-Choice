@@ -21,6 +21,7 @@ import { generateFamily } from "../seo/generate";
 import { importGeo } from "../seo/geo-import";
 import { HUB_URLS, STATIC_LINK_PREFIXES, isSeoUrl, pipelineCounts, publishPages, rebuildLinks, unpublishPages, type PipelineCounts } from "../seo/publish";
 import { importResearch } from "../seo/research";
+import { SEO_SITEMAP_CHUNK as SITEMAP_CHUNK, SEO_SITEMAP_SEGMENTS as SITEMAP_SEGMENTS } from "../seo/sitemaps";
 import { SEO_FAMILIES, SEO_STATUSES, isSeoFamily, type SeoFamily, type SeoStatus } from "../seo/slugs";
 import { mainText, sha256, shingles, uniqueShares } from "../seo/text";
 import type { FaqItem, SeoContent, SourceRef } from "../seo/types";
@@ -819,18 +820,6 @@ export interface PublicationDashboard {
   running: string[];
 }
 
-const SITEMAP_CHUNK = 1000;
-const SITEMAP_SEGMENTS: { name: string; family: SeoFamily; chunked: boolean }[] = [
-  { name: "states", family: "state", chunked: false },
-  { name: "cities", family: "city", chunked: true },
-  { name: "zips", family: "zip", chunked: false },
-  { name: "routes", family: "route", chunked: true },
-  { name: "services", family: "service", chunked: false },
-  { name: "costs", family: "cost", chunked: false },
-  { name: "questions", family: "question", chunked: false },
-  { name: "planning", family: "planning", chunked: false },
-];
-
 /** Reads docs/seo/crawl-report.md (tools/seo-crawl.ts output) when it is on this server. */
 export function readCrawlReport(path: string = resolveUnderRepo("docs/seo/crawl-report.md")): CrawlSummary | null {
   if (!existsSync(path)) return null;
@@ -889,8 +878,8 @@ export async function publicationDashboard(db: Queryable = getPool()): Promise<P
     counts,
     totals,
     blockedReasons: [...reasons.entries()].map(([reason, v]) => ({ reason, ...v })).sort((a, b) => b.pages - a.pages),
-    // core.xml and companies.xml always exist; the segment files follow the indexable counts.
-    sitemap: { segments, files: 2 + segments.reduce((sum, s) => sum + s.files, 0), urls: segments.reduce((sum, s) => sum + s.urls, 0), lastBuild },
+    // core.xml always exists; public company sitemaps were retired with central quote requests.
+    sitemap: { segments, files: 1 + segments.reduce((sum, s) => sum + s.files, 0), urls: segments.reduce((sum, s) => sum + s.urls, 0), lastBuild },
     crawl: readCrawlReport(),
     runs,
     running: runs.filter((r) => r.status === "running").map((r) => r.job_name),

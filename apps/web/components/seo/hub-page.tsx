@@ -20,6 +20,8 @@ import { pageCardImage, pageMediaPlan } from "@/lib/page-media";
 import type { MediaAsset } from "@/lib/media";
 import { catalogUrl, navigationOverview } from "@/lib/public-discovery";
 import { socialMetadata } from "@/components/site/social-metadata";
+import { Fragment } from "react";
+import { hubPageNumbers, hubPagePath } from "./hub-pagination";
 import styles from "./seo-reader.module.css";
 
 export interface HubSpec {
@@ -32,9 +34,11 @@ export interface HubSpec {
   groupByState?: boolean;
   /** Paginate the list at this many pages per hub page (/{hub}/page/{n}/); unset lists everything. */
   perPage?: number;
+  /** The hub accepts a native ?page= request and redirects to its canonical path. */
+  pageJump?: boolean;
 }
 
-export const hubPageUrl = (spec: HubSpec, page: number): string => (page <= 1 ? spec.url : `${spec.url}page/${page}/`);
+export const hubPageUrl = (spec: HubSpec, page: number): string => hubPagePath(spec.url, page);
 
 export function hubMetadata(spec: HubSpec, page = 1): Metadata {
   const { WEB_URL, SITE_INDEXABLE } = env();
@@ -52,14 +56,15 @@ export function hubMetadata(spec: HubSpec, page = 1): Metadata {
 function PageNav({ spec, page, total, compact = false }: { spec: HubSpec; page: number; total: number; compact?: boolean }) {
   const count = Math.max(1, Math.ceil(total / (spec.perPage ?? (total || 1))));
   if (count <= 1) return null;
-  const numbers = Array.from({ length: count }, (_, i) => i + 1);
+  const numbers = hubPageNumbers(page, count);
+  const inputId = `hub-${spec.family}-${compact ? "top" : "bottom"}-page`;
   return (
     <nav aria-label={`${spec.h1} pages${compact ? " — jump to a page" : ""}`} className="grid gap-3 border-t border-border pt-6">
       <p className="type-small text-text-2">
         Page {page} of {count}: {total.toLocaleString("en-US")} published guides, up to {spec.perPage} per page.
       </p>
       {compact ? <div className="flex flex-wrap items-center gap-3"><p className="type-small text-text-2">Showing {((page - 1) * (spec.perPage ?? total) + 1).toLocaleString("en-US")}–{Math.min(page * (spec.perPage ?? total), total).toLocaleString("en-US")} of {total.toLocaleString("en-US")} guides</p>{page > 1 ? <Link href={hubPageUrl(spec, page - 1)} rel="prev" className="link inline-flex min-h-11 items-center px-2">Previous page</Link> : null}{page < count ? <Link href={hubPageUrl(spec, page + 1)} rel="next" className="link inline-flex min-h-11 items-center px-2">Next page <ArrowRightIcon size={16} /></Link> : null}</div> : null}
-      <details open={compact ? undefined : true} className={styles.hubPageJump}><summary>{compact ? "Jump directly to any results page" : "All results pages"}</summary><ul className="flex flex-wrap gap-2">
+      <details open={compact ? undefined : true} className={styles.hubPageJump}><summary>{compact ? "Jump directly to a results page" : "Browse results pages"}</summary><ul className="flex flex-wrap gap-2">
         {page > 1 ? (
           <li>
             <Link href={hubPageUrl(spec, page - 1)} rel="prev" className="link inline-flex min-h-11 items-center px-2">
@@ -67,18 +72,21 @@ function PageNav({ spec, page, total, compact = false }: { spec: HubSpec; page: 
             </Link>
           </li>
         ) : null}
-        {numbers.map((i) => (
-          <li key={i}>
+        {numbers.map((i, index) => (
+          <Fragment key={i}>
+          {index > 0 && i > numbers[index - 1]! + 1 ? <li aria-hidden="true" className="inline-flex min-h-11 items-center px-1 text-text-3">…</li> : null}
+          <li>
             {i === page ? (
               <span aria-current="page" className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-pill bg-surface-3 px-3 font-semibold text-text tabular">
                 {i}
               </span>
             ) : (
-              <Link href={hubPageUrl(spec, i)} className="link inline-flex min-h-11 min-w-11 items-center justify-center px-2 tabular">
+              <Link href={hubPageUrl(spec, i)} aria-label={`Page ${i}`} className="link inline-flex min-h-11 min-w-11 items-center justify-center px-2 tabular">
                 {i}
               </Link>
             )}
           </li>
+          </Fragment>
         ))}
         {page < count ? (
           <li>
@@ -87,7 +95,7 @@ function PageNav({ spec, page, total, compact = false }: { spec: HubSpec; page: 
             </Link>
           </li>
         ) : null}
-      </ul></details>
+      </ul>{spec.pageJump ? <form action={spec.url} method="get" aria-label={`${spec.h1}: ${compact ? "quick page jump" : "page jump after results"}`} className="mt-4 flex flex-wrap items-end gap-3"><div><label htmlFor={inputId} className="block text-sm font-semibold text-text">Go to page</label><input id={inputId} type="number" name="page" min={1} max={count} step={1} required defaultValue={page} className="mt-1 min-h-11 w-28 rounded-control border border-border bg-surface px-3 text-text" /></div><button type="submit" className="min-h-11 rounded-control bg-brand-navy px-4 font-semibold text-white">Go <span aria-hidden="true">→</span></button><p className="pb-3 text-sm text-text-2">1–{count.toLocaleString("en-US")}</p></form> : null}</details>
     </nav>
   );
 }

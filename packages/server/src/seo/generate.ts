@@ -1327,7 +1327,10 @@ function catalogDraft(ctx: Context, entry: CatalogEntry): Draft {
       credits: [],
       dataAsOf: ctx.today,
     },
-    sources: sourcesOf(facts),
+    sources: [...new Map([
+      ...sourcesOf(facts), ...(entry.sources ?? []),
+      ...entry.sections.flatMap(section => section.blocks.flatMap(block => block.type === "facts" ? block.items.map(item => item.source) : [])),
+    ].map(source => [`${source.url}|${source.accessedOn}`, source])).values()],
     mediaIds: pickMedia(ctx, url, { hero: entry.family === "service" ? [[`service:${entry.slug}`, "hero"], [`service:${entry.slug}`], ["services", "landscape"]] : entry.family === "question" ? [["questions", "landscape"], ["trust", "landscape"]] : [["planning", "landscape"], ["theme:checklist"]], card: [] }),
     evidenceCount:
       facts.length +
