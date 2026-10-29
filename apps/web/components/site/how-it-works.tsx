@@ -9,6 +9,7 @@ import { Container, Icon3D, LinkButton, SectionHeader, TiltCard, type Icon3DName
 import type { CSSProperties, ReactNode } from "react";
 import { MediaFrame } from "@/components/media/media-frame";
 import type { MediaAsset } from "@/lib/media";
+import "./how-it-works.css";
 
 export interface Stop {
   title: ReactNode;
@@ -69,17 +70,13 @@ export function HowItWorks({
                 vectorEffect="non-scaling-stroke"
               />
             </svg>
-            {/* Mobile route line. */}
-            <svg aria-hidden="true" className="absolute bottom-10 left-[1.65rem] top-8 w-3 lg:hidden" viewBox="0 0 12 1000" preserveAspectRatio="none" fill="none">
-              <path d="M6 0 V1000" stroke="var(--border-strong)" strokeWidth="2" strokeLinecap="round" strokeDasharray="6 8" vectorEffect="non-scaling-stroke" />
-            </svg>
-
-            <ol className="workflow-stops relative grid gap-6 lg:gap-5" style={{ "--step-count": n } as CSSProperties}>
+            <ol className="workflow-stops relative grid" style={{ "--step-count": n } as CSSProperties}>
               {stops.map((stop, index) => {
                 const last = index === n - 1;
                 return (
                   <li key={index} className="relative grid grid-cols-[3.25rem_minmax(0,1fr)] gap-x-4 lg:grid-cols-1 lg:gap-y-6">
-                    <span className="relative z-[1] flex justify-center lg:justify-start lg:pl-[calc(50%-1.375rem)]">
+                    <span className="workflow-step-marker relative z-[1] flex justify-center lg:justify-start lg:pl-[calc(50%-1.375rem)]">
+                      {!last ? <span aria-hidden="true" className="workflow-step-connector" /> : null}
                       <span
                         data-pin-dot=""
                         aria-hidden="true"

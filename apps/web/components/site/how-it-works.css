@@ -1,0 +1,24 @@
+.workflow-stops {
+  --workflow-gap:1.5rem;
+  --workflow-dot-size:2.75rem;
+  gap:var(--workflow-gap);
+}
+
+/* Each segment joins adjacent marker centers, independently of the cards' heights.
+   The final marker has no outgoing segment. */
+.workflow-step-connector {
+  position:absolute;
+  z-index:0;
+  left:50%;
+  top:calc(var(--workflow-dot-size) / 2);
+  height:calc(100% + var(--workflow-gap));
+  border-left:2px dashed var(--border-strong);
+  transform:translateX(-1px);
+  pointer-events:none;
+}
+.workflow-step-marker > [data-pin-dot] { position:relative; z-index:1; }
+
+@media (min-width:64rem) {
+  .workflow-stops { --workflow-gap:1.25rem; }
+  .workflow-step-connector { display:none; }
+}
