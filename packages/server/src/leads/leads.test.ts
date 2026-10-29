@@ -3,6 +3,7 @@
  * server test database (see packages/server/test/database.ts), recreated for this file.
  */
 import { renderConsentText, consentTextSha256, type Channel } from "@amc/core/src/survey";
+import type { Service } from "@amc/core";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { sha256Hex } from "../auth/tokens";
 import { listLeads } from "../admin/leads";
@@ -88,7 +89,7 @@ interface DraftOptions {
   ticketAgeMs?: number;
   originZip?: string;
   destZip?: string;
-  services?: string[];
+  services?: Service[];
 }
 
 /** Runs the coverage check and builds a submission the way the survey island does. */
