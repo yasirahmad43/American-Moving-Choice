@@ -24,11 +24,11 @@ depends_on:
   - "Data owner: the v1 method on /moving-cost-calculator/method/, including the area used for thresholds, the seasonal rule, which sizes rate cards price (office moves and moves of a few items get no range), what packing covers, the storage period and the specialty-item list (site architecture §6.3; build plan §7.3)"
   - "Data owner and owner: at least one area passes the thresholds before this page publishes (site architecture §6.3 rules 4 and 5, §3.3 rule 4)"
   - "Owner: apply site architecture §4.3's 12-month cost-data limit to the calculator, rate card by rate card; default shown: yes (method page, 'How is the method updated?')"
-  - "Owner: call-to-action wording; default shown: 'See which movers cover this move' (implications §8.6; names or a count before contact, implications §11 Q1)"
+  - "Owner decision 2026-10-29: Request moving quotes remains available after a valid calculation, including when no price range can be shown."
   - "Owner: which locations the calculator and the quote survey can't serve; default shown: PO-box-only ZIP codes, APO and FPO addresses and US territories (JTBD §4 J1; backlog 4.1.2)"
   - "Owner: no city lookup for unknown ZIP codes on the calculator, although VD §9.2 has one; default shown: none, since the method page takes two ZIP codes"
   - "Owner: the same ZIP code at both ends is accepted as a local move (lead lifecycle §4)"
-  - "Owner and build: the calculator runs the coverage check before the quote survey (implications §2.1 step 5, §2.2; lead lifecycle §2 step 5; backlog 4.1.6)"
+  - "Build: request handoffs keep entered move details in browser session state, never the URL."
   - "Design and build: error.zip.non_us fires only on a non-US postal-code pattern, tested before VD §9.2's cleanup (lead lifecycle §2; VD §9.2, §14)"
   - "Build and counsel: the site architecture §8.8 tag policy covers this page and its results view"
   - "Owner: name the author, the reviewer and the data owner (brief §11 Q9; implications §11 Q17)"
@@ -38,7 +38,7 @@ last_updated: null
 
 # Moving cost calculator
 
-The moving cost calculator from American Moving Choice shows a planning range for a move like yours wherever enough movers in our network give us rate cards: what they tell us they charge. Enter two ZIP codes and your home size; no contact details needed. A range isn't a quote or an estimate: only a mover can price your move.
+The moving cost calculator from American Moving Choice shows a planning range for a move like yours wherever enough participating movers give us rate cards: what they tell us they charge. Enter two ZIP codes and your home size; no contact details needed. A range isn't a quote or an estimate: only a mover can price your move.
 
 [Counsel: compliance facts §2 asks whether ranges or calculators count as "providing an estimate", and the ST-1 notes ask whether "planning range" is the right label. Counsel words or approves this answer, the results view, ST-6 and ST-7.]
 
@@ -55,7 +55,7 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page
 **Order on the page.**
 
 1. The form: the two ZIP code fields, the route summary, move size, services, the "Still needed" hint, the button and the privacy line.
-2. The result area, empty until the reader calculates: one result (the results view, or the not-enough-data, no-range-for-this-size, stale-data or error state), then one next step (the call to action with ST-1b, or the no-coverage state).
+2. The result area, empty until the reader calculates: one result (the results view, or the not-enough-data, no-range-for-this-size, stale-data or error state), then a request call to action with ST-1b for valid move answers.
 
 **Heading levels.** In the result area, `results.heading` and every `state.*.heading` render as H2, and `results.assume.heading`, `results.includes.heading` and `results.excludes.heading` as H3. The result area sits between the H1 and the H2s below the tool, so the outline stays in order (VD §14).
 
@@ -199,17 +199,17 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page
 |---|---|---|
 | results.changed | You changed an answer. Calculate the range again to update it. | [Build: when an answer changes after a result, the result dims and the call to action hides until the reader calculates again, so carried answers always match the range shown] |
 
-**Call to action** (after any result, the error state included, when at least one mover covers the move or the coverage check fails to load)
+**Call to action** (after any result with valid move answers, including an unavailable range or a calculation error)
 
 | ID | Text | Notes |
 |---|---|---|
-| cta.button | See which movers cover this move | CTA red (VD §5.3). [Owner: final wording — default shown (implications §8.6, §11 Q1). If the owner picks a count only before contact, it becomes "See how many movers cover this move", and state.next.intro changes to match] |
+| cta.button | Request moving quotes | CTA red (VD §5.3). Opens the request form with the entered move answers. |
 | cta.help | Opens our quote survey with your ZIP codes, move size and services filled in for you to check. Nothing reaches a mover unless you send a request. | [Build: opens /get-quotes/ at the "Where" step, with the two ZIP codes, move size and services carried in session state, never the URL, and marked for the reader to confirm (implications §2.1, §2.2; site architecture §8.8). The month isn't carried, because the "When" step starts empty (implications §2.1 step 3)] |
 
 <!-- ST-1b -->
-> Free to use. Movers in our network pay us for the requests they buy, and payment never changes their screening, ratings or order. [How AMC makes money]
+> {{text.ST-1b}}
 
-[Build: ST-1b sits directly under the call to action, and its link opens /advertising-disclosure/ (implications §3.4, §8.4)]
+[Build: render the current ST-1b text directly under the call to action.]
 
 **Other states**
 
@@ -220,25 +220,21 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page
 | state.no_data.services | There's enough data for this move without services, but too few movers price every service you picked. Remove some or all of them to see a range. | Only when the picked services are the cause: without them, enough movers' rate cards cover the move. So the state names its cause (method page, "When does the calculator show no range?") |
 | state.size_unpriced.heading | No range for this kind of move | H2. Replaces the results view when the move size is office or a few items |
 | state.size_unpriced.body | Movers' rate cards cover homes from a studio to 4+ bedrooms. They don't cover office moves or moves of a few items, so there's no range for this move. | [Data: the proposed rate-card format prices the five home sizes only (build plan §7.3); the data owner confirms it with the format (method page, "How is the range built?"). If the format adds office or partial moves, delete this state; those sizes then get state.no_data while too few rate cards price them] |
-| state.next.intro | You can still see which movers cover this move and request quotes from them. | Renders only with cta.button, directly above it, after the not-enough-data, no-range-for-this-size, stale-data or error state. Never with the no-coverage state. Changes with cta.button's [Owner] decision |
+| state.next.intro | Continue with your move details and choose your contact preferences. | Renders with cta.button after the not-enough-data, no-range-for-this-size, stale-data or error state. |
 | state.stale.heading | No range for this area right now | H2. Replaces the results view |
 | state.stale.body | Rate cards stop counting once they're more than {{cost.method.max_data_age_months}} months old, and too few recent ones cover this move. There's no range until enough movers send newer ones. | [Build: apply the method page's maximum data age to each rate card, and show this state, not state.no_data, when the move would have a range with the older rate cards] [Owner: apply site architecture §4.3's 12-month cost-data limit to the calculator, rate card by rate card — default shown (new question; the method page carries the same marker)] |
-| state.no_coverage.heading | No movers in our network cover this move yet | H2. Replaces the call to action, state.next.intro and ST-1b |
-| state.no_coverage.with_range | The range above uses rate cards from movers across the area. None of them covers this exact move yet. | Only when a range shows but no mover covers the move, between the heading and state.no_coverage.body |
-| state.no_coverage.body | That means you can't send a request for this move through us. If you find a mover on your own, here's [how to check a mover yourself](/verify-a-mover/). | |
-| state.no_coverage.services | If you added services, you can check again without them, but movers found that way may not offer those services, so ask each one before you hire. | Only when services are picked |
 | state.error.heading | We couldn't load a range | H2. Inline, in the result area |
 | state.error.body | Something went wrong. Nothing was shared with any mover, and your answers are still filled in. | |
 | state.error.retry | Try again | Secondary button |
 | state.noscript | The calculator needs JavaScript. You can turn it on in your browser, or read [Moving costs](/moving-costs/) to see what affects the price of a move. | [Build: show only if the calculator can't run without JavaScript. The quote survey's steps are client state, so this line doesn't send readers there (site architecture §1.2, Quote survey row; §8.1)] |
 
-[Build: the calculator runs the same coverage check as the quote survey's "What we found" step, as a count only (lead lifecycle §2 step 5; implications §2.2). Every result, the error state included, pairs with one next step from that check: the call to action when at least one mover covers the move or the check fails to load (the quote survey checks again), and the no-coverage state when none does. A range with no coverage shows the results view, then the no-coverage state with state.no_coverage.with_range] [Owner: the calculator runs the coverage check before the quote survey — default shown (new question; backlog 4.1.6 is marked "confirm with the business-rules owner")]
+[Build: every completed result with valid move answers offers the request call to action. Pricing-data thresholds control the range only; they never control whether the request button is shown. The request form validates the move details and records contact preferences before saving the request.]
 
 <!-- calculator-widget:end -->
 
 ## How is the range worked out?
 
-Each range comes from rate cards: what movers in our network tell us they charge. Where at least {{cost.method.min_movers}} movers' rate cards cover the move, we apply each mover's own rates to a typical move like yours and show the middle of the results.
+Each range comes from rate cards: what participating movers tell us they charge. Where at least {{cost.method.min_movers}} movers' rate cards cover the move, we apply each mover's own rates to a typical move like yours and show the middle of the results.
 
 [How the calculator works](/moving-cost-calculator/method/) has the formulas, data sources, thresholds, current version and changelog.
 

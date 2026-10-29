@@ -28,6 +28,9 @@ import {
   cleanZip,
   consentTextSha256,
   countOptions,
+  requestCountOptions,
+  isRequestCount,
+  isRequestIntakeConsent,
   isSurveyMoveSize,
   parseDetails,
   parseNeed,
@@ -300,8 +303,11 @@ function SurveyFlow({
   const movers: Mover[] = coverage?.movers ?? [];
   const named = movers.filter((m) => !removed.includes(m.companyId));
   const maxLimit = found?.maxLimit ?? 5;
+  const requestIntake = isRequestIntakeConsent(found?.consent.body ?? "");
+  const validLimit = (value: number | null) => value !== null && (requestIntake ? isRequestCount(value, maxLimit) : value >= 1 && value <= Math.min(named.length, maxLimit));
+  const contactOptions = requestIntake ? requestCountOptions(maxLimit) : countOptions(named.length, maxLimit);
   const consentText =
-    found && limit !== null && named.length > 0 && limit <= named.length && contact.channels.length > 0
+    found && limit !== null && validLimit(limit) && contact.channels.length > 0
       ? renderConsentText(found.consent.body, { movers: named, limit, channels: contact.channels })
       : null;
 
@@ -357,7 +363,7 @@ function SurveyFlow({
         }
         onDone(result);
       } catch {
-        setAlert({ tone: "error", title: "We couldn't check coverage", body: "Check your connection and try again." });
+        setAlert({ tone: "error", title: "We couldn't continue", body: "Check your connection and try again." });
         focusField.current = FIELD_IDS.form!;
       }
     });
@@ -394,7 +400,7 @@ function SurveyFlow({
 
   const submitCount = (event: FormEvent) => {
     event.preventDefault();
-    if (limit === null || limit > named.length) return showErrors({ limit: "Choose how many moving companies you'd like to hear from." });
+    if (!validLimit(limit)) return showErrors({ limit: "Choose how many moving companies you'd like to hear from." });
     goTo("review");
   };
 
@@ -430,15 +436,15 @@ function SurveyFlow({
         const keptRemoved = removed.filter((id) => freshIds.includes(id));
         setRemoved(keptRemoved);
         const remaining = freshIds.length - keptRemoved.length;
-        if (limit !== null && limit > remaining) {
+        if (limit !== null && (isRequestIntakeConsent(result.consent.body) ? !isRequestCount(limit, maxLimit) : limit > remaining)) {
           setLimit(null);
           setRecount(true);
         }
         setConsentChecked(false);
         setAlert({
           tone: "warning",
-          title: "The movers available for your move changed",
-          body: "Review the updated availability and contact preferences, then tick the box again if you want to send your request.",
+          title: "Review your contact preferences",
+          body: "Review your request details and contact preferences, then tick the box again to send your request.",
         });
         focusField.current = FIELD_IDS.form!;
         return;
@@ -451,7 +457,7 @@ function SurveyFlow({
         runCoverage((state) => {
           setFound(state);
           setConsentChecked(false);
-          setAlert({ tone: "warning", title: "We checked coverage again", body: "Your session was open for a long time, so we checked which movers serve your move again. Review your preferences and tick the box again." });
+          setAlert({ tone: "warning", title: "Review your request details", body: "Your session has been open for a while. Review your contact preferences and tick the box again to send your request." });
           focusField.current = FIELD_IDS.form!;
         });
         return;
@@ -473,11 +479,11 @@ function SurveyFlow({
     event.preventDefault();
     if (!found || !coverage) return;
     const next: FieldErrors = {};
-    if (named.length === 0) next.movers = "Check coverage again before sending your request.";
-    if (limit === null || limit > named.length) next.limit = "Choose how many moving companies you'd like to hear from.";
-    if (!consentChecked) next.consent = "To send your request, tick the box to agree to be contacted by participating moving companies matched to your move.";
+    if (!requestIntake && named.length === 0) next.movers = "Refresh your request details before sending.";
+    if (!validLimit(limit)) next.limit = "Choose how many moving companies you'd like to hear from.";
+    if (!consentChecked) next.consent = "To send your request, tick the box to confirm your contact permissions.";
     if (!termsAccepted) next.terms = "To send your request, accept the Terms of Use and acknowledge the Privacy Policy.";
-    setDeclined(!consentChecked && named.length > 0);
+    setDeclined(!consentChecked);
     if (errorCount(next) || !consentText || limit === null) return showErrors(next);
     setErrors({});
     setAlert(null);
@@ -728,7 +734,7 @@ function SurveyFlow({
             <fieldset id="services" className="m-0 grid gap-1 border-0 p-0" aria-describedby={errors.services ? errorId("services") : "services-help"}>
               <legend className="mb-1 p-0 text-[0.9375rem] font-semibold text-text">Services you need (optional)</legend>
               <p id="services-help" className="type-small text-text-3">
-                Choose any that apply. Only movers that offer every service you choose are matched.
+                Choose any that apply so your request includes the help you need.
               </p>
               {SURVEY_SERVICES.filter((s) => s !== "labor_only" || draft.need === "loading_help").map((service) => (
                 <Checkbox
@@ -743,7 +749,7 @@ function SurveyFlow({
               ))}
               {errors.services ? <FieldError id={errorId("services")}>{errors.services}</FieldError> : null}
             </fieldset>
-            {nav("Check which movers serve my move")}
+            {nav("Continue")}
           </form>
         );
         break;
@@ -760,14 +766,14 @@ function SurveyFlow({
               </h3>
               {/* Consent draft §3 without its "We don't sell your details" sentence, which waits on counsel (implications §3.7). */}
               <p className="text-text">
-                To prepare a quote, movers need to reach you to confirm details like access, stairs and inventory. You'll choose how many movers may
+                Your contact details let us follow up about your move. You'll choose how many moving companies may
                 receive your details and which methods they may use. Each company introduces itself when it contacts you.
               </p>
             </section>
             <fieldset id="channels" className="m-0 grid gap-1 border-0 p-0" aria-describedby={["channels-help", errors.channels ? errorId("channels") : null].filter(Boolean).join(" ")}>
-              <legend className="mb-1 p-0 text-[0.9375rem] font-semibold text-text">How may movers contact you?</legend>
+              <legend className="mb-1 p-0 text-[0.9375rem] font-semibold text-text">How may we contact you about your move?</legend>
               <p id="channels-help" className="type-small text-text-3">
-                Choose at least one. Movers see your choice, and our terms require them to keep to it.
+                Choose at least one. Your preferences apply to contact about this request.
               </p>
               {CHANNELS.map((channel) => (
                 <Checkbox
@@ -795,7 +801,7 @@ function SurveyFlow({
             <Field floating id="email" label="Email" error={errors.email} required>
               <Input type="email" name="email" autoComplete="email" inputMode="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} />
             </Field>
-            <Field id="phone" label="Phone number" help="A US number. Only eligible movers within your chosen limit can receive it. You choose how they may contact you." error={errors.phone} required>
+            <Field id="phone" label="Phone number" help="A US number. Your contact preferences and company limit apply to your request." error={errors.phone} required>
               <Input type="tel" name="phone" autoComplete="tel-national" inputMode="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} className="max-w-[16rem] tabular" />
             </Field>
             {nav()}
@@ -803,7 +809,7 @@ function SurveyFlow({
         );
         break;
       case "count": {
-        const options = countOptions(named.length, maxLimit);
+        const options = contactOptions;
         body = (
           <form noValidate onSubmit={submitCount} className="grid gap-5">
             {heading("How many movers")}
@@ -812,8 +818,7 @@ function SurveyFlow({
               value={limit === null ? null : String(limit)}
               onChange={chooseCount}
               error={errors.limit}
-              helper={texts.st4a}
-              available={named.length}
+              helper="Choose the maximum number of moving companies you would like to hear from. Nothing is selected for you."
             />
             {nav()}
           </form>
@@ -829,25 +834,22 @@ function SurveyFlow({
 
             <section aria-labelledby="contact-plan-heading" className="grid gap-3 rounded-card border border-border bg-surface p-5">
               <h3 id="contact-plan-heading" className="type-h3 text-text">Your contact preferences</h3>
-              <p className="text-text-2">Participating moving companies that serve your move may contact you using only the methods you choose. Each company will introduce itself when it gets in touch.</p>
+              <p className="text-text-2">You choose how we may contact you about your request and the maximum number of participating moving companies you would like to hear from. Each company will introduce itself when it gets in touch.</p>
               {errors.movers ? <FieldError id={errorId("movers")}>{errors.movers}</FieldError> : null}
             </section>
 
             {recount || limit === null ? (
               <div className="grid gap-3 rounded-card border-[1.5px] border-warning p-5">
                 <p className="font-semibold text-text">
-                  {named.length > 0
-                    ? `${named.length} ${named.length === 1 ? "mover is" : "movers are"} available, so choose again.`
-                    : "Check coverage again, then choose how many movers you'd like to hear from."}
+                  Choose the maximum number of companies you would like to hear from.
                 </p>
-                {named.length > 0 ? (
+                {contactOptions.length > 0 ? (
                   <CountQuestion
-                    options={countOptions(named.length, maxLimit)}
+                    options={contactOptions}
                     value={limit === null ? null : String(limit)}
                     onChange={chooseCount}
                     error={errors.limit}
-                    helper={texts.st4a}
-                    available={named.length}
+                    helper="Choose the maximum number of moving companies you would like to hear from. Nothing is selected for you."
                   />
                 ) : null}
               </div>
@@ -1017,57 +1019,12 @@ function FoundStep({
   onContinue: () => void;
   nav: (label?: string, options?: { cta?: boolean; hideContinue?: boolean }) => ReactNode;
 }) {
-  const movers = coverage?.movers ?? [];
-  if (!coverage || movers.length === 0) {
-    // No coverage: the flow ends here, with honest next steps and no contact fields (lead lifecycle §2 step 5).
-    return (
-      <form noValidate onSubmit={(e) => e.preventDefault()} className="grid gap-5">
-        {heading("No mover in our network serves this move yet")}
-        <p className="text-text">
-          {coverage
-            ? `We checked every mover in our network for a move from ${coverage.move.origin.city}, ${coverage.move.origin.state} to ${coverage.move.destination.city}, ${coverage.move.destination.state} with the size and services you chose. None serves it today.`
-            : "We couldn't find a mover in our network for this move."}{" "}
-          We haven't asked for or shared any contact details, and no request was sent.
-        </p>
-        <section aria-labelledby="next-steps" className="grid gap-2">
-          <h3 id="next-steps" className="type-h4 text-text">
-            What you can do
-          </h3>
-          <ul className="grid list-disc gap-1.5 pl-6 text-text">
-            <li>Go back and change your answers. Removing a service can bring in movers that don't offer it.</li>
-            <li>
-              Before you hire any mover, check its federal registration and complaint history on the{" "}
-              <a href="https://safer.fmcsa.dot.gov/CompanySnapshot.aspx" className="link" target="_blank" rel="noopener noreferrer">
-                FMCSA company snapshot<span className="sr-only"> (opens in a new tab)</span>
-              </a>
-              . Our guide to{" "}
-              <Link href="/movers-vs-brokers/" className="link">
-                movers and brokers
-              </Link>{" "}
-              explains what to look for.
-            </li>
-            <li>
-              See{" "}
-              <Link href="/how-we-verify-movers/" className="link">
-                how we verify movers
-              </Link>{" "}
-              before they can join our network.
-            </li>
-          </ul>
-        </section>
-        {nav("Continue", { hideContinue: true })}
-      </form>
-    );
-  }
   return (
     <form noValidate onSubmit={(e) => { e.preventDefault(); onContinue(); }} className="grid gap-5">
-      {heading(
-        movers.length === 1 ? "1 mover in our network serves your move" : `${movers.length} movers in our network serve your move`,
-        `From ${coverage.move.origin.city}, ${coverage.move.origin.state} to ${coverage.move.destination.city}, ${coverage.move.destination.state}, with the size and services you chose. Availability does not reserve a moving date.`,
-      )}
-      <div className="rounded-card border border-border bg-surface-2 p-5">
-        <p className="font-semibold text-text">Your next step: choose how to hear from movers.</p>
-        <p className="mt-2 text-text-2">You choose how many participating companies may contact you and which contact methods they can use. Each company identifies itself when it gets in touch.</p>
+      {heading("Your move details", coverage ? `From ${coverage.move.origin.city}, ${coverage.move.origin.state} to ${coverage.move.destination.city}, ${coverage.move.destination.state}.` : undefined)}
+      <div className="rounded-card border border-border bg-surface-2" data-content-inset="card">
+        <p className="font-semibold text-text">Next: add your contact details.</p>
+        <p className="mt-2 text-text-2">Your move details are saved. Choose your contact preferences, then review everything before sending your request.</p>
       </div>
       {nav()}
     </form>
@@ -1080,14 +1037,12 @@ function CountQuestion({
   onChange,
   error,
   helper,
-  available,
 }: {
   options: ReturnType<typeof countOptions>;
   value: string | null;
   onChange: (value: string) => void;
   error?: string;
   helper: string;
-  available: number;
 }) {
   return (
     <div className="grid gap-3">
@@ -1110,9 +1065,6 @@ function CountQuestion({
 
         ]}
       />
-      <p className="type-small text-text-2 tabular">
-        {available === 1 ? "1 mover in our network serves your move." : `${available} movers in our network serve your move.`}
-      </p>
     </div>
   );
 }

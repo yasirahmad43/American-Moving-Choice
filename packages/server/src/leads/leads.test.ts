@@ -5,6 +5,7 @@
 import { renderConsentText, consentTextSha256, type Channel } from "@amc/core/src/survey";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { sha256Hex } from "../auth/tokens";
+import { listLeads } from "../admin/leads";
 import { closePool, getPool } from "../db/pool";
 import { hmacSecret } from "../env/env";
 import { resetDatabase } from "../../test/helpers";
@@ -85,11 +86,14 @@ interface DraftOptions {
   shown?: string[];
   website?: string;
   ticketAgeMs?: number;
+  originZip?: string;
+  destZip?: string;
+  services?: string[];
 }
 
 /** Runs the coverage check and builds a submission the way the survey island does. */
 async function draft(options: DraftOptions = {}) {
-  const coverage = await checkCoverage({ originZip: "75201", destZip: "77002", moveSize: "2br", services: [] });
+  const coverage = await checkCoverage({ originZip: options.originZip ?? "75201", destZip: options.destZip ?? "77002", moveSize: "2br", services: options.services ?? [] });
   if (!coverage.ok) throw new Error("coverage failed");
   const shown = options.shown ?? coverage.movers.map((m) => m.companyId);
   const removed = options.removed ?? [];
@@ -98,18 +102,18 @@ async function draft(options: DraftOptions = {}) {
   const limit = options.limit ?? 2;
   const channels = options.channels ?? ["call", "sms", "email"];
   const consent = await activeConsent();
-  const text = renderConsentText(consent.body, { movers: ordered, limit: Math.min(limit, Math.max(1, ordered.length)), channels });
+  const text = renderConsentText(consent.body, { movers: ordered, limit, channels });
   return {
     coverage,
     input: {
       need: "household" as const,
-      originZip: "75201",
-      destZip: "77002",
+      originZip: options.originZip ?? "75201",
+      destZip: options.destZip ?? "77002",
       moveDate: futureDate(30),
       flexible: false,
       latestDate: null,
       moveSize: "2br",
-      services: [],
+      services: options.services ?? [],
       channels,
       firstName: options.firstName ?? "Jordan",
       lastName: options.lastName ?? "Rivera",
@@ -201,7 +205,7 @@ describe("checkCoverage", () => {
       { originZip: "75201", destZip: "77002-1234", moveSize: "2br", services: [], need: "household", profileCompanyId: null },
       { ip: "203.0.113.50" },
     );
-    expect(result).toMatchObject({ ok: true, maxLimit: 5, consent: { versionId: "contact-introduction-v1-draft" } });
+    expect(result).toMatchObject({ ok: true, maxLimit: 5, consent: { versionId: "contact-request-intake-v1" } });
     expect(await surveyCoverage({ originZip: "1", destZip: "77002", moveSize: "huge", services: [], need: null, profileCompanyId: null }, { ip: null })).toMatchObject({
       ok: false,
       kind: "invalid",
@@ -243,8 +247,8 @@ describe("submitRequest", () => {
 
     const consent = (await pool().query("select * from consent_records where lead_id = $1", [lead.id])).rows[0];
     expect(consent).toMatchObject({
-      consent_text_version_id: "contact-introduction-v1-draft",
-      named_company_ids: named,
+      consent_text_version_id: "contact-request-intake-v1",
+      named_company_ids: expect.arrayContaining(named),
       removed_company_ids: [charlie],
       selected_limit: 2,
       channel_scope: ["call", "sms", "email"],
@@ -256,8 +260,9 @@ describe("submitRequest", () => {
       form_version: "survey-v2-contact-introduction",
       tag_manifest_version: "tags-v1-none",
     });
+    expect(consent.named_company_ids).toHaveLength(named.length);
     expect(consent.rendered_text).toContain("up to 2 participating moving companies");
-    expect(consent.recipient_disclosure_mode).toBe("contact_introduction");
+    expect(consent.recipient_disclosure_mode).toBe("request_intake");
     expect(consent.rendered_text).not.toMatch(/Demo|USDOT/);
     expect(consent.rendered_text).not.toContain("Demo Charlie Movers");
     expect(consent.rendered_text).not.toMatch(/Terms of Use|Privacy Policy/);
@@ -290,8 +295,8 @@ describe("submitRequest", () => {
     expect(await getConfirmationByToken(result.manageToken)).toMatchObject({ referenceCode: result.confirmation.referenceCode, limit: 2, movers: result.confirmation.movers });
   });
 
-  it("refuses a number above the movers named and a submission without both boxes ticked", async () => {
-    const { input } = await draft({ limit: 3, removed: [charlie], email: "count@example.com", phone: "2145550101" });
+  it("refuses a number above the configured ceiling and a submission without both boxes ticked", async () => {
+    const { input } = await draft({ limit: 6, removed: [charlie], email: "count@example.com", phone: "2145550101" });
     expect(await submitRequest(input, meta())).toMatchObject({ ok: false, kind: "invalid", errors: { limit: expect.any(String) } });
     const unticked = await draft({ email: "unticked@example.com", phone: "2145550102" });
     expect(await submitRequest({ ...unticked.input, consentChecked: false, termsAccepted: false }, meta())).toMatchObject({
@@ -306,9 +311,94 @@ describe("submitRequest", () => {
   it("asks again when the consent text the consumer saw no longer matches", async () => {
     const { input } = await draft({ email: "changed@example.com", phone: "2145550103" });
     const tampered = await submitRequest({ ...input, renderedTextSha256: "0".repeat(64) }, meta());
-    expect(tampered).toMatchObject({ ok: false, kind: "movers_changed", consent: { versionId: "contact-introduction-v1-draft" } });
+    expect(tampered).toMatchObject({ ok: false, kind: "movers_changed", consent: { versionId: "contact-request-intake-v1" } });
     const ineligible = await submitRequest({ ...input, shownCompanyIds: [...input.shownCompanyIds, id(4)] }, meta());
-    expect(ineligible).toMatchObject({ ok: false, kind: "movers_changed" });
+    expect(ineligible.ok).toBe(true);
+    if (ineligible.ok) {
+      const saved = (await pool().query("select c.named_company_ids from consent_records c join leads l on l.id = c.lead_id where l.reference_code = $1", [ineligible.confirmation.referenceCode])).rows[0];
+      expect(saved.named_company_ids).not.toContain(id(4));
+    }
+  });
+
+  it("stores an unmatched valid request with full consent and no eligible recipients or mover notices", async () => {
+    const { input, text } = await draft({ originZip: "99501", destZip: "99503", shown: [], limit: 5, email: "unmatched@example.com", phone: "2145550161" });
+    const result = await submitRequest(input, meta("198.51.100.201"));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const lead = (await pool().query("select id, group_id, status from leads where reference_code = $1", [result.confirmation.referenceCode])).rows[0];
+    expect(lead.status).toBe("unmatched");
+    expect((await pool().query("select request_intake_pending from lead_groups where id = $1", [lead.group_id])).rows[0].request_intake_pending).toBe(true);
+    const consent = (await pool().query("select * from consent_records where lead_id = $1", [lead.id])).rows[0];
+    expect(consent).toMatchObject({ recipient_disclosure_mode: "request_intake", named_company_ids: [], removed_company_ids: [], selected_limit: 5, checkbox_state: true, terms_accepted: true, rendered_text: text, rendered_text_sha256: consentTextSha256(text) });
+    expect((await pool().query("select count(*)::int n from lead_eligibility where group_id = $1", [lead.group_id])).rows[0].n).toBe(0);
+    expect((await pool().query("select template from messages where related_id = $1 or related_id = $2 order by created_at", [lead.id, lead.group_id])).rows).toEqual([{ template: "request_received" }]);
+    expect(await getConfirmationByToken(result.manageToken)).toMatchObject({ referenceCode: result.confirmation.referenceCode, movers: [], limit: 5 });
+    const request = await getRequestByToken(result.manageToken, { ip: null });
+    expect(request.ok).toBe(true);
+    if (request.ok) expect(request.value).toMatchObject({ status: "received", canWithdraw: true, buyerCount: 0 });
+    const queue = await listLeads({ status: "unmatched" });
+    expect(queue.rows.some(row => row.id === lead.id)).toBe(true);
+    for (const key of ["email", "phone_e164", "first_name", "last_name"]) expect(queue.rows.find(row => row.id === lead.id)).not.toHaveProperty(key);
+    await expect(pool().query("select reserve_purchase($1, $2, 'unmatched-intake')", [alpha, lead.group_id])).rejects.toThrow(/not_eligible_for_lead|lead_unavailable/);
+    const guardLead = (await pool().query("insert into leads(group_id,selected_limit,first_name,last_name,email,phone_e164,origin_zip,dest_zip) values($1,1,'Legacy','Guard','legacy-guard@example.com','+12145550165','99501','99503') returning id", [lead.group_id])).rows[0].id;
+    await expect(pool().query(`insert into consent_records
+      select (jsonb_populate_record(null::consent_records, to_jsonb(c) || jsonb_build_object('id',gen_random_uuid(),'lead_id',$1::uuid,'recipient_disclosure_mode','contact_introduction'))).*
+      from consent_records c where lead_id=$2`, [guardLead,lead.id])).rejects.toThrow(/consent_records_recipient_snapshot_check/);
+    await pool().query("update lead_groups set expires_at=now()-interval '1 day',status='expired' where id=$1", [lead.group_id]);
+    const later = await getRequestByToken(result.manageToken, { ip: null });
+    if (later.ok) expect(later.value).toMatchObject({ status: "received", canWithdraw: true });
+    expect(await withdrawRequest(result.manageToken, { ip: null })).toMatchObject({ ok: true });
+    const withdrawn = await getRequestByToken(result.manageToken, { ip: null });
+    if (withdrawn.ok) expect(withdrawn.value).toMatchObject({ status: "withdrawn", canWithdraw: false });
+  });
+
+  it("accepts changed capacity at send time and uses only the fresh eligible snapshot", async () => {
+    const { input } = await draft({ limit: 5, email: "capacity@example.com", phone: "2145550162" });
+    const result = await submitRequest({ ...input, services: ["specialty_items"] }, meta("198.51.100.202"));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect((await pool().query("select status from leads where reference_code = $1", [result.confirmation.referenceCode])).rows[0].status).toBe("unmatched");
+  });
+
+  it("accepts a contact ceiling above currently available recipients without inventing recipients", async () => {
+    const { input } = await draft({ limit: 5, email: "ceiling@example.com", phone: "2145550163" });
+    const result = await submitRequest(input, meta("198.51.100.203"));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const row = (await pool().query("select c.selected_limit, c.named_company_ids from consent_records c join leads l on l.id=c.lead_id where l.reference_code=$1", [result.confirmation.referenceCode])).rows[0];
+    expect(row.selected_limit).toBe(5);
+    expect(row.named_company_ids.sort()).toEqual([alpha, bravo, charlie].sort());
+  });
+
+  it("blocks an older reservation when an unmatched duplicate replaces its recipient scope", async () => {
+    const first = await draft({ limit: 2, email: "pending-repeat@example.com", phone: "2145550164" });
+    const one = await submitRequest(first.input, meta("198.51.100.204"));
+    expect(one.ok).toBe(true);
+    if (!one.ok) return;
+    const group = (await pool().query("select group_id from leads where reference_code=$1", [one.confirmation.referenceCode])).rows[0].group_id;
+    const attempt = (await pool().query("select (reserve_purchase($1,$2,'before-unmatched')).id", [alpha, group])).rows[0].id;
+    const second = await draft({ limit: 1, services: ["specialty_items"], email: "pending-repeat@example.com", phone: "2145550164" });
+    const two = await submitRequest(second.input, meta("198.51.100.205"));
+    expect(two.ok).toBe(true);
+    if (!two.ok) return;
+    expect(two.confirmation.joinedReferenceCode).toBe(one.confirmation.referenceCode);
+    expect((await pool().query("select complete_purchase($1,'synthetic-paid-before-unmatched') is null as refused", [attempt])).rows[0].refused).toBe(true);
+    expect((await pool().query("select count(*)::int n from purchases where group_id=$1", [group])).rows[0].n).toBe(0);
+    expect((await pool().query("select count(*)::int n from disclosures where purchase_id in (select id from purchases where group_id=$1)", [group])).rows[0].n).toBe(0);
+    // Even a mistakenly added eligibility flag cannot make the pending group reservable.
+    await pool().query("update lead_eligibility set named_in_consent=true where group_id=$1 and company_id=$2", [group, bravo]);
+    await expect(pool().query("select reserve_purchase($1,$2,'after-unmatched')", [bravo, group])).rejects.toThrow(/lead_unavailable/);
+  });
+
+  it("retains legacy snapshot and empty-coverage protections when the legacy consent version is active", async () => {
+    await pool().query("update platform_settings set value='\"contact-introduction-v1-draft\"'::jsonb where key='active_consent_version'");
+    try {
+      const { input } = await draft({ limit: 2, email: "legacy@example.com", phone: "2145550166" });
+      expect(await submitRequest({ ...input, shownCompanyIds: [...input.shownCompanyIds, id(4)] }, meta("198.51.100.206"))).toMatchObject({ ok: false, kind: "movers_changed" });
+      expect(await submitRequest({ ...input, originZip: "99501", destZip: "99503", shownCompanyIds: [] }, meta("198.51.100.207"))).toMatchObject({ ok: false, kind: "no_coverage" });
+    } finally {
+      await pool().query("update platform_settings set value='\"contact-request-intake-v1\"'::jsonb where key='active_consent_version'");
+    }
   });
 
   it("rejects a filled honeypot, a too-fast submission and a forged ticket, storing nothing", async () => {

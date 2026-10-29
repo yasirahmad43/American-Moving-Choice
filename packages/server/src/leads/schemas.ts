@@ -44,7 +44,7 @@ export const submissionSchema = z.object({
   /** "Only this company" on a profile-started request (implications §11 Q3). */
   onlyProfileCompany: z.boolean(),
   /** Opaque recipient snapshot IDs from the coverage response; company identities are not displayed. */
-  shownCompanyIds: z.array(z.uuid()).min(1).max(200),
+  shownCompanyIds: z.array(z.uuid()).max(200),
   removedCompanyIds: z.array(z.uuid()).max(200),
   profileCompanyId: z.null(),
   consentChecked: z.boolean(),

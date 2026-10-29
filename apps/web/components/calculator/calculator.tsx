@@ -21,7 +21,6 @@ import {
 } from "@amc/core";
 import { Alert, Button, Checkbox, Field, Input, RadioCardGroup, cx } from "@amc/ui";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { calculateAction, checkRouteAction, type CalculatorView, type RouteCheckView } from "./actions";
 import { COPY, HOW_MOVERS_CHARGE, METHOD_LINK, MONEY_PAGE, errorCountText, errorText, type TokenCopy } from "./copy";
@@ -98,8 +97,8 @@ function ResultHeading({ children, headingRef }: { children: ReactNode; headingR
 }
 
 export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
-  const router = useRouter();
   const [ready, setReady] = useState(false);
+  const [openingRequest, setOpeningRequest] = useState(false);
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [size, setSize] = useState<string | null>(null);
@@ -115,6 +114,11 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
   const routeRequest = useRef(0);
   const [errorAttempt, setErrorAttempt] = useState(0);
   useEffect(() => { setReady(true); }, []);
+  useEffect(() => {
+    const returned = () => setOpeningRequest(false);
+    window.addEventListener("pageshow", returned);
+    return () => window.removeEventListener("pageshow", returned);
+  }, []);
 
   const answers = useMemo(() => ({ origin, destination, size, services: canonicalServices(services) }), [origin, destination, size, services]);
   const answersKey = JSON.stringify(answers);
@@ -200,13 +204,19 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
   })();
 
   function continueToSurvey() {
-    if (!prefill) return;
+    if (!prefill || openingRequest) return;
     try {
       sessionStorage.setItem(SURVEY_PREFILL_KEY, JSON.stringify(prefill));
     } catch {
       // Storage can be blocked; the survey then starts empty.
     }
-    router.push("/get-quotes/");
+    setOpeningRequest(true);
+    try {
+      // A fresh mount consumes this move's prefill instead of a previously cached survey.
+      window.location.assign("/get-quotes/");
+    } catch {
+      setOpeningRequest(false);
+    }
   }
 
   const zipHelp = (side: "origin" | "destination") => {
@@ -341,7 +351,7 @@ export function Calculator({ tokenCopy, st7, st6, st1b }: CalculatorProps) {
               <div className="grid gap-3 border-t border-border pt-6">
                 {view.kind !== "range" ? <p className="text-text">{COPY["state.next.intro"]}</p> : null}
                 <div>
-                  <Button variant="cta" onClick={continueToSurvey}>
+                  <Button variant="cta" onClick={continueToSurvey} loading={openingRequest} loadingLabel="Opening your request…">
                     {COPY["cta.button"]}
                   </Button>
                 </div>

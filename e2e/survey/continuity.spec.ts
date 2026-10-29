@@ -66,9 +66,9 @@ test("completed starter advances services, coverage, details, count and review w
   await page.setExtraHTTPHeaders({ "x-forwarded-for": "198.51.100.229" });
   await page.goto(base + "/");
   let full = await completeStarter(page, "#hero-survey .vsh-start");
-  await full.getByRole("button", { name: "Check which movers serve my move" }).click();
+  await full.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(full).toContainText("Step 4 of 7");
-  await expect(full.getByRole("heading", { name: "5 movers in our network serve your move" })).toBeVisible();
+  await expect(full.getByRole("heading", { name: "Your move details", exact: true })).toBeVisible();
   await full.getByRole("button", { name: "Continue", exact: true }).click();
   await expect(full).toContainText("Step 5 of 7");
   await expect(full.getByRole("heading", { name: "Your details", exact: true })).toBeVisible();

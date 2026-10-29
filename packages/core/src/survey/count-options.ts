@@ -43,6 +43,15 @@ export function isSelectableCount(value: unknown, eligibleCount: number, adminMa
   return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= maxSelectableCount(eligibleCount, adminMax);
 }
 
+/** Intake asks for a contact ceiling, independent of current coverage. */
+export function requestCountOptions(adminMax: number): CountOption[] {
+  return countOptions(Math.max(1, Math.floor(adminMax)), adminMax);
+}
+
+export function isRequestCount(value: unknown, adminMax: number): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= Math.max(1, Math.floor(adminMax));
+}
+
 /** Lead type follows the answer and is fixed at submission (shared pricing §1). */
 export function leadTypeFor(limit: number): "exclusive" | "shared" {
   return limit === 1 ? "exclusive" : "shared";

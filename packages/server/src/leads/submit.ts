@@ -12,6 +12,8 @@ import {
   TAG_MANIFEST_VERSION,
   consentTextSha256,
   CONTACT_INTRODUCTION_VERSION,
+  REQUEST_INTAKE_VERSION,
+  isRequestCount,
   generateReferenceCode,
   isSelectableCount,
   parseDetails,
@@ -161,10 +163,10 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   if (!coverage.ok) {
     return { ok: false, kind: "invalid", errors: coverage.reason === "unknown_origin" ? { originZip: "We don't recognize this ZIP code." } : { destZip: "We don't recognize this ZIP code." } };
   }
-  if (coverage.movers.length === 0) return { ok: false, kind: "no_coverage" };
-
   const consent = await activeConsent();
-  if (consent.versionId !== CONTACT_INTRODUCTION_VERSION) return { ok: false, kind: "invalid", errors: { form: "Quote requests are temporarily unavailable while we update contact preferences. Please try again later." } };
+  const intake = consent.versionId === REQUEST_INTAKE_VERSION && consent.body.includes("{REQUEST_INTAKE_SCOPE}");
+  if (!intake && coverage.movers.length === 0) return { ok: false, kind: "no_coverage" };
+  if (!intake && consent.versionId !== CONTACT_INTRODUCTION_VERSION) return { ok: false, kind: "invalid", errors: { form: "Quote requests are temporarily unavailable while we update contact preferences. Please try again later." } };
   const changed = (): SubmitResult => ({
     ok: false,
     kind: "movers_changed",
@@ -174,15 +176,17 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
 
   // ---------------------------------------------------------------- eligibility snapshot (identities remain server-side)
   const eligible = new Map(coverage.movers.map((m) => [m.companyId, m]));
-  const shown = [...new Set(input.shownCompanyIds)];
+  // Intake consent authorizes the chosen count/channels, not an old recipient list.
+  // Recompute that list from server eligibility so capacity changes never lose a valid request.
+  const shown = intake ? [...eligible.keys()] : [...new Set(input.shownCompanyIds)];
   const removed = new Set(input.removedCompanyIds.filter((id) => shown.includes(id)));
   // A mover the consumer kept on the list is no longer eligible: the text they saw is out of date.
-  if (shown.some((id) => !removed.has(id) && !eligible.has(id))) return changed();
+  if (!intake && shown.some((id) => !removed.has(id) && !eligible.has(id))) return changed();
   const shownEligible = shown.filter((id) => eligible.has(id)).map((id) => eligible.get(id)!);
   const named = shownEligible.filter((m) => !removed.has(m.companyId));
   const removedMovers = shownEligible.filter((m) => removed.has(m.companyId));
-  if (named.length === 0) return { ok: false, kind: "invalid", errors: { movers: "No participating company is available for this move. Check coverage again." } };
-  if (!isSelectableCount(input.limit, named.length, settings.max_sharing_limit)) {
+  if (!intake && named.length === 0) return { ok: false, kind: "invalid", errors: { movers: "No participating company is available for this move. Check coverage again." } };
+  if (!(intake ? isRequestCount(input.limit, settings.max_sharing_limit) : isSelectableCount(input.limit, named.length, settings.max_sharing_limit))) {
     return { ok: false, kind: "invalid", errors: { limit: "Choose how many moving companies you'd like to hear from." } };
   }
 
@@ -210,7 +214,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     originZip: where.value.originZip,
     destZip: where.value.destZip,
   });
-  const status = risk.score >= RISK_REVIEW_THRESHOLD ? "needs_review" : "qualified";
+  const riskRequiresReview = risk.score >= RISK_REVIEW_THRESHOLD;
+  const status = named.length === 0 ? "unmatched" : riskRequiresReview ? "needs_review" : "qualified";
+  const disclosureMode = intake ? "request_intake" : "contact_introduction";
   const source = sourceCategory(input.attribution, ownOrigins());
 
   const manageToken = newToken();
@@ -228,7 +234,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     limit: input.limit,
     only_profile_company: false,
     eligible_company_ids: shownEligible.map((m) => m.companyId),
-    recipient_disclosure_mode: "contact_introduction",
+    recipient_disclosure_mode: disclosureMode,
     removed: removedMovers.map((m) => m.companyId),
     consent_version: consent.versionId,
   });
@@ -274,6 +280,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           );
           groupId = group.rows[0]!.id;
         }
+        // The group lock also orders concurrent duplicate submissions. A pending intake
+        // must stop reservations and settlements even when an older sibling qualified.
+        await client.query("update lead_groups set request_intake_pending = $2 where id = $1", [groupId, named.length === 0]);
 
         const referenceCode = generateReferenceCode();
         const lead = await client.query<{ id: string }>(
@@ -306,14 +315,15 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           { check_type: "email_mx", result: "skipped", reason: "No MX lookup provider is configured." },
           { check_type: "disposable_email", result: "pass", reason: "Domain is not on the disposable-address list." },
           { check_type: "move_date", result: "pass", reason: "Within the next 12 months." },
+          { check_type: "coverage", result: named.length ? "pass" : "flag", reason: named.length ? `${named.length} eligible participating companies in the current server snapshot.` : "Request accepted for follow-up; no eligible recipient is currently available." },
           { check_type: "route", result: "pass", reason: `Known ZIP codes; ${coverage.move.moveType} move of ${coverage.move.distanceMiles} miles.` },
           dup
             ? { check_type: "duplicate_check", result: "flag", reason: `Same contact and route as ${dup.reference_code} within ${settings.duplicate_window_days} days; joined its group.` }
             : { check_type: "duplicate_check", result: "pass", reason: `No matching request in the last ${settings.duplicate_window_days} days.` },
           {
             check_type: "risk_score",
-            result: status === "needs_review" ? "flag" : "pass",
-            reason: `Risk score ${risk.score} of 100${status === "needs_review" ? `, at or above the review threshold of ${RISK_REVIEW_THRESHOLD}` : ""}${risk.reasons.length ? `: ${risk.reasons.join("; ")}` : ""}.`,
+            result: riskRequiresReview ? "flag" : "pass",
+            reason: `Risk score ${risk.score} of 100${riskRequiresReview ? `, at or above the review threshold of ${RISK_REVIEW_THRESHOLD}` : ""}${risk.reasons.length ? `: ${risk.reasons.join("; ")}` : ""}.`,
           },
         ];
         await client.query(
@@ -329,11 +339,11 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
                                         terms_accepted, privacy_version, privacy_acknowledged, ip, user_agent, page_url,
                                         form_version, form_state_sha256, ab_variant, phone_hash, email_hash, tag_manifest_version, recipient_disclosure_mode)
            values ($1, $2, $3, $4, $5::uuid[], $6::uuid[], $7, $8::text[], true, $9, true, $10, true, $11, $12, $13,
-                   $14, $15, $16, $17, $18, $19, 'contact_introduction')`,
+                   $14, $15, $16, $17, $18, $19, $20)`,
           [
             leadId, consent.versionId, renderedText, renderedSha, named.map((m) => m.companyId), removedMovers.map((m) => m.companyId),
             input.limit, channels, TERMS_VERSION, PRIVACY_VERSION, meta.ip, meta.userAgent, meta.pageUrl,
-            SURVEY_FORM_VERSION, sha256Hex(formState), AB_VARIANT_NONE, phoneHash, emailHash, TAG_MANIFEST_VERSION,
+            SURVEY_FORM_VERSION, sha256Hex(formState), AB_VARIANT_NONE, phoneHash, emailHash, TAG_MANIFEST_VERSION, disclosureMode,
           ],
         );
 

@@ -26,7 +26,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
   const canDecide = hasAdminRole(adminRole, ROLES.leads);
   const decisions = [
     lead.status === "needs_review" ? { value: "approve", label: "Approve: qualify the request" } : null,
-    ["needs_review", "submitted", "qualified"].includes(lead.status) && detail.purchases.length === 0 ? { value: "reject", label: "Reject the request" } : null,
+    ["needs_review", "submitted", "qualified", "unmatched"].includes(lead.status) && detail.purchases.length === 0 ? { value: "reject", label: "Reject the request" } : null,
     group && group.status !== "withdrawn" ? { value: "withdraw", label: "Withdraw: the consumer withdrew consent" } : null,
     group?.status === "available" ? { value: "expire", label: "Expire: close the sale window now" } : null,
   ].filter((d): d is { value: string; label: string } => d !== null);
@@ -45,6 +45,11 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         }
       />
       <Alert tone="info">This page shows the consumer&apos;s contact details. Your view was recorded in the audit log. Never copy them outside the admin portal.</Alert>
+      {lead.status === "unmatched" && group?.status !== "withdrawn" && !lead.withdrawn_at ? (
+        <Alert tone="info" title="Saved for follow-up">
+          This request was accepted even though no eligible movers were recorded at submission. The customer's contact preferences and recorded recipient permissions still apply. Saving the request does not add permission to share it with other companies.
+        </Alert>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Request" titleAs="h2">
           <Facts

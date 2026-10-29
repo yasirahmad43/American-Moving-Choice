@@ -54,7 +54,7 @@ export const COPY = {
   "state.size_unpriced.heading": "No range for this kind of move",
   "state.size_unpriced.body":
     "Movers' rate cards cover homes from a studio to 4+ bedrooms. They don't cover office moves or moves of a few items, so there's no range for this move.",
-  "state.next.intro": "Check coverage for this move and choose how many movers may contact you.",
+  "state.next.intro": "Continue with your move details and choose your contact preferences.",
   "state.stale.heading": "No range for this area right now",
   "state.error.heading": "We couldn't load a range",
   "state.error.body": "Something went wrong. Nothing was shared with any mover, and your answers are still filled in.",

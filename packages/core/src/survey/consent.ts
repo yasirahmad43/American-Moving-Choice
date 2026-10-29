@@ -29,6 +29,11 @@ import { CHANNELS, type Channel } from "./types";
 export const CONTACT_INTRODUCTION_VERSION = "contact-introduction-v1-draft";
 export const CONTACT_INTRODUCTION_BODY = "{RECIPIENT_SCOPE} I agree that up to {N} participating moving companies matched to my move may receive my contact details and contact me about my move {CHANNELS}. Each company will identify itself when it contacts me. {AUTOMATED}Consent isn't required to buy any goods or services.{RATES} I can opt out at any time by {STOP}contacting the mover or American Moving Choice.";
 
+/** Request intake is independent of current network availability; legacy evidence stays unchanged. */
+export const REQUEST_INTAKE_VERSION = "contact-request-intake-v1";
+export const REQUEST_INTAKE_BODY = "{REQUEST_INTAKE_SCOPE} I agree to be contacted about my move {CHANNELS} by American Moving Choice and up to {N} participating moving companies, and to share my move and contact details with those companies. Each moving company will identify itself when it contacts me. {AUTOMATED}Consent isn't required to buy any goods or services.{RATES} I can opt out at any time by {STOP}contacting the mover or American Moving Choice.";
+export const isRequestIntakeConsent = (body: string): boolean => body.includes("{REQUEST_INTAKE_SCOPE}");
+
 export interface ConsentMover {
   displayName: string;
   usdotNumber: string | null;
@@ -97,9 +102,10 @@ export class ConsentRenderError extends Error {
 
 export function renderConsentText(versionBody: string, input: ConsentRenderInput): string {
   const channels = orderedChannels(input.channels);
-  if (input.movers.length === 0) throw new ConsentRenderError("consent must name at least one mover");
+  const intake = isRequestIntakeConsent(versionBody);
+  if (!intake && input.movers.length === 0) throw new ConsentRenderError("consent must name at least one mover");
   if (!Number.isInteger(input.limit) || input.limit < 1) throw new ConsentRenderError("limit must be a positive whole number");
-  if (input.limit > input.movers.length) throw new ConsentRenderError("limit cannot exceed the movers named");
+  if (!intake && input.limit > input.movers.length) throw new ConsentRenderError("limit cannot exceed the movers named");
   if (channels.length === 0) throw new ConsentRenderError("at least one channel is required");
 
   const list = input.movers.map(moverLabel).join("; ");
@@ -112,12 +118,13 @@ export function renderConsentText(versionBody: string, input: ConsentRenderInput
     RATES: sms ? " Message and data rates may apply." : "",
     STOP: sms ? "replying STOP to a text or by " : "",
     RECIPIENT_SCOPE: "",
+    REQUEST_INTAKE_SCOPE: "",
   };
-  let body = versionBody.replace(/\{(N|MOVERS|CHANNELS|AUTOMATED|RATES|STOP|RECIPIENT_SCOPE)\}/g, (_, key: string) => values[key] ?? "");
+  let body = versionBody.replace(/\{(N|MOVERS|CHANNELS|AUTOMATED|RATES|STOP|RECIPIENT_SCOPE|REQUEST_INTAKE_SCOPE)\}/g, (_, key: string) => values[key] ?? "");
   if (!versionBody.includes("{CHANNELS}")) body = scopeFixedWording(body, channels);
   // Preserve legacy version rendering exactly, including its named-company heading. The new
   // explicit marker suppresses that heading; it is never inferred from a client preference.
-  if (versionBody.includes("{RECIPIENT_SCOPE}")) return body.trim().replace("up to 1 participating moving companies", "1 participating moving company");
+  if (intake || versionBody.includes("{RECIPIENT_SCOPE}")) return body.trim().replace("up to 1 participating moving companies", "1 participating moving company");
   if (versionBody.includes("{MOVERS}")) return body;
   const heading =
     input.limit === 1

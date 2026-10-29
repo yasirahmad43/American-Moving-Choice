@@ -86,7 +86,7 @@ Sits inside the list block on directory, location (geo) and comparison pages, so
 
 Sits under "How many moving companies would you like to hear from?" It extends consent draft §4 with implications §2.3 and §3.3.
 
-> This is the most movers who can receive your details. Choose 1 and only one mover can ever receive them from us. Choose 2 or more and up to that many can. It's a maximum, not a promise that you'll hear from that many. Numbers higher than the movers available for your move are shown but can't be chosen.
+> This is the most movers who can receive your details. Choose 1 and only one mover can ever receive them from us. Choose 2 or more and up to that many can. It's a maximum, not a promise that you'll hear from that many.
 
 ### ST-4b Short form
 

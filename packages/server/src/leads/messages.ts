@@ -43,7 +43,7 @@ export function requestReceivedEmail(input: {
   ];
   if (input.joinedReferenceCode) {
     lines.push(
-      `We already had a request from you for this route (${input.joinedReferenceCode}), so this one joins it. The lowest number of movers you chose applies, and movers that bought your first request count toward it.`,
+      `We already had a request from you for this route (${input.joinedReferenceCode}), so this one joins it. The lowest number of movers you chose applies, and companies that already received your first request count toward it.`,
       "",
     );
   }
@@ -52,7 +52,7 @@ export function requestReceivedEmail(input: {
       ? "Only 1 participating moving company can receive your request and contact details."
       : `Up to ${input.limit} participating moving companies can receive your request and contact details.`,
     "",
-    "You may hear from fewer companies than the number you selected. Each company will identify itself when it contacts you using the contact methods you chose.",
+    "We have saved your move details and contact preferences. Each company will identify itself when it contacts you using the contact methods you chose.",
     "",
     "Movers will ask about your inventory and access. A reputable mover will offer an in-home or virtual survey before giving a written estimate.",
     "",
@@ -103,10 +103,10 @@ export function requestWithdrawnConsumerEmail(input: { referenceCode: string; ro
   return {
     subject: `You withdrew your moving request ${input.referenceCode}`,
     bodyText: [
-      `You withdrew your moving request ${input.referenceCode} (${routeLine(input.route)}). No other mover can buy it.`,
+      `You withdrew your moving request ${input.referenceCode} (${routeLine(input.route)}). No additional moving company can receive your contact details through it.`,
       input.buyers > 0
-        ? `We told the ${input.buyers === 1 ? "mover that bought it" : `${input.buyers} movers that bought it`} to stop contacting you. Withdrawing can't take back details a mover already received.`
-        : "No mover had bought it, so no mover received your contact details from us.",
+        ? `We told the ${input.buyers === 1 ? "company that received it" : `${input.buyers} companies that received it`} to stop contacting you. Withdrawing can't take back details a mover already received.`
+        : "No moving company received your contact details from us through this request.",
       `Contact from a company after this? Report it: ${input.webUrl}/report-a-concern/`,
     ].join("\n"),
   };

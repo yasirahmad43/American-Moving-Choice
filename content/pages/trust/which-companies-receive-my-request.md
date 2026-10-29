@@ -3,7 +3,7 @@ id: trust-which-companies-receive-my-request
 url: /which-companies-receive-my-request/
 family: Trust page
 title: "Which Companies Receive My Request? | American Moving Choice"
-meta_description: "You choose how many eligible movers may contact you and which channels they use. Company names are introduced during contact, not shown in the survey."
+meta_description: "You choose how many moving companies may contact you and which channels they use. Company names are introduced during contact, not shown in the survey."
 h1: "Which companies receive my request?"
 breadcrumb: "Home › Which companies receive my request"
 indexation: index once approved
@@ -24,7 +24,7 @@ last_updated: 2026-10-29
 
 # Which companies receive my request?
 
-Only eligible movers recorded for your move may receive your details, and never more than the maximum number you choose. You choose how they may contact you. American Moving Choice doesn't display company names, preferred-mover lists or individual company quote buttons before contact. Each company introduces itself when it contacts you.
+You choose the maximum number of moving companies that may contact you and the contact methods they may use. Your request records those choices. American Moving Choice doesn't display company names, preferred-mover lists or individual company quote buttons before contact. Each company introduces itself when it contacts you.
 
 <!-- ST-1b -->
 > {{text.ST-1b}}
@@ -33,7 +33,7 @@ Only eligible movers recorded for your move may receive your details, and never 
 
 ## Make three choices before sending
 
-1. **Check the move details.** Confirm your route, date, size and selected services. Coverage is a match to those details, not a reservation or a promised quote.
+1. **Check the move details.** Confirm your route, date, size and selected services. You can edit your answers before sending; a request does not reserve a moving date or set a price.
 2. **Set your contact ceiling.** Choose the maximum number of companies you want to hear from. The survey does not select a company for you or promise that the full number will contact you.
 3. **Choose the channels and review permission.** Read the calls, texts and email choices. Send only if the final summary matches what you want; agreeing to site terms is separate from agreeing to contact.
 
@@ -41,11 +41,11 @@ Company identities first appear when the companies contact you. The confirmation
 
 ## One request, built around your move
 
-You don't need to browse company profiles or send a separate request to each mover. Start with your route, date, home size and any extra services. We check those details against the approved coverage and capabilities of movers in our network.
+You don't need to browse company profiles or send a separate request to each mover. Start with your route, date, home size and any extra services. Your answers stay together in one request, with your chosen contact preferences.
 
-Before contact details are requested, the survey shows whether coverage is available and the number of eligible movers. A coverage match isn't a promise that a company can move you on your chosen date, that it will contact you, or that it will offer a particular price.
+The survey asks for your contact details and lets you choose the maximum number of companies you want to hear from. You review the full request and contact permission before sending. Each company must confirm its services, dates and price directly with you.
 
-If no mover currently matches your move, the survey explains that and doesn't ask you to send a request to companies that don't cover it.
+Complete your move details and contact choices, then review and send your request. Your confirmation provides a reference number and a secure link to manage it.
 
 <a id="how-many"></a>
 
@@ -58,12 +58,12 @@ The survey asks: “How many moving companies would you like to hear from?” No
 
 | Your choice | What it means |
 |---|---|
-| 1 | Only one eligible mover may receive your details from us. |
-| 2 to {{setting.max_movers}} | Up to the number you choose may receive your details. |
+| 1 | Your contact limit is one moving company. |
+| 2 to {{setting.max_movers}} | Your contact limit is the number you choose. |
 
-The available choices are limited by current coverage and our maximum of {{setting.max_movers}}. Your choice is a ceiling, not a promise that you will hear from that many companies. We do not increase the contact limit you choose.
+Choose any maximum from 1 to {{setting.max_movers}}. Your choice is a ceiling, not a promise that you will hear from that many companies. We do not increase the contact limit you choose.
 
-Choosing one mover doesn't select a particular company. Only eligible movers may receive the request while it remains active. Company identities aren't displayed in the survey or on the confirmation page.
+Choosing one mover doesn't select a particular company. The contact methods and maximum you choose apply to your request. Company identities aren't displayed in the survey or on the confirmation page.
 
 <a id="review-and-send"></a>
 
@@ -71,9 +71,9 @@ Choosing one mover doesn't select a particular company. Only eligible movers may
 
 Before sending, review your move details, your chosen maximum, and the ways companies may contact you: calls, texts or email. The contact-permission box starts unticked. Accepting the terms and acknowledging the privacy policy is separate from agreeing to contact.
 
-Only send if you want eligible movers to receive your request under the choices shown. Leaving contact permission unticked doesn't send a request to movers.
+Send after reviewing the contact permission and the choices shown. Leaving the contact-permission box unticked does not authorize contact.
 
-We keep a record of the permission text, your choices, the time you agreed, and the companies eligible for that request. Eligibility is recorded internally; it isn't presented as a list of company names to browse or select.
+We keep a record of the permission text, your choices and the time you agreed. Company names are not presented as a list to browse or select.
 
 <!-- ST-4b -->
 > {{text.ST-4b}}
@@ -82,7 +82,7 @@ We keep a record of the permission text, your choices, the time you agreed, and 
 
 Your confirmation gives you a reference and the maximum number you chose. Companies introduce themselves when they contact you using your permitted channels. Ask the company for its legal name, USDOT number, written estimate and relevant credentials before deciding whether to hire it.
 
-Your contact details are shared only with eligible movers, within your chosen maximum. A company that doesn't meet our screening and coverage checks cannot receive a new request.
+Contact must follow the permission, maximum and methods you chose. Keep your request reference and ask a contacting company to identify itself clearly.
 
 American Moving Choice is free for consumers. You arrange any estimate, booking and move directly with the company you choose to hire.
 
@@ -102,6 +102,6 @@ Keep the request reference and the company identity it supplied during contact. 
 
 ## Check a company after it contacts you
 
-Our network accepts moving carriers under [our screening rules](/how-we-verify-movers/). Those checks aren't a guarantee of price, service quality or availability. Use [Verify a mover](/verify-a-mover/) to research the credentials a company gives you, and read [Movers vs brokers](/movers-vs-brokers/) before agreeing to a move.
+Read [our screening rules for moving carriers](/how-we-verify-movers/). Those checks aren't a guarantee of price or service quality. Use [Verify a mover](/verify-a-mover/) to research the credentials a company gives you, and read [Movers vs brokers](/movers-vs-brokers/) before agreeing to a move.
 
 See our [privacy policy](/privacy/) for the current privacy outline and [Contact](/contact/) for support.

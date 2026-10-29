@@ -26,8 +26,11 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
     to: DATE.test(param(sp.to)) ? param(sp.to) : "",
   };
   const page = pageNumber(sp.page);
-  const held = (await listLeads({ status: "needs_review", limit: 1 })).total;
-  const { rows, total } = await listLeads({ status: filters.status || null, groupStatus: filters.group || null, q: filters.q || null, from: filters.from || null, to: filters.to || null, limit: PER_PAGE, offset: (page - 1) * PER_PAGE });
+  const [heldResult, unmatchedResult, { rows, total }] = await Promise.all([
+    listLeads({ status: "needs_review", limit: 1 }),
+    listLeads({ status: "unmatched", limit: 1 }),
+    listLeads({ status: filters.status || null, groupStatus: filters.group || null, q: filters.q || null, from: filters.from || null, to: filters.to || null, limit: PER_PAGE, offset: (page - 1) * PER_PAGE }),
+  ]);
   after(async () => {
     try {
       await runDueJobs(["expire_lead_groups", "release_expired_attempts"], 30, "lazy:leads");
@@ -40,15 +43,21 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
       <PageHeader size="portal" title={item.label} description="Consumer requests. The list shows no contact details; opening a request records the view in the audit log." />
       <LinkTabs
         label="Request views"
-        current={filters.status === "needs_review" ? "review" : "all"}
+        current={filters.status === "needs_review" ? "review" : filters.status === "unmatched" ? "unmatched" : "all"}
         items={[
           { id: "all", label: "All requests", href: "/admin/leads" },
-          { id: "review", label: `Waiting for review (${held})`, href: "/admin/leads?status=needs_review" },
+          { id: "review", label: `Waiting for review (${heldResult.total})`, href: "/admin/leads?status=needs_review" },
+          { id: "unmatched", label: `Unmatched (${unmatchedResult.total})`, href: "/admin/leads?status=unmatched" },
         ]}
       />
       {filters.status === "needs_review" ? (
         <p className="type-small text-text-2">
           Requests held for review can't be bought. Open one to qualify it (eligible companies are then told it's available) or reject it.
+        </p>
+      ) : null}
+      {filters.status === "unmatched" ? (
+        <p className="type-small text-text-2">
+          These requests were accepted and saved without eligible movers at submission. Review each request's group status and contact permissions before following up. Withdrawn requests must not be contacted.
         </p>
       ) : null}
       <FilterBar resetHref="/admin/leads">
