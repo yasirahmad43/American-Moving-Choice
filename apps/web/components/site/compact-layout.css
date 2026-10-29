@@ -55,9 +55,9 @@
 .site-experience .home-control-section { padding-block:var(--layout-section-space); }
 .site-experience .home-control-heading { margin-bottom:1.25rem; }
 .site-experience .home-service-grid,
-.site-experience .home-benefit-grid { gap:var(--layout-gap); align-items:stretch; }
+.site-experience .home-benefit-grid { display:flex; flex-wrap:wrap; gap:var(--layout-gap); align-items:stretch; }
 .site-experience .home-service-card,
-.site-experience .home-benefit-card { display:flex; flex-direction:column; height:100%; min-width:0; }
+.site-experience .home-benefit-card { display:flex; flex-direction:column; height:auto; min-width:0; flex:1 1 calc((100% - 2*var(--layout-gap))/3); }
 .site-experience .home-service-card > a { margin-top:auto; }
 .site-experience .home-service-card h3 { font-size:clamp(1rem,1.8vw,1.4rem); line-height:1.25; }
 .site-experience .home-service-card p { font-size:.9375rem; line-height:1.55; }
@@ -79,8 +79,9 @@
 .site-experience .home-faq-grid > div:first-child > h2 { grid-column:1; grid-row:2 / span 2; }
 .site-experience .home-faq-grid > div:first-child > p.home-faq-intro { grid-column:2; margin:0; }
 .site-experience .home-faq-grid > div:first-child > a { grid-column:2; margin:0; }
-.site-experience .home-faq-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
-.site-experience .home-faq-list > details { border:1px solid var(--border); border-radius:.75rem; padding:.25rem .75rem; min-width:0; }
+.site-experience .home-faq-list { display:flex; flex-wrap:wrap; gap:.75rem; }
+.site-experience .home-faq-list > details { border:1px solid var(--border); border-radius:.75rem; padding:.25rem .75rem; min-width:0; flex:1 1 calc((100% - .75rem)/2); }
+.site-experience .home-faq-list > details[open] { flex-basis:100%; }
 .site-experience .home-faq-list summary { gap:.625rem; grid-template-columns:1.5rem minmax(0,1fr) 1rem; padding-block:.75rem; min-width:0; }
 .site-experience .home-faq-list summary > span:nth-child(2) { min-width:0; }
 .site-experience .home-faq-list p { padding:.25rem 0 .75rem; font-size:.9375rem; }
@@ -113,6 +114,7 @@
 
 @media (max-width:1023px) {
   .site-experience .vsh__inner { padding-top:3rem; }
+  .site-experience .home-service-card,.site-experience .home-benefit-card { flex-basis:calc((100% - var(--layout-gap))/2); }
 }
 @media (max-width:900px) {
   .site-experience .vsh__inner { grid-template-columns:minmax(0,1fr); gap:1.25rem; }

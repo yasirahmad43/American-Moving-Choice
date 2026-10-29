@@ -1,8 +1,10 @@
 /* Search stays still while the surrounding hero enters. */
 .vsh__description:has(#guide-search) { animation:none; transform:none; opacity:1; }
 #guide-search { container-type:inline-size; container-name:catalog-search; }
+.catalog-query-fields { grid-template-columns:minmax(0,1fr) auto; }
 .catalog-refine-fields { grid-template-columns:repeat(2,minmax(0,1fr)); }
 @container catalog-search (max-width:30rem) { .catalog-refine-fields { grid-template-columns:minmax(0,1fr); } }
+@container catalog-search (max-width:18.5rem) { .catalog-query-fields { grid-template-columns:minmax(0,1fr); } }
 .catalog-feature-section,.catalog-browser-section { padding-block:var(--layout-section-space,2rem); }
 .catalog-feature-section>div { margin-bottom:var(--layout-gap,1rem); }
 .catalog-topics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--layout-gap,.75rem); min-width:0; }

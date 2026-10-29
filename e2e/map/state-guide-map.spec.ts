@@ -27,7 +27,7 @@ test("national map names all51 states/district with native links and northeaster
   expect(axe.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)}))).toEqual([]);
 });
 
-for(const width of[320,390,768])test(`state atlas fits ${width}px without sideways scrolling and keeps native names`,async({page})=>{
+for(const width of[320,390,768,900,1024])test(`state atlas fits ${width}px without sideways scrolling and keeps native names`,async({page})=>{
   await page.setViewportSize({width,height:844});
   await page.emulateMedia({reducedMotion:"reduce"});
   await page.goto(base+"/");
@@ -60,8 +60,8 @@ for(const width of[390,1440])test(`a labeled state remains a working native link
   try{
     const page=await context.newPage();
     await page.goto(base+"/",{waitUntil:"domcontentloaded"});
-    if(width<900)await page.locator('.state-guide-map-atlas').getByText("West",{exact:true}).click();
-    const link=page.locator(`.state-guide-map-${width<900?"atlas":"viewport"} [data-state-code="CA"]`);
+    if(width<1200)await page.locator('.state-guide-map-atlas').getByText("West",{exact:true}).click();
+    const link=page.locator(`.state-guide-map-${width<1200?"atlas":"viewport"} [data-state-code="CA"]`);
     await expect(link.locator('[data-state-name="California"]')).toBeVisible();
     await link.focus();
     await page.keyboard.press("Enter");

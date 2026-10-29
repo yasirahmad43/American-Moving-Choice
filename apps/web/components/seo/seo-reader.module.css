@@ -246,3 +246,33 @@
   .guideContents nav { padding:.5rem .875rem .875rem; }
   .guideContents ol { grid-template-columns:minmax(0,1fr); }
 }
+
+/* Flexible rows keep odd datasets and opened answers flush without reordering the reading flow. */
+.factGrid,.relatedGrid,.visualList,.faqCards { display:flex; flex-wrap:wrap; }
+.factCard { flex:1 1 calc((100% - 1.5rem)/3); }
+.relatedCard { flex:1 1 calc((100% - 3*var(--layout-gap,1rem))/4); }
+.relatedPhoto { aspect-ratio:auto; height:clamp(5rem,12vw,10rem); }
+.relatedCard:has(.relatedMore[open]) { flex-basis:100%; }
+.relatedMore summary { min-height:2.75rem; display:flex; align-items:center; gap:.5rem; cursor:pointer; font-size:.8125rem; font-weight:700; color:var(--brand); }
+.relatedMore summary::before { content:"+"; font-size:1.2rem; }
+.relatedMore[open] summary::before { content:"−"; }
+.relatedMore[open] ul { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.35rem .875rem; }
+.relatedMore li { min-width:0; }
+@media (min-width:900px) {
+  .relatedCard:has(.relatedMore[open]) .relatedCopy > ul,
+  .relatedMore[open] ul { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+.visualList > li { flex:1 1 calc((100% - .75rem)/2); }
+.faqCards > :global(details) { flex:1 1 calc((100% - .75rem)/2); min-width:0; }
+.faqCards > :global(details[open]) { flex-basis:100%; }
+@media (min-width:960px) {
+  .faqCards > :global(details[open] > div) { columns:2; column-gap:1.5rem; }
+}
+@media (max-width:900px) {
+  .factCard,.relatedCard { flex-basis:calc((100% - .75rem)/2); }
+}
+@media (max-width:600px) {
+  .visualList > li,.faqCards > :global(details) { flex-basis:100%; }
+  .visualListCompact > li,.faqCardsCompact > :global(details) { flex-basis:calc((100% - .75rem)/2); }
+  .faqCardsCompact > :global(details[open]) { flex-basis:100%; }
+}

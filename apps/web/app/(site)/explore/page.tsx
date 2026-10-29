@@ -56,7 +56,7 @@ export default async function ExplorePage({ searchParams }: Props) {
   const guideSearch = (
     <form id="guide-search" action="/explore/#browse-guides" method="get" role="search" aria-label="Search all guides and public pages" className="mt-5 grid gap-3 rounded-xl border border-white/25 bg-brand-navy/60 p-4 text-white">
       <label htmlFor="catalog-query" className="text-sm font-bold text-white">Search moving guides</label>
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+      <div className="catalog-query-fields grid gap-2">
         <input id="catalog-query" name="q" type="search" defaultValue={filters.query} maxLength={80} placeholder="City, route or topic" className={control} />
         <button type="submit" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-control bg-brand-red px-4 text-sm font-bold text-white hover:brightness-90">Find guides <ArrowRightIcon size={17} /></button>
       </div>

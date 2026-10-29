@@ -43,7 +43,11 @@ describe("adaptive reference records", () => {
     expect(html.match(/<td\b/g)).toHaveLength(24);
     expect(html).not.toContain('tabindex="0"');
     expect(html).not.toContain("scrollable table");
-    expect(html).toContain('aria-label="Field 2"');
+    for (let index = 0; index < 3; index += 1) {
+      expect(html).toMatch(new RegExp(`<th[^>]*>Field ${index}</th>`));
+      expect(html).toContain(`data-sort-choice="column-${index}:ascending"`);
+    }
+    expect(html).not.toContain('aria-label="Sort by Field');
   });
 
   it("retains the standard table API for existing application workflows", () => {
@@ -52,6 +56,7 @@ describe("adaptive reference records", () => {
     expect(html.match(/<td\b/g)).toHaveLength(48);
     expect(html).toContain("scrollable table");
     expect(html).toContain('<select');
+    expect(html).toContain('aria-label="Sort by Field 2"');
   });
 
   it("keeps full long sort labels in native disclosure choices rather than clipped select options", () => {

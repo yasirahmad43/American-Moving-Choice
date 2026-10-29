@@ -699,7 +699,6 @@
     .dt-adaptive .dt-controls, .dt-adaptive .dt-sort-picker { width: 100%; }
     .dt-adaptive .dt-responsive { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
     .dt-adaptive .dt-responsive thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; visibility: visible; }
-    .dt-adaptive .dt-responsive thead .dt-sort { display: none; }
     .dt-adaptive .dt-responsive, .dt-adaptive .dt-responsive :is(.dt-scroll, table, tbody, tr, td) { display: block; }
     .dt-adaptive .dt-responsive tbody { display: grid; gap: 0.75rem; }
     .dt-adaptive .dt-responsive tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--r-control); background: var(--surface); }

@@ -103,3 +103,25 @@ test("all authored fields remain reachable without JavaScript", async ({ browser
     await expect(page.locator("#zips .dt-scroll[tabindex='0']")).toHaveCount(0);
   } finally { await context.close(); }
 });
+
+test("narrow responsive comparisons retain real header text and have no hidden sort buttons", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const path of ["/movers/texas/", "/routes/gautier-ms-to-new-orleans-la/"]) {
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      expect((await page.goto(`${base}${path}`))?.status()).toBe(200);
+      const tables = page.locator(".dt-adaptive .dt-responsive table");
+      expect(await tables.count()).toBeGreaterThan(0);
+      for (const table of await tables.all()) {
+        const headers = table.locator("thead th");
+        const labels = (await headers.allTextContents()).map(value => value.trim());
+        expect(labels.length).toBeGreaterThan(2);
+        expect(labels.every(Boolean)).toBe(true);
+        await expect(table.locator("thead button")).toHaveCount(0);
+        expect(await headers.evaluateAll(nodes => nodes.every(node => node.getAttribute("scope") === "col"))).toBe(true);
+      }
+      const results = await new AxeBuilder({ page }).include("main").analyze();
+      expect(results.violations.map(issue => ({ id: issue.id, nodes: issue.nodes.map(node => node.target) }))).toEqual([]);
+    }
+  }
+});

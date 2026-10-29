@@ -334,7 +334,9 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
         <Reveal><SectionHeader overline="There is more to your move" title="Keep the plan moving." /></Reveal>
         <nav aria-label="Related pages" className={styles.relatedGrid}>{related.map((group, index) => <Reveal key={group.heading} delay={index * 40} className={styles.relatedCard}>
           <figure className={styles.relatedPhoto} data-editorial-image={relatedImages.get(group.heading)!.id}><MediaFrame asset={relatedImages.get(group.heading)!} alt="" sizes="(min-width: 1024px) 22vw, (min-width: 520px) 45vw, 100vw" /></figure>
-          <div className={styles.relatedCopy}><h2 className="type-overline text-text-2">{group.heading}</h2><ul>{group.links.map((link) => <li key={`${link.href}-${link.relation}`}><Link href={link.href} className="link">{link.label}</Link></li>)}</ul></div>
+          <div className={styles.relatedCopy}><h2 className="type-overline text-text-2">{group.heading}</h2><ul>{group.links.slice(0, 3).map((link) => <li key={`${link.href}-${link.relation}`}><Link href={link.href} className="link">{link.label}</Link></li>)}</ul>
+            {group.links.length > 3 ? <details className={styles.relatedMore}><summary>View all {group.links.length} pages</summary><ul>{group.links.slice(3).map((link) => <li key={`${link.href}-${link.relation}`}><Link href={link.href} className="link">{link.label}</Link></li>)}</ul></details> : null}
+          </div>
         </Reveal>)}</nav>
       </Container></section> : null}
       <StickyCta href="/get-quotes/" label={quote.cta} watch="hero-survey" note="Movers only · No brokers" storage={{ key: PREFILL_STORAGE_KEY, value: prefill }} />

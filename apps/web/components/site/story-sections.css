@@ -194,4 +194,12 @@
     .story-next-card p,.story-next-card a { font-size:.875rem; }
     .story-reader-cta { align-items:stretch; }
   }
+  .story-chapter-checklist .story-prose > ul,
+  .story-chapter-compact-list .story-prose > :is(ul,ol) { display:flex; flex-wrap:wrap; }
+  .story-chapter-checklist .story-prose > ul > li,
+  .story-chapter-compact-list .story-prose > :is(ul,ol) > li { flex:1 1 calc((100% - .625rem)/2); min-width:0; }
+  @media(max-width:520px) {
+    .story-chapter-checklist .story-prose > ul > li { flex-basis:100%; }
+    .story-chapter-compact-list .story-prose > :is(ul,ol) > li { flex-basis:calc((100% - .625rem)/2); }
+  }
 }

@@ -6,6 +6,7 @@
 .hubCount span { min-width:0; font-size:.8125rem; line-height:1.5; color:var(--text-2); }
 .leadPhoto { display:grid; grid-template-rows:minmax(11rem,1fr) auto; gap:.5rem; height:100%; padding:0; }
 .leadPhoto>figure { aspect-ratio:auto; border-radius:1rem; }
+.leadPhoto>figure>img { position:absolute; inset:0; }
 .leadPhoto>div { position:static; width:auto; margin:0; padding:0; gap:.5rem; border:0; box-shadow:none; background:none; }
 .leadPhoto>div>figure { aspect-ratio:16/7; }
 .hubBody { display:grid; min-width:0; gap:var(--layout-section-space,2rem); padding-bottom:var(--layout-section-space,2rem); }

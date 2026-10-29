@@ -150,8 +150,8 @@ export function SortableTableHeader({ columnKey, label, children, className, rig
   const { sort, setSort, id } = useTable();
   const direction = sort ? sort.key === columnKey ? sort.dir : undefined : initialSort;
   return (
-    <th role="columnheader" scope="col" aria-label={staticLabel ? label : undefined} aria-sort={direction && direction !== "none" ? direction : undefined} className={className}>
-      <button type="button" aria-label={`Sort by ${label}`} aria-controls={id} className={cx("dt-sort", right && "flex-row-reverse")} onClick={() => {
+    <th role="columnheader" scope="col" aria-sort={direction && direction !== "none" ? direction : undefined} className={className}>
+      {staticLabel ? children : <button type="button" aria-label={`Sort by ${label}`} aria-controls={id} className={cx("dt-sort", right && "flex-row-reverse")} onClick={() => {
         setSort(sort?.key === columnKey ? sort.dir === "ascending" ? { key: columnKey, dir: "descending" } : null : { key: columnKey, dir: "ascending" });
       }}>
         {children}
@@ -159,7 +159,7 @@ export function SortableTableHeader({ columnKey, label, children, className, rig
           <path d="M6 1.5 2.5 5h7L6 1.5Z" fill="currentColor" />
           <path d="M6 10.5 2.5 7h7L6 10.5Z" fill="currentColor" opacity="0.4" />
         </svg>
-      </button>
+      </button>}
     </th>
   );
 }
