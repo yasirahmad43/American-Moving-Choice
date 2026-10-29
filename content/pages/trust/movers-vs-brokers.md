@@ -31,7 +31,7 @@ depends_on:
   - "Owner: the reasons given for the movers-only rule (mover verification §1 states the rule, not the reasons)"
   - "Owner: booking, deposits and move payments stay out of the product (implications D5; brief §4)"
   - "Owner: MC-number requirement, which ST-2's 'and MC' follows (mover verification §9 decision 1; brief §11 Q4)"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # Movers vs brokers: what's the difference?
@@ -43,6 +43,16 @@ A mover, called a household-goods motor carrier in federal law, transports your 
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
 [Build: this review note renders from the page record, as the editorial policy specifies (content/pages/trust/editorial-policy.md, "How we tell you"; README §2)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown (editorial policy, "How we tell you")]
+
+<a id="start-here"></a>
+
+## Find out who will actually move your belongings
+
+1. **Ask the company what role it is performing.** Is it transporting your goods, acting as an agent, or arranging another carrier? Ask for the legal identities involved before booking.
+2. **Match the role to the official record.** Interstate carriers and brokers have different authority. A familiar brand or a docket number alone does not tell you which role a company is using.
+3. **Match the estimate to the transporting mover.** Ask whose tariff supports it, who signs the transport contract, and who handles loss, damage, delays or a changed inventory.
+
+[FMCSA's mover-and-broker comparison](https://www.fmcsa.dot.gov/protect-your-move/movers-vs-brokers) explains the difference and their interstate registration requirements. American Moving Choice separately chooses to work with carriers under its own network rules. Source checked October 29, 2026.
 
 ## What is a mover, and what is a moving broker?
 
@@ -247,7 +257,7 @@ What we do is connect you with movers you choose to hear from. Only eligible mov
 
 ## What if a company you heard from through us is a broker?
 
-Tell us. If a company you heard from through American Moving Choice says another company will carry out your move, or its FMCSA record shows broker authority, report it through [Report a concern](/report-a-concern/). You can also email {{org.support_email}} or call {{org.support_phone}}.
+Tell us. If a company you heard from through American Moving Choice says another company will carry out your move, or its FMCSA record shows broker authority, report it through [Report a concern](/report-a-concern/). Leave contact details if you want a reply, and keep the case reference it gives you.
 
 Each report opens a case. Someone on our team is assigned to it, and it's closed with a recorded outcome. A report of broker activity makes us run every check on the company again right away, and it can lead to suspension.
 
@@ -266,6 +276,20 @@ When we change this page, we record the change here with its date.
 | 1 | Set on first publish | First published |
 
 [Build: the CMS renders each row's version and date from the page record, and stamps the date when an approved change publishes, the first on the first approved publish (README §2 `last_updated`)] [Owner: changelog numbering, and who approves a change to this page before a new row publishes. The draft numbers versions 1, 2, 3, as the other trust pages do (editorial policy brief §10 item 6) — default shown]
+
+## Questions to resolve before paying or signing
+
+Write the answers down in the company's own words. If different documents name different businesses, ask why and which entity is responsible for each part of the job.
+
+| Your question | Why it matters |
+|---|---|
+| Are you the carrier that will transport this shipment? | Separates selling or arranging the move from carrying it out |
+| Who will be named on the estimate and bill of lading? | Lets you compare the paperwork with the identities you researched |
+| Will an agent or another carrier take part? | Gives you a chance to understand the relationship before you commit |
+| Whose tariff is the estimate based on? | Connects the quoted services and charges to the relevant mover |
+| Who receives and handles a claim or complaint? | Helps you keep the right written contact and process for the issue |
+
+This is a checking worksheet, not a list of recommended companies. Research the company that contacts you and decide whether its explanation and documents are satisfactory.
 
 ## More ways to check a company
 

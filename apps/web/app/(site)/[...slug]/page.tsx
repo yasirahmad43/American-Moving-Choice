@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ContentPageView } from "@/components/site/content-page";
 import { contentPageByUrl, isReservedUrl, servedContentPages } from "@/lib/content/pages";
+import { socialMetadata } from "@/components/site/social-metadata";
 
 /**
  * Every content draft in content/pages, served at its front-matter url (build plan §8). Pages are
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: { absolute: page.title },
     description: page.description,
     alternates: { canonical: page.meta.url },
-    openGraph: { title: page.title, description: page.description, url: page.meta.url, type: "website", siteName: "American Moving Choice" },
+    ...socialMetadata(page.meta.url, page.title, page.description, { family: page.meta.family, type: page.meta.schema.includes("Article") ? "article" : "website" }),
   };
 }
 

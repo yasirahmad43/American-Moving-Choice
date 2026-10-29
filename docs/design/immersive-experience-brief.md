@@ -1,5 +1,37 @@
 # Owner-directed immersive redesign
 
+## New owner review — 2026-10-29 (active follow-up)
+
+The owner does not accept the earlier 8.9 self-assessment as completion: other pages are about
+6/10 and SEO/content about 5/10 in their judgment. Continue improving the actual site and content;
+do not manufacture a perfect score or present technical checks as search-ranking guarantees.
+
+- Every guide/catalog result card needs a relevant image, including all state/city/route/service/
+  cost/question/planning/tool cards. Do not limit imagery to the five feature cards.
+- `/routes/` must expose thousands of quality route guides, rather than the eight starter routes.
+  Keep all existing quality, attribution, privacy, transport and uniqueness gates. Build useful
+  origin/destination comparisons from real sourced data; do not publish thin name-swapped pages.
+- A survey in the hero AND a survey immediately before the footer is a shared rule across the
+  public site. They must function independently with unique IDs and preserve explicit permissions.
+- The national state map must show visible state labels, with readable treatment for small states
+  and mobile, rather than requiring visitors to identify blank outlines.
+- Audit content and search/AI visibility against current Google/OpenAI guidance and established
+  moving resources. The current demo/noindex configuration blocks ordinary search discovery;
+  page volume is not proof of eligibility, usefulness, rankings or AI citations.
+- The real business name is **American Moving Choice**. The owner explicitly deferred address,
+  phone, email and other identity details until later. Do not ask again or invent these values.
+- The owner signed into Supabase on 2026-10-29 so Storage setup can continue. Parent IAB browser2
+  has signed-in tab6 on the organization/project dashboard; child-agent tab handles may differ.
+  The owner explicitly approved secure transfer of the existing server key into Vercel `amc-app`
+  Production and Preview. Both sensitive entries are saved; a rebuild of the tested live release
+  verified real Storage write/public-read/cleanup. No new key was created and no credential was
+  saved in source, local files or chat. See `docs/media/storage.md` for the exact deployment.
+
+Follow-up branch: `codex/complete-moving-experience`, based on live release `5b276b2` (PR #8).
+The old release/gallery/crawl is historical baseline evidence for the newly expanded brief.
+
+## Earlier implementation brief
+
 Current owner instructions supersede the earlier editorial pass. The deployed `bbbdfb9` release
 is a functional baseline, not an accepted visual result. The owner rated it 2/10.
 

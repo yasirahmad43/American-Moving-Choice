@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
-import { Note, Token } from "@/components/site/review-notes";
+import { Note } from "@/components/site/review-notes";
+import { BusinessIdentity } from "@/components/site/business-details";
 import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
 
 const URL = "/terms/";
@@ -27,7 +28,7 @@ export default function TermsPage() {
 
       <h2>Who you&apos;re agreeing with</h2>
       <p>
-        <Token k="org.legal_name" />, <Token k="org.address" />.
+        <BusinessIdentity />.
       </p>
 
       <h2>What the service is</h2>

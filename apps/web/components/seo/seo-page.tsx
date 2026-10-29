@@ -61,7 +61,7 @@ function mediaFamily(href: string): string | undefined {
 }
 
 /** A stored content table as the data table: sortable headers, numeric columns right-aligned. */
-function ContentTable({ caption, columns, rows, allow }: { caption?: string; columns: string[]; rows: string[][]; allow: (href: string) => boolean }) {
+function ContentTable({ id, caption, columns, rows, allow }: { id: string; caption?: string; columns: string[]; rows: string[][]; allow: (href: string) => boolean }) {
   const numeric = columns.map((_, j) => rows.length > 0 && rows.every((r) => !r[j] || NUMERIC_CELL.test(r[j]!)));
   const parse = (cell: string | undefined) => {
     if (!cell) return null;
@@ -74,6 +74,7 @@ function ContentTable({ caption, columns, rows, allow }: { caption?: string; col
     <div className="not-prose grid min-w-0 gap-2">
       {rows.length > 5 ? <p className="type-legal text-text-2"><span aria-hidden="true">↔ </span>All {rows.length.toLocaleString("en-US")} records are included. Scroll within the table to explore every column and row.</p> : null}
       <Table<{ id: string; cells: string[] }>
+        id={id}
         caption={caption ?? "Table"}
         hideCaption={!caption}
         compact
@@ -97,7 +98,7 @@ function ContentTable({ caption, columns, rows, allow }: { caption?: string; col
   );
 }
 
-function Block({ block, allow }: { block: ContentBlock; allow: (href: string) => boolean }) {
+function Block({ id, block, allow }: { id: string; block: ContentBlock; allow: (href: string) => boolean }) {
   switch (block.type) {
     case "paragraph":
       return (
@@ -126,7 +127,7 @@ function Block({ block, allow }: { block: ContentBlock; allow: (href: string) =>
       );
     }
     case "table":
-      return <ContentTable caption={block.caption} columns={block.columns} rows={block.rows} allow={allow} />;
+      return <ContentTable id={id} caption={block.caption} columns={block.columns} rows={block.rows} allow={allow} />;
     case "facts":
       // Sourced facts as a ledger strip: the claim, its source and the date it was read.
       return (
@@ -160,6 +161,7 @@ function Block({ block, allow }: { block: ContentBlock; allow: (href: string) =>
           {c.rows.length ? (
             <>
               <Table
+                id={`${id}-cost`}
                 caption={`Planning ranges: ${c.scope}`}
                 hideCaption
                 compact
@@ -198,6 +200,7 @@ function routeEnds(page: SeoPageRecord): { from: string; to: string } | null {
 
 export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageRecord; crumbs: Crumb[] }) {
   const page = publicSeoPage(storedPage);
+  const tablePrefix = `seo-${page.url.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
   const { WEB_URL } = env();
   const related = await publishedRelated(page);
   const inlineHrefs = [...new Set((JSON.stringify(page.content).match(/\]\((\/[^)\s]*)\)/g) ?? []).map((m) => m.slice(2, -1)))];
@@ -289,7 +292,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
                   <div className={styles.sectionTitle}><span className={styles.sectionNo}>Field notes / {String(index + 1).padStart(2, "0")}</span><h2 id={`${section.id}-h`}>{section.heading}</h2></div>
                 </header>
                 <div className={`prose max-w-none ${styles.sectionBody}`}>
-                  {section.blocks.map((block, i) => <Block key={i} block={block} allow={allow} />)}
+                  {section.blocks.map((block, i) => <Block key={i} id={`${tablePrefix}-s${index + 1}-b${i + 1}`} block={block} allow={allow} />)}
                 </div>
               </Reveal>;
             })}

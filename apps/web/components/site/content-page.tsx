@@ -7,7 +7,8 @@ import { env } from "@amc/server/env";
 import { Container, LinkButton } from "@amc/ui";
 import type { NoteKind } from "@/lib/content/markdown";
 import type { ContentPage } from "@/lib/content/pages";
-import { pageMediaPlan } from "@/lib/page-media";
+import { mediaManifest } from "@/lib/media";
+import { guideOverview, storyMediaPlan } from "@/lib/content/story-plan";
 import { DraftBanner } from "./draft-banner";
 import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
 import { EditorialHeader } from "./page-frame";
@@ -45,17 +46,22 @@ export function ContentPageView({ page }: { page: ContentPage }) {
   const hasData = page.meta.data_owner !== null && page.meta.data_owner !== "n/a";
   const headings = headingsOf(page.html);
   const updated = formatUpdated(page.meta.last_updated);
-  const family = page.meta.family.toLowerCase().includes("cost") ? "costs" : "trust";
-  const images = pageMediaPlan(page.meta.url, { family, topic: page.h1 }).images;
+  const modified = page.meta.last_updated && !Number.isNaN(Date.parse(page.meta.last_updated)) ? new Date(page.meta.last_updated).toISOString() : undefined;
   const editorial = separateEditorialNotes(page.html);
-  const chapters = htmlChapters(editorial.body);
+  const overview = guideOverview(editorial.body);
+  const chapters = htmlChapters(overview.body);
+  const media = storyMediaPlan(mediaManifest(), page.meta.url, chapters, page.h1);
   return (
     <>
       {schema.includes("BreadcrumbList") ? <JsonLd data={breadcrumbListLd(WEB_URL, page.breadcrumbs)} /> : null}
-      {schema.includes("Article") ? <JsonLd data={webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description, type: "Article" })} /> : null}
-      {schema.includes("WebPage") ? <JsonLd data={webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description })} /> : null}
+      {schema.includes("Article") ? <JsonLd data={{ ...webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description, type: "Article" }), ...(modified ? { dateModified: modified } : {}) }} /> : null}
+      {schema.includes("WebPage") ? <JsonLd data={{ ...webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description }), ...(modified ? { dateModified: modified } : {}) }} /> : null}
       <EditorialHeader breadcrumbs={page.breadcrumbs} overline={page.meta.family} title={page.h1} lede={page.description} meta={updated ? <>Updated {updated}</> : null} />
       <Container className="pb-20">
+          {overview.answer ? <section className="story-answer" aria-labelledby="guide-answer-title">
+            <div className="story-answer-main"><p className="type-overline">A clearer starting point</p><h2 id="guide-answer-title">The short answer.</h2><div className="story-answer-text" dangerouslySetInnerHTML={{ __html: overview.answer }} /><a className="story-answer-jump" href="#guide-contents">Read the full guide <span aria-hidden="true">↓</span></a></div>
+            {overview.actions ? <div className="story-answer-actions prose" dangerouslySetInnerHTML={{ __html: overview.actions }} /> : null}
+          </section> : null}
           <details className="story-guide-notes">
             <summary>About this guide <span>Editorial details &amp; review notes</span></summary>
             <div className="grid max-w-[72ch] gap-3 pt-3">
@@ -74,7 +80,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
             </div>
           </details>
           {headings.length ? (
-            <nav aria-label="On this page" className="story-index" data-motion="rise">
+            <nav id="guide-contents" aria-label="On this page" className="story-index" data-motion="rise">
               <div><p className="type-overline text-brand-red">Your reading route</p><h2>Inside this guide</h2></div>
               <ul>
                 {headings.map((heading) => (
@@ -90,8 +96,8 @@ export function ContentPageView({ page }: { page: ContentPage }) {
               </ul>
             </nav>
           ) : null}
-          <article><StorySections chapters={chapters} images={images} /></article>
-          <StoryNextSteps images={images} usedCount={chapters.length} />
+          <article><StorySections chapters={chapters} images={media.chapterImages} planned /></article>
+          <StoryNextSteps items={media.steps} />
           <aside className="story-reader-cta" data-motion="rise" data-band="">
             <div><p className="type-overline">Your move. Your choice.</p><h2>Ready to compare movers?</h2>
             <p>Check coverage for your route, then choose how many movers may contact you.</p></div>

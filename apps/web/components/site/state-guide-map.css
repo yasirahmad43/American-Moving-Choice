@@ -3,15 +3,34 @@
 .state-guide-map-heading .type-overline{color:#53677d;font-size:.68rem;letter-spacing:.15em}
 .state-guide-map-heading h3{margin:.5rem 0 0;font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.6rem);font-weight:800;letter-spacing:-.035em;line-height:1.05}
 .state-guide-map-heading>a{display:inline-flex;min-height:44px;align-items:center;gap:.75rem;font-weight:700;font-size:.9rem;text-underline-offset:5px;white-space:nowrap}
-.state-guide-map-art{display:block;width:100%;max-width:880px;max-height:480px;height:auto;margin:-.25rem auto -1rem;overflow:visible}
+.state-guide-map-help{margin:1rem 2rem .25rem;max-width:58ch;font-size:.8rem;line-height:1.5;color:#526b83}
+.state-guide-map-help>span{color:#b30a22;font-size:1rem;margin-right:.35rem}
+.state-guide-map-viewport{min-width:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#8ca5be #e4edf6;border-block:1px solid transparent}
+.state-guide-map-viewport:focus-visible{outline:3px solid #1c5186;outline-offset:-4px;border-radius:.5rem}
+.state-guide-map-art{display:block;width:100%;max-width:1160px;height:auto;margin:.5rem auto .25rem;overflow:visible}
 .state-guide-map-grid{color:#bdcede;opacity:.5}
-.state-guide-map-link path{fill:#164978;stroke:#f4f8fc;stroke-width:1.6;stroke-linejoin:round;transition:fill 180ms ease,stroke-width 180ms ease;vector-effect:non-scaling-stroke}
-.state-guide-map-link:hover path,.state-guide-map-link:focus-visible path{fill:#e51128;stroke:#fff;stroke-width:2.5;filter:drop-shadow(0 4px 4px #123a6222)}
+.state-guide-map-shape{fill:#164978;stroke:#f4f8fc;stroke-width:1.6;stroke-linejoin:round;transition:fill 180ms ease,stroke-width 180ms ease;vector-effect:non-scaling-stroke}
+.state-guide-map-link:hover .state-guide-map-shape,.state-guide-map-link:focus-visible .state-guide-map-shape{fill:#d80e28;stroke:#fff;stroke-width:2.5;filter:drop-shadow(0 4px 4px #123a6222)}
 .state-guide-map-link:focus-visible{outline:none}
-.state-guide-map-unpublished{fill:#cad6e1;stroke:#f4f8fc;stroke-width:1.6;vector-effect:non-scaling-stroke}
+.state-guide-map-state-name{fill:white;stroke:#164978;stroke-width:2.5;paint-order:stroke fill;stroke-linejoin:round;font-family:var(--font-body);font-weight:700;letter-spacing:.01em;pointer-events:none}
+.state-guide-map-water-name{fill:#123d68;stroke:#f4f8fc;stroke-width:3}
+.state-guide-map-link:hover .state-guide-map-state-name,.state-guide-map-link:focus-visible .state-guide-map-state-name{stroke:#d80e28}
+.state-guide-map-link:hover .state-guide-map-water-name,.state-guide-map-link:focus-visible .state-guide-map-water-name{fill:#a9051c;stroke:#fff}
+.state-guide-map-leader{fill:none;stroke:#6887a4;stroke-width:1.1;vector-effect:non-scaling-stroke;pointer-events:none}
+.state-guide-map-dot{fill:#d80e28;stroke:#fff;stroke-width:.8;pointer-events:none}
+.state-guide-map-label-box{fill:#fff;stroke:#b9cddd;stroke-width:1;vector-effect:non-scaling-stroke;transition:fill 180ms ease}
+.state-guide-map-callout-name{fill:#123d68;font-size:17px;font-family:var(--font-body);font-weight:700}
+.state-guide-map-callout-heading{fill:#5b748b;font-family:var(--font-body);font-size:11px;font-weight:750;letter-spacing:.13em}
+.state-guide-map-link:hover .state-guide-map-label-box,.state-guide-map-link:focus-visible .state-guide-map-label-box{fill:#d80e28;stroke:#a8061b;stroke-width:2}
+.state-guide-map-link:hover .state-guide-map-callout-name,.state-guide-map-link:focus-visible .state-guide-map-callout-name{fill:white}
+.state-guide-map-link:hover .state-guide-map-leader,.state-guide-map-link:focus-visible .state-guide-map-leader{stroke:#d80e28;stroke-width:2}
+.state-guide-map-unpublished .state-guide-map-shape{fill:#cad6e1}
+.state-guide-map-unpublished .state-guide-map-state-name{fill:#3d5771;stroke:#cad6e1}
+.state-guide-map-unpublished .state-guide-map-callout-name{fill:#566d83}
 .state-guide-map-note{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.5rem 2rem 1.5rem;font-size:.875rem}
 .state-guide-map-note>span{display:inline-flex;align-items:center;gap:.6rem;font-weight:700;white-space:nowrap}
 .state-guide-map-note i{width:9px;height:9px;border-radius:50%;background:#e51128;box-shadow:0 0 0 5px #e5112812}
 .state-guide-map-note p{max-width:25rem;color:#53677d;line-height:1.4}
 @media(max-width:699px){.state-guide-map{margin-bottom:1.5rem;border-radius:1rem}.state-guide-map-heading{padding:1.25rem 1.1rem 0;align-items:flex-start}.state-guide-map-heading h3{font-size:1.65rem}.state-guide-map-heading .type-overline{font-size:.58rem;max-width:12rem}.state-guide-map-heading>a{font-size:.78rem;white-space:normal;min-width:88px}.state-guide-map-art{margin:.5rem auto 0}.state-guide-map-note{padding:.5rem 1.1rem 1.25rem;display:grid;gap:.65rem;font-size:.8rem}.state-guide-map-note p{margin:0;max-width:none}}
-@media(prefers-reduced-motion:reduce){.state-guide-map-link path{transition:none}}
+@media(prefers-reduced-motion:reduce){.state-guide-map-link :is(path,rect){transition:none}}
+@media(max-width:699px){.state-guide-map-help{margin:.8rem 1.1rem .5rem;font-size:.75rem}.state-guide-map-viewport{border-block-color:#d9e3ee;background:#edf3f8}.state-guide-map-art{width:1260px;min-width:1260px;max-width:none;margin:0}.state-guide-map-note{padding-top:1rem}}

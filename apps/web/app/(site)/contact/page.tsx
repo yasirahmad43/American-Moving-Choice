@@ -2,11 +2,12 @@ import { env } from "@amc/server/env";
 import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
-import { Note, Token } from "@/components/site/review-notes";
+import { Note } from "@/components/site/review-notes";
+import { BusinessContactChannels } from "@/components/site/business-details";
 
 const URL = "/contact/";
 const TITLE = "Contact American Moving Choice";
-const DESCRIPTION = "How to reach American Moving Choice: support email and phone, reporting a mover or broker, editorial corrections and company sign-in.";
+const DESCRIPTION = "Get help with an American Moving Choice request, report a concern, ask about your personal details, or send an editorial correction.";
 
 export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 
@@ -23,14 +24,8 @@ export default function ContactPage() {
       waitingOn="The support email, phone and hours come from the owner."
     >
       <h2>Questions about your request</h2>
-      <ul>
-        <li>
-          Email: <Token k="org.support_email" />
-        </li>
-        <li>
-          Phone: <Token k="org.support_phone" />
-        </li>
-      </ul>
+      <p>Use <Link href="/report-a-concern/">our contact and concern form</Link>. Choose &quot;Something else&quot; for a question about your request, or &quot;My personal details&quot; for a privacy request. Leave an email address or phone number if you want a reply.</p>
+      <BusinessContactChannels />
       <p>
         If you have your request reference (it starts with AMC-), include it so we can find your request. Please don&apos;t send card numbers or
         other payment details: we never take payment for your move.
@@ -48,9 +43,10 @@ export default function ContactPage() {
 
       <h2>Corrections to our pages</h2>
       <p>
-        Found a mistake on one of our pages? Write to <Token k="org.editorial_email" />. Our <Link href="/editorial-policy/">editorial policy</Link>{" "}
+        Found a mistake on one of our pages? Use <Link href="/report-a-concern/">our form</Link>, choose &quot;Something else&quot;, and include the page link, the correction and a source if you have one. Our <Link href="/editorial-policy/">editorial policy</Link>{" "}
         explains how we handle corrections.
       </p>
+      <BusinessContactChannels editorial />
 
       <h2>Moving companies</h2>
       <p>

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
 import { VideoSurveyHero } from "@/components/site/video-survey-hero";
+import { socialMetadata } from "@/components/site/social-metadata";
 import { StorySections } from "@/components/site/story-sections";
 import { Note } from "@/components/site/review-notes";
 import { pageMediaPlan } from "@/lib/page-media";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
   title: "Check a mover before you hire it",
   description: "Look up a moving company's federal record by USDOT or MC number, and learn what USDOT numbers, MC numbers and state licenses tell you.",
   ...canonical("/verify-a-mover/"),
+  ...socialMetadata(PAGE, "Check a Mover Before You Hire | American Moving Choice", "Look up a moving company's federal record by USDOT or MC number, and learn what federal and state credentials tell you.", { topic: "trust verification safety" }),
 };
 
 const SAFER_URL = "https://safer.fmcsa.dot.gov/CompanySnapshot.aspx";

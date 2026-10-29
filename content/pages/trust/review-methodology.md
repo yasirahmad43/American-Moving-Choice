@@ -19,18 +19,28 @@ stored_texts: []
 tokens: [page.author, page.reviewer, setting.quote_invite_delay_days, setting.post_move_invite_days, setting.rank_min_reviews, setting.ai_summary_min_reviews, setting.reviews_subpage_min]
 depends_on:
   - "Counsel: review current count-based contact permission and final legal wording before real consumer requests"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # How feedback works on American Moving Choice
 
 After dealing with a mover through an American Moving Choice request, you may receive a single-use invitation to share feedback about that experience. Feedback helps our team review conduct and service issues. We don't display public company profiles, company review pages, preferred-mover showcases or ranked mover lists.
 
+<a id="start-here"></a>
+
+## Describe only the experience you had
+
+1. **Separate contact from a completed move.** A sales conversation or estimate does not mean a company transported your belongings. Say which stage your feedback concerns.
+2. **Keep a factual record.** Useful details include what was agreed, when it happened and which documents support your account. Omit payment-card numbers and other people's personal information.
+3. **Use the right route for an urgent problem.** You can report a concern without waiting for a feedback invitation. Loss, damage and billing disputes may also need a claim with the mover or a report to the appropriate agency.
+
+An invitation follows recorded company contact. Feedback is moderated; it does not create a public company ranking or replace a formal claim.
+
 ## Invitation-only feedback
 
-Only a consumer whose request a mover purchased can use the invitation issued for that interaction. Each invitation has its own single-use link. There is no open review form where anyone can submit a rating for any company.
+Only a consumer connected to the request can use the invitation issued for that company interaction. Our records must indicate company contact before the invitation can be used. Each invitation has its own single-use link. There is no open review form where anyone can submit a rating for any company.
 
-The invitation identifies the company it concerns. This feedback step follows the request and purchase process; it isn't a way to browse companies or request quotes from a particular mover before contact.
+The invitation identifies the company it concerns. This feedback step follows recorded contact; a purchase by itself does not unlock the invitation or disclose a company identity. It isn't a way to browse companies or request quotes from a particular mover before contact.
 
 ## Two different experiences
 
@@ -57,6 +67,17 @@ Supporting documents and contact details aren't presented in public company list
 Feedback invitations relate to a specific consumer-company interaction recorded for a request. A larger number of invitations isn't evidence of better service.
 
 We don't use feedback to publish a list of “best” or “preferred” movers. [How we verify movers](/how-we-verify-movers/) describes the separate screening process.
+
+## A useful feedback record
+
+| Describe | Keep it specific |
+|---|---|
+| Stage | Contact, survey, written estimate, booking, pickup, delivery or a later claim |
+| Agreement | The service, date or statement you understood, with the relevant document if available |
+| Event | What you personally observed and when, separated from what someone else told you |
+| Outcome | Whether the company responded and what remains unresolved |
+
+Supporting evidence helps establish what the record concerns. It does not make every statement proven, guarantee publication, or turn a quote enquiry into a completed-move review.
 
 ## Reporting a problem
 

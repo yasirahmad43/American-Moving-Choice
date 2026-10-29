@@ -3,6 +3,7 @@ import { Suspense, type ReactNode } from "react";
 import { REVIEW_NOTES_IN_HTML } from "@/lib/review-mode";
 import { MotionProvider } from "./motion/motion-provider";
 import { ReviewModeFlag } from "./site/review-mode-flag";
+import { ClosingSurvey } from "./site/closing-survey";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 
@@ -25,6 +26,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
       <SiteHeader />
       <main id="main" tabIndex={-1} className="flex-1 focus:outline-none">
         {children}
+        <ClosingSurvey />
       </main>
       <SiteFooter />
       <Suspense fallback={null}>

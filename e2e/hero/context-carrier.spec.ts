@@ -5,7 +5,7 @@ const base = (process.env.E2E_WEB_URL ?? "http://localhost:3000").replace(/\/+$/
 
 test("Austin's ZIP examples remain hints and never overwrite the visitor's route", async ({ page }) => {
   await page.goto(base + "/movers/texas/austin/");
-  const form = page.locator(".vsh-start");
+  const form = page.locator(".vsh .vsh-start");
   await expect(form).toHaveAttribute("data-ready", "true");
   await expect(form.locator(".vsh-start__heading")).toContainText("Austin");
   const origin = form.getByLabel("Moving from · ZIP code");
@@ -30,9 +30,10 @@ for (const width of [1440,390]) test(`carrier landing has its own usable right-h
   expect((await page.goto(base + "/for-movers/"))?.status()).toBe(200);
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator(".vsh video[poster]")).toHaveCount(1);
-  const form = page.locator("[data-carrier-starter]");
+  const form = page.locator(".vsh [data-carrier-starter]");
+  await expect(form).toHaveAttribute("data-ready", "true");
   await expect(form).toHaveCount(1);
-  await expect(page.locator(".vsh-start:not([data-carrier-starter])")).toHaveCount(0);
+  await expect(page.locator(".vsh .vsh-start:not([data-carrier-starter])")).toHaveCount(0);
   await expect(form.getByLabel("Your company's authority")).toHaveValue("");
   expect(await page.locator("[data-page-photo]").evaluateAll(nodes => new Set(nodes.map(node => node.getAttribute("data-page-photo"))).size)).toBe(5);
   if (width < 1000) {
@@ -57,7 +58,8 @@ test("carrier orientation distinguishes broker records without collecting or sen
   const requests: string[] = [];
   page.on("request", request => { if (request.method() === "POST") requests.push(request.url()); });
   await page.goto(base + "/for-movers/");
-  const form = page.locator("[data-carrier-starter]");
+  const form = page.locator(".vsh [data-carrier-starter]");
+  await expect(form).toHaveAttribute("data-ready", "true");
   await form.getByRole("button", { name: "Check my next step" }).click();
   await expect(form.getByLabel("Your company's authority")).toBeFocused();
   await form.getByLabel("Your company's authority").selectOption("broker");
@@ -81,8 +83,8 @@ test("without JavaScript the carrier check opens the eligibility guide with a cl
   try {
     const page = await context.newPage();
     await page.goto(base + "/for-movers/", { waitUntil: "domcontentloaded" });
-    await page.getByLabel("Your company's authority").selectOption("carrier");
-    await page.locator("[data-carrier-starter] button[type=submit]").focus();
+    await page.locator(".vsh").getByLabel("Your company's authority").selectOption("carrier");
+    await page.locator(".vsh [data-carrier-starter] button[type=submit]").focus();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/for-movers\/eligibility\/\??$/, { timeout: 15_000 });
     expect(new URL(page.url()).search).toBe("");

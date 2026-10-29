@@ -5,25 +5,29 @@ uploads and editorial overrides. The checked-in 418-asset library remains bundle
 read-only. New uploads never write to `apps/web/public` or change a JSON file in a running
 deployment. SEO media ownership remains authoritative in `seo_media_usage`.
 
-## Verified setup status — 2026-10-28, before release
+## Verified setup status — 2026-10-29
 
 - Supabase project `american-moving-choice` has an empty `amc-media` bucket, verified public,
   restricted to `image/webp`, with a **4 MiB (4,194,304-byte)** object limit.
 - Vercel `amc-app` has `SUPABASE_URL=https://ctpqgtststuxabtvejyi.supabase.co` and
   `SUPABASE_MEDIA_BUCKET=amc-media` configured for **Production and Preview**.
-- **Only the server credential is missing.** The owner has been asked to add
-  `SUPABASE_SECRET_KEY` directly in Vercel for those environments. Do not paste it into chat.
-- Production still runs the previous `main` application. Migration 210 and the completed upload
-  implementation await release. After the key is configured, redeploy and verify a live upload.
-  **Uploads are not yet enabled or verified in production.** The integrated admin implementation
-  hides the upload form with an unavailable reason while the key is absent.
+- The owner explicitly approved storing the existing server key in Vercel. `SUPABASE_SECRET_KEY`
+  is configured as **sensitive** in **Production and Preview** on `amc-app` only. The credential
+  was transferred directly through the signed-in dashboards; it was not written to the repository,
+  chat or a local file. The temporary clipboard and transfer variable were cleared.
+- Production deployment `dpl_8w3P723A8KsNR2fNJuRjCETnrp2z` rebuilt the tested release
+  `5b276b260d8e7707c45096e8a967c7740fb6aca0` with this configuration and is Ready and active.
+  Its build log records a successful **live 800×450 WebP write, exact-byte public read and cleanup**.
+  The one-time `AMC_VERIFY_MEDIA_STORAGE` flag was then set to `false` for subsequent builds.
+  No customer data, manifest row or permanent test image was created. This proves the provider
+  connection; it does not claim a production administrator's full upload/assignment journey was run.
 - Local focused verification passed **23/23 tests** with mocked Storage in a disposable database;
   no live storage upload was made. The final integration suite passed 487 automated tests and all
   package TypeScript checks. Those results do not replace post-deployment storage verification.
 
 The setup instructions below describe the full configuration for a fresh environment. For the
-current project, bucket creation and the two non-secret variables are already complete; the
-remaining configuration action is the server key, followed by deployment and verification.
+current project, bucket configuration, the two non-secret variables, the server key and the live
+provider check are complete. Keep the server key private and preserve the browser-write restrictions.
 
 ## Configure the app server
 
@@ -82,8 +86,8 @@ images requires an editorial site deployment instead of claiming a DB rejection 
 The default is off. To verify the actual provider without downloading its server key or using a
 private admin login, first add the server key directly in Vercel, then set
 `AMC_VERIFY_MEDIA_STORAGE=true` on `amc-app` **Production** and trigger a production deployment.
-No successful live probe has been recorded in this handoff; the flag's default and mocked test
-results are not evidence of a working production upload.
+The 2026-10-29 production deployment above recorded the successful live probe. For a future
+recheck, the flag's default and mocked test results alone are not evidence of a working provider.
 
 `db/scripts/vercel-deploy.ts` calls the probe after SEO bootstrap, only in its existing production
 execution path. With the flag unset or false, it performs no storage request or extra logging.

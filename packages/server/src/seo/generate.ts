@@ -35,6 +35,8 @@ import { loadResearch, researchForCity, researchForCityRoute, researchForState, 
 import { RESERVED_CITY_SLUGS, normalizeKeyword, slugify, type SeoFamily } from "./slugs";
 import { clampDescription, joinAnd, mainText, miles as milesText, n, pick, plural, seedOf, sha256, shingleHashes } from "./text";
 import { assertCorpusSnapshot, CorpusChangedError, ensureShingleCorpus, persistPageShingles, scoreShingleCorpus } from "./shingle-corpus";
+import { routeComparisonSections } from "./route-comparisons";
+import { representativePoints } from "./route-geography";
 import type { ContentBlock, ContentSection, CostBlock, DataPoint, FaqItem, MediaAsset, RelatedGroup, SeoContent, SourceRef } from "./types";
 
 // ------------------------------------------------------------------ shared data
@@ -58,6 +60,7 @@ interface CityRec {
   lng: number;
   population: number | null;
   populationSource: "acs" | "plotly" | null;
+  placeGeoid: string | null;
   housingUnits: number | null;
   landAreaSqMi: number | null;
   fipsClass: string | null;
@@ -149,6 +152,8 @@ interface Context {
   usedMedia: Set<string>;
   /** Existing claims by URL, so a regenerated page keeps the assets it already holds. */
   mediaByUrl: Map<string, string[]>;
+  /** Retain the saved evidence format when an admin regenerates a legacy candidate row. */
+  routeEvidenceUrls: Set<string>;
   log: (line: string) => void;
 }
 
@@ -169,6 +174,7 @@ const CREDITS = {
 
 const CENSUS_BASIS = `U.S. Census Bureau, ${ACS_VINTAGE} (via bdurand/us_geo, MIT)`;
 const GAZ_BASIS = `U.S. Census Bureau, ${GAZETTEER_VINTAGE} (via bdurand/us_geo, MIT)`;
+const VINTAGE_ROUTE_LIMITS = "Census figures are historical 2019–2023 estimates in 2023 dollars, not current asking prices or moving charges; ± denotes published 90% margins of error.";
 const TRANSIT_NOTE = `${TRANSIT_MODEL_V1.drivingDistanceFactor}× the straight-line distance for contiguous-US endpoints only (transit-model-v1 planning assumption); AK/HI transport is not modeled`;
 const METHOD_NOTE = `Distances are straight-line miles between centroids. For two contiguous-US endpoints, road miles are ${TRANSIT_MODEL_V1.drivingDistanceFactor}× that and driving days allow up to ${n(TRANSIT_MODEL_V1.milesPerDrivingDay)} road miles a day (planning assumptions, not a delivery window). Alaska/Hawaii pairs need mode-specific transport data: road miles and transport days are not modeled; ask your mover. Coverage counts are recomputed when movers change their rules.`;
 const DRIVING_DAYS_NOTE = `at up to ${n(TRANSIT_MODEL_V1.milesPerDrivingDay)} road miles a day (transit-model-v1 planning assumption; loading, unloading and the delivery spread are extra)`;
@@ -189,10 +195,10 @@ async function loadContext(db: Queryable, options: GenerateOptions): Promise<Con
     if (!row) throw new Error(`seo_states has no row for ${s.code}; run pnpm seo:import-geo first`);
     return { ...s, lat: row.lat, lng: row.lng, zipCount: row.zip_count, countyCount: row.county_count, cityCount: row.city_count };
   });
-  const cityRows = await db.query<{ id: number; state_code: string; slug: string; name: string; county_name: string | null; county_fips: string | null; lat: number; lng: number; population: number | null; population_source: "acs" | "plotly" | null; housing_units: number | null; land_area_sqmi: number | null; fips_class: string | null; zips: string[]; population_rank_in_state: number | null }>(
-    "select id, state_code, slug, name, county_name, county_fips, lat, lng, population, population_source, housing_units, land_area_sqmi, fips_class, zips, population_rank_in_state from seo_cities where population is not null order by population desc, slug",
+  const cityRows = await db.query<{ id: number; state_code: string; slug: string; name: string; county_name: string | null; county_fips: string | null; lat: number; lng: number; population: number | null; population_source: "acs" | "plotly" | null; place_geoid: string | null; housing_units: number | null; land_area_sqmi: number | null; fips_class: string | null; zips: string[]; population_rank_in_state: number | null }>(
+    "select id, state_code, slug, name, county_name, county_fips, lat, lng, population, population_source, place_geoid, housing_units, land_area_sqmi, fips_class, zips, population_rank_in_state from seo_cities where population is not null order by population desc, slug",
   );
-  const cities: CityRec[] = cityRows.rows.map((r) => ({ id: r.id, stateCode: r.state_code, slug: r.slug, name: r.name, countyName: r.county_name, countyFips: r.county_fips, lat: r.lat, lng: r.lng, population: r.population, populationSource: r.population_source, housingUnits: r.housing_units, landAreaSqMi: r.land_area_sqmi, fipsClass: r.fips_class, zips: r.zips, rank: r.population_rank_in_state }));
+  const cities: CityRec[] = cityRows.rows.map((r) => ({ id: r.id, stateCode: r.state_code, slug: r.slug, name: r.name, countyName: r.county_name, countyFips: r.county_fips, lat: r.lat, lng: r.lng, population: r.population, populationSource: r.population_source, placeGeoid: r.place_geoid, housingUnits: r.housing_units, landAreaSqMi: r.land_area_sqmi, fipsClass: r.fips_class, zips: r.zips, rank: r.population_rank_in_state }));
   const citiesByState = new Map<string, CityRec[]>();
   for (const c of cities) {
     const list = citiesByState.get(c.stateCode);
@@ -205,6 +211,7 @@ async function loadContext(db: Queryable, options: GenerateOptions): Promise<Con
   const questions = (await db.query<{ keyword: string; intent: string | null; geography: string | null; source: string; researched_on: string | null }>("select keyword, intent, geography, source, researched_on from seo_research where kind = 'question' order by keyword")).rows.map((r) => ({ keyword: r.keyword, intent: r.intent, geography: r.geography, source: r.source, researchedOn: r.researched_on }));
   const usedMedia = new Set((await db.query<{ media_id: string }>("select media_id from seo_media_usage")).rows.map((r) => r.media_id));
   const mediaByUrl = new Map((await db.query<{ url: string; media_ids: string[] }>("select url, media_ids from seo_pages where jsonb_array_length(media_ids) > 0")).rows.map((r) => [r.url, r.media_ids]));
+  const routeEvidenceUrls = new Set((await db.query<{ url: string }>(`select url from seo_pages where family='route' and content @> '{"sections":[{"id":"zip-geography"}]}'::jsonb`)).rows.map((row) => row.url));
   const countyZipRows = await db.query<{ state_code: string; county_fips: string; n: number }>("select state_code, county_fips, count(*)::int as n from seo_zips group by state_code, county_fips order by state_code, n desc, county_fips");
   const countyZips = new Map<string, { fips: string; name: string; zips: number }[]>();
   for (const r of countyZipRows.rows) countyZips.set(r.state_code, [...(countyZips.get(r.state_code) ?? []), { fips: r.county_fips, name: countyByFips(r.county_fips)?.name ?? r.county_fips, zips: r.n }]);
@@ -257,6 +264,7 @@ async function loadContext(db: Queryable, options: GenerateOptions): Promise<Con
     media: options.media ?? [],
     usedMedia,
     mediaByUrl,
+    routeEvidenceUrls,
     log: options.log ?? (() => undefined),
   };
 }
@@ -1033,12 +1041,13 @@ function routeQuestions(ctx: Context, seed: number, interstate: boolean, count =
   return out;
 }
 
-function routeDraft(ctx: Context, route: RouteRec): Draft {
+function routeDraft(ctx: Context, route: RouteRec, evidenceBrief = false): Draft {
   const o = ctx.stateByCode.get(route.originState)!;
   const d = ctx.stateByCode.get(route.destinationState)!;
   const oc = route.originCityId ? ctx.cityById.get(route.originCityId) : undefined;
   const dc = route.destinationCityId ? ctx.cityById.get(route.destinationCityId) : undefined;
   const isCity = route.kind === "city";
+  const expandedCityGuide = isCity && (evidenceBrief || route.reason === "city_interstate_hub" || ctx.routeEvidenceUrls.has(routeUrl(route.slug)));
   const originName = isCity ? `${oc!.name}, ${o.code}` : o.name;
   const destName = isCity ? `${dc!.name}, ${d.code}` : d.name;
   const originShort = isCity ? oc!.name : o.name;
@@ -1073,6 +1082,8 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   } else {
     dataPoints.push({ label: "ZIP codes at each end", value: `${o.name} ${n(o.zipCount)}; ${d.name} ${n(d.zipCount)}`, basis: "GeoNames" });
   }
+  const comparisons = isCity ? routeComparisonSections(oc!, dc!) : { sections: [], dataPoints: [], sources: [], evidence: 0 };
+  dataPoints.push(...comparisons.dataPoints);
   const answer = pick(seed, 0, [
     `Moving from ${originName} to ${destName} is ${typeWords[route.moveType]} of about ${milesText(route.distanceMiles)} heading ${heading}, roughly ${roadMiles(route.distanceMiles, o.code, d.code)} road miles${route.moveType !== "local" ? ` and ${daysText(route.distanceMiles, o.code, d.code)}` : ""}${band ? `, priced in the ${band} band` : ""}. As of ${ctx.today}, ${coverageSentence(coverage, "this direction", originShort)}.`,
     `${originName} to ${destName}: about ${milesText(route.distanceMiles)} ${heading} between centroids, ${driveText(route.distanceMiles, o.code, d.code)}, ${typeWords[route.moveType]}${band ? ` in the ${band} band` : ""}${route.moveType !== "local" ? `, ${daysText(route.distanceMiles, o.code, d.code)} for the truck` : ""}. On ${ctx.today}, ${coverageSentence(coverage, "moves in this direction", originShort)}; the reverse direction has [its own page](${routeUrl(reverseSlug)}).`,
@@ -1086,7 +1097,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
   const originRows = originSide.map((c) => {
     const miles = distanceMiles(c, destPoint);
     const t = classify(c.stateCode === d.code, miles);
-    return [cityLink(c), mi(miles), compass(c, destPoint), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", roadMiles(miles, c.stateCode, d.code), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, roadDays(miles, c.stateCode, d.code, t === "local")];
+    return [cityLink(c), mi(distanceMiles(originPoint, c)), mi(miles), `${miles >= route.distanceMiles ? "+" : "−"}${mi(Math.abs(miles - route.distanceMiles))}`, compass(c, destPoint), c.population ? n(c.population) : "n/a", c.housingUnits ? n(c.housingUnits) : "n/a", roadMiles(miles, c.stateCode, d.code), t === "local" ? "local" : `${t}, ${bandShort(miles)}`, roadDays(miles, c.stateCode, d.code, t === "local")];
   });
   // Destination side: where each city lies from the origin, with its own size and ZIP count (a different cut from the reverse page's origin side).
   const destRows = destSide.map((c) => {
@@ -1138,8 +1149,8 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
       id: "corridor",
       heading: pick(seed, 8, [`Around ${originShort} and ${destShort}: distances along the corridor`, `Starting near ${originShort}, arriving near ${destShort}`, `The ${originShort} to ${destShort} corridor in miles`]),
       blocks: [
-        { type: "paragraph", text: `${isCity ? `The ten cities nearest ${originShort}` : `${o.name}'s ten largest cities`} and their trip to ${destShort}${originRows[1] ? ` (${originSide[1]!.name}: ${originRows[1][1]} mi heading ${originRows[1][2]})` : ""}; ${isCity ? `the ten nearest ${destShort}` : `${d.name}'s ten largest`} seen from ${originShort}${destRows[1] ? ` (${destSide[1]!.name}: ${destRows[1][1]} mi ${destRows[1][2]})` : ""}${alongRows.length ? `; and ${plural(alongRows.length, "city", "cities")} of ${n(CITY_PAGE_MIN_POPULATION)}+ people near the straight line between them` : ""}.` },
-        { type: "table", caption: `Origin side: the trip to ${destShort}`, columns: ["City", `To ${destShort} (mi)`, "Heading", "Population", "Housing units", "Est. road (mi)", "Classified as, band (mi)", "Driving days"], rows: originRows },
+        { type: "paragraph", text: `${isCity ? `The ten cities nearest ${originShort}` : `${o.name}'s ten largest cities`} and their trip to ${destShort}${originRows[1] ? ` (${originSide[1]!.name}: ${originRows[1][2]} mi heading ${originRows[1][4]})` : ""}; ${isCity ? `the ten nearest ${destShort}` : `${d.name}'s ten largest`} seen from ${originShort}${destRows[1] ? ` (${destSide[1]!.name}: ${destRows[1][1]} mi ${destRows[1][2]})` : ""}${alongRows.length ? `; and ${plural(alongRows.length, "city", "cities")} of ${n(CITY_PAGE_MIN_POPULATION)}+ people near the straight line between them` : ""}.` },
+        { type: "table", caption: `Origin side: straight-line comparisons to the ${originShort}–${destShort} baseline`, columns: ["City", `From ${originShort} (mi)`, `To ${destShort} (mi)`, "Difference vs baseline (mi)", "Heading", "Population", "Housing units", "Est. road (mi)", "Classified as, band (mi)", "Driving days"], rows: originRows },
         { type: "table", caption: `Destination side: where each lies from ${originShort}`, columns: ["City", `From ${originShort} (mi)`, "Direction", "Population", "Housing units", "Density (per sq mi)", "ZIP codes", "County"], rows: destRows },
         ...(alongRows.length ? [{ type: "table" as const, caption: `Cities within 40 miles of the straight line, in order from ${originShort}`, columns: ["City", `From ${originShort} along the line (mi)`, "Off the line (mi)", "Direction", "Population", "Housing units", `To ${destShort} (mi)`], rows: alongRows }] : []),
         ...(originZipRows.length ? [{ type: "table" as const, caption: `${zipCity!.name} ZIP codes and their distance to ${destShort}`, columns: ["ZIP code", `To ${destShort} (mi)`, "Heading", "Place", "Centroid (lat, lng)", "Est. road (mi)"], rows: originZipRows }] : []),
@@ -1170,7 +1181,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
     metaDescription: clampDescription(`${originName} to ${destName}: about ${milesText(route.distanceMiles)} straight line, ${roadMiles(route.distanceMiles, o.code, d.code)} estimated road miles, ${typeShort(route.moveType)}${band ? ` in the ${band} band` : ""}; ${n(coverage.matched.length)} network movers cover this direction as of ${ctx.today}, with cost ranges where rate cards exist and the rules that apply.`),
     h1: `Moving from ${originName} to ${destName}`,
     content: { version: 1, intro: { answer, dataPoints }, sections, faq: [], related: [], quote: quoteFor(originZip, destZip, `${originShort} and ${destShort} ZIP codes`, seed), schemaType: "Article", credits: [CREDITS.geonames, CREDITS.cities, CREDITS.census], dataAsOf: ctx.today },
-    sources: sourcesOf([...originReg, ...destReg, ...national]),
+    sources: [...sourcesOf([...originReg, ...destReg, ...national]), ...comparisons.sources],
     mediaIds: pickMedia(ctx, routeUrl(route.slug), { hero: [["route", stateTag(o.code)], ["route", stateTag(d.code)], ["route", "hero"], ["route", "landscape"]], card: [] }),
     evidenceCount: 0,
     blocked: transit ? [] : ["blocked: unsupported transport mode (AK/HI needs mode-specific routing and transport data)"],
@@ -1178,6 +1189,7 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
     minEvidence: 6,
   };
   draft._finish = async () => {
+    draft.content.sections.splice(1, 0, ...comparisons.sections);
     const block = await costBlockFor(ctx.db, { originState: o.code, areaName: o.name, miles: route.distanceMiles, moveType: route.moveType, scope: `${typeWords[route.moveType]} from ${o.name} of about ${milesText(route.distanceMiles)} (${originShort} to ${destShort})` }, new Date(), ctx.cardCache);
     draft.content.sections.push({ id: "costs", heading: pick(seed, 4, [`What ${originShort} to ${destShort} costs: rate-card ranges`, `Cost ranges for ${originShort} to ${destShort}`, `${originShort} to ${destShort} moving cost, from the data we have`]), blocks: [{ type: "paragraph", text: block.rows.length ? `${plural(block.rows[0]!.movers, "mover")} with active cards covering ${o.name} price the ${band ?? "local"} band; the 2-bedroom typical shipment is ${block.rows.find((r) => r.homeSize === "2 bedrooms")?.typical ?? block.rows[0]!.typical} (cost-model-v1, [method](/moving-cost-calculator/method/)). Planning figures, never a quote.` : `${ctx.cardMovers.get(o.code) ?? 0} of the 5 rate cards a ${originShort} to ${destShort} range needs cover ${o.name}, so no figure is shown.` }, { type: "cost", block }] });
     const ruleBlocks: ContentBlock[] = [];
@@ -1215,7 +1227,46 @@ function routeDraft(ctx: Context, route: RouteRec): Draft {
       { heading: "Origin and destination", links: isCity ? [{ href: cityUrl(o, oc!), label: `Movers in ${originName}`, relation: "origin" }, { href: cityUrl(d, dc!), label: `Movers in ${destName}`, relation: "destination" }, { href: stateUrl(o), label: `Moving companies in ${o.name}`, relation: "origin_state" }, ...(o.code !== d.code ? [{ href: stateUrl(d), label: `Moving companies in ${d.name}`, relation: "destination_state" }] : [])] : [{ href: stateUrl(o), label: `Moving companies in ${o.name}`, relation: "origin_state" }, { href: stateUrl(d), label: `Moving companies in ${d.name}`, relation: "destination_state" }, { href: costStateUrl(o), label: `Moving costs in ${o.name}`, relation: "cost" }] },
       { heading: "Services and questions", links: [{ href: route.moveType === "interstate" ? "/services/interstate/" : route.moveType === "local" ? "/services/local/" : "/services/long-distance/", label: route.moveType === "interstate" ? "Interstate movers" : route.moveType === "local" ? "Local movers" : "Long-distance movers", relation: "service" }, { href: route.moveType === "local" ? "/moving-costs/local/" : "/moving-costs/long-distance/", label: route.moveType === "local" ? "Local moving costs" : "Long-distance moving costs", relation: "cost" }, { href: "/questions/what-is-a-moving-delivery-spread/", label: "What is a delivery spread?", relation: "question" }, { href: "/questions/what-is-the-110-percent-rule/", label: "What is the 110% rule?", relation: "question" }, { href: "/planning/moving-out-of-state-checklist/", label: "Moving out of state checklist", relation: "planning" }] },
     ];
-    draft.evidenceCount = dataPoints.length + endRows.length + national.length + originReg.length + destReg.length + (block.rows.length ? 1 : 0) + originRows.length + destRows.length + alongRows.length + originZipRows.length + qFacts.length + (tzNote ? 1 : 0);
+    draft.evidenceCount = dataPoints.length + endRows.length + national.length + originReg.length + destReg.length + (block.rows.length ? 1 : 0) + originRows.length + destRows.length + alongRows.length + originZipRows.length + qFacts.length + (tzNote ? 1 : 0) + comparisons.evidence;
+    if (expandedCityGuide) {
+      // New guides have their own concise evidence brief. Historical published guides are
+      // preserved by the expansion caller, rather than rewritten into this format.
+      const zipPairs: string[][] = [];
+      draft.title = `Moving from ${originName} to ${destName}: Distance, Housing & Planning`;
+      draft.metaDescription = clampDescription(`${originName} to ${destName}: ${milesText(route.distanceMiles)} straight line, Census housing comparisons, exact-ZIP geography and written-estimate planning.`);
+      const sample = (city: CityRec, size: number) => representativePoints(city.zips.flatMap((zip) => {
+        const point = lookupZip(zip); return point && point.state === city.stateCode ? [{ ...point, key: zip }] : [];
+      }), size, city);
+      for (const from of sample(oc!, 5)) for (const to of sample(dc!, 16)) {
+        const miles = distanceMiles(from, to), delta = miles - route.distanceMiles;
+        zipPairs.push([from.key, to.key, miles.toFixed(1), compass(from, to), `${delta < 0 ? "−" : "+"}${Math.abs(delta).toFixed(1)}`]);
+      }
+      const comparisonTables = comparisons.sections.map((section) => ({ ...section, blocks: section.blocks.filter((item) => item.type === "table") }));
+      draft.content.intro = {
+        answer: `${originName} → ${destName} is an interstate household move: ${milesText(route.distanceMiles)} straight line, heading ${heading}. Compare both places' Census housing figures and the ZIP-centroid samples below. Road mileage and delivery time require a mover's verified route and written delivery terms; no road or transit-time figure is claimed here.`,
+        dataPoints: [{ ...dataPoints[0]!, basis: "Haversine between US Cities Database place centroids; ZIP samples use GeoNames centroids" }, ...dataPoints.filter((point) => point.label === "Populations" || point.label === "Historical rent comparison"), { label: "Transport basis", value: "Road route and delivery window not verified", basis: "Centroid geometry cannot establish truck routing or delivery dates" }],
+      };
+      draft.content.sections = [
+        { id: "facts", heading: `${originShort} and ${destShort}: place facts`, blocks: [{ type: "table", caption: `${ACS_VINTAGE} population/housing; ${GAZETTEER_VINTAGE} land area`, columns: ["Fact", originName, destName], rows: endRows }, ...(tzNote ? [{ type: "paragraph" as const, text: `${tzNote} Based on mapped primary counties; verify appointment time zones for both exact addresses.` }] : [])] },
+        ...comparisonTables,
+        { id: "zip-geography", heading: `${originShort} ZIPs compared with ${destShort} ZIPs`, blocks: [
+          { type: "table", caption: "Geographically spread ZIP samples associated with each place, from GeoNames. Straight-line miles, not road distances; difference is relative to the city-centroid baseline. ZIPs are not municipal boundaries.", columns: [`${originShort} ZIP`, `${destShort} ZIP`, "Straight-line miles", "Bearing", "Difference (mi)"], rows: zipPairs },
+          ...(alongRows.length ? [{ type: "table" as const, caption: `Places near the centroid line, not a verified highway itinerary`, columns: ["Place", `From ${originShort} along line (mi)`, "Off line (mi)", "Bearing", "Population", "Housing units", `To ${destShort} (mi)`], rows: alongRows }] : []),
+        ] },
+        { id: "planning", heading: `Plan the ${originShort} to ${destShort} handover`, blocks: [
+          { type: "paragraph", text: `${originName} pickup → ${destName} delivery: confirm the inventory, floor/elevator, parking and carrying distance at both addresses. State-wide or city-wide housing figures cannot establish your building's access.` },
+          { type: "paragraph", text: `${VINTAGE_ROUTE_LIMITS} ${originShort} and ${destShort} differences compare point estimates, not statistical significance. Derived housing shares have no calculated uncertainty intervals.`, },
+          { type: "paragraph", text: `${o.name} → ${d.name} is interstate: verify the mover's USDOT record and obtain a written estimate and delivery terms. Companies identify themselves when they contact you; the survey checks eligibility for your exact ZIPs and contact limit.` },
+          ...(originReg.length ? [factsBlock(originReg)] : []), ...(destReg.length ? [factsBlock(destReg)] : []),
+          ...(block.rows.length ? [{ type: "cost" as const, block }] : [{ type: "paragraph" as const, text: `No supported moving-cost range for ${originName} → ${destName}: fewer than five qualifying active rate cards. Request an inventory-based written estimate.` }]),
+        ] },
+      ];
+      draft.content.faq = [
+        { question: `Is ${originShort} to ${destShort} mileage a truck route?`, answer: `No. The ${mi(route.distanceMiles)}-mile ${heading} city-centroid comparison and ZIP samples are geographic distances. Ask the mover to verify its road route, access restrictions and written delivery window.` },
+      ];
+      draft.evidenceCount = endRows.length + comparisons.evidence + zipPairs.length + alongRows.length + originReg.length + destReg.length;
+      if (comparisons.evidence < 9 || !zipPairs.length) draft.blocked.push("blocked: insufficient distinct route evidence (Census comparison or ZIP geometry missing)");
+    }
   };
   return draft;
 }
@@ -1432,7 +1483,7 @@ async function costDrafts(ctx: Context, limit: number): Promise<Draft[]> {
 // ------------------------------------------------------------------ candidates
 
 /** A candidate is cheap to hold; its draft is built chunk by chunk. */
-type Candidate = () => Promise<Draft> | Draft;
+type Candidate = (() => Promise<Draft> | Draft) & { url?: string };
 
 async function candidates(ctx: Context, family: SeoFamily, limit: number, only: string[] | undefined, options: GenerateOptions): Promise<Candidate[]> {
   const take = <T>(list: T[]) => list.slice(0, limit);
@@ -1473,7 +1524,7 @@ async function candidates(ctx: Context, family: SeoFamily, limit: number, only: 
         return measured * 1000 + (r.kind === "state" ? pop * 10 : pop / 1000);
       };
       const ordered = rows.filter((r) => !only || only.includes(r.slug)).filter((r) => r.kind === "state" || (ctx.cityById.has(r.originCityId!) && ctx.cityById.has(r.destinationCityId!))).map((r) => ({ r, s: score(r) })).sort((a, b) => b.s - a.s).map((x) => x.r);
-      return take(ordered).map((r) => () => routeDraft(ctx, r));
+      return take(ordered).map((r) => Object.assign(() => routeDraft(ctx, r, options.routeEvidenceBrief), { url: routeUrl(r.slug) }));
     }
     case "service":
     case "question":
@@ -1499,6 +1550,12 @@ export interface GenerateOptions {
   chunkSize?: number;
   /** Renew a deployment lease between chunks; never runs in a per-page hot path. */
   onProgress?: () => Promise<void>;
+  /** Expansion runs insert missing pages, preserving every saved page's authored content. */
+  preserveExisting?: boolean;
+  /** Reassess the whole family even when an interrupted run already saved every candidate. */
+  refreshQuality?: boolean;
+  /** New city-route cohort: sourced concise brief, with no unverified road/day predictions. */
+  routeEvidenceBrief?: boolean;
   log?: (line: string) => void;
 }
 
@@ -1540,7 +1597,9 @@ async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options
   for (let i = 0; i < cands.length; i += chunkSize) {
     const drafts: Draft[] = [];
     for (const make of cands.slice(i, i + chunkSize)) {
+      if (options.preserveExisting && make.url && previous.has(make.url)) continue;
       const draft = await make();
+      if (options.preserveExisting && previous.has(draft.url)) continue;
       if (draft._finish) await draft._finish();
       drafts.push(draft);
     }
@@ -1601,11 +1660,12 @@ async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options
 
   // Uniqueness against every page of the family (this run and earlier ones), from the shingle index.
   const allPages = await db.query<{ url: string; blocked_reason: string | null; content_hash: string }>("select url, blocked_reason, content_hash from seo_pages where family = $1", [family]);
-  const scored = written.length ? await scoreShingleCorpus(db, family, allPages.rows.map((w) => w.url), ctx.log) : null;
+  const assessQuality = written.length > 0 || options.refreshQuality === true;
+  const scored = assessQuality ? await scoreShingleCorpus(db, family, allPages.rows.map((w) => w.url), ctx.log) : null;
   const shares = scored?.shares ?? new Map<string, number>();
   const writtenByUrl = new Map(written.map((w) => [w.url, w]));
   const decisions: { url: string; content_hash: string; share: number; unique: object; reason: string | null; status: string; indexable: boolean }[] = [];
-  for (const page of written.length ? allPages.rows : []) {
+  for (const page of assessQuality ? allPages.rows : []) {
     const w = writtenByUrl.get(page.url) ?? { url: page.url, blocked: page.blocked_reason && !page.blocked_reason.startsWith("blocked: below 40% unique content") ? [page.blocked_reason] : [] };
     const share = shares.get(w.url) ?? 0;
     const unique = { passed: share >= UNIQUE_SHARE_MIN, detail: `${Math.round(share * 100)}% of 5-word shingles unique within the family; ${Math.round(UNIQUE_SHARE_MIN * 100)}% needed` };

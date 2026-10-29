@@ -78,6 +78,8 @@ export const envSchema = z.object({
   APP_URL: url("http://localhost:3001"),
   CRON_SECRET: z.preprocess(blankToUndefined, z.string().min(16, "must be at least 16 characters").optional()),
   DEMO_MODE: flag(true),
+  /** Explicit demo-owner preference; ignored whenever DEMO_MODE is false. */
+  DEMO_ADMIN_PASSWORD_ONLY: flag(false),
   SITE_INDEXABLE: flag(false),
 
   /** Sender for transactional email when Postmark is configured. */

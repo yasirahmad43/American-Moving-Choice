@@ -13,6 +13,7 @@ import { KNOWN_PASSWORDS, buildSeedSql, seedOptionsFromEnv } from "../seed/build
 import { clientConfig, redactUrl } from "./lib";
 import { migrate } from "./migrate";
 import { bootstrapSeo } from "../../packages/server/src/seo/bootstrap";
+import { bootstrapRoutes } from "../../packages/server/src/seo/route-bootstrap";
 import { verifyMediaStorage } from "../../packages/server/src/media/storage-probe";
 
 async function main(): Promise<void> {
@@ -80,7 +81,9 @@ async function main(): Promise<void> {
       await client.query(out.sql); // the seed runs in one transaction
       console.log("vercel-deploy: demo seed loaded");
     }
-    await bootstrapSeo(client);
+    const seoStarted = Date.now();
+    await bootstrapSeo(client, { maxRunMs: 25 * 60_000 });
+    await bootstrapRoutes(client, { maxRunMs: Math.max(1, 25 * 60_000 - (Date.now() - seoStarted)) });
     await verifyMediaStorage();
   } finally {
     await client.end();

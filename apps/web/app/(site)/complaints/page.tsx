@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
-import { Note, Token } from "@/components/site/review-notes";
+import { Note } from "@/components/site/review-notes";
+import { BusinessContactChannels } from "@/components/site/business-details";
 
 const URL = "/complaints/";
 const TITLE = "Complaints About a Mover or Broker | American Moving Choice";
@@ -31,9 +32,9 @@ export default function ComplaintsPage() {
       <h2>Tell American Moving Choice</h2>
       <p>
         Use <Link href="/report-a-concern/">Report a concern</Link> if a company you heard from through us acted as a broker, contacted you without
-        permission or outside your chosen channels, didn't identify itself, showed credentials that look wrong, or treated you badly. You can also write to{" "}
-        <Token k="org.support_email" />.
+        permission or outside your chosen channels, didn't identify itself, showed credentials that look wrong, or treated you badly. Leave your contact details in the form if you want us to get in touch.
       </p>
+      <BusinessContactChannels />
       <ol>
         <li>You get a case reference straight away. Quote it if you write to us about the same problem.</li>
         <li>Someone on our team reviews the report and may contact you if you left contact details.</li>

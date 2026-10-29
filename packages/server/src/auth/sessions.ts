@@ -5,6 +5,7 @@
 import { getPool, type Queryable } from "../db/pool";
 import { SESSION_TTL_SECONDS } from "../session-cookie";
 import { isTokenShaped, newToken, sha256Hex } from "./tokens";
+import { demoAdminPasswordOnly } from "./mfa-policy";
 
 export { SESSION_COOKIE, SESSION_TTL_SECONDS } from "../session-cookie";
 /** How often activity moves expires_at forward; avoids a write on every request. */
@@ -149,6 +150,7 @@ export async function markSessionMfaPassed(sessionId: string, db: Queryable = ge
  */
 export function mfaRequirement(entry: SessionWithUser): "ok" | "setup" | "verify" {
   const { user, session } = entry;
+  if (demoAdminPasswordOnly(user.adminRole)) return "ok";
   if (user.adminRole && !user.mfaEnabled) return "setup";
   if (user.mfaEnabled && !session.mfaPassedAt) return "verify";
   return "ok";

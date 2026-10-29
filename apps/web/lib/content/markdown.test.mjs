@@ -99,7 +99,7 @@ describe("tokens", () => {
   });
 
   it("resolves tokens in plain text for titles", () => {
-    expect(resolveTokensInText("At least {{cost.method.min_movers}} movers | {{org.legal_name}}", resolveToken)).toBe("At least 5 movers | pending: legal name");
+    expect(resolveTokensInText("At least {{cost.method.min_movers}} movers | {{org.legal_name}}", resolveToken)).toBe("At least 5 movers | American Moving Choice");
   });
 
   it("links known [Label] placeholders from stored texts", () => {
