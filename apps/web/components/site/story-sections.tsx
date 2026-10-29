@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LineIcon } from "@amc/ui";
 import { MediaCreditLine, MediaFrame } from "@/components/media/media-frame";
 import type { MediaAsset } from "@/lib/media";
-import { chapterKind, storyIcon, storyImageAt, storyNextItems, type StoryKind, type StoryStep } from "@/lib/content/story-plan";
+import { chapterKind, htmlChapterParts, storyIcon, storyImageAt, storyNextItems, type StoryKind, type StoryStep } from "@/lib/content/story-plan";
 import "./story-sections.css";
 
 interface Chapter { key: string; content: ReactNode; heading?: string; kind?: StoryKind }
@@ -23,7 +23,7 @@ export function separateEditorialNotes(html: string): { body: string; notes: str
 
 /** Keep the complete sanitized document, including its heading anchors, links and source notes. */
 export function htmlChapters(html: string): Chapter[] {
-  return presentEditorialHtml(html).split(/(?=<h2\b)/i).filter((part) => part.trim()).map((part, index) => {
+  return htmlChapterParts(presentEditorialHtml(html)).map((part, index) => {
     const heading = /<h2\b[^>]*>([\s\S]*?)<\/h2>/i.exec(part)?.[1]?.replace(/<a\b[^>]*class="[^"]*heading-anchor[^\"]*"[\s\S]*?<\/a>/gi, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim();
     return { key: String(index), heading, kind: chapterKind(part, heading), content: <div className="prose story-prose" dangerouslySetInnerHTML={{ __html: part }} /> };
   });

@@ -1,6 +1,31 @@
 /* A functional discovery form must remain still while the surrounding hero enters. */
 .vsh__description:has(#guide-search) { animation: none; transform: none; opacity: 1; }
 
+/* Keep categories beside one another before mobile results. Native links remain the control;
+   keyboard focus scrolls each category into view, with no scripting or hidden duplicate tree. */
+.catalog-controls, .catalog-category-nav { min-width: 0; }
+@media (max-width: 1023px) {
+  .catalog-layout { gap: 24px; }
+  .catalog-controls { gap: 12px; }
+  .catalog-categories {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 3px;
+    scrollbar-width: thin;
+    padding: 3px 3px 8px;
+    margin-inline: -3px;
+  }
+  .catalog-categories > li { flex: 0 0 auto; }
+  .catalog-categories a { min-height: 44px; white-space: nowrap; gap: 12px; border: 1px solid var(--border); background: var(--surface); }
+  .catalog-categories a[aria-current="page"] { border-color: var(--brand-navy); background: var(--brand-navy); }
+  .catalog-categories a:focus-visible { outline: 3px solid var(--brand-navy); outline-offset: -3px; }
+  .catalog-states { padding: 0 12px; }
+  .catalog-states > summary { min-height: 44px; padding-block: 10px; }
+  .catalog-states[open] { padding-bottom: 12px; }
+}
+
 .catalog-results { display: grid; gap: 12px; }
 .catalog-result {
   display: grid;
