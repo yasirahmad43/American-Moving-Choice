@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
-import { Note, Token } from "@/components/site/review-notes";
+import { Note } from "@/components/site/review-notes";
+import { BusinessIdentity } from "@/components/site/business-details";
 import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
 
 const URL = "/about/";
@@ -31,7 +32,7 @@ export default function AboutPage() {
 
       <h2>Who runs American Moving Choice</h2>
       <p>
-        American Moving Choice is operated by <Token k="org.legal_name" />, owned by <Token k="org.owner" />, at <Token k="org.address" />.
+        This online moving guide and quote-request service is operated by <BusinessIdentity />.
       </p>
       <p>
         <Note kind="owner">the legal entity, its owner and its address, and any ties between our people and movers, brokers or lead buyers, which this page must disclose (site architecture §7.1; implications §11 Q1, Q10)</Note>
@@ -51,7 +52,7 @@ export default function AboutPage() {
           Requesting quotes is free. You choose how many participating companies may contact you and the channels they may use.
         </li>
         <li>
-          Reviews come only from people whose request a mover bought through us. <Link href="/review-methodology/">How reviews work</Link>
+          Review invitations are linked to recorded requests and company contact. <Link href="/review-methodology/">How reviews work</Link>
         </li>
       </ul>
 

@@ -10,6 +10,7 @@ import type { SeoPageRecord } from "@amc/server/seo";
 import type { Metadata } from "next";
 import { organizationId } from "@/components/site/json-ld";
 import { publicSeoPage } from "./public-content";
+import { socialMetadata } from "@/components/site/social-metadata";
 
 export const NOINDEX: Metadata["robots"] = { index: false, follow: true, googleBot: { index: false, follow: true } };
 
@@ -22,7 +23,7 @@ export function seoMetadata(storedPage: SeoPageRecord): Metadata {
     description: page.metaDescription,
     ...(indexable ? { alternates: { canonical: `${WEB_URL}${page.canonicalUrl}` } } : {}),
     ...(page.indexable ? {} : { robots: NOINDEX }),
-    openGraph: { title: page.title, description: page.metaDescription, url: `${WEB_URL}${page.url}`, type: page.content.schemaType === "Article" ? "article" : "website", siteName: "American Moving Choice" },
+    ...socialMetadata(page.url, page.title, page.metaDescription, { family: page.family, stateCode: page.stateCode ?? undefined, type: page.content.schemaType === "Article" ? "article" : "website" }),
   };
 }
 

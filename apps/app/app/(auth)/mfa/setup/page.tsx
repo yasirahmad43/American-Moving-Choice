@@ -12,6 +12,7 @@ export default async function MfaSetupPage({ searchParams }: { searchParams: Pro
   const { next: rawNext } = await searchParams;
   const next = safeNextPath(rawNext, "");
   const user = await requireSession();
+  if (user.adminRole && user.mfa === "ok" && !user.session.mfaPassedAt) redirect(safeNextPath(next, landingPath(user)));
   if (user.mfaEnabled) redirect(user.mfa === "ok" ? safeNextPath(next, landingPath(user)) : `/mfa${next ? `?next=${encodeURIComponent(next)}` : ""}`);
 
   const setup = await createMfaSetup({ id: user.id, email: user.email });

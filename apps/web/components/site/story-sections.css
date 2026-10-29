@@ -12,6 +12,8 @@
   .story-prose > ul > li { padding:.7rem .85rem .7rem .35rem; border-bottom:1px solid var(--border); }
   .story-prose > ul > li::marker { color:var(--brand-red); }
   .story-prose blockquote { border-left:3px solid var(--brand-red); background:var(--surface-2); border-radius:0 1rem 1rem 0; padding:1.4rem; }
+  .story-prose pre { max-width:100%; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .story-prose pre:focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
   .planning-availability { padding:1.5rem; border:1px solid var(--border); border-top:3px solid var(--brand-red); border-radius:1rem; background:var(--surface); box-shadow:var(--shadow-e2); }
   .planning-availability .planning-availability-kicker { color:var(--brand-navy); font-size:.7rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
   .planning-availability h3 { margin-top:.65rem; font-size:1.5rem; }
@@ -62,7 +64,34 @@
   .story-reader-cta { display:flex; align-items:center; justify-content:space-between; gap:2rem; background:var(--brand-navy); color:white; padding:clamp(1.5rem,4vw,3rem); border-radius:1.3rem; }
   .story-reader-cta h2 { font-family:var(--ff-display); font-size:clamp(1.8rem,3vw,2.6rem); font-weight:800; letter-spacing:-.03em; }
   .story-reader-cta p:last-child { max-width:55ch; opacity:.85; margin-top:.5rem; }
+  .story-answer { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); margin-block:clamp(2rem,5vw,4rem) 1.5rem; border:1px solid var(--border); border-radius:1.4rem; overflow:hidden; background:var(--surface); }
+  .story-answer-main { display:grid; align-content:center; gap:1.1rem; padding:clamp(1.5rem,3.5vw,3rem); background:var(--brand-navy); color:var(--on-band); }
+  .story-answer-main > .type-overline { color:var(--on-band-2); }
+  .story-answer-main h2 { font-family:var(--ff-display); font-size:clamp(2rem,3vw,3rem); font-weight:850; letter-spacing:-.04em; line-height:1.1; }
+  .story-answer-text { font-size:1.1rem; line-height:1.85; }
+  .story-answer-text a { color:inherit; text-decoration:underline; text-underline-offset:4px; }
+  .story-answer-jump { display:flex; align-items:center; justify-content:space-between; min-height:44px; margin-top:.4rem; border-top:1px solid rgba(255,255,255,.25); padding-top:1rem; color:inherit; font-size:.85rem; font-weight:750; text-decoration:none; }
+  .story-answer-actions { min-width:0; max-width:none; padding:clamp(1.5rem,3.5vw,3rem); }
+  .story-answer-actions > h2 { margin-top:0; font-family:var(--ff-display); font-size:1.4rem; letter-spacing:-.025em; }
+  .story-answer-actions > ol { list-style:none; padding:0; counter-reset:guide-action; display:grid; gap:1.2rem; }
+  .story-answer-actions > ol > li { position:relative; min-height:2rem; counter-increment:guide-action; padding-left:2.6rem; font-size:.93rem; line-height:1.65; }
+  .story-answer-actions > ol > li::before { content:counter(guide-action,decimal-leading-zero); position:absolute; left:0; top:.1rem; display:grid; place-items:center; width:1.85rem; height:1.85rem; border:1px solid var(--border); border-radius:50%; color:var(--brand-red); font-size:.67rem; font-weight:800; }
+  .story-answer-actions > p:last-child { padding-top:.8rem; border-top:1px solid var(--border); font-size:.76rem; line-height:1.7; color:var(--text-2); }
+  .story-chapter-data, .story-chapter-sources { grid-template-columns:minmax(0,1fr); }
+  .story-chapter-data .story-chapter-copy, .story-chapter-sources .story-chapter-copy { grid-column:1/-1; grid-row:auto; }
+  .story-chapter-data .story-prose > p, .story-chapter-sources .story-prose { max-width:88ch; }
+  .story-chapter-data .table-wrap { margin-block:1.5rem; }
+  .story-chapter-sources { padding:1.8rem; border:1px solid var(--border); border-radius:1.2rem; background:var(--surface-2); }
+  .story-chapter-sources .story-prose { font-size:.92rem; line-height:1.75; }
+  .story-chapter-sources .story-prose > ul > li { padding:.55rem .2rem; }
+  .story-chapter-checklist .story-prose > ul > li { border:1px solid var(--border); border-radius:.7rem; background:var(--surface); padding:1rem; }
+  .story-chapter-steps .story-prose > ol { gap:1rem; }
+  .story-chapter-steps .story-prose > ol > li { padding:1rem 1.1rem; border-left:2px solid var(--brand-red); background:var(--surface-2); border-radius:0 .7rem .7rem 0; }
+  .story-chapter-example { padding:clamp(1.5rem,3vw,2.5rem); border:1px solid var(--border-strong); border-radius:1.4rem; background:var(--surface-2); }
+  .story-chapter-example .story-photo { aspect-ratio:4/3; }
   @media(max-width:800px) {
+    .story-answer { grid-template-columns:minmax(0,1fr); }
+    .story-answer-text { font-size:1rem; line-height:1.8; }
     .story-chapter, .story-chapter-1, .story-chapter-3 { grid-template-columns:minmax(0,1fr); gap:1.25rem; }
     .story-chapter-1 .story-chapter-copy, .story-chapter-1 .story-chapter-visual { grid-column:auto; grid-row:auto; }
     .story-chapter-visual { position:relative; top:auto; }

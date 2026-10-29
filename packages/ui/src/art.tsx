@@ -6,19 +6,19 @@
 import { cx } from "./cx";
 
 /** An abstract route map: contour lines, a dashed route and the origin ring + destination dot. */
-export function RouteMapArt({ className, tone = "navy" }: { className?: string; tone?: "navy" | "light" }) {
+export function RouteMapArt({ className, tone = "navy", gradientId = "rm-glow" }: { className?: string; tone?: "navy" | "light"; gradientId?: string }) {
   const line = tone === "navy" ? "rgba(255,255,255,0.14)" : "rgba(6,49,103,0.12)";
   const route = tone === "navy" ? "rgba(220,230,244,0.85)" : "rgba(6,49,103,0.8)";
   const ring = tone === "navy" ? "#dce6f4" : "#063167";
   return (
     <svg aria-hidden="true" focusable="false" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" className={cx("block h-full w-full", className)}>
       <defs>
-        <radialGradient id="rm-glow" cx="30%" cy="20%" r="70%">
+        <radialGradient id={gradientId} cx="30%" cy="20%" r="70%">
           <stop offset="0" stopColor={tone === "navy" ? "#9dc4ff" : "#063167"} stopOpacity={tone === "navy" ? 0.35 : 0.08} />
           <stop offset="1" stopColor="#000" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="800" height="600" fill="url(#rm-glow)" />
+      <rect width="800" height="600" fill={`url(#${gradientId})`} />
       <g fill="none" stroke={line} strokeWidth="1.25">
         <path d="M-40 420 C120 380 180 300 300 330 S520 440 640 380 S780 280 860 320" />
         <path d="M-40 470 C110 430 190 350 310 380 S520 500 650 430 S780 330 860 370" />

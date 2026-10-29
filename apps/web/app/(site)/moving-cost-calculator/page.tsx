@@ -4,6 +4,7 @@ import { Calculator } from "@/components/calculator/calculator";
 import { calculatorPageContent, renderTokens } from "@/components/calculator/content";
 import { COPY, MOVING_COSTS } from "@/components/calculator/copy";
 import { VideoSurveyHero } from "@/components/site/video-survey-hero";
+import { socialMetadata } from "@/components/site/social-metadata";
 import { StorySections, StoryNextSteps } from "@/components/site/story-sections";
 import { pageMediaPlan } from "@/lib/page-media";
 import { PUBLIC_REQUEST_ASSURANCE, publicMarketingHtml } from "@/lib/public-copy";
@@ -15,7 +16,7 @@ export function generateMetadata(): Metadata {
   const page = calculatorPageContent();
   // The front-matter title has no site suffix (site architecture §8.2 template, 55 characters).
   // Results render client-side after a POST and never get their own URL, so they can't be indexed.
-  return { title: { absolute: page.title }, description: page.metaDescription, alternates: { canonical: "/moving-cost-calculator/" } };
+  return { title: { absolute: page.title }, description: page.metaDescription, alternates: { canonical: PAGE }, ...socialMetadata(PAGE, page.title, page.metaDescription, { family: "cost", topic: "cost calculator pricing" }) };
 }
 
 /** Styles for the drafted copy rendered from Markdown (headings, lists, links; review notes stay hidden for the public). */

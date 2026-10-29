@@ -3,6 +3,7 @@ import { CheckCircleIcon, Container, IdCardIcon, InfoIcon } from "@amc/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { VideoSurveyHero } from "@/components/site/video-survey-hero";
+import { socialMetadata } from "@/components/site/social-metadata";
 import { StoryNextSteps } from "@/components/site/story-sections";
 import { Survey } from "@/components/survey/survey";
 import { StoredTextLine, type SurveyTexts } from "@/components/survey/texts";
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   description:
     "Tell us about your move, check availability, choose how many can contact you, and send your request. Free to request. You choose your contact preferences.",
   alternates: { canonical: "/get-quotes/" },
+  ...socialMetadata(PAGE, "Request Moving Quotes | American Moving Choice", "Tell us about your move, check availability, and choose how many companies may contact you and how. Free to request.", { topic: "survey household route" }),
 };
 
 // Settings and the active consent text are read per request.

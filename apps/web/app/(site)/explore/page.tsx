@@ -8,8 +8,9 @@ import { STATES } from "@amc/server/geo";
 import { VideoSurveyHero } from "@/components/site/video-survey-hero";
 import { MediaFrame } from "@/components/media/media-frame";
 import { CategoryIcon } from "@/components/navigation/category-icon";
+import { socialMetadata } from "@/components/site/social-metadata";
 import { mediaById } from "@/lib/media";
-import { pageMediaPlan } from "@/lib/page-media";
+import { pageCardImage, pageMediaPlan } from "@/lib/page-media";
 import { GUIDE_FAMILIES, PUBLIC_NAV_GROUPS } from "@/lib/site";
 import { catalogFilters, catalogUrl, CATALOG_PAGE_SIZE, navigationOverview, publicCatalog, standaloneCatalog } from "@/lib/public-discovery";
 import "./explore.css";
@@ -24,7 +25,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const filtered = filters.query || filters.state || filters.type !== "all" || filters.page > 1;
   return { title: "All Moving Guides & Pages | American Moving Choice", description: DESCRIPTION,
     ...(filtered ? { robots: { index: false, follow: true } } : SITE_INDEXABLE ? { alternates: { canonical: `${WEB_URL}/explore/` } } : {}),
-    openGraph: { title: "A little knowledge. A better move.", description: DESCRIPTION, url: `${WEB_URL}${catalogUrl(filters)}`, type: "website", siteName: "American Moving Choice" } };
+    ...socialMetadata(catalogUrl(filters), "All Moving Guides & Pages | American Moving Choice", DESCRIPTION, { family: filters.type === "all" ? undefined : filters.type, stateCode: filters.state || undefined }) };
 }
 
 export default async function ExplorePage({ searchParams }: Props) {
@@ -41,6 +42,13 @@ export default async function ExplorePage({ searchParams }: Props) {
     { id: "cost", imageId: "costs-coins-and-bills-in-a" },
     { id: "planning", imageId: "planning-checklist-table-tape-notebook" },
   ];
+  // One render owns this variety set; catalog imagery makes no exclusive media claims.
+  const usedCardImages = new Set([...media.images.map((image) => image.id), ...featured.map((entry) => entry.imageId)]);
+  const cardImages = new Map(result.pages.map((page) => [page.url, pageCardImage(page.url, {
+    family: page.family,
+    topic: page.title,
+    stateCode: STATES.find((entry) => entry.code === page.stateCode)?.code,
+  }, usedCardImages)]));
   const numbers = [...new Set([1, ...Array.from({ length: 5 }, (_, i) => filters.page - 2 + i).filter((page) => page >= 1 && page <= pageCount), pageCount])].sort((a, b) => a - b);
   const state = STATES.find((entry) => entry.code === filters.state);
   const category = GUIDE_FAMILIES.find((entry) => entry.id === filters.type);
@@ -87,10 +95,14 @@ export default async function ExplorePage({ searchParams }: Props) {
           </aside>
           <div className="min-w-0">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-display text-xl font-extrabold text-text">{filters.query ? `Results for “${filters.query}”` : category?.label ?? (filters.type === "page" ? "Tools, about & policies" : "Every guide & public page")}{state ? ` in ${state.name}` : ""}</h3><p className="mt-1 type-small tabular text-text-2">{result.total ? `${((filters.page - 1) * CATALOG_PAGE_SIZE + 1).toLocaleString("en-US")}–${Math.min(filters.page * CATALOG_PAGE_SIZE, result.total).toLocaleString("en-US")} of ${result.total.toLocaleString("en-US")} pages` : "No matching pages"}</p></div>{filters.query || filters.state || filters.type !== "all" ? <Link href="/explore/" className="inline-flex min-h-11 items-center font-semibold text-link underline underline-offset-4">Clear filters</Link> : null}</div>
-            {result.pages.length ? <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{result.pages.map((page) => {
+            {result.pages.length ? <ul aria-label="Guide search results" className="catalog-results">{result.pages.map((page) => {
               const family = GUIDE_FAMILIES.find((entry) => entry.id === page.family);
               const group = PUBLIC_NAV_GROUPS.find((entry) => entry.links.some((link) => link.href === page.url));
-              return <li key={page.url} className="min-w-0"><Link href={page.url} aria-label={page.title} className="group/result grid h-full min-h-36 content-between gap-5 rounded-card border border-border bg-surface p-5 text-text no-underline transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-navy/40 hover:shadow-e2 motion-reduce:transform-none"><span className="inline-flex items-center gap-2 type-overline text-text-3"><CategoryIcon family={page.family === "page" ? (PAGE_GROUP_ICON[group?.id ?? ""] ?? "page") : page.family} className="shrink-0 text-brand-red" />{family?.label ?? group?.label ?? "American Moving Choice"}{page.stateCode ? ` · ${page.stateCode}` : ""}</span><span className="flex items-end justify-between gap-3 font-display text-lg font-bold leading-snug"><span className="min-w-0 [overflow-wrap:anywhere]">{page.title}</span><ArrowRightIcon size={18} className="shrink-0 text-brand-red transition-transform group-hover/result:translate-x-0.5" /></span></Link></li>;
+              const image = cardImages.get(page.url)!;
+              return <li key={page.url} className="min-w-0"><Link href={page.url} aria-label={page.title} className="catalog-result group/result">
+                <span className="catalog-result-photo" data-catalog-image={image.id} aria-hidden="true"><MediaFrame asset={image} alt="" sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 34vw, (min-width: 640px) 48vw, 96px" /></span>
+                <span className="catalog-result-copy"><span className="catalog-result-category type-overline text-text-3"><CategoryIcon family={page.family === "page" ? (PAGE_GROUP_ICON[group?.id ?? ""] ?? "page") : page.family} className="shrink-0 text-brand-red" /><span>{family?.label ?? group?.label ?? "American Moving Choice"}{page.stateCode ? ` · ${page.stateCode}` : ""}</span></span><span className="catalog-result-title"><span>{page.title}</span><ArrowRightIcon size={18} className="shrink-0 text-brand-red" /></span></span>
+              </Link></li>;
             })}</ul> : <div className="grid gap-4 rounded-card border border-dashed border-border-strong bg-surface p-8"><h4 className="font-display text-2xl font-bold text-text">Let’s try a different direction.</h4><p className="max-w-[50ch] text-text-2">Try a nearby city, a broader topic or another state. Only published guides appear here. You can still check your exact move in the quote survey.</p><Link href="/get-quotes/" className="inline-flex min-h-12 w-fit items-center gap-3 font-bold text-link underline underline-offset-4">Check your move <ArrowRightIcon size={17} /></Link></div>}
             {pageCount > 1 ? <nav aria-label="Catalog result pages" className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6"><p className="type-small tabular text-text-2">Page {filters.page} of {pageCount}</p><ul className="flex flex-wrap items-center gap-1">{filters.page > 1 ? <li><Link href={catalogUrl({ ...filters, page: filters.page - 1 })} rel="prev" className="inline-flex min-h-11 items-center px-3 font-semibold text-link">Previous</Link></li> : null}{numbers.map((number, index) => <li key={number} className="flex items-center">{index > 0 && number > numbers[index - 1]! + 1 ? <span className="px-2 text-text-3" aria-hidden="true">…</span> : null}{number === filters.page ? <span aria-current="page" className="inline-grid size-11 place-items-center rounded-control bg-brand-navy font-bold tabular text-white">{number}</span> : <Link href={catalogUrl({ ...filters, page: number })} className="inline-grid size-11 place-items-center rounded-control font-semibold tabular text-link hover:bg-surface">{number}</Link>}</li>)}{filters.page < pageCount ? <li><Link href={catalogUrl({ ...filters, page: filters.page + 1 })} rel="next" className="inline-flex min-h-11 items-center px-3 font-semibold text-link">Next</Link></li> : null}</ul></nav> : null}
           </div>

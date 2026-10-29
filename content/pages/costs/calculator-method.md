@@ -34,7 +34,7 @@ depends_on:
   - "Owner: whether and how a route page hands its route to the calculator (site architecture §3.2 vs §1.2, §8.8; calculator brief §10 item 11)"
   - "Owner: the calculator runs the coverage check after every result; default shown (implications §2.2; backlog 4.1.6; build plan §7.3)"
   - "Owner and counsel: a planning range from the cost model at What we found, when data allows; default shown (implications §2.2; build plan §7.2 lists only the count and names; consumer-moving-rules note, counsel item 1; compliance facts §2). If declined, the What we found sentences in 'When does the calculator show no range?' and 'How do I read the label on a range?' go, as on Which companies receive my request"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # How the moving cost calculator works
@@ -44,11 +44,21 @@ The moving cost calculator on American Moving Choice shows a planning range for 
 <!-- ST-6 -->
 > Movers set their own prices. American Moving Choice doesn't give quotes or estimates. These ranges are for planning only; only a mover's written estimate tells you what your move will cost.
 
-**Page status: a proposed method, with no data yet.** This page describes the method we propose for the calculator's first live version. We don't have any rate-card data yet, so the calculator can't show ranges. This method, including values such as how many movers a range needs, stays a proposal until rate-card data exists. When the first ranges pass the thresholds below, we'll replace this note and record the change in the changelog. [Build: the CMS shows this note until the first dataset passes the thresholds (site architecture §6.3 rules 4 and 5); its removal gets a changelog entry]
+**Model and data availability are separate.** This page explains the calculator's implemented rate-card model. Whether it can show a range for your answers depends on the eligible, sufficiently current rate cards that cover that specific calculation. Read the source, sample, date and exclusions shown with a result; an unavailable result means the calculation lacks qualifying support, not that your move costs nothing. [Build: the CMS shows this note until the first dataset passes the thresholds (site architecture §6.3 rules 4 and 5); its removal gets a changelog entry]
 
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page.data_owner}} · First drafted with AI
 
 [Build: this review note renders from the page record, as the editorial policy specifies: the author's "Edited by" label and the AI line appear because AI drafted this page (`ai_assisted: true`). Show the published and last-updated dates from the CMS record beside it, and mark up the reviewer as `WebPage.reviewedBy` (content/pages/trust/editorial-policy.md, "How we tell you"; content/README.md §2; site architecture §7.3, §8.5)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown: a review-note AI line and "Edited by", as the editorial policy drafts them (new questions; editorial policy, "How we tell you")]
+
+<a id="start-here"></a>
+
+## Read the result in the right order
+
+1. **Confirm the route and home-size assumptions.** ZIP-center distance is a model input, not surveyed road mileage or a promised driving time. A bedroom category is a typical job, not your inventory.
+2. **Check whether the data qualifies.** A range needs at least {{cost.method.min_movers}} eligible contributing movers and a rate for every selected service. An unavailable result is not a zero-cost move.
+3. **Read the context with the range.** Look for the source, sample, data date, method version and exclusions, then ask the contacting mover for a written estimate for your actual belongings.
+
+The calculation is a planning model. Its inputs and formulas are documented below so you can see what the result can and cannot support.
 
 ## Current version
 
@@ -95,7 +105,7 @@ Each range comes from rate cards: what movers in our network tell us they charge
 
 ### What a rate card holds
 
-Under the proposed format, a mover's rate card lists:
+The rate-card format used by the model lists:
 
 - its hourly rate for each crew size it sends;
 - any truck or travel fee it charges on local moves;
@@ -132,7 +142,7 @@ Result for one mover =
   + that mover's prices for the services you pick
 ```
 
-In words: we take the shipment weight that's typical for your home size and multiply it by the mover's rate for your distance band. Then we add the mover's prices for any services you pick. This applies to in-state long-distance and interstate moves alike. The proposed distance bands are {{cost.method.distance_bands}}.
+In words: we take the shipment weight that's typical for your home size and multiply it by the mover's rate for your distance band. Then we add the mover's prices for any services you pick. This applies to in-state long-distance and interstate moves alike. The model's distance bands are {{cost.method.distance_bands}}.
 
 ### From many results to one range
 
@@ -267,7 +277,15 @@ If you continue, [Which companies receive my request](/which-companies-receive-m
 
 ## Found an error?
 
-If a range, or anything on this page, looks wrong, email {{org.editorial_email}}. Tell us the ZIP codes, home size and services you entered, and the model version and "data as of" date on the label. Our [editorial policy](/editorial-policy/) explains how we handle corrections, and any fix to the method or data appears in the changelog above.
+If a range, or anything on this page, looks wrong, use [our contact form](/report-a-concern/) and choose "Something else". Tell us the ZIP codes, home size and services you entered, and the model version and "data as of" date on the label. Our [editorial policy](/editorial-policy/) explains how we handle corrections, and any fix to the method or data appears in the changelog above.
+
+## Worked example: what a missing service does
+
+**Illustrative eligibility example, not a price example or a report of current mover availability.** Suppose the threshold is {{cost.method.min_movers}} contributing movers and exactly that many otherwise eligible rate cards cover your route and home size.
+
+If you add storage and one of those cards does not price the selected storage service, that card no longer supports this calculation. The eligible sample falls below the threshold, so no range should appear. Removing the unsupported service can change eligibility; it does not prove that storage is free or that a mover can store your goods.
+
+Use the unavailable explanation to identify what is missing. Do not substitute a different route, smaller inventory or fewer services just to obtain a more attractive number.
 
 ## Related pages
 

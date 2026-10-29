@@ -5,7 +5,7 @@ import { HubPage, hubMetadata } from "@/components/seo/hub-page";
 import { ROUTES_HUB } from "@/components/seo/routes-hub-spec";
 type Params = Promise<{ n: string }>;
 function pageNumber(raw: string): number {
-  if (!/^[0-9]{1,4}$/.test(raw)) notFound();
+  if (!/^[1-9][0-9]{0,3}$/.test(raw)) notFound();
   const page = Number(raw);
   if (page === 1) permanentRedirect(ROUTES_HUB.url);
   if (page < 1) notFound();

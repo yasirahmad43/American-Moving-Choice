@@ -1,9 +1,24 @@
 # American Moving Choice — handoff
 
-Written 2026-10-28 for whoever (or whatever tool) continues this project. Everything below is
+Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
-### Latest owner brief and immersive redesign (in review)
+### Active owner follow-up — 2026-10-29
+
+The owner rejected the earlier assessment: non-home design is about 6/10 and SEO/content about
+5/10 in their judgment. Work continues on `codex/complete-moving-experience`; the release below
+is historical baseline, not acceptance of the expanded brief. New requirements: images on every
+catalog result, thousands of useful route guides, visible state names on the map, and a working
+survey immediately before the footer as well as in every hero. The real business name is
+**American Moving Choice**; the owner deferred phone, email, address and other details.
+
+The owner approved saving the Supabase server key securely. It is now a sensitive Vercel variable
+in `amc-app` Production and Preview. A rebuild of the tested `5b276b2` release is active as
+`dpl_8w3P723A8KsNR2fNJuRjCETnrp2z`. Its production build verified live Storage write, exact-byte
+public image read and deletion of its own temporary image. The one-time verification flag is now
+false. No key was saved in source/chat/local files and no new key was created. See `docs/media/storage.md`.
+
+### Earlier immersive redesign (released 2026-10-29)
 
 The owner rejected the earlier public design and requested a video hero with a right-side
 survey on every public page, at least five different relevant images per page, engaging varied
@@ -12,7 +27,7 @@ supplied national-map/truck logo, and complete menu/footer discovery of the publ
 Public AMC funding promotion is retired; contact permissions and historical evidence remain intact.
 The authoritative current visual brief is `docs/design/immersive-experience-brief.md`.
 
-`codex/immersive-site-redesign` implements that new framework and a searchable `/explore/`
+PR **#8** merged the `codex/immersive-site-redesign` framework and searchable `/explore/`
 catalog. Home exposes the real published count, a native state-guide map and state/topic search.
 Long reference tables keep every record in bounded keyboard-accessible scrollers. Place guides
 use real state outlines; tool pages have direct calculator/USDOT entry actions as well as quotes.
@@ -22,15 +37,35 @@ illustrations may repeat across pages under `docs/media/editorial-reuse.md`.
 This is a new visual review, not the earlier deployed pass-2 proof. Comparison against all six
 owner-supplied references is recorded separately: 6.1/10, then 7.9/10, then **8.9/10** after the
 map, local-context, photo-deduplication, tool-priority and final spacing refinements. The sampled
-review has no outstanding concrete visual findings; scores are subjective, not a guarantee that
-the owner will rate the result 10/10. See `docs/design/immersive-verification.md`.
+review was a sample; the owner subsequently identified the issues listed above. Scores are
+subjective, not proof of completion. See `docs/design/immersive-verification.md`.
 
 Release candidate `87b16f0` passed both optimized builds, all package typechecks, **527 unit/content/
 database checks**, 22 hero/tool browser checks, 30 main-page and 30 populated-guide views on the
 optimized build, and all **60 executable full browser scenarios**. Two stale browser assertions
 were updated and passed on a focused rerun. One existing empty `test.fixme` for the admin-approval
 walkthrough remains explicitly skipped; admin authentication and portal/admin journeys do run.
-PR **#8** is the current redesign review. Production remains `bbbdfb9` until its release is recorded.
+**Current application release `5b276b260d8e7707c45096e8a967c7740fb6aca0` is live in both apps.**
+Both production targets were checked Ready and active on this exact commit: public
+`dpl_7ex6bLPXjhU91zghx3gTkcALnn5f`, portal/admin `dpl_2tTiSrZa2r5jMkTnLWNEeieu1AQk`.
+The merged tree exactly matches CI-green review head `333cfbf`; the merge commit's own CI is green.
+
+**Production smoke is 5/5:** Home and full survey on desktop/mobile, health/retired redirects,
+all seven published guide families on desktop/mobile, and one fictional request submitted then
+withdrawn. The initial run had one old sidebar-selector assertion; its stronger right-side-survey
+replacement passed a targeted read-only rerun, without a second request or application change.
+**Eight fresh live visual views passed** with all existing image assets loaded, video ready,
+no browser errors, no document overflow and no serious/critical axe findings. Both live apps serve
+the exact supplied logo bytes. Public sitemaps and catalog independently agree on **2,468 guides
+plus 30 core pages across ten sitemap files**, with no duplicate URLs or count mismatches.
+The completed baseline crawl inspected 2,976 HTML responses: 2,498 primary pages and 478 noindex
+catalog facets. All primary pages passed framework, metadata, link, sitemap and depth checks.
+These results predate the active route/card/closing-survey work and do not verify it.
+
+Build logs confirm migrations up to date, seed already loaded, and the completed 2,468-page
+bootstrap reused without regeneration. `DEMO_MODE=true` on both apps and `SITE_INDEXABLE=false`
+on the public app were checked directly as nonsecret flags. The subsequent approved server-key
+configuration and live provider check are recorded in the active follow-up above.
 
 ### 2026-10-28 Codex continuation
 
@@ -58,7 +93,7 @@ local scores matched exactly, 2,467 published pages were retained, and cache sto
 1,125.56 to 27.11 MiB. See `docs/seo/compact-corpus.md`. Local counts do not establish production
 counts or search-engine indexing.
 
-**Current application release `bbbdfb9` is deployed to both production projects.** Its follow-up
+**Earlier application release `bbbdfb9` was deployed to both production projects.** Its follow-up
 fix makes wide plain-text tables keyboard accessible before hydration and removes redundant tab
 stops in mobile card layouts. ZIP attachment now prefers matching GeoNames place/state and a stable
 semantic fallback rather than database row order. No production reimport/regeneration was needed.
@@ -81,11 +116,9 @@ as nonsecret flags. See the proof package's `production/` reports; this is not a
 
 The Supabase `amc-media` bucket was created and verified empty, public, WebP-only, with a
 **4 MiB (4,194,304-byte)** object limit. `SUPABASE_URL` and `SUPABASE_MEDIA_BUCKET` are configured
-on `amc-app` for Production and Preview. **Only the server key remains missing:** the owner has
-been asked to add `SUPABASE_SECRET_KEY` directly in Vercel, without sending it through chat.
-Uploads stay unavailable until that credential is configured and the application is redeployed.
-No live upload has been verified; do not describe production media uploads as enabled. See
-`docs/media/storage.md`.
+on `amc-app` for Production and Preview. The server key was missing at that earlier checkpoint;
+the active follow-up above supersedes it with the approved configuration and successful live
+provider check. See `docs/media/storage.md` for its precise scope.
 
 ## 1. What this is
 
@@ -107,7 +140,8 @@ https://github.com/yasirahmad43/American-Moving-Choice/pull/5
 
 | Branch | State | What it holds |
 |---|---|---|
-| `main` | deployed and verified | PR #5, compact repair `c8a3bc0`, and final table/import fix `bbbdfb9`; later handoff-only updates do not change application behavior |
+| `main` | deployed and verified | PR #8 immersive redesign `5b276b2`, following PR #5, compact repair `c8a3bc0` and table/import fix `bbbdfb9`; later evidence/test-only updates do not change application behavior |
+| `codex/immersive-site-redesign` | merged through PR #8 | Video/survey framework, exact logo, illustrated readers, full catalog/map/navigation, privacy-preserving starter and calculator fallback; reviewed head `333cfbf` |
 | `claude/fervent-bohr-u9rg4y` | merged integration; PR #5 complete | Original redesign/library/SEO/admin work plus PRs #6 and #7; use current main for continuation |
 | `design/pass-2` | merged through PRs #6 and #7 | Completed design, private quote flow, expanded SEO and Storage implementation |
 | `codex/compact-seo-index` | fast-forwarded to main | Exact CI-green repair; the GitHub connector could not create its PR, so a normal non-force fast-forward released the tested commit |
@@ -160,7 +194,7 @@ pnpm seo:crawl -- --base http://localhost:3000 --out docs/seo/crawl-report.md
   `HMAC_SECRET`, `APP_ENCRYPTION_KEY`, `WEB_URL`, `APP_URL`, `DEMO_MODE=true`; web also
   `SITE_INDEXABLE=false`; app also `SESSION_SECRET`, `CRON_SECRET`, `SEED_*`.
 - `SUPABASE_URL` and `SUPABASE_MEDIA_BUCKET=amc-media` are configured on `amc-app` for Production
-  and Preview. The owner must add `SUPABASE_SECRET_KEY` directly to those Vercel environments;
+  and Preview, together with sensitive `SUPABASE_SECRET_KEY` entries approved by the owner;
   a legacy `SUPABASE_SERVICE_ROLE_KEY` is supported as a fallback. Never send the key through chat
   or put it in `NEXT_PUBLIC_`, Git, the public web project, or deployment logs. Redeploy after
   configuration. The public web app only needs its existing DB connection to resolve uploaded media.
@@ -184,29 +218,21 @@ pnpm seo:crawl -- --base http://localhost:3000 --out docs/seo/crawl-report.md
 
 ## 7. What is still open (in priority order)
 
-The implementation is on main: design/private quote flow, expanded SEO, compact bootstrap recovery
-and Storage plus a DB manifest. Remaining work at this update is deployment verification and the
-missing media credential:
+The current work is the expanded owner brief on `codex/complete-moving-experience`. The baseline
+release, compact recovery, production smoke and live Storage protocol check are complete; do not
+repeat a repair or download secrets to verify them.
 
-1. **Verify the compact repair deployment and bootstrap.** PR #5 is already merged. Both projects
-   deploy from main `c8a3bc0`; do not rerun the old row-per-shingle writer. Inspect the fresh app-role
-   preflight and ordinary migration 230 result, then actual completed bootstrap/counts. No read-only
-   override has been performed. Any recovery should follow `docs/seo/compact-corpus.md` and target
-   only the verified rebuildable cache.
-2. **Finish the sole media credential step.** Add `SUPABASE_SECRET_KEY` directly in Vercel on
-   `amc-app` Production and Preview, then redeploy. Bucket creation and URL/bucket variables are
-   already verified. Run a small live editorial upload only after configuration and migration 210;
-   verify its durable DB entry, public variants, assignment and failed-upload behavior. No live
-   upload has yet been verified, and the integrated form stays unavailable without the key. An
-   optional production-build probe can verify Storage without an admin login or downloading the key:
-   set `AMC_VERIFY_MEDIA_STORAGE=true` in Vercel after adding the key. It writes, publicly reads and
-   removes one fresh test image; see the exact success log in `docs/media/storage.md`. No successful
-   live probe has been recorded at this update.
-3. **Verify the deployed applications.** Check `/api/health` reports success and all 17 migrations
-   for this release, verify the actual production SEO counts/quality gates, and run production smoke
-   and browser tests. Check central quote submission, consent evidence, anonymous confirmations,
-   contact-gated reviews, admin/portal access, and representative SEO pages on desktop/mobile.
-   Keep `DEMO_MODE=true` and `SITE_INDEXABLE=false` until intentionally changed.
+1. **Finish, integrate and release the owner follow-up.** Image-bearing catalog cards and the
+   shared before-footer survey have focused verification. The map needs readable state labels,
+   inner guides need the improved editorial layouts, and the route expansion must pass unchanged
+   quality/evidence/privacy/transport gates before publication. Preserve all existing stored content.
+2. **Verify the full admin media journey.** The credential is saved and real provider write/read/
+   cleanup passed. A production admin upload, durable DB entry, variants and assignment have not
+   yet been exercised in a browser. Do not conflate the provider probe with this remaining journey.
+3. **Verify the new release in production.** Run exact-source builds/tests, route publication
+   counts and a fresh crawl, then desktop/mobile checks across all page families and the central
+   quote flow. Keep the demo/legal boundary until intentionally changed; current settings are
+   `DEMO_MODE=true` and `SITE_INDEXABLE=false`, so search discovery remains disabled.
 4. **Finish the proof package.** Assemble desktop/mobile page-family screenshots, media/research
    inventories, actual counts by family/status, crawl evidence, test/build output and a requirement
    checklist. Local design/SEO/media reports exist; final production proof still depends on release.

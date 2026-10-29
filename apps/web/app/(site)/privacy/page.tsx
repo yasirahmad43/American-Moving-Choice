@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
-import { Note, Token } from "@/components/site/review-notes";
+import { Note } from "@/components/site/review-notes";
+import { BusinessIdentity, BusinessContactChannels } from "@/components/site/business-details";
 
 const URL = "/privacy/";
 const TITLE = "Privacy Policy | American Moving Choice";
@@ -26,8 +27,9 @@ export default function PrivacyPage() {
 
       <h2>Who we are</h2>
       <p>
-        American Moving Choice, operated by <Token k="org.legal_name" />, <Token k="org.address" />. Privacy questions: <Token k="org.support_email" />.
+        This service is operated by <BusinessIdentity />. For privacy questions, use <Link href="/report-a-concern/">our form</Link> and choose &quot;My personal details&quot;.
       </p>
+      <BusinessContactChannels />
 
       <h2>What a move request collects</h2>
       <ul>
@@ -46,7 +48,7 @@ export default function PrivacyPage() {
       <h2>Who receives your details</h2>
       <p>
         Only eligible movers recorded for your request, and no more than the number you chose, can receive your contact details. Each of those
-        movers pays us when it buys your request. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
+        movers receives only the information needed to respond through your chosen channels. <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link> explains
         each step. Companies identify themselves when they contact you.
       </p>
       <p>

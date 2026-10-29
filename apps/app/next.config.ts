@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
   // 3 MB media files plus multipart fields, below Vercel's 4.5 MB request ceiling.
   experimental: { serverActions: { bodySizeLimit: "4mb" } },
   outputFileTracingRoot: monorepoRoot,
+  // The admin generator reads the attributed Census snapshot at runtime through import.meta.url.
+  outputFileTracingIncludes: {
+    "/admin/content": ["../../packages/server/data/seo-route-census/places-2023.json"],
+    "/admin/content/**": ["../../packages/server/data/seo-route-census/places-2023.json"],
+  },
   turbopack: { root: monorepoRoot },
   async headers() {
     return [

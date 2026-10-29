@@ -8,6 +8,7 @@ import { connection } from "next/server";
 import { JsonLd, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
 import { MediaFrame } from "@/components/media/media-frame";
 import { VideoSurveyHero } from "@/components/site/video-survey-hero";
+import { socialMetadata } from "@/components/site/social-metadata";
 import { pageMediaPlan } from "@/lib/page-media";
 import styles from "@/components/seo/seo-reader.module.css";
 import { ZipCheck } from "./zip-check";
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
   title: "Movers by state",
   description: "How movers in the American Moving Choice network set the areas they serve, and a ZIP check that shows coverage for your state.",
   ...canonical("/movers/"),
+  ...socialMetadata("/movers/", "Moving Guides by State | American Moving Choice", "Explore state and city moving guides, sourced local facts and the details to check for your own move.", { family: "state" }),
 };
 
 /** All published state guides remain visible, with the same live coverage check. */

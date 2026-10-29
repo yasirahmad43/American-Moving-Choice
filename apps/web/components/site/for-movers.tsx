@@ -19,7 +19,7 @@ export function ApplyCta({ note }: { note?: string }) {
   return (
     <div data-band="" className="not-prose relative isolate grid gap-4 overflow-hidden rounded-card mesh-navy p-6 text-on-band sm:p-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
       <div className="pointer-events-none absolute -right-20 -top-20 -z-10 h-80 w-[36rem] opacity-50 [mask-image:radial-gradient(closest-side,black,transparent)]" aria-hidden="true">
-        <RouteMapArt />
+        <RouteMapArt gradientId="carrier-apply-route-glow" />
       </div>
       <div className="grid gap-2">
         <p className="type-display-l text-on-band">Ready to apply?</p>

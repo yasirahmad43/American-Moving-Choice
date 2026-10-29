@@ -52,7 +52,7 @@ test("starter validates, preserves back-navigation and hands only move details t
     };
   });
   await page.goto(target);
-  const starter = page.locator(".vsh-start");
+  const starter = page.locator(".vsh .vsh-start");
   await expect(starter).toHaveAttribute("data-ready", "true");
   await starter.getByRole("button", { name: "Continue to move details" }).click();
   await expect(starter.getByLabel("Moving from · ZIP code")).toBeFocused();
@@ -91,7 +91,7 @@ test("blocked session storage still opens the survey without putting move data i
     };
   });
   await page.goto(target);
-  const starter = page.locator(".vsh-start");
+  const starter = page.locator(".vsh .vsh-start");
   await expect(starter).toHaveAttribute("data-ready", "true");
   await starter.getByLabel("Moving from · ZIP code").fill("02108");
   await starter.getByLabel("Moving to · ZIP code").fill("10001");
@@ -109,8 +109,8 @@ test("without JavaScript the starter opens a clean quote URL and keeps the still
     const page = await context.newPage();
     await page.goto(target, { waitUntil: "domcontentloaded" });
     await expect(page.locator(".vsh video")).toHaveAttribute("poster", /\S+/);
-    await page.getByLabel("Moving from · ZIP code").fill("02108");
-    await page.getByLabel("Moving to · ZIP code").fill("10001");
+    await page.locator(".vsh").getByLabel("Moving from · ZIP code").fill("02108");
+    await page.locator(".vsh").getByLabel("Moving to · ZIP code").fill("10001");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/get-quotes\/\??$/, { timeout: 15_000 });
     expect(new URL(page.url()).search).toBe("");

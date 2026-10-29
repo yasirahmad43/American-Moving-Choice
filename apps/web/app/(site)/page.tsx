@@ -14,12 +14,13 @@ import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
 import { claimMediaById } from "@/lib/media";
 import { publishedStateUrls } from "@amc/server/seo";
 import { StateGuideMap } from "@/components/site/state-guide-map";
+import { socialMetadata } from "@/components/site/social-metadata";
 
 const TITLE = "Moving Quotes, on Your Terms | American Moving Choice";
 const DESCRIPTION = "Tell us your route, choose how many moving companies may contact you, and compare their quotes directly. Free to request.";
 export const metadata: Metadata = {
   title: { absolute: TITLE }, description: DESCRIPTION, alternates: { canonical: "/" },
-  openGraph: { title: TITLE, description: DESCRIPTION, url: "/", type: "website", siteName: "American Moving Choice" },
+  ...socialMetadata("/", TITLE, DESCRIPTION),
 };
 const STEPS = [
   { icon: "origin" as const, title: "Tell us where life is taking you", body: "Start with your ZIP codes, moving date, and the size of your move.", meta: "Your move" },

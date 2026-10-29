@@ -13,6 +13,7 @@ import { LOCKOUT_THRESHOLD, LOCKOUT_WINDOW_SECONDS, clearFailedLogins, isLocked,
 import { burnPasswordCheck, verifyPassword } from "./password";
 import { AUTH_RATE_LIMITS, checkRateLimit, rateLimitKey } from "./rate-limit";
 import type { AdminRole } from "./sessions";
+import { demoAdminPasswordOnly } from "./mfa-policy";
 
 export type LoginFailureReason = "invalid_credentials" | "locked" | "rate_limited";
 
@@ -71,6 +72,6 @@ export async function authenticate(input: { email: string; password: string; ip?
     await audit({ actorType: user.admin_role ? "admin" : "user", actorId: user.id, action: "auth.login", entity: "user", entityId: user.id, ip }, client);
   });
 
-  const mfa = user.admin_role && !user.mfa_enabled_at ? "setup" : user.mfa_enabled_at ? "verify" : "ok";
+  const mfa = demoAdminPasswordOnly(user.admin_role) ? "ok" : user.admin_role && !user.mfa_enabled_at ? "setup" : user.mfa_enabled_at ? "verify" : "ok";
   return { ok: true, userId: user.id, adminRole: user.admin_role, mfa };
 }

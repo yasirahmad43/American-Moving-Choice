@@ -37,7 +37,7 @@ depends_on:
   - "Owner + editorial: which page owns estimate types, the 110% rule, deposits and valuation, given the guide rows in the keyword map (lines 75, 77 to 81 and 299) and implications §7.1 item 4, against content/README.md §9 (brief §8; open item 2)"
   - "Editorial: whether legal figures such as 110%, 15% and 60 cents a pound are facts-registry entries rendered as tokens, or exempt (site architecture §6.3 rule 6, §8.2, §11; implications §4.5; brief open item 9)"
   - "Owner: name the author and a different reviewer (brief §11 Q9; implications §11 Q17)"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # How do moving companies charge?
@@ -49,6 +49,16 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with
 [Build: this review note renders from the page record, as the editorial policy specifies: the author's "Edited by" label and the AI line appear because AI drafted this page (`ai_assisted: true`). Show the published and last-updated dates from the CMS record beside it, and render the same dates in Article `datePublished` and `dateModified`; mark up the reviewer as `WebPage.reviewedBy` (content/pages/trust/editorial-policy.md, "How we tell you"; content/README.md §2; site architecture §7.3, §8.5)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown: a review-note AI line and "Edited by", as the editorial policy drafts them (new questions; editorial policy, "How we tell you")]
 
 [Verify: "usually charged by the hour" and "weight and the distance" summarize practice, not a rule. The sections below give the rules behind them (consumer-moving-rules note C5, C9, C19). The reviewer, who needs relevant moving experience (site architecture §7.2), confirms the summary.]
+
+<a id="start-here"></a>
+
+## Three questions that make an estimate useful
+
+1. **What is the billing unit?** Ask whether an hourly rate is for the whole crew or each worker, what starts the clock, and whether travel and minimum time are separate.
+2. **What job is covered?** Match the inventory, access conditions, dates, packing and any storage to the written estimate. Save the version you agreed to.
+3. **What happens if that job changes?** Ask the mover to explain the estimate type and document any changed inventory or services before work proceeds.
+
+The interstate written-estimate rules are in [49 CFR 375.401](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401). State rules may govern an in-state move. Source checked October 29, 2026.
 
 <a id="which-rules-apply-to-your-move"></a>
 
@@ -339,6 +349,18 @@ Our [moving cost calculator](/moving-cost-calculator/) shows a planning range, b
 [Counsel: approve ST-6 (site architecture §6.3 rule 3; stored-texts ST-6 notes). On this page it follows the calculator sentence, so "These ranges" refers to the calculator's ranges.]
 
 When you're ready, [request quotes from movers](/get-quotes/) who serve your move. Movers that buy your request contact you directly. Ask each for a written estimate, and compare them using [the table above](#how-do-you-compare-quotes-like-for-like).
+
+## Worked example: crew-hours are not worker-hours
+
+**Hypothetical time example only. These are made-up crew sizes and hours, not prices, quotes or a prediction of how long your move will take.**
+
+A three-person crew working four hours uses **12 worker-hours**. A two-person crew working six hours also uses **12 worker-hours**. That does not mean their bills are equal: one may quote a rate for the entire crew, while another may quote a rate for each worker.
+
+- If the stated unit is **per crew-hour**, multiply that crew's hourly rate by its billable hours, then apply the agreed fees and minimums.
+- If the stated unit is **per worker-hour**, confirm how the worker count and hours enter the calculation. Do not multiply by the crew size a second time if the rate already covers the full crew.
+- Ask both movers to show the calculation on the written estimate. Check travel, packing materials, valuation and other agreed charges separately.
+
+This example explains units. It does not establish an industry rate or override the mover's written terms or applicable rules.
 
 ## Sources
 

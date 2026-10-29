@@ -6,7 +6,8 @@
 import { env } from "@amc/server/env";
 import { Container } from "@amc/ui";
 import type { ReactNode } from "react";
-import { pageMediaPlan } from "@/lib/page-media";
+import { mediaManifest } from "@/lib/media";
+import { storyMediaPlan } from "@/lib/content/story-plan";
 import { VideoSurveyHero } from "./video-survey-hero";
 import { CarrierEligibilityStart } from "./carrier-eligibility-start";
 import { reactChapters, StoryNextSteps, StorySections } from "./story-sections";
@@ -34,8 +35,8 @@ export interface PageFrameProps {
 export function PageFrame({ url, h1, description, trail, lede, overline, legend = true, waitingOn, aside, children }: PageFrameProps) {
   const { WEB_URL } = env();
   const crumbs = [{ label: "Home", href: "/" }, ...trail];
-  const images = pageMediaPlan(url).images;
   const chapters = reactChapters(children);
+  const media = storyMediaPlan(mediaManifest(), url, chapters, h1);
   return (
     <>
       <JsonLd data={breadcrumbListLd(WEB_URL, crumbs)} />
@@ -48,8 +49,8 @@ export function PageFrame({ url, h1, description, trail, lede, overline, legend 
             {legend ? <ReviewLegend /> : null}
           </div>
           {aside ? <aside className="grid gap-4 rounded-2xl border border-border bg-surface-2 p-5 lg:grid-cols-2">{aside}</aside> : null}
-          <StorySections chapters={chapters} images={images} />
-          <StoryNextSteps images={images} usedCount={chapters.length} />
+          <StorySections chapters={chapters} images={media.chapterImages} planned />
+          <StoryNextSteps items={media.steps} />
         </div>
       </Container>
     </>

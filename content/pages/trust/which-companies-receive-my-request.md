@@ -19,7 +19,7 @@ stored_texts: [ST-1b, ST-4a, ST-4b]
 tokens: [setting.max_movers, setting.sale_window_hours, setting.duplicate_window_days, setting.stop_propagation_target, setting.quote_invite_delay_days, setting.post_move_invite_days, org.support_email, org.support_phone, page.author, page.reviewer]
 depends_on:
   - "Counsel: review current count-based contact permission and final legal wording before real consumer requests"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # Which companies receive my request?
@@ -28,6 +28,16 @@ Your request can be purchased only by eligible movers recorded for your move, an
 
 <!-- ST-1b -->
 > {{text.ST-1b}}
+
+<a id="start-here"></a>
+
+## Make three choices before sending
+
+1. **Check the move details.** Confirm your route, date, size and selected services. Coverage is a match to those details, not a reservation or a promised quote.
+2. **Set your contact ceiling.** Choose the maximum number of companies you want to hear from. The survey does not select a company for you or promise that the full number will contact you.
+3. **Choose the channels and review permission.** Read the calls, texts and email choices. Send only if the final summary matches what you want; agreeing to site terms is separate from agreeing to contact.
+
+Company identities first appear when the companies contact you. The confirmation and secure management link help you keep track of the choices you made.
 
 ## One request, built around your move
 
@@ -81,6 +91,14 @@ American Moving Choice is free for consumers. You arrange any estimate, booking 
 The secure request-management link on your confirmation lets you withdraw the request. Withdrawal stops further purchases and tells existing buyers. It can't make a company forget details it already received. You can also tell a contacting company to stop, and report contact outside your permission or chosen channels.
 
 If you need help, use [Report a concern](/report-a-concern/) and include your request reference. Tell us the company name it gave you during contact, if available, and what happened. Avoid sending payment-card details or unrelated private documents.
+
+## Example: a contact limit is a ceiling
+
+If you choose a maximum of two companies and only one contacts you, that is still within your choice. It is not a promise that a second company will call. Choosing one does not let you select a particular company by name.
+
+If your plans change, open the secure management link and withdraw the request. That stops further purchases and notifies existing buyers; it does not erase information already released. Tell a contacting company directly if you want it to stop contacting you, and use [Report a concern](/report-a-concern/) if contact does not follow your choices.
+
+Keep the request reference and the company identity it supplied during contact. Do not post the secure management link or other people's private details in a public message.
 
 ## Check a company after it contacts you
 

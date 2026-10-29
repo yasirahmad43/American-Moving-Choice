@@ -3,7 +3,7 @@ id: trust-editorial-policy
 url: /editorial-policy/
 family: Trust page
 title: "Editorial Policy and AI Use | American Moving Choice"
-meta_description: "Each guide, cost and location page names its author and a different reviewer, and a named person approves any AI-assisted draft before it goes live."
+meta_description: "How American Moving Choice uses primary sources, dates, model limits and AI-assisted drafting, and distinguishes editorial standards from verified review records."
 h1: "Editorial policy"
 breadcrumb: "Home › Editorial policy"
 indexation: index once approved
@@ -38,16 +38,26 @@ depends_on:
   - "Counsel: aggregate use of consented request data under the privacy policy (site architecture §7.5, §6.3 rule 7)"
   - "Counsel: 'payment buys it move requests, nothing more', beside the effect of buying on review invitations and rating-sort eligibility; word it as counsel decides for ST-1a and ST-3 (stored-texts ST-1 and ST-3 notes)"
   - "Counsel: ST-6 wording (site architecture §6.3 rule 3; stored-texts ST-6 notes)"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # Editorial policy
 
-American Moving Choice names the author of each guide, cost page and location page, and a different reviewer. Facts come from primary sources such as federal and state agencies, and every data figure has a source and a date. Movers can't pay for coverage. AI may help draft pages, but a named person approves each one before publication.
+American Moving Choice builds guidance from primary sources, stated methods and AI-assisted drafting. Sources, dates and limits help you assess what a guide can establish. A page's presence or update date does not prove independent expert review. We should name an author or reviewer only when that person's identity, contribution and review record are confirmed.
 
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
 [Build: this review note renders from the page record: author, reviewer, the review date and the "Last updated" date from the CMS, and the AI line and the author's "Edited by" label because AI drafted this page (README §2; site architecture §7.3; "How we tell you" below)]
+
+<a id="start-here"></a>
+
+## How to judge a guide on this site
+
+1. **Follow the source and its date.** A Census figure, a regulatory requirement and a mover-supplied rate are different kinds of evidence. Check which one supports the statement you are using.
+2. **Read the limits beside the number.** A planning model is not a quote, a household average is not your household, and a straight-line distance is not measured driving mileage.
+3. **Question unsupported certainty.** An image is not proof of local experience, screening is not an endorsement, and publishing more pages does not guarantee search visibility or a better move.
+
+Our editorial aim is useful, attributable guidance. [Google's people-first content guidance](https://developers.google.com/search/docs/fundamentals/creating-helpful-content) emphasizes added value, clear sourcing and satisfying the reader's actual task. Source checked October 29, 2026.
 
 ## What we publish, and why
 
@@ -84,10 +94,10 @@ Cost ranges work the same way: only movers with active accounts count, and how m
 
 ## Who writes and checks our pages
 
-- **A named author and a different reviewer.** Every guide, cost page, route page, location page and moving-to guide names its author and a different person, with experience in the topic, who reviewed it. Our policy pages, this one included, name both too.
-- **A named data owner.** Every block of data, such as a cost range or a count of movers, names its data owner: the person responsible for where those figures come from, how they're worked out and keeping them current.
-- **Real people, real credentials.** Each author and reviewer has a page on our site with their name, credentials that can be checked and the pages they've written or reviewed. If there's a photo, it's of them. [Owner: pages for reviewers as well as authors — default shown: yes (site architecture §1.2 Authors row and §7.2 document author pages; data model §9 keeps reviewer records with credentials)]
-- **No anonymous credits.** We don't credit pages to a team or to "staff," and we don't use "fact-checked" stamps that don't say who checked.
+- **A named author and a different reviewer.** Our standard for expert-reviewed guidance is an identifiable author and a different reviewer with relevant experience. A missing record must not be replaced with an invented identity or a claim that expert approval occurred. This standard applies to guides, cost, route, location and policy pages.
+- **A named data owner.** A block of data should have an identifiable person responsible for its sources, calculation and maintenance. We name that person only when the identity and role are established; a source citation and an automated check do not establish a human data owner's approval.
+- **Real people, real credentials.** An author or reviewer profile should describe a real person's verified contribution and credentials. A photo, if used, must be of that person. Profiles and credentials are not invented to make an AI-assisted page appear human-authored. [Owner: pages for reviewers as well as authors — default shown: yes (site architecture §1.2 Authors row and §7.2 document author pages; data model §9 keeps reviewer records with credentials)]
+- **No anonymous expert credits.** A team label, a date or an automated check is not a substitute for a named expert-review record. We should not use a "fact-checked" stamp that implies an unrecorded review.
 - **No borrowed experience.** Our pages never claim experience nobody here has. We aren't a moving company, so we never write "as movers ourselves," and pages built from a template, such as location pages, carry no first-person experience claims.
 
 [Build: every page renders its review note from its record; the publish check blocks a page that's missing an author, a reviewer or, where data appears, a data owner, or that names the same person as author and reviewer; bylines link to each person's page at /authors/{slug}/ (site architecture §7.2, §1.2 Authors row; README §8 item 3)]
@@ -143,7 +153,7 @@ Every cost range, table and calculator result on our site carries this statement
 
 ## How we use AI
 
-We use AI tools in our editorial work, including to draft pages such as this one. A named person is responsible for every page we publish, however it was drafted.
+We use AI tools in our editorial work, including to draft pages such as this one. That is not evidence of first-hand moving experience or independent expert review. Responsibility and review should be recorded explicitly rather than inferred from polished text.
 
 ### What AI helps with
 
@@ -170,7 +180,7 @@ Before a page that AI helped write is published:
 2. A named reviewer, who isn't the page's author, approves it.
 3. The page says that AI helped, as described below.
 
-Every page gets the first two checks, however it was written. A page AI helped write also gets the third.
+These are the checks required by our editorial standard, not a claim that a missing human review record exists. Automated completeness checks do not substitute for the author's source check or the independent review described above.
 
 [Owner: site architecture §4.1 G9 reviews every programmatic page in Waves 1 and 2, then a 20% sample plus every page with a flagged check from Wave 3, while §7.2 names a reviewer on every guide, cost, route, moving-to and geo page. Decide which applies to AI-assisted pages — default shown: a named reviewer approves every AI-assisted page]
 
@@ -180,7 +190,7 @@ If AI helped write a page, by drafting or summarizing any of its text, its revie
 
 On a page AI drafted, the review note names the author as the person who edited the draft, and that person answers for the page's content. [Owner: the named author's role on an AI-drafted page — default shown: the author edits the AI draft and answers for its content]
 
-This page is AI-assisted. AI drafted it from our planning and policy documents. {{page.author}} edited it, and {{page.reviewer}} checked it against those documents and the sources it cites, then approved it.
+This page is AI-assisted and was developed from our planning documents and linked sources. No named editing or independent-review claim should be inferred while those identities and records are unconfirmed. The last-updated date records a revision, not a certification of expert approval.
 
 ## Images, video and customer stories
 
@@ -195,7 +205,7 @@ This page is AI-assisted. AI drafted it from our planning and policy documents. 
 
 ## Found an error?
 
-Email {{org.editorial_email}}. Tell us which page, what you think is wrong and, if you have one, a source we can check. Questions about this policy go to the same address.
+Use [our contact form](/report-a-concern/) and choose "Something else". Tell us which page, what you think is wrong and, if you have one, a source we can check. You can use the same form for a question about this policy. Leave contact details if you want us to reply.
 
 If the problem is a mover's details or a review, use [Report a concern](/report-a-concern/) instead. Each report there opens a case with someone assigned to it.
 
@@ -224,7 +234,7 @@ A location page goes live only when all of these are true:
 - **Local facts are checked.** At least {{setting.geo_min_facts}} facts about the place have been checked against government sources. A route page needs {{setting.geo_min_facts_route}}, covering both ends of the move.
 - **Costs have a source and a date.** Without enough cost data, the page waits. The main page for a state is the exception: it can go live without costs, and it says why.
 - **It couldn't be any other page.** It has at least {{setting.geo_min_data_points}} original data point ({{setting.geo_min_data_points_route}} for a route page), such as Census figures on where people move or totals from requests sent through our site. It answers local questions from its own facts, not with text repeated across pages, and every section says something that would be wrong on the page for another place.
-- **A named person has reviewed it.** [Owner: site architecture §4.1 G9 moves programmatic pages to a 20% review sample from Wave 3; see the marker under "How AI-assisted pages are checked"]
+- **Human review is recorded accurately.** A review record should identify who checked the page and distinguish full review from sample review. Neither a published URL nor an automated passing result alone establishes individual expert review. [Owner: site architecture §4.1 G9 moves programmatic pages to a 20% review sample from Wave 3; see the marker under "How AI-assisted pages are checked"]
 
 A location page that doesn't pass isn't published at all. We don't put up a thin page and hide it from search engines. [Build: the publishing gate runs every check above before a location page gets a public URL (site architecture §4.1, §4.2)]
 
@@ -239,6 +249,14 @@ When we change this policy, we update this page and record the change here with 
 | Version | Date | What changed |
 |---|---|---|
 | 1 | Set on first publish [Build: the CMS stamps each version's date when an approved change publishes, the first on the first approved publish (README §2 `last_updated`)] | First published |
+
+## What to send when a fact looks wrong
+
+Send the page URL, the exact sentence or figure, the source you think corrects it, and the date of that source through [Report a concern](/report-a-concern/). If a figure describes a particular place or time period, include that scope so a national or differently dated figure is not substituted by mistake.
+
+We should distinguish a factual correction from a change in opinion, a new source release, or a changed platform rule. A correction should identify what changed and why; changing a date alone does not make stale content current.
+
+Do not include a private quote-request link, payment-card details, or another person's contact information. A correction request does not require a customer review or permission to receive marketing contact.
 
 ## Related pages
 

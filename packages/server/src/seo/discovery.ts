@@ -5,7 +5,7 @@ import type { SeoFamily } from "./slugs";
 
 const FAMILIES = new Set(["state", "city", "zip", "route", "service", "cost", "question", "planning"]);
 const PUBLIC_PATH = "^/(movers|routes|services|moving-costs|questions|planning)/[a-z0-9/-]+/$";
-const PUBLIC_WHERE = "status = 'published' and family in ('state','city','zip','route','service','cost','question','planning') and url ~ $1";
+const PUBLIC_WHERE = "status = 'published' and indexable and family in ('state','city','zip','route','service','cost','question','planning') and url ~ $1";
 
 export interface DiscoveryPage {
   url: string;
@@ -16,7 +16,7 @@ export interface DiscoveryPage {
 export interface DiscoveryOverview {
   total: number;
   families: Partial<Record<SeoFamily, number>>;
-  states: { code: string; total: number; cities: number }[];
+  states: { code: string; total: number; cities: number; routes?: number }[];
 }
 export interface DiscoveryInput { query?: string; family?: string; state?: string; offset?: number; limit?: number }
 
@@ -36,14 +36,15 @@ export async function publicDiscoveryOverview(db: Queryable = getPool()): Promis
     `select family, state_code, count(*)::int n from seo_pages where ${PUBLIC_WHERE} group by family, state_code`, [PUBLIC_PATH],
   );
   const overview: DiscoveryOverview = { total: 0, families: {}, states: [] };
-  const states = new Map<string, { code: string; total: number; cities: number }>();
+  const states = new Map<string, { code: string; total: number; cities: number; routes: number }>();
   for (const row of result.rows) {
     overview.total += row.n;
     overview.families[row.family] = (overview.families[row.family] ?? 0) + row.n;
     if (!row.state_code) continue;
-    const state = states.get(row.state_code) ?? { code: row.state_code, total: 0, cities: 0 };
+    const state = states.get(row.state_code) ?? { code: row.state_code, total: 0, cities: 0, routes: 0 };
     state.total += row.n;
     if (row.family === "city") state.cities += row.n;
+    if (row.family === "route") state.routes += row.n;
     states.set(row.state_code, state);
   }
   overview.states = [...states.values()].sort((a, b) => a.code.localeCompare(b.code));

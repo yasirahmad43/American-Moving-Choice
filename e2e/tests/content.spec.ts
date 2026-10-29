@@ -61,7 +61,7 @@ test.describe("home page hand-off", () => {
     const headerQuote = page.getByRole("banner").getByRole("link", { name: "Get quotes", exact: true });
     // On the home page the header's Get quotes link is secondary; the hero form is the main action.
     await expect(headerQuote).toHaveClass(/bg-surface/);
-    const starter = page.locator(".vsh-start");
+    const starter = page.locator(".vsh .vsh-start");
     await expect(starter).toHaveAttribute("data-ready", "true");
     await starter.getByRole("button", { name: "Continue to move details" }).click();
     await expect(page.getByText("Enter the 5-digit ZIP code you're moving from.")).toBeVisible();

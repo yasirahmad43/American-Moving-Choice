@@ -133,7 +133,11 @@ test("published SEO URLs render without company lists", async ({ page, request }
       await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", new URL(page.url()).href);
       await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /\S/);
       if (width === 1440) {
-        await expect(page.locator('aside[aria-labelledby="quote-heading"]')).toBeInViewport({ ratio: 0.5 });
+        const survey = page.locator(".vsh__survey");
+        await expect(survey).toBeInViewport({ ratio: 0.5 });
+        const copyBox = await page.locator(".vsh__copy").boundingBox();
+        const surveyBox = await survey.boundingBox();
+        expect(surveyBox!.x).toBeGreaterThan(copyBox!.x + copyBox!.width);
       }
       await anonymous(page);
       await expectNoSeriousAxeViolations(page, `${family} at ${width}px`);

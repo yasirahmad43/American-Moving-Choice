@@ -41,7 +41,7 @@ depends_on:
   - "Counsel: final mover terms (consent draft §11)"
   - "Counsel: compliance facts §1 and §2 questions on requiring MC numbers, verifying state credentials, showing USDOT numbers on profiles, and diligence against disguised brokers"
   - "Counsel: California's Interstate Mover license for companies that move goods only into or out of California, and whether state-credential checks cover it (consumer-moving-rules note, counsel item 9; C16)"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # How we verify movers
@@ -51,6 +51,16 @@ American Moving Choice accepts only moving carriers: companies that perform move
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
 [Build: this review note renders from the page record, as the editorial policy specifies (content/pages/trust/editorial-policy.md, "How we tell you"; README §2)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown (editorial policy, "How we tell you")]
+
+<a id="start-here"></a>
+
+## Use screening as a starting check
+
+1. **Ask the contacting company to identify itself.** Record the legal name and USDOT number it gives you. Compare them with the name on its estimate and transport paperwork.
+2. **Check the record, not just a badge.** Look at the authority type and current registration, insurance and complaint information relevant to your move. A USDOT number by itself is not a service-quality rating.
+3. **Confirm your actual job.** Ask who will transport the shipment, what services are included, and which dates the company can offer. Screening does not confirm those details for your move.
+
+[FMCSA's tips for selecting a mover](https://www.fmcsa.dot.gov/protect-your-move/tips-for-success) explain the federal registration checks for interstate movers and brokers. American Moving Choice's own carrier-only rules are described below. Source checked October 29, 2026.
 
 ## Who can join our network?
 
@@ -230,7 +240,7 @@ Our [Verify a mover](/verify-a-mover/) tool explains USDOT and MC numbers and st
 
 ## How do I report a concern?
 
-If you think a mover in our network is acting as a broker, has credentials that look wrong, or has behaved badly, tell us through [Report a concern](/report-a-concern/). For example: a mover says another company will carry out your move; a company contacts you without permission, outside your chosen channels or without identifying itself; the USDOT number a mover gives you belongs to a different company; or a mover demands a large cash deposit. You can also email {{org.support_email}} or call {{org.support_phone}}.
+If you think a mover in our network is acting as a broker, has credentials that look wrong, or has behaved badly, tell us through [Report a concern](/report-a-concern/). For example: a mover says another company will carry out your move; a company contacts you without permission, outside your chosen channels or without identifying itself; the USDOT number a mover gives you belongs to a different company; or a mover demands a large cash deposit. Leave contact details in the form if you want a reply, and keep the case reference it gives you.
 
 Each report opens a case. Someone on our team is assigned to it, and it's closed with a recorded outcome. A report can prompt us to run every check on the mover again, or to suspend it.
 
@@ -247,3 +257,15 @@ This page is the one place where we describe how we check movers. The public exp
 | 1 | Set on first publish | First published |
 
 [Build: the CMS renders each row's version and date from the page record, and stamps the date when an approved change publishes, the first on the first approved publish (README §2 `last_updated`); badge explainers and profile check notes render from the same version (implications §4.3).] [Owner: changelog numbering, and who approves a change to this text before a new row publishes. The draft numbers versions 1, 2, 3, as Review methodology and Editorial policy do (editorial policy brief §10 item 6) — default shown]
+
+## A record-check worksheet for a company that contacts you
+
+| Check | Keep in your moving folder |
+|---|---|
+| Identity | Legal name, USDOT number, any other authority number supplied, and the date you checked |
+| Role | Whether the company is the transporting carrier, an agent or an arranger; ask who signs the transport contract |
+| Official record | The registration and authority result you reviewed, including the official link or a dated copy |
+| Quote | The written inventory, included services, estimate type and payment conditions |
+| Unresolved questions | Any mismatch between the call, paperwork and official record; get it explained before booking |
+
+Use [Verify a mover](/verify-a-mover/) after contact. An entry in a federal database is not a recommendation from the government, and our screening is not a guarantee of how a move will turn out.

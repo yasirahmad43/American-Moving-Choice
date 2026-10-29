@@ -81,7 +81,7 @@ depends_on:
   - "Owner: the review note's AI line and the author's 'Edited by' label; default shown: the editorial policy's defaults (content/pages/trust/editorial-policy.md, 'How we tell you')"
   - "Owner: name the author, a different reviewer and the data owner (brief §11 Q9; implications §11 Q17)"
   - "Owner + editorial: a meta description with no figure, against site architecture §8.2's data-point rule (page rule: no hand-typed figures)"
-last_updated: null
+last_updated: 2026-10-29
 ---
 
 # How much do movers cost?
@@ -99,6 +99,16 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · Data owner: {{page
 [Build: this review note renders from the page record, as the editorial policy specifies: the author's "Edited by" label and the AI line appear because AI drafted this page (`ai_assisted: true`). Show the published and last-updated dates from the CMS record beside it, and render the same dates in Article `datePublished` and `dateModified`; mark up the reviewer as `WebPage.reviewedBy` (content/pages/trust/editorial-policy.md, "How we tell you"; content/README.md §2; site architecture §7.3, §8.5)] [Owner: the AI disclosure form and the author's label on an AI-drafted page — default shown: a review-note AI line and "Edited by", as the editorial policy drafts them (new questions; editorial policy, "How we tell you")]
 
 [Build: a sentence built around a link to a page that isn't published yet, such as a cost spoke, a guide or Verify a mover, renders only once that page is published, so no sentence sends readers to a page they can't open. Each such sentence stands alone so it can drop cleanly (site architecture §3.3 rule 2; content/README.md §8 item 5)]
+
+<a id="start-here"></a>
+
+## Build a comparable quote file
+
+1. **Describe the same job to every mover.** Keep one room-by-room inventory, note what stays behind, and include stairs, lift reservations, parking and the walk to the truck at both addresses.
+2. **Compare the written scope before the total.** Check the crew or shipment assumptions, packing, materials, storage, valuation, dates, exclusions and payment conditions. A missing service can make a low total misleading.
+3. **Ask how the amount can change.** Record whether the estimate is binding or non-binding and what would require an updated document. A calculator range is a starting point, not a substitute for that estimate.
+
+For an interstate household move, [49 CFR 375.401](https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401) covers the survey and written-estimate requirements, including a written survey waiver. Source checked October 29, 2026.
 
 <a id="by-home-size"></a>
 
@@ -246,6 +256,22 @@ A mover prices your move from what it sees and what you ask for, so a figure fro
 American Moving Choice isn't a moving company or a moving broker. Using this service is free for consumers.
 
 [Counsel: this line restates ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). So the line, worded as above, is held in content/stored-texts.md as the proposed ST-1 variant ST-1e, beside the proposed ST-1d; ST-1e also replaces the first two sentences of How movers charge's "Where does American Moving Choice fit?", which carry the same marker. Once counsel approves the variant, the line renders from the record after an `<!-- ST-1e -->` key comment and joins stored_texts; until then counsel reviews it with ST-1a in one pass. "Isn't … a moving broker" is a legal conclusion about AMC (stored-texts ST-1 notes; carrier-vs-broker note, counsel items 1 to 4; brief open item 15)]
+
+## A quote-comparison worksheet you can actually use
+
+Copy this checklist into your moving folder. Leave a field blank until the contacting company answers it; a blank is a question to resolve, not an assumed inclusion.
+
+| Compare the same detail | What to record for each written estimate |
+|---|---|
+| Belongings | Inventory version, items left out, packing responsibility and specialty items |
+| Route and access | Both addresses, stairs, elevators, parking, long carries and any shuttle arrangement |
+| Pricing unit | Crew-hour, worker-hour, weight, volume or another stated basis; minimums and fees |
+| Included services | Packing labor, materials, dismantling, storage and reassembly, if agreed |
+| Estimate conditions | Binding or non-binding, services covered and how scope changes are documented |
+| Delivery and payment | Agreed window, accepted payment methods, deposit terms and balance timing |
+| Protection | The selected liability option and any separate coverage you buy |
+
+If the inventories or service lists differ, ask for comparable written versions before deciding which total is lower. You do not need to choose the cheapest estimate to use this worksheet.
 
 ## Sources and data notes
 
