@@ -7,7 +7,7 @@
  * scroll-padding so focused elements are never hidden behind it (WCAG 2.4.11).
  */
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cx } from "../cx";
 import { ArrowRightIcon } from "../icons";
 
@@ -26,11 +26,20 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
   const [visible, setVisible] = useState(false);
   const [formActive, setFormActive] = useState(false);
   const [closingVisible, setClosingVisible] = useState(false);
+  const bar = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const target = document.getElementById(watch);
     if (!target || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry ? !entry.isIntersecting && entry.boundingClientRect.top < 0 : false), { threshold: 0 });
+    const yieldFocus = (destination: HTMLElement) => {
+      // Move keyboard focus before aria-hidden is applied to the outgoing quote bar.
+      if (bar.current?.contains(document.activeElement)) destination.focus({ preventScroll: true });
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      const offer = entry ? !entry.isIntersecting && entry.boundingClientRect.top < 0 : false;
+      if (!offer) yieldFocus(target);
+      setVisible(offer);
+    }, { threshold: 0 });
     observer.observe(target);
     const updateFocus = () => {
       const el = document.activeElement;
@@ -38,8 +47,12 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
     };
     // Focusout runs before the next control receives focus; evaluate the settled target.
     const onFocus = () => queueMicrotask(updateFocus);
-    const closing = document.querySelector("[data-closing-survey]");
-    const closingObserver = closing ? new IntersectionObserver(([entry]) => setClosingVisible(Boolean(entry?.isIntersecting)), { threshold: 0 }) : null;
+    const closing = document.querySelector<HTMLElement>("[data-closing-survey]");
+    const closingObserver = closing ? new IntersectionObserver(([entry]) => {
+      const onScreen = Boolean(entry?.isIntersecting);
+      if (onScreen) yieldFocus(closing);
+      setClosingVisible(onScreen);
+    }, { threshold: 0 }) : null;
     if (closing) closingObserver?.observe(closing);
     updateFocus();
     document.addEventListener("focusin", onFocus);
@@ -60,7 +73,7 @@ export function StickyCta({ href, label, watch, note, storage, className }: Stic
   }, [shown]);
 
   return (
-    <div className={cx("sticky-cta lg:hidden", className)} data-visible={shown ? "true" : "false"} aria-hidden={!shown || undefined}>
+    <div ref={bar} className={cx("sticky-cta lg:hidden", className)} data-visible={shown ? "true" : "false"} aria-hidden={!shown || undefined}>
       <div className="surface-glass mx-auto flex max-w-content items-center gap-3 rounded-card p-2 shadow-e3 ring-1 ring-border">
         {note ? <p className="min-w-0 flex-1 truncate pl-2 type-small text-text-2">{note}</p> : null}
         <Link
