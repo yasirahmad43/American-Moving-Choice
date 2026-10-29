@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  // Unmatched/retired bookmarks need real server-rendered recovery HTML, without async layouts.
+  experimental: { globalNotFound: true },
   // Trace from the monorepo root so serverless bundles can include files outside apps/web.
   outputFileTracingRoot: monorepoRoot,
   // Content drafts and stored texts are read from content/ at render time.
