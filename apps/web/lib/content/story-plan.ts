@@ -3,7 +3,7 @@ import type { MediaAsset } from "../media-sources";
 
 export type StoryKind = "narrative" | "checklist" | "steps" | "data" | "example" | "sources";
 export interface StoryChapterHint { heading?: string; kind?: StoryKind }
-export interface StoryStep { title: string; text: string; href: string; image: MediaAsset }
+export interface StoryStep { title: string; text: string; href: string; action?: string; image: MediaAsset }
 
 /** Review-note removal can leave empty paragraphs before the first real heading.
  * Keep their markup/anchors attached to that chapter instead of inventing a photo-only chapter. */
@@ -18,16 +18,28 @@ export function htmlChapterParts(html: string): string[] {
 }
 
 const LEGACY_NEXT_STEPS = [
-  { title: "Start with your route", text: "Tell us where you're moving from and to.", href: "/get-quotes/" },
-  { title: "Understand the estimate", text: "Know what changes a mover's quote.", href: "/moving-costs/how-movers-charge/" },
-  { title: "Make a practical plan", text: "Use the guides before moving day.", href: "/planning/" },
-  { title: "Choose your contact preferences", text: "You decide how many companies may contact you.", href: "/which-companies-receive-my-request/" },
-  { title: "Explore your destination", text: "Find state and city moving guides.", href: "/movers/" },
+  { title: "Start with your route", text: "Tell us where you're moving from and to.", href: "/get-quotes/", action: "Start my moving request" },
+  { title: "Understand the estimate", text: "Know what changes a mover's quote.", href: "/moving-costs/how-movers-charge/", action: "Read the cost guide" },
+  { title: "Make a practical plan", text: "Use the guides before moving day.", href: "/planning/", action: "Browse moving checklists" },
+  { title: "Choose your contact preferences", text: "You decide how many companies may contact you.", href: "/which-companies-receive-my-request/", action: "Review contact preferences" },
+  { title: "Explore your destination", text: "Find state and city moving guides.", href: "/movers/", action: "Explore state and city guides" },
 ];
 
-/** Shared standalone pages still use the original image/offset contract. */
-export function storyNextItems({ items, images = [], usedCount = 0 }: { items?: readonly StoryStep[]; images?: readonly MediaAsset[]; usedCount?: number }): readonly StoryStep[] {
-  return items ?? images.slice(Math.min(usedCount, images.length)).map((image, index) => ({ image, ...LEGACY_NEXT_STEPS[(usedCount + index) % LEGACY_NEXT_STEPS.length]! }));
+function pagePath(url: string): string {
+  return (url.split(/[?#]/, 1)[0] ?? "").replace(/\/+$/, "") || "/";
+}
+
+/** Shared standalone pages retain their image/offset contract, with a real action on this page. */
+export function storyNextItems({ items, images = [], usedCount = 0, url }: { items?: readonly StoryStep[]; images?: readonly MediaAsset[]; usedCount?: number; url?: string }): readonly StoryStep[] {
+  const steps = items ?? images.slice(Math.min(usedCount, images.length)).map((image, index) => ({ image, ...LEGACY_NEXT_STEPS[(usedCount + index) % LEGACY_NEXT_STEPS.length]! }));
+  if (!url) return steps;
+  const current = pagePath(url);
+  return steps.flatMap((step) => {
+    if (step.href.startsWith("#") || pagePath(step.href) !== current) return [step];
+    // Reaching the existing form is immediate and must not reset the visitor's answers.
+    if (current === "/get-quotes") return [{ ...step, href: "#hero-survey", action: "Return to my quote request" }];
+    return [];
+  });
 }
 
 export function storyImageAt(images: readonly (MediaAsset | null)[], index: number, planned = false) {
@@ -65,12 +77,12 @@ export function storyIcon(heading = "", kind: StoryKind = "narrative") {
 }
 
 const NEXT_STEPS = [
-  { title: "Start with your route", text: "Check your move and choose a contact limit.", href: "/get-quotes/" },
-  { title: "Understand the estimate", text: "Compare the job, billing unit and written conditions.", href: "/moving-costs/how-movers-charge/" },
-  { title: "Make a practical plan", text: "Choose a checklist for your next stage.", href: "/planning/" },
-  { title: "Choose your contact preferences", text: "Know the limit and channels before you send.", href: "/which-companies-receive-my-request/" },
-  { title: "Explore your destination", text: "Read the sourced state and city guides.", href: "/movers/" },
-  { title: "Check a contacting company", text: "Research the credentials the company gives you.", href: "/verify-a-mover/" },
+  { title: "Start with your route", text: "Check your move and choose a contact limit.", href: "/get-quotes/", action: "Start my moving request" },
+  { title: "Understand the estimate", text: "Compare the job, billing unit and written conditions.", href: "/moving-costs/how-movers-charge/", action: "Read the cost guide" },
+  { title: "Make a practical plan", text: "Choose a checklist for your next stage.", href: "/planning/", action: "Browse moving checklists" },
+  { title: "Choose your contact preferences", text: "Know the limit and channels before you send.", href: "/which-companies-receive-my-request/", action: "Review contact preferences" },
+  { title: "Explore your destination", text: "Read the sourced state and city guides.", href: "/movers/", action: "Explore state and city guides" },
+  { title: "Check a contacting company", text: "Research the credentials the company gives you.", href: "/verify-a-mover/", action: "Check a mover's credentials" },
 ];
 
 /** One page, one variety set. Source lists and full-width data deserve space rather than filler photos. */
@@ -89,7 +101,7 @@ export function storyMediaPlan(assets: readonly MediaAsset[], url: string, chapt
     return buildPageCardMedia(assets, `${subject.url}#chapter-${index}`, { family: subject.family, topic: heading }, used);
   });
   const need = Math.max(0, 5 - chapterImages.filter(Boolean).length);
-  const steps: StoryStep[] = NEXT_STEPS.filter(step => step.href !== url).slice(0, need).map(step => ({
+  const steps: StoryStep[] = NEXT_STEPS.filter(step => pagePath(step.href) !== pagePath(url)).slice(0, need).map(step => ({
     ...step, image: buildPageCardMedia(assets, step.href, { topic: step.title }, used),
   }));
   return { chapterImages, steps };

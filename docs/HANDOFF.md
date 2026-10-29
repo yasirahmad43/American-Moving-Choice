@@ -3,6 +3,15 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Card spacing and working actions — owner follow-up, 2026-10-29
+
+Keep readable inner padding on painted cards; do not zero the benefit-card body inset. Hero and
+closing forms use their natural content height instead of stretching to match adjacent copy.
+The quote introduction uses a readable width/title scale and responsive ZIP fields. Every
+next-step card names its destination; on the quote page its own request action returns to
+`#hero-survey` without reloading or discarding answers. Navigation wait feedback is scoped to
+these action links; do not add a streaming boundary that can change missing-route HTTP status.
+
 ### Public audience — owner decision, 2026-10-29
 
 The public website is for people planning moves. The owner handles moving-company business

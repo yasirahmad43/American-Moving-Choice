@@ -32,6 +32,29 @@ describe("shared story contracts", () => {
     expect(storyImageAt([images[0], null, images[1]], 1, true)).toBeNull();
   });
 
+  it("returns quote-page visitors to their existing survey instead of linking to the current URL", () => {
+    const images = manifest.assets.filter(asset => asset.kind === "image").slice(0, 5);
+    for (const url of ["/get-quotes/", "/get-quotes", "/get-quotes/?from=guide#old-section"]) {
+      const steps = storyNextItems({ images, url });
+      expect(steps).toHaveLength(5);
+      expect(steps.map(step => step.image.id)).toEqual(images.map(image => image.id));
+      expect(steps[0].href).toBe("#hero-survey");
+      expect(steps[0].action).toBe("Return to my quote request");
+      expect(steps.slice(1).map(step => step.href)).toEqual(["/moving-costs/how-movers-charge/", "/planning/", "/which-companies-receive-my-request/", "/movers/"]);
+      expect(steps.every(step => step.action && !/Explore this step/.test(step.action))).toBe(true);
+    }
+    expect(storyNextItems({ images })[0].href).toBe("/get-quotes/");
+  });
+
+  it("omits other same-page suggestions rather than making an action that goes nowhere", () => {
+    const images = manifest.assets.filter(asset => asset.kind === "image").slice(0, 5);
+    const steps = storyNextItems({ images, url: "/planning/?page=1" });
+    expect(steps.some(step => step.href === "/planning/")).toBe(false);
+    expect(steps.map(step => step.image.id)).toEqual([images[0], images[1], images[3], images[4]].map(image => image.id));
+    const plan = storyMediaPlan(manifest.assets, "/planning", [{ heading: "Your next stage" }], "Planning");
+    expect(plan.steps.some(step => step.href === "/planning/")).toBe(false);
+  });
+
   it("moves the complete answer/action blocks without losing any paragraph, source, anchor or table", () => {
     const html = '<p>Answer <a href="https://www.fmcsa.dot.gov/">source</a>.</p><blockquote><p>Important limit.</p></blockquote><h2 id="start-here">Three checks</h2><ol><li>Check A.</li><li>Check B.</li></ol><h2 id="detail">Full detail</h2><div class="table-wrap"><table><tbody><tr><td>Every record stays.</td></tr></tbody></table></div>';
     const result = guideOverview(html);

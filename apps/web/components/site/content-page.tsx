@@ -98,7 +98,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
             </nav>
           ) : null}
           <article><StorySections chapters={chapters} images={media.chapterImages} planned url={page.meta.url} topic={page.h1} /></article>
-          <StoryNextSteps items={media.steps} />
+          <StoryNextSteps url={page.meta.url} items={media.steps} />
           <aside className="story-reader-cta" data-motion="rise" data-band="">
             <div><p className="type-overline">Your move. Your choice.</p><h2>Ready to compare movers?</h2>
             <p>Check coverage for your route, then choose how many movers may contact you.</p></div>

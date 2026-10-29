@@ -98,7 +98,7 @@ export default function MovingCostCalculatorPage() {
             </nav>
           </div> },
         ]} />
-        <StoryNextSteps images={plan.images} usedCount={3} />
+        <StoryNextSteps url={PAGE} images={plan.images} usedCount={3} />
       </Container>
     </>
   );

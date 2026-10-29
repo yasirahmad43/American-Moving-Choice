@@ -43,7 +43,7 @@ export default function GetQuotesPage() {
   const plan = pageMediaPlan(PAGE, { topic: "survey household route" });
   const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;
   return <>
-    <VideoSurveyHero url={PAGE} eyebrow="Quote request" title="Request quotes from movers in our network"
+    <VideoSurveyHero url={PAGE} className="vsh--quote-request" eyebrow="Quote request" title="Request quotes from movers in our network"
       description="Nothing goes to any mover until you send your request at Review and send. Going back a step keeps your answers."
       survey={<div className="quote-survey-full p-4 sm:p-6">
         <Survey texts={texts} checkCoverage={checkCoverageAction} submitRequest={submitRequestAction} lookupZip={lookupZipAction} webUrl={env().WEB_URL} />
@@ -56,6 +56,6 @@ export default function GetQuotesPage() {
         <li className="flex items-center gap-2"><InfoIcon size={17} /><Link href="/which-companies-receive-my-request/" className="inline-flex min-h-11 items-center text-white underline underline-offset-4">Who receives my request</Link></li>
       </ul>
     </VideoSurveyHero>
-    <Container><StoryNextSteps images={plan.images} /></Container>
+    <Container><StoryNextSteps url={PAGE} images={plan.images} /></Container>
   </>;
 }
