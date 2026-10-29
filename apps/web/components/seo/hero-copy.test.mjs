@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 vi.mock("next/link", () => ({ default: () => null }));
 const { seoHeroCopy } = await import("./hero-copy.ts");
-const page = (family, answer) => ({ family, content: { intro: { answer } } });
+const page = (family, answer, metaDescription = "") => ({ family, metaDescription, content: { intro: { answer } } });
 
 describe("reader-facing guide introductions", () => {
   it("uses the complete geographic opening rather than an unfinished search snippet", () => {
@@ -16,8 +16,29 @@ describe("reader-facing guide introductions", () => {
     expect(seoHeroCopy(page("state", "Washington, D.C. is a district. More guidance follows."))).toBe("Washington, D.C. is a district.");
     expect(seoHeroCopy(page("route", "About 45.5 miles separate the cities, roughly 60 road miles under a planning assumption. Check your route."))).toBe("About 45.5 miles separate the cities, roughly 60 road miles under a planning assumption.");
   });
-  it("keeps the full advice answer, including exceptions, numbers, dates and link labels", () => {
+  it("uses a complete authored scope summary while retaining the entire qualified answer unchanged", () => {
     const answer = "The delivery-payment rule depends on the estimate. Extra charges may apply for agreed additional services. Read [the calculation method](/moving-cost-calculator/method/) and the $250 example dated 2026-10-28.";
-    for (const family of ["question", "planning", "service", "cost"]) expect(seoHeroCopy(page(family, answer))).toBe(answer.replace("[the calculation method](/moving-cost-calculator/method/)", "the calculation method"));
+    const summary = "Understand how binding and non-binding estimates affect your final bill, which added charges can apply, and what movers may collect at delivery.";
+    for (const family of ["question", "planning", "service", "cost"]) {
+      const stored = page(family, answer, summary);
+      expect(seoHeroCopy(stored)).toBe(summary);
+      expect(stored.content.intro.answer).toBe(answer);
+    }
+  });
+  it("uses a finished metadata sentence before a clipped tail and never shows the unfinished clause", () => {
+    const summary = "A binding estimate covers the goods and services it lists.";
+    const stored = page("question", "The complete detailed answer remains below.", `${summary} What to check before you…`);
+    expect(seoHeroCopy(stored)).toBe(summary);
+    expect(seoHeroCopy(stored)).not.toContain("What to check");
+  });
+  it("keeps a complete multi-sentence summary so the preview retains both local and long-distance scope", () => {
+    const summary = "Local moves: by the hour. Long-distance moves: shipment and distance, with written estimates, tariffs and payment conditions to compare.";
+    expect(seoHeroCopy(page("question", "The detailed pricing explanation remains in the full guide.", summary))).toBe(summary);
+  });
+  it("keeps a short reply and its qualifying sentence together rather than publishing a bare Yes or No", () => {
+    const answer = "Sometimes. Delivery payment can include agreed additional services and capped impracticable-operations charges. Keep the full estimate and dated source.";
+    expect(seoHeroCopy(page("question", answer))).toBe("Sometimes. Delivery payment can include agreed additional services and capped impracticable-operations charges.");
+    const legal = "The reference has a $250 example, dated 2026-10-28, with additional charges subject to the stated conditions. The complete source remains below.";
+    expect(seoHeroCopy(page("question", legal))).toContain("$250 example, dated 2026-10-28, with additional charges subject to the stated conditions.");
   });
 });

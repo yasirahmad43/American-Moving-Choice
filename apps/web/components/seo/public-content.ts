@@ -7,6 +7,11 @@ const RETIRED_DIRECTORY_URL = /(?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)
 const LEGACY_DISCLOSURE = /by name and USDOT|movers? named on (?:your|the) Review and send screen|every mover named before|review every name|the list above names them|remove any (?:named )?mover/i;
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const ZIP_RULE_COUNTS_NOTE = "Named counts are ZIP- or county-specific local rules; total matches can also include broader rules. These dated counts describe a representative local move. The quote survey checks the rules against your exact route and move details.";
+const BINDING_ESTIMATE_DESCRIPTION = "Compare binding and non-binding interstate estimates, the extra charges that can apply, and what may be due at delivery.";
+const LEGACY_BINDING_DESCRIPTIONS = new Set([
+  "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an…",
+  "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an interstate move.",
+]);
 
 function legacyZipRuleCount(value: string): string {
   const count = "(?:0|[1-9]\\d*|[1-9]\\d{0,2}(?:,\\d{3})+)";
@@ -26,6 +31,7 @@ const MOVING_COPY_REPAIRS: Record<string, readonly (readonly [string, string])[]
     ["FMCSA's rules don't reach a move between two points in the same state.", "A move between two places in the same state can be interstate if the shipment passes through another state. Moves whose entire route stays within one state are generally state-regulated."],
   ],
   "/services/long-distance/": [
+    ["A long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state.", "On American Moving Choice, a long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state."],
     ["but Texas rules, not FMCSA's Part 375, govern it.", "but Texas rules generally govern it when the entire route stays in Texas; a shipment that passes through another state is interstate."],
     ["On a non-binding interstate estimate, the mover must hand over your goods once you pay up to 110% of the estimate at delivery; any remaining balance is billed later, no sooner than 30 days after delivery per FMCSA guidance.", "On a non-binding interstate estimate, delivery payment can include up to 110% of the estimate, services requested after the bill of lading, and impracticable-operations charges of no more than 15% of all other charges due at delivery. FMCSA guidance says the remaining estimate-based balance is billed no sooner than 30 days after delivery."],
   ],
@@ -55,6 +61,7 @@ const MOVING_COPY_REPAIRS: Record<string, readonly (readonly [string, string])[]
     ["Binding: no, except services you add. Non-binding: yes, but no more than 110% at delivery; the rest is billed later. What changes the bill.", "When a moving bill can change, and how binding and non-binding delivery payments account for later-requested services and capped impracticable operations."],
     ["the mover may collect only the binding amount plus services you asked for after the bill of lading and any impracticable-operations charges.", "the delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
     ["but you never pay more than 110% of the estimate at delivery, and the mover bills the remainder later.", "but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later."],
+    ["On a binding interstate estimate, no: the delivery payment can include the binding amount", "Sometimes. For a binding interstate estimate, delivery payment can include the binding amount"],
   ],
   "/questions/what-is-a-moving-tariff/": [
     ["within the 110% cap at delivery.", "subject to the non-binding delivery-payment rule, including later-requested services and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
@@ -119,6 +126,9 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   };
   // Copy all fields, not just the content body: sources and metadata can repeat old identities.
   const result = strings(page);
+  // Correct only the known saved search descriptions, including the actual clipped live
+  // value. The page's complete answer, prices, dates and other metadata remain untouched.
+  if (page.url === "/questions/what-is-a-binding-estimate/" && LEGACY_BINDING_DESCRIPTIONS.has(result.metaDescription)) result.metaDescription = BINDING_ESTIMATE_DESCRIPTION;
   const content = result.content;
   if (!content.intro.answer) content.intro.answer = PUBLIC_REQUEST_ASSURANCE;
   if (!result.metaDescription) result.metaDescription = PUBLIC_REQUEST_ASSURANCE;
