@@ -3,20 +3,58 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
-### Active owner follow-up — 2026-10-29
+### Released owner follow-up — 2026-10-29
 
 The owner rejected the earlier assessment: non-home design is about 6/10 and SEO/content about
-5/10 in their judgment. Work continues on `codex/complete-moving-experience`; the release below
-is historical baseline, not acceptance of the expanded brief. New requirements: images on every
-catalog result, thousands of useful route guides, visible state names on the map, and a working
-survey immediately before the footer as well as in every hero. The real business name is
+5/10 in their judgment. PRs **#9 and #10** shipped the expanded brief from
+`codex/complete-moving-experience`: images on every catalog result, thousands of useful route
+guides, all 51 state/district names on the map (with callouts for small states), and a working
+survey immediately before the footer as well as in every hero. Editorial pages retain their
+substantive text, source links and tables in varied image-led chapters. The real business name is
 **American Moving Choice**; the owner deferred phone, email, address and other details.
 
+The public site at `https://amc-web-three.vercel.app` was verified active on
+`01ebe1807fed89c2bcac9d413d3a0ce5010bd288`; the admin/portal at
+`https://amc-app-sable.vercel.app/admin` was verified active on
+`dd5a29e75f92bcdef77d1a37909b1a0790e6b4f8`. Their backend Git trees are identical;
+the five-file #10 change is public presentation only. Production independently reports
+**4,681 published guides, including 2,221 routes, plus 67 core/index pages: 4,748 sitemap URLs
+across 12 files.** The route hub has 38 pages, 60 results per full page. These are production
+content counts, not claims of search-engine indexing or ranking.
+
+The full live crawl fetched **5,296 HTML responses** (4,748 primary pages and 548 deliberately
+noindex catalog facets). It found zero broken links, framework failures, primary metadata
+duplicates, H1 errors, orphaned primary pages, primary pages deeper than three links, JSON-LD
+errors or FAQ mismatches. One special Costs page omitted its sharing image; the follow-up
+patch adds the shared metadata helper and distinct accessible table/region labels. Keep the
+baseline finding and subsequent targeted closure separate in the proof package. Local browser
+checks cover all eight affected desktop/mobile views with zero axe violations in main content.
+The full business browser suite passed **63 scenarios**, with one existing empty approval
+walkthrough explicitly skipped. Live smoke passed **5/5**, including one fictional request
+submitted and then withdrawn; do not rerun that mutating scenario unnecessarily.
+
+The owner explicitly requested removal of the authenticator step. Demo administrators now
+use password sign-in only when both `DEMO_MODE` and `DEMO_ADMIN_PASSWORD_ONLY` are true.
+Both flags are configured in amc-app Production/Preview. Password checks, rate limits and roles
+remain enforced; company and non-demo MFA policies remain intact. The owner signed in to the
+live Super admin dashboard successfully without an authenticator. See
+`docs/product/demo-admin-sign-in.md`.
+
 The owner approved saving the Supabase server key securely. It is now a sensitive Vercel variable
-in `amc-app` Production and Preview. A rebuild of the tested `5b276b2` release is active as
-`dpl_8w3P723A8KsNR2fNJuRjCETnrp2z`. Its production build verified live Storage write, exact-byte
-public image read and deletion of its own temporary image. The one-time verification flag is now
-false. No key was saved in source/chat/local files and no new key was created. See `docs/media/storage.md`.
+in `amc-app` Production and Preview. An earlier production build verified live Storage write,
+exact-byte public image read and deletion of its own temporary image; its one-time verification
+flag is now false. The actual authenticated admin upload was also verified: the owner logo saved
+as 800×400 and 1344×672 WebP variants, persisted after fresh navigation, and rejected an identical
+duplicate. The library now contains 419 assets; this new unclaimed brand upload changes no page
+assignment. Both public variants were fetched anonymously and their image dimensions checked.
+No key was saved in source/chat/local files and no new key was created. See `docs/media/storage.md`.
+
+`DEMO_MODE=true` and public `SITE_INDEXABLE=false` remain deliberate: the demo site currently
+disallows crawling and uses noindex. Search and ChatGPT citation eligibility are not live-launch
+proof. Do not enable indexing while fictional fixtures and the deferred business/launch details
+remain. The independent comparison against all six owner examples is subjective **8.3/10**,
+not owner acceptance, a perfect-score claim or a prediction of search results. The follow-up
+evidence and final release provenance are in the owner proof package.
 
 ### Earlier immersive redesign (released 2026-10-29)
 
@@ -45,7 +83,7 @@ database checks**, 22 hero/tool browser checks, 30 main-page and 30 populated-gu
 optimized build, and all **60 executable full browser scenarios**. Two stale browser assertions
 were updated and passed on a focused rerun. One existing empty `test.fixme` for the admin-approval
 walkthrough remains explicitly skipped; admin authentication and portal/admin journeys do run.
-**Current application release `5b276b260d8e7707c45096e8a967c7740fb6aca0` is live in both apps.**
+**Historical application release `5b276b260d8e7707c45096e8a967c7740fb6aca0` was live in both apps.**
 Both production targets were checked Ready and active on this exact commit: public
 `dpl_7ex6bLPXjhU91zghx3gTkcALnn5f`, portal/admin `dpl_2tTiSrZa2r5jMkTnLWNEeieu1AQk`.
 The merged tree exactly matches CI-green review head `333cfbf`; the merge commit's own CI is green.

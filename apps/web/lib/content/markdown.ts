@@ -303,20 +303,24 @@ function textOf(node: HNode): string {
 }
 
 function rehypeAmc() {
+  let tableNumber = 0;
+  let sectionHeading = "";
   const visit = (node: HNode) => {
     if (!node.children) return;
     node.children = node.children.map((child) => {
       if (child.type !== "element") return child;
       if (child.tagName === "table") {
+        const label = `${sectionHeading ? `${sectionHeading}: ` : ""}Table ${++tableNumber} (scrolls sideways on small screens)`;
         return {
           type: "element",
           tagName: "div",
-          properties: { className: ["table-wrap"], role: "region", tabIndex: 0, ariaLabel: "Table (scrolls sideways on small screens)" },
+          properties: { className: ["table-wrap"], role: "region", tabIndex: 0, ariaLabel: label },
           children: [child],
         };
       }
       if (/^h[2-4]$/.test(child.tagName ?? "") && typeof child.properties?.id === "string") {
         const label = textOf(child).trim();
+        sectionHeading = label;
         visit(child);
         child.children = [
           ...(child.children ?? []),
