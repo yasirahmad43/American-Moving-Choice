@@ -30,6 +30,32 @@ function assertPreserved(stored, projected) {
 }
 
 describe("saved moving-rule guidance", () => {
+  it("labels the actual 50-mile long-distance opening as this site's convention and preserves the complete remaining guidance", () => {
+    const deployedAnswer = "A long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state. Long-distance movers price by shipment weight and distance rather than by the hour, and interstate moves come with federal protections: a written estimate, a survey of your goods, the 110% rule on non-binding estimates and full value protection by default.";
+    const stored = page("/services/long-distance/", deployedAnswer, { family: "service", faq: [{ question: "Is a move of 300 miles within Texas a long-distance move?", answer: "Yes, an in-state long-distance (intrastate) move. It is priced by weight and band like an interstate move, but Texas rules generally govern it when the entire route stays in Texas; a shipment that passes through another state is interstate." }] });
+    const projected = publicSeoPage(stored);
+    expect(projected.content.intro.answer).toBe("On American Moving Choice, a" + deployedAnswer.slice(1));
+    expect(projected.content.intro.answer).toContain("more than 50 miles within one state");
+    expect(projected.content.intro.answer).toContain("110% rule on non-binding estimates and full value protection by default");
+    expect(projected.content.faq).toEqual(stored.content.faq);
+    expect(SERVICES.find(entry => entry.slug === "long-distance").answer).toBe(projected.content.intro.answer);
+    assertPreserved(stored, projected);
+  });
+
+  it("gives the actual deployed estimate-increase answer a qualified opening while retaining every payment condition", () => {
+    const deployedAnswer = "On a binding interstate estimate, no: the delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. On a non-binding estimate the final bill follows the tariff and can be higher, but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later.";
+    const stored = page("/questions/can-a-mover-charge-more-than-the-estimate/", deployedAnswer);
+    const projected = publicSeoPage(stored);
+    expect(projected.content.intro.answer).toBe(deployedAnswer.replace("On a binding interstate estimate, no: the delivery payment can include the binding amount", "Sometimes. For a binding interstate estimate, delivery payment can include the binding amount"));
+    expect(projected.content.intro.answer).toMatch(/^Sometimes\. For a binding interstate estimate,/);
+    expect(projected.content.intro.answer).toContain("services requested after the bill of lading");
+    expect(projected.content.intro.answer.match(/15% of all other charges due at delivery/g)).toHaveLength(2);
+    expect(projected.content.intro.answer).toContain("up to 110% of the estimate");
+    expect(projected.content.intro.answer).toContain("remaining estimate-based balance is billed later");
+    expect(QUESTIONS.find(entry => entry.slug === "can-a-mover-charge-more-than-the-estimate").answer).toBe(projected.content.intro.answer);
+    assertPreserved(stored, projected);
+  });
+
   it("repairs the actual live estimate-increase meta description without altering its unrelated body", () => {
     // Fetched from the public page on 2026-10-29; unlike several neighboring descriptions,
     // this published absolute-cap claim is complete and matches the scoped correction.

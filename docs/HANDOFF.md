@@ -5,6 +5,17 @@ verifiable from the repository; nothing here depends on the previous assistant's
 
 ### Search and conversion review — 2026-10-29
 
+Reader follow-up: the initial release `721ee96328689fd4ef9ea6736024f743e6291262` has a
+preserved **partial** 584-page post-release crawl, not a final whole-site verification. The next
+candidate uses complete authored metadata sentences for brief hero previews, with a complete
+intro sentence as fallback; it never displays a clipped snippet or cuts a legal qualification
+mid-sentence. Full answers stay in the body. A read-only local profile of all 4,719 published
+authored guides found no unfinished previews and none over 60 words (maximum 50). This is a
+local presentation check, not a production count or a usefulness/ranking score. The same reader
+pass corrects the confusing blanket “no” in the estimate-increase opening and explicitly scopes
+the long-distance 50-mile convention to this site. Follow-up branch:
+`codex/complete-hero-summaries`. Final release/crawl evidence must identify its actual revision.
+
 The owner requests a whole-site design, search/AI discovery and lead-conversion review. The
 starting deployed release is `78f124a59ee0a96ca6b16366879f2cb0c6396c26` (caption repair PR #13).
 The follow-up branch is `codex/search-conversion-readiness`. A subjective perfect rating or a

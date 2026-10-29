@@ -122,7 +122,7 @@ export const SERVICES: CatalogEntry[] = [
     metaDescription:
       "How long-distance moves are priced by weight and distance band, which federal rules protect you on an interstate move, and how our network's carriers cover them.",
     answer:
-      "A long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state. Long-distance movers price by shipment weight and distance rather than by the hour, and interstate moves come with federal protections: a written estimate, a survey of your goods, the 110% rule on non-binding estimates and full value protection by default.",
+      "On American Moving Choice, a long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state. Long-distance movers price by shipment weight and distance rather than by the hour, and interstate moves come with federal protections: a written estimate, a survey of your goods, the 110% rule on non-binding estimates and full value protection by default.",
     sections: [
       {
         heading: "How long-distance pricing works",
@@ -644,7 +644,7 @@ export const QUESTIONS: CatalogEntry[] = [
     "Can Movers Charge More Than the Estimate?",
     "Can movers charge more than the estimate?",
     "When a moving bill can change, and how binding and non-binding delivery payments account for later-requested services and capped impracticable operations.",
-    "On a binding interstate estimate, no: the delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. On a non-binding estimate the final bill follows the tariff and can be higher, but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later.",
+    "Sometimes. For a binding interstate estimate, delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. On a non-binding estimate the final bill follows the tariff and can be higher, but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later.",
     [
       { heading: "What can lawfully raise the bill", blocks: [ul(["Goods or services added after the estimate (before loading, a new binding estimate or a written change is required).", "Impracticable operations, such as a shuttle truck, capped separately.", "Accessorial services settled before the bill of lading."])] },
       { heading: "What to keep", blocks: [p("Your signed, dated estimate, the inventory, the bill of lading, every weight ticket and every change you agreed to in writing. Disputes over charges billed after delivery can go to the mover's arbitration program.")] },

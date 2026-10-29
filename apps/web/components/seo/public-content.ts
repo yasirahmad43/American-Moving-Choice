@@ -26,6 +26,7 @@ const MOVING_COPY_REPAIRS: Record<string, readonly (readonly [string, string])[]
     ["FMCSA's rules don't reach a move between two points in the same state.", "A move between two places in the same state can be interstate if the shipment passes through another state. Moves whose entire route stays within one state are generally state-regulated."],
   ],
   "/services/long-distance/": [
+    ["A long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state.", "On American Moving Choice, a long-distance move is any move beyond the local radius: either across a state line (interstate) or more than 50 miles within one state."],
     ["but Texas rules, not FMCSA's Part 375, govern it.", "but Texas rules generally govern it when the entire route stays in Texas; a shipment that passes through another state is interstate."],
     ["On a non-binding interstate estimate, the mover must hand over your goods once you pay up to 110% of the estimate at delivery; any remaining balance is billed later, no sooner than 30 days after delivery per FMCSA guidance.", "On a non-binding interstate estimate, delivery payment can include up to 110% of the estimate, services requested after the bill of lading, and impracticable-operations charges of no more than 15% of all other charges due at delivery. FMCSA guidance says the remaining estimate-based balance is billed no sooner than 30 days after delivery."],
   ],
@@ -55,6 +56,7 @@ const MOVING_COPY_REPAIRS: Record<string, readonly (readonly [string, string])[]
     ["Binding: no, except services you add. Non-binding: yes, but no more than 110% at delivery; the rest is billed later. What changes the bill.", "When a moving bill can change, and how binding and non-binding delivery payments account for later-requested services and capped impracticable operations."],
     ["the mover may collect only the binding amount plus services you asked for after the bill of lading and any impracticable-operations charges.", "the delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
     ["but you never pay more than 110% of the estimate at delivery, and the mover bills the remainder later.", "but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later."],
+    ["On a binding interstate estimate, no: the delivery payment can include the binding amount", "Sometimes. For a binding interstate estimate, delivery payment can include the binding amount"],
   ],
   "/questions/what-is-a-moving-tariff/": [
     ["within the 110% cap at delivery.", "subject to the non-binding delivery-payment rule, including later-requested services and impracticable-operations charges of no more than 15% of all other charges due at delivery."],
