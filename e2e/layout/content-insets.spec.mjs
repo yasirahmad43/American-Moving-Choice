@@ -40,6 +40,13 @@ for (const width of [320, 390, 768, 1440]) {
       await page.goto(base + path);
       await page.locator(".site-experience main").waitFor();
       await assertInsets(page);
+      if (path === "/" && width < 1200) {
+        // All state names must retain spacing when their native regions are opened.
+        for (const summary of await page.locator(".state-guide-region > summary").all()) {
+          await summary.click();
+          await assertInsets(page);
+        }
+      }
     }
     await page.goto(base + "/");
     await page.locator('[data-vsh-starter][data-ready="true"]').first().waitFor();
