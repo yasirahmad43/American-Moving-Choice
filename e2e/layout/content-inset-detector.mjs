@@ -2,7 +2,7 @@
 export function inspectTextInsetContract() {
   const visible=e=>{
     if(!e||e.closest('[hidden],[aria-hidden="true"],script,style,noscript,.sr-only'))return false;
-    for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;if(p.tagName==='DETAILS'&&!p.open&&!p.querySelector(':scope>summary')?.contains(e))return false;}
+    for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;if(p.tagName==='DETAILS'&&!p.open&&p!==e&&!p.querySelector(':scope>summary')?.contains(e))return false;}
     return e.getClientRects().length>0;
   };
   const rectsOf=e=>{
@@ -34,7 +34,7 @@ export function inspectInsetFamilies() {
   ];
   const visible=e=>{
     if(e.closest('[hidden],[aria-hidden="true"],script,style,noscript,.sr-only'))return false;
-    for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;if(p.tagName==='DETAILS'&&!p.open&&!p.querySelector(':scope>summary')?.contains(e))return false;}
+    for(let p=e;p;p=p.parentElement){const s=getComputedStyle(p);if(s.display==='none'||s.visibility==='hidden'||Number(s.opacity)===0)return false;if(p.tagName==='DETAILS'&&!p.open&&p!==e&&!p.querySelector(':scope>summary')?.contains(e))return false;}
     return !!e.getClientRects().length;
   };
   return definitions.flatMap(([family,selector,required])=>[...document.querySelectorAll(selector)].filter(visible).map((e,index)=>{

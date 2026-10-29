@@ -21,6 +21,11 @@ test("inset protection survives token failure and conflicting late padding witho
       expect(await page.locator(".image").evaluate(e => e.getBoundingClientRect().left - e.parentElement.getBoundingClientRect().left)).toBe(1);
     }
   }
+  // A closed disclosure still has visible summary text; its body stays excluded.
+  await page.setContent(`<style>*{box-sizing:border-box}p{margin:0}${css}</style><div class="site-experience"><details data-content-inset="compact"><summary>Visible closed question</summary><p style="position:absolute;left:-99px">Hidden answer</p></details></div>`);
+  const closed = await page.evaluate(inspectTextInsetContract);
+  expect(closed).toHaveLength(1);
+  expect(closed[0].pass).toBe(true);
   // Calibrate the test: it must catch both missing padding and visually projected copy.
   await page.setContent('<div class="site-experience"><div style="border:1px solid;padding:0" data-content-inset="card"><p>Too close</p></div></div>');
   expect((await page.evaluate(inspectTextInsetContract)).some(item => !item.pass)).toBe(true);
