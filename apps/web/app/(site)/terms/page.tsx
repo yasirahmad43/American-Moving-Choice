@@ -4,10 +4,11 @@ import { pageMetadata } from "@/components/site/page-meta";
 import { Note } from "@/components/site/review-notes";
 import { BusinessIdentity } from "@/components/site/business-details";
 import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
+import { REVIEW_NOTES_IN_HTML } from "@/lib/review-mode";
 
 const URL = "/terms/";
 const TITLE = "Terms of Use | American Moving Choice";
-const DESCRIPTION = "Placeholder terms of use for the American Moving Choice preview: the service's role, your request, and the sections counsel will write.";
+const DESCRIPTION = "How American Moving Choice works, your request choices and the responsibilities described in this preview. Final terms are awaiting legal review.";
 
 export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 
@@ -19,12 +20,12 @@ export default function TermsPage() {
       description={DESCRIPTION}
       trail={[{ label: "Terms of use", href: URL }]}
       overline="Legal"
-      lede="This is a placeholder. Counsel writes the terms of use; the outline below shows what they will cover."
-      waitingOn="Counsel writes these terms. Nothing on this page is the agreement itself."
+      lede="Understand the service's role, the choices attached to your request and the separate agreement you make with a mover. These preview terms are awaiting final legal review before launch."
+      waitingOn="The final terms of use await legal review."
     >
-      <p>
+      {REVIEW_NOTES_IN_HTML ? <p>
         <Note kind="counsel">counsel writes the terms of use. Arbitration, if any, is not bundled into the contact-consent checkbox (consent draft §5)</Note>
-      </p>
+      </p> : null}
 
       <h2>Who you&apos;re agreeing with</h2>
       <p>
@@ -57,8 +58,12 @@ export default function TermsPage() {
 
       <h2>Acceptable use, liability and disputes</h2>
       <p>
-        <Note kind="counsel">acceptable use, disclaimers, limitation of liability, governing law and dispute resolution</Note>
+        The final terms will address acceptable use, liability and dispute handling. Those provisions are not finalized in this preview.
+        If you have a question about a request or a problem with a move, use <Link href="/report-a-concern/">Report a concern</Link>.
       </p>
+      {REVIEW_NOTES_IN_HTML ? <p>
+        <Note kind="counsel">acceptable use, disclaimers, limitation of liability, governing law and dispute resolution</Note>
+      </p> : null}
 
       <h2>Moving companies</h2>
       <p>

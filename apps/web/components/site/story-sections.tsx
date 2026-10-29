@@ -4,6 +4,7 @@ import { LineIcon } from "@amc/ui";
 import { MediaCreditLine, MediaFrame } from "@/components/media/media-frame";
 import type { MediaAsset } from "@/lib/media";
 import { chapterKind, htmlChapterParts, storyIcon, storyImageAt, storyNextItems, type StoryKind, type StoryStep } from "@/lib/content/story-plan";
+import { storyCaption } from "@/lib/content/story-captions";
 import "./story-sections.css";
 
 interface Chapter { key: string; content: ReactNode; heading?: string; kind?: StoryKind }
@@ -29,17 +30,50 @@ export function htmlChapters(html: string): Chapter[] {
   });
 }
 
-/** The draft example is retained in full, with an approachable explanation of its fields. */
+/** A missing value is a status in its named field, not a fragment of a generated sentence. */
+function availableField(value: string): string {
+  const shown = value.replace(/not yet available|data pending|\[pending[^\]]*\]/gi, "Not available");
+  return shown === value ? value : shown.trim();
+}
+
+function planningLabelFields(original: string): string {
+  // Limit the rewrite to the single-paragraph result-label specimen. Other quoted guidance
+  // and disclaimers remain untouched; any real values in parsed fields are retained.
+  const paragraph = /^<blockquote>\s*<p>([\s\S]*?)<\/p>\s*<\/blockquote>$/i.exec(original);
+  if (!paragraph || !/Planning range, not a quote:/i.test(paragraph[1]!) || !/not yet available|data pending|\[pending[^\]]*\]/i.test(paragraph[1]!)) return original;
+  const label = paragraph[1]!.replace(/<\/?strong\b[^>]*>/gi, "");
+  const fields = /Planning range, not a quote:\s*([\s\S]*?)\s+for\s+([\s\S]*?)\.\s*Based on\s+([\s\S]*?);\s*data as of\s+([\s\S]*?);\s*model\s+([\s\S]*?)\.(?=\s*(?:<a\b|$))/i.exec(label);
+  if (!fields) return original;
+  const labels = ["Planning range", "Move and area", "Rate-card sources and sample", "Data as of", "Calculation model"];
+  const cells = labels.map((name, index) => `<div class="rounded-control bg-surface-2 p-4"><dt class="type-small font-semibold text-text-2">${name}</dt><dd class="mt-1 text-base font-bold text-text">${availableField(fields[index + 1]!)}</dd></div>`).join("");
+  // Anchors or explanatory links outside the specimen sentence retain their original markup.
+  const before = label.slice(0, fields.index), after = label.slice(fields.index + fields[0].length);
+  return `<div class="planning-availability">${before}<p class="planning-availability-kicker">Understanding the estimate</p><h3>What a complete planning range identifies</h3><p><strong>Planning range, not a quote.</strong> A useful range names the move it covers and the data behind it. These reference fields explain the label; they are not a calculated result for your move.</p><dl class="mt-4 grid gap-3 sm:grid-cols-2">${cells}</dl>${after.trim() ? `<p class="mt-4">${after}</p>` : ""}</div>`;
+}
+
+/** Present missing reference data coherently while retaining records, sources and real values. */
 export function presentEditorialHtml(html: string): string {
   const available = html.replace(/<div class="table-wrap"[^>]*>\s*<table>[\s\S]*?<\/table>\s*<\/div>/gi, (original) => {
+    const table = original.replace(/(<td\b[^>]*>)([\s\S]*?)(<\/td>)/gi, (_cell, open: string, value: string, close: string) => `${open}${availableField(value)}${close}`);
     const unavailable = original.match(/not yet available|data pending|\[pending[^\]]*\]/gi) ?? [];
-    if (unavailable.length < 3 || !/planning range|what the range covers|sample size/i.test(original) || /[$£€]\s*\d/.test(original)) return original;
-    return `<div class="planning-availability"><p class="planning-availability-kicker">Rate information</p><h3>A useful range needs enough recent data.</h3><p>This reference table does not currently include a supported price range. A mover can give you a written estimate for the details of your move; our calculator shows a planning range only when enough qualifying rate cards are available.</p><a class="link" href="/moving-cost-calculator/">Check a planning range for your move</a><details><summary>See every reference field and its availability</summary>${original}</details></div>`;
+    if (unavailable.length < 3 || !/planning range|what the range covers|sample size/i.test(original) || /[$£€]\s*\d/.test(original)) return table;
+    return `<div class="planning-availability"><p class="planning-availability-kicker">Rate information</p><h3>A useful range needs enough recent data.</h3><p>No supported price range is provided in this reference table. Its columns show the information a published range needs: the move it covers, the range, its source, the sample size and the data date. A field marked “Not available” has no verified value here.</p><a class="link" href="/moving-cost-calculator/">Check a planning range for your move</a><details><summary>View every reference row and its availability</summary>${table}</details></div>`;
   });
-  return available.replace(/<pre(\s[^>]*)?>/gi, (original, attributes = "") => /\btabindex=/i.test(attributes) ? original : `<pre${attributes} tabindex="0" role="region" aria-label="Formula or worked example (scroll sideways if needed)">`).replace(/<blockquote>[\s\S]*?<\/blockquote>/gi, (original) => {
-    if (!/Planning range, not a quote:/i.test(original) || !/not yet available/i.test(original)) return original;
-    return `<div class="planning-availability"><p class="planning-availability-kicker">Understanding the estimate</p><h3>A planning range comes with its context.</h3><p>Read the move, the area, the sources and the date together. A planning range is a guide; the moving company provides your actual quote.</p><div class="planning-availability-fields"><span><b>01</b> Your move &amp; area</span><span><b>02</b> Rate-card sources</span><span><b>03</b> Data date</span><span><b>04</b> Calculation method</span></div><details><summary>Read the complete example label</summary>${original}</details></div>`;
+  const usedLabels = new Set([...available.matchAll(/\baria-label\s*=\s*["']([^"']+)["']/gi)].map(match => match[1]));
+  let formulaNumber = 0;
+  const formulas = available.replace(/<pre(\s[^>]*)?>/gi, (original, attributes = "") => {
+    if (/\btabindex\s*=/i.test(attributes)) return original;
+    let additions = ' tabindex="0"';
+    if (!/\brole\s*=/i.test(attributes)) additions += ' role="region"';
+    if (!/\baria-(?:label|labelledby)\s*=/i.test(attributes)) {
+      let label: string;
+      do { label = `Formula or worked example ${++formulaNumber} (scroll sideways if needed)`; } while (usedLabels.has(label));
+      usedLabels.add(label);
+      additions += ` aria-label="${label}"`;
+    }
+    return `<pre${attributes}${additions}>`;
   });
+  return formulas.replace(/<blockquote>[\s\S]*?<\/blockquote>/gi, planningLabelFields);
 }
 
 function nodesOf(children: ReactNode): ReactNode[] {
@@ -62,20 +96,21 @@ export function reactChapters(children: ReactNode): Chapter[] {
   });
 }
 
-export function StoryPhoto({ asset, className = "", caption }: { asset: MediaAsset; className?: string; caption?: ReactNode }) {
+export function StoryPhoto({ asset, className = "", caption }: { asset: MediaAsset; className?: string; caption?: string }) {
+  const label = caption?.trim();
   return <figure className={`story-photo ${className}`} data-page-photo={asset.id}>
     <MediaFrame asset={asset} sizes="(min-width: 1100px) 38vw, (min-width: 720px) 46vw, 100vw" />
-    <figcaption><span aria-hidden="true" className="story-photo-line" />{caption ?? asset.alt}</figcaption>
+    {label ? <figcaption><span aria-hidden="true" className="story-photo-line" />{label}</figcaption> : null}
     <MediaCreditLine asset={asset} className="story-credit" />
   </figure>;
 }
 
-export function StorySections({ chapters, images, planned = false }: { chapters: Chapter[]; images: readonly (MediaAsset | null)[]; planned?: boolean; url?: string; topic?: string }) {
+export function StorySections({ chapters, images, planned = false, url, topic }: { chapters: Chapter[]; images: readonly (MediaAsset | null)[]; planned?: boolean; url?: string; topic?: string }) {
   return <div className="story-chapters">{chapters.map((chapter, index) => <section key={chapter.key}
     className={`story-chapter story-chapter-${index % 4} story-chapter-${chapter.kind ?? "narrative"}${index === 0 && !chapter.heading ? " story-chapter-intro" : ""}`} data-story-chapter="" data-motion="rise">
     <div className="story-chapter-marker" aria-hidden="true"><span>{String(index + 1).padStart(2, "0")}</span><i /><LineIcon name={storyIcon(chapter.heading, chapter.kind)} size={21} /></div>
     <div className="story-chapter-copy">{chapter.content}</div>
-    {storyImageAt(images, index, planned) ? <div className="story-chapter-visual"><StoryPhoto asset={storyImageAt(images, index, planned)!} caption={chapter.heading} /></div> : null}
+    {storyImageAt(images, index, planned) ? <div className="story-chapter-visual"><StoryPhoto asset={storyImageAt(images, index, planned)!} caption={storyCaption({ heading: chapter.heading, url, topic })} /></div> : null}
   </section>)}</div>;
 }
 
