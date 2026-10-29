@@ -9,7 +9,7 @@ import { Survey } from "@/components/survey/survey";
 import { StoredTextLine, type SurveyTexts } from "@/components/survey/texts";
 import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
 import { pageMediaPlan } from "@/lib/page-media";
-import { PUBLIC_REQUEST_ASSURANCE, PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
+import { PUBLIC_REQUEST_ASSURANCE, PUBLIC_ROLE_STATEMENT, publicMarketingText } from "@/lib/public-copy";
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 import { checkCoverageAction, submitRequestAction } from "./actions";
 import { lookupZipAction } from "./zip-action";
@@ -36,9 +36,9 @@ export default function GetQuotesPage() {
   const texts: SurveyTexts = {
     st1a: PUBLIC_ROLE_STATEMENT,
     st1b: [{ kind: "text", text: PUBLIC_REQUEST_ASSURANCE }],
-    st2: storedTextParts("ST-2"),
+    st2: storedTextParts("ST-2").map(part => part.kind === "text" ? { ...part, text: publicMarketingText(part.text) } : part),
     st4a: storedText("ST-4a"),
-    st4b: storedText("ST-4b"),
+    st4b: publicMarketingText(storedText("ST-4b")),
   };
   const plan = pageMediaPlan(PAGE, { topic: "survey household route" });
   const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;

@@ -70,7 +70,7 @@ for(const width of[390,1440])test(`a labeled state remains a working native link
   }finally{await context.close();}
 });
 
-for(const route of["/movers/texas/austin/","/for-movers/"])test(`all document IDs are distinct after the narrow fixes on ${route}`,async({page})=>{
+for(const route of["/movers/texas/austin/","/"])test(`all document IDs are distinct after the narrow fixes on ${route}`,async({page})=>{
   await page.goto(base+route);
   const duplicates=await page.evaluate(()=>{const ids=[...document.querySelectorAll<HTMLElement>("[id]")].map(node=>node.id);return[...new Set(ids.filter((id,index)=>ids.indexOf(id)!==index))];});
   expect(duplicates).toEqual([]);
@@ -80,7 +80,7 @@ for(const route of["/movers/texas/austin/","/for-movers/"])test(`all document ID
     const ids=await tables.evaluateAll(nodes=>nodes.map(node=>node.id));
     expect(ids.every(id=>/^seo-movers-texas-austin-s\d+-b\d+(?:-cost)?$/.test(id))).toBe(true);
   }else{
-    await expect(page.locator("radialGradient#carrier-apply-route-glow")).toHaveCount(1);
     await expect(page.locator("radialGradient#site-footer-route-glow")).toHaveCount(1);
+    await expect(page.locator("[data-carrier-starter]")).toHaveCount(0);
   }
 });

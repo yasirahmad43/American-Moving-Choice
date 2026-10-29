@@ -25,16 +25,14 @@ export interface VideoSurveyHeroProps {
   mobileActionHref?: string;
 }
 
-type Scene = "route" | "cost" | "planning" | "service" | "carrier";
+type Scene = "route" | "cost" | "planning" | "service";
 function sceneFor(url: string): Scene {
-  if (url.startsWith("/for-movers/") || url === "/mover-terms/") return "carrier";
   if (/cost|price|calculator|estimate/.test(url)) return "cost";
   if (/planning|question|guide|explore|how-it-works/.test(url)) return "planning";
-  if (/service|packing|storage|for-movers/.test(url)) return "service";
+  if (/service|packing|storage/.test(url)) return "service";
   return "route";
 }
 const SCENES: Record<Scene, { from: string; to: string; items: { icon: LineIconName; text: string }[] }> = {
-  carrier: { from: "Your coverage", to: "Matching requests", items: [{ icon: "truck", text: "Household-goods carriers only" }, { icon: "check", text: "Screening before approval" }, { icon: "ledger", text: "Preview before you buy" }] },
   route: { from: "Your move", to: "Your next chapter", items: [{ icon: "route", text: "Your route comes first" }, { icon: "users", text: "You set the contact limit" }, { icon: "truck", text: "Companies introduce themselves" }] },
   cost: { from: "Plan the details", to: "Understand the quote", items: [{ icon: "chart", text: "Explore planning costs" }, { icon: "ledger", text: "Compare quotes directly" }, { icon: "users", text: "You set the contact limit" }] },
   planning: { from: "A clearer plan", to: "One step at a time", items: [{ icon: "calendar", text: "Plan your next steps" }, { icon: "check", text: "Keep the details together" }, { icon: "users", text: "Choose your contact preferences" }] },
@@ -55,7 +53,7 @@ export function VideoSurveyHero({ url, title, description, eyebrow, breadcrumbs,
   const story = SCENES[scene];
   const embedded = survey !== undefined && survey !== null;
   return (
-    <section className={cx("vsh", embedded && "vsh--embedded", scene === "carrier" && "vsh--carrier", className)} data-scene={scene} aria-labelledby="page-title">
+    <section className={cx("vsh", embedded && "vsh--embedded", className)} data-scene={scene} aria-labelledby="page-title">
       {/* The layer is intentionally accessible: AmbientVideo's Pause/Play button stays usable. */}
       <div className="vsh__media"><AmbientVideo asset={video} /></div>
       <div className="vsh__wash" aria-hidden="true" />

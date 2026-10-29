@@ -40,19 +40,19 @@ An invitation follows recorded company contact. Feedback is moderated; it does n
 
 Only a consumer connected to the request can use the invitation issued for that company interaction. Our records must indicate company contact before the invitation can be used. Each invitation has its own single-use link. There is no open review form where anyone can submit a rating for any company.
 
-The invitation identifies the company it concerns. This feedback step follows recorded contact; a purchase by itself does not unlock the invitation or disclose a company identity. It isn't a way to browse companies or request quotes from a particular mover before contact.
+The invitation identifies the company it concerns. This feedback step follows recorded contact; receiving a request alone does not unlock the invitation or disclose a company identity. It isn't a way to browse companies or request quotes from a particular mover before contact.
 
 ## Two different experiences
 
-We keep feedback about the quote and sales experience separate from feedback about the move itself. A company purchasing a request doesn't show that you hired it or that a move happened.
+We keep feedback about the quote and sales experience separate from feedback about the move itself. A company receiving a request doesn't show that you hired it or that a move happened.
 
 | Evidence label | What it records |
 |---|---|
-| Verified platform inquiry | Our records connect the request to the company that purchased it. |
+| Verified platform inquiry | Our records connect the request to the company that received it. |
 | Verified customer | Supporting documents show a customer relationship beyond the request. |
 | Verified completed move | Supporting evidence shows that the move was completed. |
 
-These labels describe the evidence available for a feedback record. They aren't a government certification, a recommendation, or a guarantee of a company's work. Marking a lead completed in a company's own pipeline isn't proof on its own.
+These labels describe the evidence available for a feedback record. They aren't a government certification, a recommendation, or a guarantee of a company's work. A company's own status update isn't proof of a completed move on its own.
 
 ## How we handle submissions
 

@@ -1,4 +1,3 @@
-import { env } from "@amc/server/env";
 import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
@@ -12,7 +11,6 @@ const DESCRIPTION = "Get help with an American Moving Choice request, report a c
 export const metadata = pageMetadata(URL, TITLE, DESCRIPTION);
 
 export default function ContactPage() {
-  const { APP_URL } = env();
   return (
     <PageFrame
       url={URL}
@@ -48,11 +46,6 @@ export default function ContactPage() {
       </p>
       <BusinessContactChannels editorial />
 
-      <h2>Moving companies</h2>
-      <p>
-        Movers in our network can sign in at <a href={`${APP_URL}/login`}>company sign-in</a>. To join, start at{" "}
-        <Link href="/for-movers/">For movers</Link>.
-      </p>
     </PageFrame>
   );
 }

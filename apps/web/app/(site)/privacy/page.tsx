@@ -76,7 +76,7 @@ export default function PrivacyPage() {
 
       <h2>Your choices</h2>
       <ul>
-        <li>You can withdraw a request from the link on your confirmation page. Movers who already bought it are told.</li>
+        <li>You can withdraw a request from the link on your confirmation page. This stops additional movers from receiving your contact details, and we tell movers that already received them to stop contacting you. It cannot take back details already shared.</li>
         <li>You can reply STOP to any text message from a mover, or ask the mover or us to stop contacting you.</li>
         <li>
           You can ask us about the details we hold about you, or ask us to delete them, through <Link href="/report-a-concern/">Report a concern</Link>{" "}

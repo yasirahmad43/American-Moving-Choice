@@ -24,21 +24,38 @@ test("Austin's ZIP examples remain hints and never overwrite the visitor's route
   expect(new URL(page.url()).search).toBe("");
 });
 
-for (const width of [1440,390]) test(`carrier landing has its own usable right-hand check and five photos at ${width}px`, async ({ page }) => {
+const retiredCompanyPages = [
+  "/for-movers/",
+  "/for-movers/moving-leads/",
+  "/for-movers/pricing/",
+  "/for-movers/eligibility/",
+  "/for-movers/reviews-and-reputation/",
+  "/for-movers/apply/",
+  "/mover-terms/",
+];
+
+for (const path of retiredCompanyPages) test(`retired company page ${path} is unavailable rather than a sales page or signup redirect`, async ({ request }) => {
+  const response = await request.get(base + path, { maxRedirects: 0 });
+  expect(response.status()).toBe(404);
+  expect(response.headers().location).toBeUndefined();
+});
+
+for (const width of [1440,390]) test(`public home keeps its consumer hero without company recruitment at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: width > 1000 ? 1000 : 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  expect((await page.goto(base + "/for-movers/"))?.status()).toBe(200);
+  expect((await page.goto(base + "/"))?.status()).toBe(200);
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator(".vsh video[poster]")).toHaveCount(1);
-  const form = page.locator(".vsh [data-carrier-starter]");
+  const form = page.locator('.vsh [data-vsh-starter="quote"]');
   await expect(form).toHaveAttribute("data-ready", "true");
   await expect(form).toHaveCount(1);
-  await expect(page.locator(".vsh .vsh-start:not([data-carrier-starter])")).toHaveCount(0);
-  await expect(form.getByLabel("Your company's authority")).toHaveValue("");
-  expect(await page.locator("[data-page-photo]").evaluateAll(nodes => new Set(nodes.map(node => node.getAttribute("data-page-photo"))).size)).toBe(5);
+  await expect(page.locator("[data-carrier-starter]")).toHaveCount(0);
+  await expect(form.getByLabel("Moving from · ZIP code")).toHaveValue("");
+  await expect(form.getByLabel("Moving to · ZIP code")).toHaveValue("");
+  await expect(page.locator('a[href^="/for-movers"],a[href^="/mover-terms"],a[href$="/signup"],a[href$="/signup/"]')).toHaveCount(0);
   if (width < 1000) {
     const action = page.locator(".vsh__mobile-action");
-    await expect(action).toHaveText(/Check carrier eligibility/);
+    await expect(action).toHaveText(/Plan my move/);
     const bounds = await action.boundingBox();
     expect(bounds!.height).toBeGreaterThanOrEqual(44);
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(844);
@@ -54,39 +71,16 @@ for (const width of [1440,390]) test(`carrier landing has its own usable right-h
   expect(axe.violations.filter(v => v.impact === "serious" || v.impact === "critical").map(v => ({id:v.id,targets:v.nodes.map(n => n.target)}))).toEqual([]);
 });
 
-test("carrier orientation distinguishes broker records without collecting or sending data", async ({ page }) => {
-  const requests: string[] = [];
-  page.on("request", request => { if (request.method() === "POST") requests.push(request.url()); });
-  await page.goto(base + "/for-movers/");
-  const form = page.locator(".vsh [data-carrier-starter]");
-  await expect(form).toHaveAttribute("data-ready", "true");
-  await form.getByRole("button", { name: "Check my next step" }).click();
-  await expect(form.getByLabel("Your company's authority")).toBeFocused();
-  await form.getByLabel("Your company's authority").selectOption("broker");
-  await form.getByRole("button", { name: "Check my next step" }).click();
-  await expect(form.getByRole("heading", { name: "Carrier authority only." })).toBeFocused();
-  await expect(form.getByRole("link", { name: "Start my application" })).toHaveCount(0);
-  await expect(form.getByRole("link", { name: "Read the eligibility rules" })).toHaveAttribute("href", "/for-movers/eligibility/");
-  await form.getByRole("button", { name: "Change my answer" }).click();
-  await expect(form.getByLabel("Your company's authority")).toBeFocused();
-  await form.getByLabel("Your company's authority").selectOption("carrier");
-  await form.getByRole("button", { name: "Check my next step" }).click();
-  await expect(form.getByRole("link", { name: "Start my application" })).toHaveAttribute("href", /\/signup$/);
-  await expect(form).toContainText("Approval still depends on our screening.");
-  expect(requests).toEqual([]);
-  expect(await page.evaluate(() => sessionStorage.getItem("amc.survey.prefill"))).toBeNull();
-  expect(new URL(page.url()).search).toBe("");
-});
-
-test("without JavaScript the carrier check opens the eligibility guide with a clean URL", async ({ browser }) => {
+test("without JavaScript a retired pricing bookmark stays unavailable and offers consumer navigation", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   try {
     const page = await context.newPage();
-    await page.goto(base + "/for-movers/", { waitUntil: "domcontentloaded" });
-    await page.locator(".vsh").getByLabel("Your company's authority").selectOption("carrier");
-    await page.locator(".vsh [data-carrier-starter] button[type=submit]").focus();
-    await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/\/for-movers\/eligibility\/\??$/, { timeout: 15_000 });
+    expect((await page.goto(base + "/for-movers/pricing/", { waitUntil: "domcontentloaded" }))?.status()).toBe(404);
+    await expect(page).toHaveURL(base + "/for-movers/pricing/");
+    await expect(page.getByRole("heading", { level: 1, name: "We can't find that page" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Go to the home page", exact: true })).toBeVisible();
+    await expect(page.locator("[data-carrier-starter]")).toHaveCount(0);
+    await expect(page.locator('a[href^="/for-movers"],a[href^="/mover-terms"],a[href$="/signup"],a[href$="/signup/"]')).toHaveCount(0);
     expect(new URL(page.url()).search).toBe("");
   } finally { await context.close(); }
 });

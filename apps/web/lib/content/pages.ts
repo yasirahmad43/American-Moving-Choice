@@ -54,9 +54,9 @@ export interface ContentPage {
  * Routes other slices own (build plan §11). The catch-all never serves these, even when a draft
  * exists for them (the moving cost calculator's interface copy is rendered by slice S3).
  */
-const RESERVED_PREFIXES = ["/get-quotes/", "/my-request/", "/directory/", "/companies/", "/movers/", "/verify-a-mover/", "/routes/", "/services/", "/questions/", "/planning/"];
+const RESERVED_PREFIXES = ["/get-quotes/", "/my-request/", "/directory/", "/companies/", "/movers/", "/verify-a-mover/", "/routes/", "/services/", "/questions/", "/planning/", "/for-movers/"];
 /** S3 owns the calculator page itself; its method page (/moving-cost-calculator/method/) is served here. */
-const RESERVED_EXACT = ["/moving-cost-calculator/", "/advertising-disclosure/"];
+const RESERVED_EXACT = ["/moving-cost-calculator/", "/advertising-disclosure/", "/mover-terms/"];
 
 export function isReservedUrl(url: string): boolean {
   return RESERVED_EXACT.includes(url) || RESERVED_PREFIXES.some((prefix) => url.startsWith(prefix));

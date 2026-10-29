@@ -90,7 +90,7 @@ Our publishing rules exclude:
 
 We don't publish sponsored articles. [Owner: confirm — default shown: none]
 
-Cost ranges work the same way: only movers with active accounts count, and how much a mover buys or spends never changes a range. [How the calculator works](/moving-cost-calculator/method/) explains what goes into them.
+Cost ranges use eligible movers' rate cards and the published moving inputs. [How the calculator works](/moving-cost-calculator/method/) explains what goes into them.
 
 ## Who writes and checks our pages
 

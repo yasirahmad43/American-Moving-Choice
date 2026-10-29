@@ -30,21 +30,21 @@ const STATUS: Record<RequestStatus, { label: string; tone: StatusTone; explain: 
   sold_out: {
     label: "Complete",
     tone: "success",
-    explain: (r) => `The most movers you chose (${r.limit}) have bought your request. No other mover can buy it.`,
+    explain: (r) => `Your chosen limit of ${r.limit === 1 ? "1 mover" : `${r.limit} movers`} has been reached. No additional mover can receive your contact details through this request.`,
   },
   closed: {
     label: "Closed",
     tone: "neutral",
-    explain: () => "The time for movers to buy your request has ended. No other mover can buy it.",
+    explain: () => "The matching period for this request has ended. No additional movers can receive your contact details through it.",
   },
   withdrawn: {
     label: "Withdrawn",
     tone: "neutral",
-    explain: (r) => `You withdrew this request${r.withdrawnAt ? ` on ${formatAbsoluteDate(r.withdrawnAt, { month: "long" })}` : ""}. No mover can buy it.`,
+    explain: (r) => `You withdrew this request${r.withdrawnAt ? ` on ${formatAbsoluteDate(r.withdrawnAt, { month: "long" })}` : ""}. No additional movers can receive your contact details through it.`,
   },
 };
 
-/** /my-request/[token]/ (build plan §7.2, §11 S2): status, named movers, buyers and withdrawal. Noindex. */
+/** /my-request/[token]/ (build plan §7.2, §11 S2): status, contact preferences and withdrawal. Noindex. */
 export default async function ManageRequestPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const { ip } = await requestMeta();
@@ -112,7 +112,7 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
           ) : null}
           <dt className="font-semibold text-text">Movers may contact you by</dt>
           <dd className="text-text-2">{r.channels.map((c) => CHANNEL_LABELS[c]).join(", ")}</dd>
-          <dt className="font-semibold text-text">Most movers who can buy it</dt>
+          <dt className="font-semibold text-text">Maximum movers who may contact you</dt>
           <dd className="tabular text-text-2">{r.limit}</dd>
         </dl>
         {r.joined ? (
@@ -130,8 +130,8 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
       {r.canWithdraw ? (
         <Card as="section" title="Withdraw your request" titleAs="h2">
           <p className="mb-4 text-text">
-            Withdrawing stops any new mover from buying your request. We tell movers that already bought it to stop contacting you. It can't take back details
-            a mover already received.
+            Withdrawing stops additional movers from receiving your contact details through this request. We tell movers that already received your details
+            to stop contacting you. It can't take back details a mover already received.
           </p>
           <WithdrawForm action={withdrawAction.bind(null, token)} buyers={r.buyerCount} />
         </Card>

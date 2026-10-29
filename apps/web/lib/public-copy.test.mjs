@@ -46,6 +46,20 @@ describe("consumer marketing presentation", () => {
     expect(html).toBe(`<ul>${retained}</ul>`);
   });
 
+  it("presents archived request-sales wording as contact choices without changing moving purchases", () => {
+    const source = "Choose 1 and only one mover can receive your details from us; choose more and up to that many can. Only eligible movers recorded for your request may buy it, within your chosen limit and contact permissions. Company names aren't shown before contact. We never resell your request beyond that limit, and every mover in our network agrees not to resell it.";
+    const result = publicMarketingText(source);
+    expect(result).not.toMatch(/\bbuy\b|resell|purchas/i);
+    expect(result).toContain("Choose 1 and only one mover can receive your details from us");
+    expect(result).toContain("within your chosen limit and contact permissions");
+    expect(result).toContain("Company names aren't shown before contact");
+    expect(result).toContain("each mover agrees to keep it within its own company");
+    expect(publicMarketingText("Movers agree not to resell your request or hand your move to another company.")).toBe("Movers agree to keep your request within their own company and not hand your move to another company.");
+    const movingPurchase = "You may buy packing boxes or purchase separate insurance. The mover charges $180 per hour.";
+    expect(publicMarketingText(movingPurchase)).toBe(movingPurchase);
+    expect(publicMarketingText(result)).toBe(result);
+  });
+
   it("renders the actual served trust/cost documents without AMC payer promotion", () => {
     const content = (file) => readFileSync(new URL(`../../../content/${file}`, import.meta.url), "utf8");
     const stored = new Map([...content("stored-texts.md").matchAll(/^#{2,3} (ST-\d+[a-z]?)\b[^\n]*\n(?:(?!^#{1,3} )[\s\S])*?^> (.+)$/gm)].map((match) => [match[1], match[2]]));
@@ -56,6 +70,8 @@ describe("consumer marketing presentation", () => {
       const rendered = renderMarkdown(parsed.content, { resolveToken, mode: "public", linkLabels: { "How AMC makes money": "/advertising-disclosure/", "How we verify movers": "/how-we-verify-movers/" } });
       const html = publicMarketingHtml(rendered.html);
       expect(html, document).not.toMatch(/our income|pay us|paid by movers|makes money|financial relationship|who pays us|has the details\)/i);
+      expect(html, document).not.toMatch(/(?:buy|bought|purchas\w*) (?:your |the |new |eligible )?requests?|\bbuyers\b|before buying|request purchases|resell/i);
+      expect(html, document).not.toMatch(/href="\/(?:for-movers|mover-terms)(?:\/|")/);
     }
   });
 });

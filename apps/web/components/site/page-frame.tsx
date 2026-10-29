@@ -1,5 +1,5 @@
 /**
- * Frame for public pages written in TSX (about, legal, help and B2B pages): a light editorial
+ * Frame for public pages written in TSX (about, legal and help pages): a light editorial
  * header with breadcrumbs, overline, H1 and lede, then the reading column. Reviewer-only pieces
  * (draft banner, legend) render only in review builds (lib/review-mode.ts).
  */
@@ -9,7 +9,6 @@ import type { ReactNode } from "react";
 import { mediaManifest } from "@/lib/media";
 import { storyMediaPlan } from "@/lib/content/story-plan";
 import { VideoSurveyHero } from "./video-survey-hero";
-import { CarrierEligibilityStart } from "./carrier-eligibility-start";
 import { reactChapters, StoryNextSteps, StorySections } from "./story-sections";
 import { DraftBanner } from "./draft-banner";
 import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
@@ -72,8 +71,5 @@ export function EditorialHeader({
   meta?: ReactNode;
 }) {
   const url = breadcrumbs[breadcrumbs.length - 1]?.href ?? "/";
-  const carrier = url.startsWith("/for-movers/") || url === "/mover-terms/";
-  return <VideoSurveyHero url={url} title={title} description={lede} eyebrow={overline} breadcrumbs={breadcrumbs}
-    survey={carrier ? <CarrierEligibilityStart appUrl={env().APP_URL} /> : undefined}
-    surveyLabel={carrier ? "Check carrier eligibility" : undefined} mobileActionLabel={carrier ? "Check eligibility" : undefined}>{meta}</VideoSurveyHero>;
+  return <VideoSurveyHero url={url} title={title} description={lede} eyebrow={overline} breadcrumbs={breadcrumbs}>{meta}</VideoSurveyHero>;
 }

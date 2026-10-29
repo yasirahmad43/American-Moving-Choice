@@ -216,7 +216,7 @@ Estimates compare only when they price the same move. Check that each one covers
 - What valuation does the price assume, and what would more coverage cost?
 - Do you want a deposit, and how can I pay at delivery?
 
-To compare written estimates from more than one mover, [request quotes from movers](/get-quotes/) who serve your move. Movers that buy your request contact you directly, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can receive your details.
+To compare written estimates from more than one mover, [request quotes from movers](/get-quotes/) who serve your move. Eligible movers contact you directly within your chosen limit, and [Which companies receive my request](/which-companies-receive-my-request/) explains who can receive your details.
 
 ## Red flags around price
 

@@ -844,7 +844,7 @@ function SurveyFlow({
             <Field floating id="email" label="Email" error={errors.email} required>
               <Input type="email" name="email" autoComplete="email" inputMode="email" value={contact.email} onChange={(e) => setContact((c) => ({ ...c, email: e.target.value }))} />
             </Field>
-            <Field id="phone" label="Phone number" help="A US number. We send it only to movers that buy your request." error={errors.phone} required>
+            <Field id="phone" label="Phone number" help="A US number. Only eligible movers within your chosen limit can receive it. You choose how they may contact you." error={errors.phone} required>
               <Input type="tel" name="phone" autoComplete="tel-national" inputMode="tel" value={contact.phone} onChange={(e) => setContact((c) => ({ ...c, phone: e.target.value }))} className="max-w-[16rem] tabular" />
             </Field>
             {nav()}

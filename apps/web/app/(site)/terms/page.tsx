@@ -65,10 +65,6 @@ export default function TermsPage() {
         <Note kind="counsel">acceptable use, disclaimers, limitation of liability, governing law and dispute resolution</Note>
       </p> : null}
 
-      <h2>Moving companies</h2>
-      <p>
-        Movers in our network agree to separate terms. <Link href="/mover-terms/">Mover terms (summary)</Link>
-      </p>
     </PageFrame>
   );
 }

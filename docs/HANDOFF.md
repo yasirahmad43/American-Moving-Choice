@@ -3,6 +3,15 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Public audience — owner decision, 2026-10-29
+
+The public website is for people planning moves. The owner handles moving-company business
+discussions separately: do not restore public lead sales, lead pricing, buying rules, carrier
+recruitment or their navigation. All `/for-movers/` pages and `/mover-terms/` are retired, including
+their archived Markdown fallback, catalog and sitemap entries. Public request explanations use
+accurate contact-permission and withdrawal language. Actual stored consent versions, private
+company/admin functions and billing rules are unchanged; this is a public presentation decision.
+
 ### Search and conversion review — 2026-10-29
 
 The owner's next visual brief supersedes deliberately scrollable public reference tables and

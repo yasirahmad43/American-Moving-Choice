@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const base = (process.env.E2E_WEB_URL ?? "http://localhost:3000").replace(/\/+$/, "");
-const families = ["/", "/moving-costs/", "/movers/texas/austin/", "/routes/", "/explore/", "/get-quotes/", "/privacy/", "/for-movers/", "/mover-terms/"];
+const families = ["/", "/moving-costs/", "/movers/texas/austin/", "/routes/", "/explore/", "/get-quotes/", "/privacy/"];
 
 for (const path of families) for (const width of [1440,390]) test(`closing survey is usable before the footer on ${path} at ${width}px`, async ({ page }) => {
   await page.setViewportSize({ width, height: width > 1000 ? 1000 : 844 });
@@ -11,13 +11,13 @@ for (const path of families) for (const width of [1440,390]) test(`closing surve
   const closing = page.locator("#main > [data-closing-survey]");
   await expect(closing).toHaveCount(1);
   expect(await closing.evaluate(node => node === document.querySelector("#main")?.lastElementChild && document.querySelector("#main")?.nextElementSibling?.tagName === "FOOTER")).toBe(true);
-  const carrier = path.startsWith("/for-movers/") || path === "/mover-terms/";
-  await expect(closing).toHaveAttribute("data-audience", carrier ? "carrier" : "consumer");
-  await expect(closing.locator(`[data-vsh-starter="${carrier ? "carrier" : "quote"}"]`)).toHaveCount(1);
+  await expect(closing).toHaveAttribute("data-audience", "consumer");
+  await expect(closing.locator('[data-vsh-starter="quote"]')).toHaveCount(1);
+  await expect(page.locator("[data-carrier-starter]")).toHaveCount(0);
   await expect(closing.locator('input[type="email"],input[type="tel"],input[type="checkbox"]')).toHaveCount(0);
   await closing.scrollIntoViewIfNeeded();
   await expect(closing.locator("[data-closing-photo] img")).toBeVisible();
-  const action = closing.getByRole("button", { name: carrier ? "See my carrier next step" : "Add details to my move", exact: true });
+  const action = closing.getByRole("button", { name: "Add details to my move", exact: true });
   expect((await action.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const duplicates = await page.evaluate(() => {
     const allIds = [...document.querySelectorAll<HTMLElement>("[id]")].map(node => node.id);
@@ -61,18 +61,22 @@ test("the closing starter keeps its route independent and carries only approved 
   expect(new URL(page.url()).search).toBe("");
 });
 
-test("the closing carrier check is independent and never submits company information", async ({ page }) => {
+test("retired company pages show one native recovery document without recruitment forms", async ({ page }) => {
   const posts: string[] = [];
   page.on("request",request => {if(request.method()==="POST")posts.push(request.url());});
-  await page.goto(base + "/for-movers/");
-  const hero=page.locator(".vsh [data-carrier-starter]");
-  const closing=page.locator("[data-closing-survey] [data-carrier-starter]");
-  await expect(closing).toHaveAttribute("data-ready","true");
-  await closing.getByLabel("Your company's authority").selectOption("broker");
-  await closing.getByRole("button",{name:"See my carrier next step"}).click();
-  await expect(closing.getByRole("heading",{name:"Carrier authority only."})).toBeFocused();
-  await expect(hero.getByLabel("Your company's authority")).toHaveValue("");
-  await expect(closing.getByRole("link",{name:"Continue to carrier application"})).toHaveCount(0);
+  for (const path of ["/for-movers/", "/mover-terms/"]) {
+    expect((await page.goto(base + path))?.status()).toBe(404);
+    await expect(page.getByRole("banner")).toHaveCount(1);
+    await expect(page.getByRole("main")).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "Go to the home page", exact: true })).toBeVisible();
+    await expect(page.locator('a[href="/get-quotes/"]').first()).toBeVisible();
+    await expect(page.locator('a[href="/explore/"]').first()).toBeVisible();
+    await expect(page.locator("[data-carrier-starter]")).toHaveCount(0);
+    await expect(page.getByRole("link",{name:/Start my application|Continue to carrier application/})).toHaveCount(0);
+    await expect(page.locator('form[action*="/signup"],form[action*="/for-movers"],[data-closing-survey]')).toHaveCount(0);
+    await expect(page.locator('a[href^="/for-movers"],a[href^="/mover-terms"],a[href$="/signup"],a[href$="/signup/"]')).toHaveCount(0);
+  }
   expect(posts).toEqual([]);
 });
 
