@@ -75,7 +75,7 @@ for(const route of["/movers/texas/austin/","/for-movers/"])test(`all document ID
   const duplicates=await page.evaluate(()=>{const ids=[...document.querySelectorAll<HTMLElement>("[id]")].map(node=>node.id);return[...new Set(ids.filter((id,index)=>ids.indexOf(id)!==index))];});
   expect(duplicates).toEqual([]);
   if(route.includes("austin")){
-    const tables=page.locator(".dt[id]");
+    const tables=page.locator(".dt[id],.dt-records[id]");
     expect(await tables.count()).toBeGreaterThan(1);
     const ids=await tables.evaluateAll(nodes=>nodes.map(node=>node.id));
     expect(ids.every(id=>/^seo-movers-texas-austin-s\d+-b\d+(?:-cost)?$/.test(id))).toBe(true);

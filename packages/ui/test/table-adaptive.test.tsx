@@ -12,6 +12,8 @@ describe("adaptive reference records", () => {
   it("server-renders every row and field once, including native closed details", () => {
     const html = render();
     expect(html.match(/data-record-key=/g)).toHaveLength(rows.length);
+    expect(html.match(/<div role="listitem"/g)).toHaveLength(rows.length);
+    expect(html).not.toContain('<article role="listitem"');
     expect(html.match(/data-col-index=/g)).toHaveLength(rows.length * columns.length);
     for (const row of rows) {
       for (const value of row.cells) expect(html.split(value)).toHaveLength(2);

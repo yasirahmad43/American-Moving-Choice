@@ -606,13 +606,16 @@
   .dt-sort-options > button:first-child { grid-column: 1 / -1; }
   .dt-records, .dt-records :is(article, dl, div, dt, dd, details, summary) { min-width: 0; }
   .dt-record-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     align-items: stretch;
     gap: 0.75rem;
   }
-  .dt-record-grid > .dt-record:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .dt-record-grid > .dt-record { flex: 1 1 calc((100% - 0.75rem) / 2); max-width: 100%; }
+  .dt-record-grid > .dt-record:has(> details[open]) { flex-basis: 100%; }
   .dt-record {
+    container-type: inline-size;
+    container-name: reference-record;
     display: flex;
     flex-direction: column;
     padding: 0.875rem;
@@ -675,22 +678,21 @@
   .dt-shell[data-density="compact"] .dt-record { padding: 0.625rem; }
   .dt-shell[data-density="compact"] .dt-record-fields { gap: 0.5rem; }
   @container data-table (min-width: 54rem) {
-    .dt-record-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .dt-record-grid > .dt-record:last-child { grid-column: auto; }
-    .dt-record-grid > .dt-record:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
-    .dt-record-grid > .dt-record:last-child:nth-child(3n + 2) { grid-column: span 2; }
-    .dt-record-grid > .dt-record:last-child:nth-child(3n + 1) > .dt-record-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .dt-record-grid > .dt-record:last-child:nth-child(3n + 1) > .dt-record-fields > .dt-record-primary { grid-column: auto; }
+    .dt-record-grid > .dt-record { flex-basis: calc((100% - 1.5rem) / 3); }
   }
   @container data-table (max-width: 27rem) {
-    .dt-record-fields { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
     .dt-record { padding: 0.625rem; }
-    .dt-record-primary { grid-column: auto; }
   }
   @container data-table (max-width: 20rem) {
-    .dt-record-grid { grid-template-columns: minmax(0, 1fr); }
-    .dt-record-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .dt-record-primary { grid-column: 1 / -1; }
+    .dt-record-grid > .dt-record { flex-basis: 100%; }
+  }
+  @container reference-record (max-width: 15rem) {
+    .dt-record-fields { grid-template-columns: minmax(0, 1fr); gap: 0.5rem; }
+    .dt-record-primary { grid-column: auto; }
+  }
+  @container reference-record (min-width: 32rem) {
+    .dt-record-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dt-record-primary { grid-column: auto; }
   }
   @container data-table (max-width: 42rem) {
     .dt-adaptive .dt-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); }

@@ -26,6 +26,12 @@ test("wide reference data fits phones, tablets and desktops without clipping", a
     const values = await list.locator("[data-col-index]").allTextContents();
     expect(values.every(value => value.trim().length > 0)).toBe(true);
     await expectNoSidewaysData(page);
+    const first = list.locator("[data-record-key]").first();
+    await first.locator(":scope > details > summary").click();
+    const expanded = await first.evaluate(node => ({ record: node.getBoundingClientRect().width, row: node.parentElement!.getBoundingClientRect().width }));
+    expect(Math.abs(expanded.record - expanded.row)).toBeLessThanOrEqual(1);
+    await expectNoSidewaysData(page);
+    await first.locator(":scope > details > summary").click();
     await list.locator(":scope > details > summary").click();
     const last = list.locator("[data-record-key]").last();
     await last.locator(":scope > details > summary").click();
@@ -79,7 +85,7 @@ test("a long selected sort label wraps and returns keyboard focus to a visible c
   }
 });
 
-test("all authored fields and source links remain reachable without JavaScript", async ({ browser }) => {
+test("all authored fields remain reachable without JavaScript", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
   try {
     const page = await context.newPage();

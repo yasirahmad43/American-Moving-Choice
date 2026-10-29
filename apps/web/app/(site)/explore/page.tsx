@@ -62,7 +62,7 @@ export default async function ExplorePage({ searchParams }: Props) {
       </div>
       <details open={filters.type !== "all" || Boolean(filters.state)} className="border-t border-white/20 pt-1">
         <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold text-white">Refine by category or state</summary>
-        <div className="grid grid-cols-2 gap-3 pb-1">
+        <div className="catalog-refine-fields grid gap-3 pb-1">
           <div className="grid min-w-0 gap-2"><label htmlFor="catalog-type" className="text-xs font-bold text-white">Guide category</label><select id="catalog-type" name="type" defaultValue={filters.type} className={control}><option value="all">All guides & pages</option>{GUIDE_FAMILIES.filter((entry) => entry.id !== "zip" || (overview?.families.zip ?? 0) > 0).map((entry) => <option key={entry.id} value={entry.id}>{entry.label}{overview ? ` (${overview.families[entry.id] ?? 0})` : ""}</option>)}<option value="page">Tools, about & policies ({standaloneCatalog().length})</option></select></div>
           <div className="grid min-w-0 gap-2"><label htmlFor="catalog-state" className="text-xs font-bold text-white">State</label><select id="catalog-state" name="state" defaultValue={filters.state} className={control}><option value="">All states</option>{STATES.filter((entry) => !overview || overview.states.some((item) => item.code === entry.code)).map((entry) => <option key={entry.code} value={entry.code}>{entry.name}</option>)}</select></div>
         </div>

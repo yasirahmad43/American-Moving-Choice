@@ -176,11 +176,11 @@ export function Table<Row>({
       {records ? <div id={tableId} className="dt-records" data-table-caption={typeof caption === "string" ? caption : "Reference records"}>
         {loading ? <div className="dt-record-grid" aria-busy="true" aria-label="Loading records">{skeletonRows.map((index) => <div key={index} className="dt-record" aria-hidden="true"><span className="skeleton block h-4 w-2/3" /><span className="skeleton mt-3 block h-3 w-full" /></div>)}</div>
           : !rows.length ? <p className="rounded-card border border-border bg-surface p-4 text-text-3">No records to show.</p>
-          : <TableRecords label={typeof caption === "string" ? caption : "Reference records"} previewCount={4} rows={rows.map((row) => ({ key: rowKey(row), content: <article key={rowKey(row)} role="listitem" data-row-key={rowKey(row)} data-record-key={rowKey(row)} className="dt-record">
+          : <TableRecords label={typeof caption === "string" ? caption : "Reference records"} previewCount={4} rows={rows.map((row) => ({ key: rowKey(row), content: <div key={rowKey(row)} role="listitem" data-row-key={rowKey(row)} data-record-key={rowKey(row)} className="dt-record">
               <dl className="dt-record-fields">{columns.filter((column) => summaryKeys.has(column.key)).map((column) => recordField(column, row))}</dl>
               {secondary.length > 0 ? <details className="dt-record-details"><summary>All details <span aria-hidden="true">+</span></summary><dl className="dt-record-fields">{secondary.map((column) => recordField(column, row))}</dl></details> : null}
               {actions ? <div className="dt-record-actions" role="group" aria-label={typeof actionsHeader === "string" ? actionsHeader : "Actions"}>{actions(row)}</div> : null}
-            </article> }))} />}
+            </div> }))} />}
       </div> : <div id={tableId} className={cx("dt", (adaptive ? columns.length > 2 : mobileLayout === "cards") && "dt-responsive")}>
         <TableScroll caption={caption} maxHeight={maxHeight} adaptive={adaptive}>
           <table role="table" aria-busy={loading ? true : undefined}>
