@@ -7,6 +7,11 @@ const RETIRED_DIRECTORY_URL = /(?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)
 const LEGACY_DISCLOSURE = /by name and USDOT|movers? named on (?:your|the) Review and send screen|every mover named before|review every name|the list above names them|remove any (?:named )?mover/i;
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const ZIP_RULE_COUNTS_NOTE = "Named counts are ZIP- or county-specific local rules; total matches can also include broader rules. These dated counts describe a representative local move. The quote survey checks the rules against your exact route and move details.";
+const BINDING_ESTIMATE_DESCRIPTION = "Compare binding and non-binding interstate estimates, the extra charges that can apply, and what may be due at delivery.";
+const LEGACY_BINDING_DESCRIPTIONS = new Set([
+  "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an…",
+  "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an interstate move.",
+]);
 
 function legacyZipRuleCount(value: string): string {
   const count = "(?:0|[1-9]\\d*|[1-9]\\d{0,2}(?:,\\d{3})+)";
@@ -121,6 +126,9 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   };
   // Copy all fields, not just the content body: sources and metadata can repeat old identities.
   const result = strings(page);
+  // Correct only the known saved search descriptions, including the actual clipped live
+  // value. The page's complete answer, prices, dates and other metadata remain untouched.
+  if (page.url === "/questions/what-is-a-binding-estimate/" && LEGACY_BINDING_DESCRIPTIONS.has(result.metaDescription)) result.metaDescription = BINDING_ESTIMATE_DESCRIPTION;
   const content = result.content;
   if (!content.intro.answer) content.intro.answer = PUBLIC_REQUEST_ASSURANCE;
   if (!result.metaDescription) result.metaDescription = PUBLIC_REQUEST_ASSURANCE;

@@ -18,7 +18,12 @@ function firstCompleteSentence(text: string): string | null {
 /** Brief authored summaries introduce the topic; the entire qualified answer stays in the body. */
 export function seoHeroCopy(page: Pick<SeoPageRecord, "metaDescription" | "content">): string {
   const answer = stripLinks(page.content.intro.answer).trim();
-  const candidates = [firstCompleteSentence(page.metaDescription ?? ""), firstCompleteSentence(answer)].filter((text): text is string => Boolean(text));
+  const description = stripLinks(page.metaDescription ?? "").trim();
+  const opening = firstCompleteSentence(description);
+  // A short description can contain two useful sentences (local and long-distance pricing,
+  // for example). Keep them together when the author supplied a complete description.
+  const completeDescription = opening && /[.!?]["'”’]?$/.test(description) && !/(?:…|\.{2,})[\s"'”’]*$/.test(description) ? description : null;
+  const candidates = [completeDescription, opening, firstCompleteSentence(answer)].filter((text): text is string => Boolean(text));
   // Never slice a sentence to hit this presentation budget. Unusually long complete sentences
   // remain visible for review instead of silently dropping their final qualification.
   return candidates.find(text => text.split(/\s+/).length <= 60) ?? candidates[0] ?? answer;

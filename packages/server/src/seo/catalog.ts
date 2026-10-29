@@ -394,7 +394,7 @@ export const QUESTIONS: CatalogEntry[] = [
     "what is a binding estimate",
     "What Is a Binding Moving Estimate? Binding vs Non-Binding Explained",
     "What is a binding moving estimate?",
-    "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an interstate move.",
+    "Compare binding and non-binding interstate estimates, the extra charges that can apply, and what may be due at delivery.",
     "A binding estimate is a written interstate moving estimate that guarantees the total cost of the goods and services it lists: at delivery the mover may collect that amount, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. A non-binding estimate is the mover's reasonably accurate guess; the final bill follows its tariff, but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery.",
     [
       { heading: "Binding", blocks: [p("The mover and you are bound by the charges on the estimate. If you add goods or services before loading, the mover must reaffirm the estimate, prepare a new binding estimate you sign, or agree in writing to treat it as non-binding. If it loads without doing one of these, the original binding estimate stands. A mover may charge for preparing a binding estimate.")] },

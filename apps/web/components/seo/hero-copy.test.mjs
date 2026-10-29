@@ -31,6 +31,10 @@ describe("reader-facing guide introductions", () => {
     expect(seoHeroCopy(stored)).toBe(summary);
     expect(seoHeroCopy(stored)).not.toContain("What to check");
   });
+  it("keeps a complete multi-sentence summary so the preview retains both local and long-distance scope", () => {
+    const summary = "Local moves: by the hour. Long-distance moves: shipment and distance, with written estimates, tariffs and payment conditions to compare.";
+    expect(seoHeroCopy(page("question", "The detailed pricing explanation remains in the full guide.", summary))).toBe(summary);
+  });
   it("keeps a short reply and its qualifying sentence together rather than publishing a bare Yes or No", () => {
     const answer = "Sometimes. Delivery payment can include agreed additional services and capped impracticable-operations charges. Keep the full estimate and dated source.";
     expect(seoHeroCopy(page("question", answer))).toBe("Sometimes. Delivery payment can include agreed additional services and capped impracticable-operations charges.");
