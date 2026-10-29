@@ -67,13 +67,13 @@ The interstate written-estimate rules are in [49 CFR 375.401](https://www.ecfr.g
 Two sets of rules shape how a mover can price a move. Which set applies depends on the route, not the distance.
 
 - **Moves between states** follow federal rules from the Federal Motor Carrier Safety Administration (FMCSA), in 49 CFR Part 375. These rules also cover a move between two places in one state if the shipment passes through another state ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move)). Part 375 doesn't apply, though, to a move within a commercial zone, even one that crosses a state line. FMCSA's example is a move from Brooklyn, New York, to Hackensack, New Jersey ([FMCSA handbook, October 2023](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf)).
-- **Moves within one state** follow that state's rules, not Part 375 ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move); [FMCSA handbook, October 2023](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf)).
+- **Moves whose entire route stays within one state** generally follow that state's rules. A shipment between places in one state that passes through another state is interstate ([FMCSA: What is an interstate move?](https://www.fmcsa.dot.gov/consumer-protection/protect-your-move/are-you-moving/what-interstate-move); [FMCSA handbook, October 2023](https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R&R_Handbook_Web_v1.pdf)).
 
 States register or license movers for moves within their borders, through agencies such as the [Texas Department of Motor Vehicles](https://www.txdmv.gov/sites/default/files/body-files/Motor_Carrier_Handbook.pdf), California's [Bureau of Household Goods and Services](https://bhgs.dca.ca.gov/licensee/hhm_faqs.shtml) and Florida's [Department of Agriculture and Consumer Services](https://www.fdacs.gov/Business-Services/Moving-Companies). [Verify a mover](/verify-a-mover/) explains federal and state licenses.
 
 [Verify: C16 (verified-excerpt). FMCSA "What is an interstate move?"; FMCSA handbook, October 2023; Tex. Transp. Code §643.051 and 43 TAC ch. 218; Cal. Bus. & Prof. Code §19225 and following; Fla. Stat. ch. 507. The commercial-zone line and the line on moves within one state were found only in the 2013 booklet, which predates the 2022 rule and is no longer cited here; confirm both in the October 2023 handbook before publishing. If the handbook lacks the commercial-zone line, delete the sentences from "Part 375 doesn't apply, though," to the end of that bullet rather than cite the 2013 edition (consumer-moving-rules note C16; counsel item 3). Confirm whether BHGS calls its credential a license or a permit.] [Counsel: California's BHGS also issues an Interstate Mover license to companies that move goods only into or out of California (C16 notes). Does that affect the statement that states regulate moves within their borders (consumer-moving-rules note, counsel item 9)?]
 
-On this page, a local move means a short move within one state, and an interstate move means a move between states. A long move within one state also follows that state's rules, and those rules may set how it's priced: California, for example, requires in-state moves of more than 100 miles to be charged by weight and mileage ([BHGS consumer guide](https://bhgs.dca.ca.gov/consumers/hhm.html)). If yours is a long move within one state, ask each mover how it will price it. Most of the estimate, weighing, valuation and paperwork rules below are federal rules for interstate moves. Each section says where a move within one state can differ. [Verify: C19 (verified-excerpt); BHGS consumer guide.] [Counsel: how to label local, in-state long-distance and interstate moves so readers don't infer which rules apply from distance, with labels that match the calculator's three move types: Local, In-state long distance and Interstate (consumer-moving-rules note, counsel item 6)]
+On this page, a local move means a short move within one state, and an interstate move means a move between states. A long move whose entire route stays within one state also generally follows that state's rules, and those rules may set how it's priced: California, for example, requires in-state moves of more than 100 miles to be charged by weight and mileage ([BHGS consumer guide](https://bhgs.dca.ca.gov/consumers/hhm.html)). If yours is a long move within one state, ask each mover how it will price it. Most of the estimate, weighing, valuation and paperwork rules below are federal rules for interstate moves. Each section says where a move within one state can differ. [Verify: C19 (verified-excerpt); BHGS consumer guide.] [Counsel: how to label local, in-state long-distance and interstate moves so readers don't infer which rules apply from distance, with labels that match the calculator's three move types: Local, In-state long distance and Interstate (consumer-moving-rules note, counsel item 6)]
 
 <a id="how-do-movers-charge-for-local-moves"></a>
 
@@ -201,7 +201,7 @@ If a mover won't deliver unless you pay more than these limits, you can file a c
 
 [Counsel: 110% rule wording (implications §7.1)] [Counsel: how to word the balance and its timing. The "at least 30 days" deferral appears in Appendix A, the October 2023 handbook and FMCSA's Subpart D page, not in the regulation text found (consumer-moving-rules note, counsel item 2).] [Verify: C6, contradicted as first worded ("due within 30 days"); its 110% part is verified-excerpt, and the copy follows the claim as corrected. 49 CFR 375.405; 375.407(a) to (c); 375.703(b); Part 375 subpart H; Appendix A. A2 (verified-excerpt) for the 15% limit; 375.407(d). A9 (verified-excerpt) for the FMCSA quote. The example scales FMCSA's 2004 worked example (Federal Register, April 2, 2004, FR Doc. 04-7307 on govinfo.gov) to percentages. One excerpt of 375.217(e) read "at least 110 percent"; confirm the current text. C15 (verified-excerpt) for the complaint database and phone line; a cached NCCDB page mentioned an outage, so check that the site works before publishing. A10 (verified-excerpt) for hostage-goods complaints.]
 
-**In-state moves:** binding and non-binding estimates, the survey requirement, weighing and the 110% rule are federal rules for interstate moves. For a move within one state, ask the mover what kind of estimate it gives, whether it will weigh your shipment and what you'll owe at delivery, and check your state's rules.
+**In-state moves:** binding and non-binding estimates, the survey requirement, weighing and the 110% rule are federal rules for interstate moves. For a move whose entire route stays within one state, ask the mover what kind of estimate it gives, whether it will weigh your shipment and what you'll owe at delivery, and check your state's rules.
 
 <a id="what-extra-charges-can-a-mover-add"></a>
 
@@ -231,7 +231,7 @@ The stair, long-carry and shuttle descriptions follow [FMCSA's glossary](https:/
 
 Ask each mover about anything its estimate doesn't mention, such as a heavy or bulky item, or storage if your belongings can't be delivered right away, and get the answer into the written estimate.
 
-**In-state moves:** these are federal rules for interstate moves. For a move within one state, ask the mover how it prices extra services, and check your state's rules.
+**In-state moves:** these are federal rules for interstate moves. For a move whose entire route stays within one state, ask the mover how it prices extra services, and check your state's rules.
 
 <a id="what-is-valuation"></a>
 
@@ -259,7 +259,7 @@ If something is lost or damaged, file a claim with the mover. It can't give you 
 
 Valuation comes from the mover you hire, not from American Moving Choice: we don't sell valuation, insurance or any other coverage. [Owner: confirm that AMC offers no valuation, insurance or protection product — default shown (implications D5)] Read [Does a mover need insurance?](/questions/does-a-mover-need-insurance/) for questions to ask before choosing coverage.
 
-**In-state moves:** these two levels and the claim rules come from federal law for interstate moves. For a move within one state, ask the mover which options it offers and how to file a claim, and check your state's rules.
+**In-state moves:** these two levels and the claim rules come from federal law for interstate moves. For a move whose entire route stays within one state, ask the mover which options it offers and how to file a claim, and check your state's rules.
 
 ## What should you know about deposits and payment?
 
@@ -316,7 +316,7 @@ Never sign a blank document, and keep a copy or photo of everything you sign ([F
 
 [What documents should a mover give me?](/questions/what-documents-should-a-mover-give-me/) explains the paperwork to check.
 
-**In-state moves:** these are the federal paperwork rules for interstate moves. For a move within one state, ask the mover which documents it will give you.
+**In-state moves:** these are the federal paperwork rules for interstate moves. For a move whose entire route stays within one state, ask the mover which documents it will give you.
 
 <a id="how-do-you-compare-quotes-like-for-like"></a>
 

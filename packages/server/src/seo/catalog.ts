@@ -58,16 +58,16 @@ export const SERVICES: CatalogEntry[] = [
     metaDescription:
       "What counts as a local move, who regulates it, how hourly pricing works, and how to reach screened local movers in our network by ZIP code.",
     answer:
-      "A local move is a short-distance move that starts and ends in the same state. On this site, a move of 50 miles or less between ZIP centroids counts as local (the network's local radius setting). Local moves are regulated by the state, not by FMCSA, and most local movers charge by the hour for a crew and a truck, plus a travel fee.",
+      "A local move is a short-distance move that starts and ends in the same state. On this site, a move of 50 miles or less between ZIP centroids counts as local (the network's local radius setting). Moves whose entire route stays within one state are generally state-regulated; a shipment between places in one state that passes through another state is interstate. Most local movers charge by the hour for a crew and a truck, plus a travel fee.",
     sections: [
       {
         heading: "What makes a move local",
         blocks: [
           p(
-            "Two things decide how we classify a move: whether both ZIP codes are in the same state, and the straight-line distance between them. Same state and within the local radius means local; same state and farther means an in-state long-distance move; a different state means an interstate move. The classification decides which movers' coverage rules apply and which pricing method the cost model uses.",
+            "Two things decide how we classify a move: whether both ZIP codes are in the same state, and the straight-line distance between them. Same state and within the local radius means local; same state and farther means an in-state long-distance move; a different state means an interstate move. These site labels decide which movers' coverage rules apply and which pricing method the cost model uses. They do not determine legal jurisdiction: a same-state shipment that passes through another state is interstate.",
           ),
           p(
-            "The federal rules in 49 CFR Part 375 (written estimates, the 110% rule, valuation) apply to interstate moves. For a move within one state, the state's own rules apply, and they differ widely. The [state pages](/movers/) name the regulator where we have a sourced record and say plainly when we don't.",
+            "The federal rules in 49 CFR Part 375 (written estimates, the 110% rule, valuation) apply to interstate moves. For a move whose route stays within one state, the state's own rules generally apply, and they differ widely. A shipment between places in one state that passes through another state is interstate. The [state pages](/movers/) name the regulator where we have a sourced record and say plainly when we don't.",
           ),
         ],
       },
@@ -89,7 +89,7 @@ export const SERVICES: CatalogEntry[] = [
         heading: "Who regulates local moves",
         blocks: [
           p(
-            "FMCSA's rules don't reach a move between two points in the same state. Some states license intrastate movers themselves: Texas (TxDMV), California (BHGS, the CAL-T number) and Florida (FDACS, the IM number) are three we have sourced. Where a state page shows no regulator section, it is because we have not yet verified one, not because none exists.",
+            "A move between two places in the same state can be interstate if the shipment passes through another state. Moves whose entire route stays within one state are generally state-regulated. Some states license intrastate movers themselves: Texas (TxDMV), California (BHGS, the CAL-T number) and Florida (FDACS, the IM number) are three we have sourced. Where a state page shows no regulator section, it is because we have not yet verified one, not because none exists.",
           ),
         ],
       },
@@ -161,9 +161,9 @@ export const SERVICES: CatalogEntry[] = [
     ],
     factTopics: ["interstate_scope", "written_estimate", "physical_survey", "rule_110", "valuation", "weighing"],
     faq: [
-      { question: "Is a move of 300 miles within Texas a long-distance move?", answer: "Yes, an in-state long-distance (intrastate) move. It is priced by weight and band like an interstate move, but Texas rules, not FMCSA's Part 375, govern it." },
+      { question: "Is a move of 300 miles within Texas a long-distance move?", answer: "Yes, an in-state long-distance (intrastate) move. It is priced by weight and band like an interstate move, but Texas rules generally govern it when the entire route stays in Texas; a shipment that passes through another state is interstate." },
       { question: "Does a long-distance mover have to weigh my shipment?", answer: "On an interstate move with a non-binding estimate that depends on weight, yes, on a certified scale, and you may watch. A binding estimate doesn't depend on weight, so no weighing is required." },
-      { question: "What is the 110% rule?", answer: "On a non-binding interstate estimate, the mover must hand over your goods once you pay up to 110% of the estimate at delivery; any remaining balance is billed later, no sooner than 30 days after delivery per FMCSA guidance." },
+      { question: "What is the 110% rule?", answer: "On a non-binding interstate estimate, delivery payment can include up to 110% of the estimate, services requested after the bill of lading, and impracticable-operations charges of no more than 15% of all other charges due at delivery. FMCSA guidance says the remaining estimate-based balance is billed no sooner than 30 days after delivery." },
     ],
     related: ["service:interstate", "service:local", "cost:long-distance", "question:what-is-a-binding-estimate", "question:what-is-the-110-percent-rule", "planning:moving-out-of-state-checklist", "movers:index"],
     network: { moveType: "interstate" },
@@ -395,10 +395,10 @@ export const QUESTIONS: CatalogEntry[] = [
     "What Is a Binding Moving Estimate? Binding vs Non-Binding Explained",
     "What is a binding moving estimate?",
     "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an interstate move.",
-    "A binding estimate is a written interstate moving estimate that guarantees the total cost of the goods and services it lists: at delivery the mover may collect no more than that amount, plus services you asked for afterwards. A non-binding estimate is the mover's reasonably accurate guess; the final bill follows its tariff, but you never pay more than 110% of the estimate at delivery.",
+    "A binding estimate is a written interstate moving estimate that guarantees the total cost of the goods and services it lists: at delivery the mover may collect that amount, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. A non-binding estimate is the mover's reasonably accurate guess; the final bill follows its tariff, but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery.",
     [
       { heading: "Binding", blocks: [p("The mover and you are bound by the charges on the estimate. If you add goods or services before loading, the mover must reaffirm the estimate, prepare a new binding estimate you sign, or agree in writing to treat it as non-binding. If it loads without doing one of these, the original binding estimate stands. A mover may charge for preparing a binding estimate.")] },
-      { heading: "Non-binding", blocks: [p("A non-binding estimate must be reasonably accurate and built from the estimated weight or volume, the services and the survey. It must say that the final charges come from the mover's tariff and may be higher, and that you won't pay more than 110% of the estimate at delivery. It is free.")] },
+      { heading: "Non-binding", blocks: [p("A non-binding estimate must be reasonably accurate and built from the estimated weight or volume, the services and the survey. It must say that the final charges come from the mover's tariff and may be higher, and explain the delivery-payment rule: up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. It is free.")] },
       { heading: "\"Binding not-to-exceed\"", blocks: [p("This is not a federal term. Movers and guides use it for a binding price that drops if the shipment weighs less than estimated. If a mover offers one, ask it to write exactly what happens if the weight comes in under the estimate.")] },
     ],
     ["written_estimate", "binding_estimate", "rule_110", "physical_survey"],
@@ -414,14 +414,14 @@ export const QUESTIONS: CatalogEntry[] = [
     "110 percent rule moving",
     "What Is the 110% Rule for Moving Estimates?",
     "What is the 110% rule?",
-    "On a non-binding interstate estimate the mover must release your goods once you pay up to 110% of the estimate at delivery; the rest is billed later. Source: 49 CFR 375.407.",
-    "The 110% rule is a federal protection on interstate moves with a non-binding estimate: at delivery, the mover must hand over your goods once you pay up to 110% of the estimated charges, plus any services you asked for after the bill of lading and any impracticable-operations charges. Whatever remains is billed later, no sooner than 30 days after delivery according to FMCSA guidance.",
+    "How the 110% delivery-payment rule works for non-binding interstate estimates, including later-requested services and capped impracticable-operations charges.",
+    "The 110% rule is a federal protection on interstate moves with a non-binding estimate: at delivery, the mover must hand over your goods once you pay up to 110% of the estimated charges, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. Whatever remains is billed later, no sooner than 30 days after delivery according to FMCSA guidance.",
     [
-      { heading: "A worked example from FMCSA", blocks: [p("FMCSA's 2004 example: a $1,000 non-binding estimate and $1,500 of actual charges means you pay $1,100 at delivery and the mover bills the remaining $400 later.")] },
-      { heading: "What it does not cover", blocks: [ul(["Binding estimates: the binding amount applies instead.", "Services you asked for after the bill of lading was issued.", "Impracticable-operations charges (for example a shuttle because the truck can't reach your street), which are capped separately.", "Moves within one state: state rules apply."])] },
+      { heading: "A worked example from FMCSA", blocks: [p("Assuming no services added after the bill of lading and no impracticable-operations charges, the FMCSA worked example from 2004: a $1,000 non-binding estimate and $1,500 of actual charges means you pay $1,100 at delivery and the mover bills the remaining $400 later.")] },
+      { heading: "What it does not cover", blocks: [ul(["Binding estimates: the binding amount applies instead.", "Services you asked for after the bill of lading was issued.", "Impracticable-operations charges (for example a shuttle because the truck can't reach your street), which are capped separately.", "Moves whose route stays within one state: generally state rules apply. A same-state shipment passing through another state is interstate."])] },
     ],
     ["rule_110", "written_estimate"],
-    [{ question: "Can the mover hold my goods until I pay the full bill?", answer: "On a non-binding interstate estimate, no. Refusing delivery after you pay 110% counts as failing to transport with reasonable dispatch, which exposes the mover to delay claims. Report it to FMCSA." }],
+    [{ question: "Can the mover hold my goods until I pay the full bill?", answer: "A mover must release a full shipment when you offer the amount lawfully due at delivery. Refusing delivery after you offer the amount lawfully due, including later-requested services and capped impracticable-operations charges, counts as failing to transport with reasonable dispatch, which exposes the mover to delay claims. Report it to FMCSA." }],
     ["question:what-is-a-binding-estimate", "question:what-if-a-mover-holds-my-belongings-hostage", "service:interstate"],
     ["110% rule", "moving estimate 110 percent"],
   ),
@@ -531,14 +531,14 @@ export const QUESTIONS: CatalogEntry[] = [
     "mover holding belongings hostage",
     "What If a Mover Holds My Belongings Hostage?",
     "What if a mover holds my belongings hostage?",
-    "On a non-binding interstate estimate you owe no more than 110% at delivery; refusing delivery after that is a violation. Who to call and what to document.",
-    "On an interstate move with a non-binding estimate, the mover must release your goods once you pay up to 110% of the estimate at delivery; a mover that refuses after that payment is violating federal rules. Pay the amount you owe, get a receipt, document the refusal, and report it to FMCSA by phone at 1-888-DOT-SAFT or through the National Consumer Complaint Database.",
+    "Understand delivery payment under a non-binding interstate estimate, including additional-service exceptions, and document a refusal to release your shipment.",
+    "On an interstate move with a non-binding estimate, the mover must release your goods once you offer the amount lawfully due: up to 110% of the estimate, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. A mover that refuses after that offer is violating the federal release rule. Pay the amount you owe, get a receipt, document the refusal, and report it to FMCSA by phone at 1-888-DOT-SAFT or through the National Consumer Complaint Database.",
     [
-      { heading: "What you owe at delivery", blocks: [ul(["Binding estimate: the binding amount, plus services you asked for after the bill of lading.", "Non-binding estimate: up to 110% of the estimate, plus services added after the bill of lading and capped impracticable-operations charges."])] },
+      { heading: "What you owe at delivery", blocks: [ul(["Binding estimate: the binding amount, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery.", "Non-binding estimate: up to 110% of the estimate, plus services added after the bill of lading and capped impracticable-operations charges."])] },
       { heading: "What to do", blocks: [ol(["Offer payment of what you owe in a form the estimate says the mover accepts, and keep proof.", "Write down dates, names, the truck's markings and what was said.", "Call FMCSA at 1-888-DOT-SAFT (8 a.m. to 8 p.m. Eastern) and file a complaint online.", "Contact your state attorney general or consumer protection office; many pursue hostage-goods cases."])] },
     ],
     ["rule_110", "complaints"],
-    [{ question: "Does the 110% rule apply to moves within my state?", answer: "No. It is a federal rule for interstate moves. Your state's regulator sets the rules for in-state moves." }],
+    [{ question: "Does the 110% rule apply to moves within my state?", answer: "It is a federal rule for interstate moves, including a shipment between places in one state that passes through another state. For a move whose entire route stays within one state, check that state's rules." }],
     ["question:what-is-the-110-percent-rule", "question:how-to-spot-a-moving-scam", "service:interstate"],
     ["moving company won't deliver", "hostage load"],
   ),
@@ -580,7 +580,7 @@ export const QUESTIONS: CatalogEntry[] = [
     "How Do Moving Companies Charge? Hourly vs Weight Pricing",
     "How do moving companies charge?",
     "Local moves: by the hour. Long-distance moves: by weight and distance band. Extras from the tariff. How estimates, weighing and the 110% rule fit together.",
-    "Most movers charge local moves by the hour (crew size times hours, plus a travel fee) and long-distance moves by shipment weight and distance, with extra services priced from their tariff. On an interstate move, federal rules add a written estimate, a certified weighing when charges depend on weight, and the 110% cap at delivery on non-binding estimates.",
+    "Most movers charge local moves by the hour (crew size times hours, plus a travel fee) and long-distance moves by shipment weight and distance, with extra services priced from their tariff. On an interstate move, federal rules add a written estimate, a certified weighing when charges depend on weight, and the 110% delivery-payment rule for non-binding estimates, with additional amounts for later-requested services and capped impracticable operations.",
     [
       { heading: "Hourly pricing", blocks: [p("The mover sets a rate per crew size. Your home size sets the crew and the hours; access and extras change the hours. Federal rules don't address hourly pricing; it is used mainly on local, state-regulated moves.")] },
       { heading: "Weight-based pricing", blocks: [p("The mover sets a rate per hundredweight for each distance band and estimates your shipment weight from the survey. No federal rule requires weight-only pricing; a mover that estimates by volume must explain its conversion to weight in writing.")] },
@@ -643,8 +643,8 @@ export const QUESTIONS: CatalogEntry[] = [
     "can movers charge more than the estimate",
     "Can Movers Charge More Than the Estimate?",
     "Can movers charge more than the estimate?",
-    "Binding: no, except services you add. Non-binding: yes, but no more than 110% at delivery; the rest is billed later. What changes the bill.",
-    "On a binding interstate estimate, no: the mover may collect only the binding amount plus services you asked for after the bill of lading and any impracticable-operations charges. On a non-binding estimate the final bill follows the tariff and can be higher, but you never pay more than 110% of the estimate at delivery, and the mover bills the remainder later.",
+    "When a moving bill can change, and how binding and non-binding delivery payments account for later-requested services and capped impracticable operations.",
+    "On a binding interstate estimate, no: the delivery payment can include the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery. On a non-binding estimate the final bill follows the tariff and can be higher, but delivery payment can include up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later.",
     [
       { heading: "What can lawfully raise the bill", blocks: [ul(["Goods or services added after the estimate (before loading, a new binding estimate or a written change is required).", "Impracticable operations, such as a shuttle truck, capped separately.", "Accessorial services settled before the bill of lading."])] },
       { heading: "What to keep", blocks: [p("Your signed, dated estimate, the inventory, the bill of lading, every weight ticket and every change you agreed to in writing. Disputes over charges billed after delivery can go to the mover's arbitration program.")] },
@@ -690,7 +690,7 @@ export const QUESTIONS: CatalogEntry[] = [
     "Who Regulates Moving Companies? FMCSA and the States",
     "Who regulates moving companies?",
     "FMCSA regulates interstate movers under 49 CFR Part 375; states regulate in-state moves. Which state regulators we have sourced so far.",
-    "FMCSA, part of the U.S. Department of Transportation, regulates interstate household-goods movers and brokers under 49 CFR Parts 371 and 375. Moves between two points in the same state are regulated by that state, and the rules differ: Texas (TxDMV), California (BHGS) and Florida (FDACS) license intrastate movers under their own statutes. Where we have no sourced regulator for a state, its page says so.",
+    "FMCSA, part of the U.S. Department of Transportation, regulates interstate household-goods movers and brokers under 49 CFR Parts 371 and 375. Moves whose entire route stays within one state are generally state-regulated; a same-state shipment passing through another state is interstate. State rules differ: Texas (TxDMV), California (BHGS) and Florida (FDACS) license intrastate movers under their own statutes. Where we have no sourced regulator for a state, its page says so.",
     [
       { heading: "Federal: FMCSA", blocks: [p("FMCSA grants operating authority, keeps the USDOT and insurance records, publishes the consumer rights booklet, runs Protect Your Move and takes complaints through the National Consumer Complaint Database.")] },
       { heading: "State regulators we have sourced", blocks: [p("The [state pages](/movers/) carry a regulator section only when it rests on an official source read on a recorded date. Today that covers Texas, California, Florida and New York; other states' pages explain that we have not yet verified their regulator rather than guess.")] },
@@ -724,7 +724,7 @@ export const QUESTIONS: CatalogEntry[] = [
     "An interstate carrier's tariff holds its rates and charges; it must be available for inspection on request. Why extras come from it and how to ask for it.",
     "A tariff is the document in which an interstate household-goods carrier publishes its rates and charges, including accessorial services such as packing, stair carries and shuttles. The carrier must make it available for inspection by shippers on reasonable request and must tell you before the bill of lading that it is available. A tariff that doesn't comply can't be enforced against you.",
     [
-      { heading: "Why it matters on a non-binding estimate", blocks: [p("A non-binding estimate must say that the final charges come from the tariff and may be higher. The tariff is therefore the document that decides the extras and the final bill, within the 110% cap at delivery.")] },
+      { heading: "Why it matters on a non-binding estimate", blocks: [p("A non-binding estimate must say that the final charges come from the tariff and may be higher. The tariff is therefore the document that decides the extras and the final bill, subject to the non-binding delivery-payment rule, including later-requested services and impracticable-operations charges of no more than 15% of all other charges due at delivery.")] },
       { heading: "Local moves", blocks: [p("States may require filed tariffs for in-state moves too; Texas uses filed maximum-rate tariffs and California publishes a Maximum Rate Tariff for in-state moves. Ask the mover which applies.")] },
     ],
     ["accessorials", "rule_110"],
@@ -800,7 +800,7 @@ export const QUESTIONS: CatalogEntry[] = [
     "what is an intrastate move",
     "What Is an Intrastate Move?",
     "What is an intrastate move?",
-    "A move within one state. Beyond 50 miles it is in-state long distance on this site, priced by weight and regulated by the state, not FMCSA.",
+    "An intrastate move stays within one state for its entire route. How this site's 50-mile local radius differs from the rules that legally govern your move.",
     "An intrastate move starts and ends in the same state and its route stays inside it. On this site, an in-state move farther than the 50-mile local radius is classified as in-state long distance: movers price it by weight and band like an interstate move, but the state's rules apply rather than FMCSA's Part 375. A move within one state whose route crosses another state counts as interstate.",
     [
       { heading: "Local vs in-state long distance", blocks: [p("The local radius is 50 straight-line miles between ZIP centroids. Within it, movers' local coverage rules and hourly pricing apply; beyond it, in-state long-distance coverage and weight-based pricing apply. The route pages show the classification for each pair.")] },
@@ -959,7 +959,7 @@ export const PLANNING: CatalogEntry[] = [
       { heading: "Eight weeks out", blocks: [ul(["Decide what you will ship; weight drives the price on a long-distance move.", "Look up candidate movers' FMCSA records: active USDOT, household-goods carrier authority, insurance filings.", "Request estimates with the same inventory from several movers."])] },
       { heading: "Four to six weeks out", blocks: [ul(["Hold the surveys (on-site or by video).", "Compare written estimates on the same basis and choose binding or non-binding.", "Choose your valuation level on the valuation statement; list items worth more than $100 per pound.", "Confirm packing, storage and specialty items on the estimate."])] },
       { heading: "Two weeks out", blocks: [ul(["Receive the bill of lading at least three days before loading; you may rescind within three days of signing.", "Confirm the delivery spread and the forms of payment accepted at delivery.", "Describe access at both ends so stair, long-carry and shuttle charges are settled in advance."])] },
-      { heading: "Loading and delivery", blocks: [ul(["Check the inventory and condition notes before signing.", "Ask where and when weighings happen; you may watch and demand a reweigh before unloading.", "At delivery, pay what you owe (no more than 110% on a non-binding estimate), note any damage on the inventory, and keep every document."])] },
+      { heading: "Loading and delivery", blocks: [ul(["Check the inventory and condition notes before signing.", "Ask where and when weighings happen; you may watch and demand a reweigh before unloading.", "At delivery, confirm the amount due under your estimate, including any later-requested services and capped impracticable-operations charges, note any damage on the inventory, and keep every document."])] },
     ],
     ["physical_survey", "written_estimate", "booklets", "bill_of_lading", "weighing", "valuation", "rule_110"],
     [{ question: "Do I need to register my car in the new state?", answer: "Most states set a deadline after you become a resident; the rules are the state's, and we have not sourced them for each state yet, so check the destination state's DMV." }],
@@ -1007,9 +1007,9 @@ export const PLANNING: CatalogEntry[] = [
     "Delivery Day Checklist: Payment, Inventory and Damage",
     "Delivery day checklist",
     "What you owe at delivery, how to check the inventory for loss or damage, and how to start a claim, built on the 110% rule and valuation rules.",
-    "At delivery, pay what the estimate type requires (the binding amount, or no more than 110% of a non-binding estimate), in a form the estimate says the mover accepts. Check every inventory item off as it comes in, note damage or missing items on the inventory before you sign, and keep the signed copy: it is the basis of any claim under the valuation level you chose.",
+    "At delivery, pay what the estimate type requires (the binding amount, or up to 110% of a non-binding estimate, plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery), in a form the estimate says the mover accepts. Check every inventory item off as it comes in, note damage or missing items on the inventory before you sign, and keep the signed copy: it is the basis of any claim under the valuation level you chose.",
     [
-      { heading: "Payment", blocks: [ul(["Binding estimate: the binding amount plus services added after the bill of lading.", "Non-binding estimate: up to 110% of the estimate; the rest is billed later.", "Keep the receipt and the final freight bill."])] },
+      { heading: "Payment", blocks: [ul(["Binding estimate: the binding amount plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery.", "Non-binding estimate: up to 110% of the estimate plus services requested after the bill of lading and impracticable-operations charges of no more than 15% of all other charges due at delivery; the remaining estimate-based balance is billed later.", "Keep the receipt and the final freight bill."])] },
       { heading: "Inventory and damage", blocks: [ul(["Check items off against the inventory as they come in.", "Open boxes marked fragile while the crew is present if you can.", "Write every exception on the inventory before signing.", "Photograph damage and keep packaging for the claim."])] },
       { heading: "After delivery", blocks: [ul(["File a written claim with the mover within its deadline.", "If charges were billed after delivery, you may dispute them through the mover's arbitration program."])] },
     ],

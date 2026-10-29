@@ -18,7 +18,9 @@ import { creditLine, mediaForSeoPage } from "@/lib/media";
 import { pageCardImage, pageMediaPlan } from "@/lib/page-media";
 import { InlineText as StoredInlineText } from "./inline-text";
 import { PREFILL_STORAGE_KEY, QuoteEntryButton } from "./quote-entry";
-import { breadcrumbLd, pageLd, type Crumb } from "./seo-metadata";
+import { breadcrumbLd, pageLd, seoPageHeading, type Crumb } from "./seo-metadata";
+import { GuideContents } from "./guide-contents";
+import { seoHeroCopy } from "./hero-copy";
 import { publicSeoPage } from "./public-content";
 import styles from "./seo-reader.module.css";
 
@@ -222,7 +224,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
   const trail = [{ label: "Home", href: "/" }, ...crumbs];
   const route = routeEnds(page);
   const quote = page.content.quote;
-  const displayHeading = page.family === "city" ? page.h1.replace(/: compare screened moving companies$/i, "") : page.h1;
+  const displayHeading = seoPageHeading(page);
   const facts = page.content.intro.dataPoints;
   const countyFact = facts.find((fact) => /^county$/i.test(fact.label));
   const populationFact = facts.find((fact) => /population/i.test(fact.label));
@@ -237,20 +239,14 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
       : page.family === "state" ? `${displayHeading.replace(/^Movers in /i, "").split(":")[0]}: the details behind your move.`
         : page.family === "cost" ? "Make room in your budget for the details."
           : page.family === "question" ? "A useful answer. A better next step." : page.family === "planning" ? "Your next step, thoughtfully planned." : "A clearer picture before you move.";
-  const heroDescription = page.family === "city" ? `${cityContext ? `${cityContext}. ` : ""}Plan your next chapter with local facts, clear assumptions and a contact limit you control.`
-    : page.family === "state" ? "Explore place facts, coverage and moving considerations before you plan your next chapter. Your route comes first. Your contact limit stays yours."
-      : page.family === "route" ? "See the distance, geography and cost factors for your route. Start with the facts, then shape your move around what matters to you."
-        : page.family === "cost" ? "Make sense of a moving budget. See cost factors and clearly labelled planning ranges where available, then request quotes for your own move."
-          : page.family === "question" ? "A practical answer, checked sources and the context to help you make your next moving decision."
-            : page.family === "planning" ? "Turn the small details into a clearer moving plan, with practical steps and sources you can check."
-              : "Understand the service, the details that affect a move, and what to share when you request quotes. Start your next chapter with a clearer plan.";
+  const heroDescription = consumerText(seoHeroCopy(page));
   const prefill = JSON.stringify({ entry: quote.entry, ...(quote.originZip ? { originZip: quote.originZip } : {}), ...(quote.destZip ? { destZip: quote.destZip } : {}) });
   return (
     <>
       <JsonLd data={breadcrumbLd(WEB_URL, trail)} />
-      <JsonLd data={pageLd(WEB_URL, page)} />
+      <JsonLd data={pageLd(WEB_URL, page, images[0])} />
       <VideoSurveyHero url={page.url} title={displayHeading} description={heroDescription} eyebrow={familyLabel} originExample={quote.originZip} destinationExample={quote.destZip} contextLabel={page.family === "city" || page.family === "state" || page.family === "zip" ? displayHeading.replace(/^Movers in /i, "").split(":")[0] : route ? `${route.from} to ${route.to}` : undefined} breadcrumbs={trail.map((crumb, i) => i === trail.length - 1 ? { label: displayHeading } : crumb)}>
-        {route ? <p className="flex flex-wrap items-center gap-3 type-small font-semibold"><span>{route.from}</span><RouteMark size={15} /><span>{route.to}</span></p> : <p className="type-small">Sourced guidance. A move planned on your terms.</p>}
+        {route ? <p className="flex flex-wrap items-center gap-3 type-small font-semibold"><span>{route.from}</span><RouteMark size={15} /><span>{route.to}</span></p> : <p className="type-small">{page.family === "city" && cityContext ? cityContext : "Sourced guidance. A move planned on your terms."}</p>}
       </VideoSurveyHero>
 
       <Container className={styles.reader}>
@@ -281,6 +277,8 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
             <span className={styles.mapTitle}><span className={styles.mapNumber}>{String(index + 1).padStart(2, "0")}</span>{section.heading}</span>
           </a>)}
         </nav> : null}
+
+        <GuideContents sections={page.content.sections} hasFacts={facts.length > 0} hasFaq={page.content.faq.length > 0} className={styles.guideContents} />
 
         <div className={styles.bodyGrid}>
           <div className={styles.main}>
@@ -317,7 +315,8 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
               <div className={styles.quoteCopy}><p className="type-overline">The next step is yours</p><h2 id="quote-heading">{quote.heading}</h2><p>{quote.text}</p><div><QuoteEntryButton originZip={quote.originZip} destZip={quote.destZip} label={quote.cta} /></div><p className="flex items-start gap-2"><IdCardIcon size={18} />Movers only. You choose how many can contact you. Companies introduce themselves when they contact you.</p></div>
             </Reveal>
 
-            <footer className={styles.sources}>
+            <footer id="sources-and-methodology" className={styles.sources}>
+              <h2 className="type-h3 text-text">Sources and editorial notes</h2>
               <p className={styles.kicker}>Made to be checked</p>
               <p>Data as of {page.content.dataAsOf}. Last updated {page.updatedAt.toISOString().slice(0, 10)}.{page.reviewedBy && page.lastReviewedAt ? ` Reviewed by ${page.reviewedBy} on ${page.lastReviewedAt.toISOString().slice(0, 10)}.` : ""}</p>
               {page.sources.length ? <ul className={styles.sourceList}>{page.sources.map((source, i) => <li key={`${source.url}-${i}`}><a href={source.url} className="link" rel="noopener">{source.label}</a><span>Read {source.accessedOn}</span></li>)}</ul> : null}
@@ -334,6 +333,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
                 {page.content.sections.map((section, index) => <a key={section.id} href={`#${section.id}`}><span>{String(index + 1).padStart(2, "0")}</span>{section.heading}</a>)}
                 {facts.length ? <a href="#facts-and-sources">Facts and sources</a> : null}
                 {page.content.faq.length ? <a href="#faq">Questions</a> : null}
+                <a href="#sources-and-methodology">Sources and editorial notes</a>
               </nav>
               <p className="type-small text-text-2"><strong className="tabular text-text">{page.evidenceCount}</strong> sourced data points.<br />Data as of {page.content.dataAsOf}.</p>
             </div></div>

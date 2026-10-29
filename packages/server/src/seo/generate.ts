@@ -774,10 +774,11 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
     const farthestZip = [...zipRows].filter((r) => r.miles !== null).sort((a, b) => b.miles! - a.miles!)[0];
     draft.content.sections.push({
       id: "zips",
-      heading: pick(seed, 2, [`${city.name}'s ZIP codes and who covers each`, `ZIP codes in ${city.name}, ${state.code}: coverage by ZIP`, `The ${plural(city.zips.length, "ZIP code")} of ${city.name}, with movers naming each`]),
+      heading: pick(seed, 2, [`${city.name}'s ZIP codes and who covers each`, `ZIP codes in ${city.name}, ${state.code}: coverage by ZIP`, `The ${plural(city.zips.length, "ZIP code")} of ${city.name}, with local coverage-rule counts`]),
       blocks: [
         { type: "paragraph", text: `${plural(city.zips.length, "ZIP code")}${city.zips.length > 60 ? " (first 60 listed)" : ""}${zipPop ? `, ${n(zipPop)} people in their tabulation areas (${ACS_VINTAGE})` : ""}. ${biggestZip?.population ? `${biggestZip.zip} is the most populous at ${n(biggestZip.population)}${biggestZip.units ? ` (${n(biggestZip.units)} housing units)` : ""}` : ""}${farthestZip ? `; ${farthestZip.zip} is farthest from the centroid at ${milesText(farthestZip.miles!)}` : ""}. ${namedZips ? `${namedZips} of ${n(zipRows.length)} ${namedZips === 1 ? "is" : "are"} named by a network mover's local rule (ZIP or county) as of ${ctx.today}` : `No network mover's local rule names these ZIP codes or ${county} as of ${ctx.today}`}.` },
-        { type: "table", columns: ["ZIP code", "Place name", "Population", "Housing units", "Land (sq mi)", "Density", "From centroid (mi)", "Centroid (lat, lng)", "Movers naming it (local)"], rows: zipRows.map((r) => [r.zip, r.place, r.population !== null ? n(r.population) : "n/a", r.units !== null ? n(r.units) : "n/a", r.land !== null ? r.land.toFixed(2) : "n/a", density(r.population, r.land) !== null ? n(density(r.population, r.land)!) : "n/a", r.miles !== null ? (Math.round(r.miles * 10) / 10).toFixed(1) : "n/a", r.lat !== null ? `${r.lat.toFixed(3)}, ${r.lng!.toFixed(3)}` : "n/a", r.naming ? `${n(r.naming)} of ${n(r.matched)}` : String(r.matched)]) },
+        { type: "table", columns: ["ZIP code", "Place name", "Population", "Housing units", "Land (sq mi)", "Density", "From centroid (mi)", "Centroid (lat, lng)", "Local rule counts (named / total matches)"], rows: zipRows.map((r) => [r.zip, r.place, r.population !== null ? n(r.population) : "n/a", r.units !== null ? n(r.units) : "n/a", r.land !== null ? r.land.toFixed(2) : "n/a", density(r.population, r.land) !== null ? n(density(r.population, r.land)!) : "n/a", r.miles !== null ? (Math.round(r.miles * 10) / 10).toFixed(1) : "n/a", r.lat !== null ? `${r.lat.toFixed(3)}, ${r.lng!.toFixed(3)}` : "n/a", `${n(r.naming)} named / ${n(r.matched)} matches`]) },
+        { type: "note", text: "Named counts are ZIP- or county-specific local rules; total matches can also include broader rules. These dated counts describe a representative local move. The quote survey checks the rules against your exact route and move details." },
       ],
     });
     const nearbyZips = stateZips
@@ -866,7 +867,7 @@ function cityDraft(ctx: Context, city: CityRec): Draft {
         {
           type: "paragraph",
           text: regulator.length
-            ? `Moves within ${state.name} from ${city.name} are regulated by the state: ${regulator[0]!.claim.split(". ")[0]} ([${regulator[0]!.sourceLabel}](${regulator[0]!.sourceUrl}), read ${regulator[0]!.accessedOn}). A move that crosses the state line follows FMCSA's rules: [the documents an interstate mover owes you](/questions/what-documents-should-a-mover-give-me/) and [the 110% rule](/questions/what-is-the-110-percent-rule/).`
+            ? `Moves from ${city.name} whose entire route stays within ${state.name} are generally state-regulated: ${regulator[0]!.claim.split(". ")[0]} ([${regulator[0]!.sourceLabel}](${regulator[0]!.sourceUrl}), read ${regulator[0]!.accessedOn}). A move that crosses the state line follows FMCSA's rules: [the documents an interstate mover owes you](/questions/what-documents-should-a-mover-give-me/) and [the 110% rule](/questions/what-is-the-110-percent-rule/).`
             : `${state.name}'s regulator for in-state moves is not yet verified, so no claim is made for ${city.name}; a move across the state line follows FMCSA Part 375 ([documents owed](/questions/what-documents-should-a-mover-give-me/), [110% rule](/questions/what-is-the-110-percent-rule/), [${FMCSA_LINKS.protectYourMove.label}](${FMCSA_LINKS.protectYourMove.url})).`,
         },
       ],

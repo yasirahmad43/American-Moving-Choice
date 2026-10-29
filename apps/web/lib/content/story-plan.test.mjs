@@ -82,6 +82,9 @@ describe("served consumer guide improvements", () => {
       expect(overview.body).toMatch(/<h2/);
       const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
       expect(new Set(ids).size).toBe(ids.length);
+      for (const match of html.matchAll(/href="#([^\"]+)"/g)) {
+        expect(ids).toContain(decodeURIComponent(match[1]));
+      }
       if (file === "costs/moving-costs") expect(overview.body).toContain('<h2 id="by-home-size"');
       if (file === "costs/how-movers-charge") expect(overview.body).toContain('<h2 id="which-rules-apply-to-your-move"');
       expect((overview.answer + overview.actions + overview.body).match(/<table>/g)?.length ?? 0).toBe((html.match(/<table>/g) ?? []).length);

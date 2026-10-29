@@ -71,7 +71,7 @@ export default async function HomePage() {
     <Section className="home-guide-library" aria-labelledby="home-guides-title">
       <div className="home-section-heading" data-motion="rise"><div><p className="home-eyebrow"><span aria-hidden="true" />Find your next chapter</p><h2 id="home-guides-title">{overview ? overview.total.toLocaleString("en-US") : "Practical"} moving guides.<br />One place to start.</h2></div><p>Explore your city or state, understand a route, or find a useful moving checklist. Every link opens a published guide.</p></div>
       <StateGuideMap guides={stateGuides} overview={overview} />
-      <GuideDiscovery overview={overview} id="home-guide-library" showIntro={false} />
+      <GuideDiscovery overview={overview} id="home-guide-library" searchLabel="Homepage moving guide search" showIntro={false} />
       <Link className="home-text-link" href="/explore/">Browse the complete guide library<LineIcon name="arrow-right" size={18} /></Link>
     </Section>
     <HowItWorks id="how-it-works" overline="A clear path from here to there" title="Your move. Four simple steps." lede="A little information from you. More confidence about what comes next." stops={STEPS} images={processPhotos} />
@@ -97,6 +97,6 @@ export default async function HomePage() {
       <div className="home-faq-list">{FAQ.map((f, i) => <details key={f.q}><summary><span className="home-faq-number">0{i + 1}</span><span>{f.q}</span><span className="home-faq-plus" aria-hidden="true" /></summary><p>{f.a}</p></details>)}</div>
     </div></Section>
     <section className="home-final" aria-labelledby="ready-to-move"><div className="home-final-photo" aria-hidden="true"><MediaFrame asset={care} alt="" sizes="100vw" /></div><div className="home-final-shade" aria-hidden="true" /><div className="mx-auto max-w-content gutter" data-motion="rise"><p className="home-eyebrow">Good things are ahead</p><h2 id="ready-to-move">Let’s get you<br />to your next chapter.</h2><p>Start with your route. Take it one step at a time.</p><LinkButton href="/get-quotes/" variant="cta" data-magnetic="">Start my moving request</LinkButton><span className="home-final-note">Free to request · Your contact preferences · No brokers</span></div></section>
-    <StickyCta href="/get-quotes/" watch="hero-form" label="Get moving quotes" />
+    <StickyCta href="/get-quotes/" watch="hero-survey" label="Get moving quotes" />
   </>;
 }

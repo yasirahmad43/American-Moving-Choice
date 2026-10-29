@@ -126,4 +126,21 @@
 @media(max-width:760px){.vsh__breadcrumbs{max-width:calc(100% - 96px)}.vsh__breadcrumbs li{min-width:0;max-width:100%}.vsh__breadcrumbs [aria-current]{overflow-wrap:anywhere}}
 @media(max-width:700px){.vsh-place{min-height:98px;padding:12px 14px;gap:14px}.vsh-place__shape{width:75px;height:65px}.vsh-place__copy strong{font-size:24px}.vsh-place__copy>span:last-child{font-size:10px}}
 @media(max-width:760px){.vsh__tool-action{display:none}}
+/* Keep the short route opening within easier reach on a phone. The move-size/date
+   step retains its full-width controls, and both ZIP inputs retain 44px targets. */
+@media(max-width:760px){
+  .vsh .vsh-start__topline{padding:13px 20px 12px}
+  .vsh .vsh-start__steps{padding-top:16px;gap:12px}
+  .vsh .vsh-start__steps li{padding-bottom:10px}
+  .vsh .vsh-start__body{gap:16px;padding:18px 20px 20px}
+  .vsh .vsh-start__heading{gap:6px}
+  .vsh .vsh-start__heading :is(h2,h3){font-size:27px;line-height:1.12}
+  .vsh .vsh-start__heading p{font-size:13px}
+  .vsh .vsh-start__fields--route{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .vsh .vsh-start__field{gap:4px;padding:8px 10px 6px}
+  .vsh .vsh-start__field label{font-size:12px}
+  .vsh .vsh-start__field input{font-size:18px}
+  .vsh .vsh-start__permission{font-size:12px;line-height:1.6}
+  .vsh .vsh-start__footer{padding:12px 16px;font-size:12px}
+}
 @media(prefers-reduced-motion:reduce){.vsh *, .vsh *::before,.vsh *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.vsh-start__submit:hover{transform:none}}

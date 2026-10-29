@@ -10,7 +10,7 @@ export function ClosingSurveyPanel({ appUrl, consumerPhoto, carrierPhoto }: { ap
   const pathname = usePathname() ?? "/";
   const carrier = pathname === "/for-movers" || pathname.startsWith("/for-movers/") || /^\/mover-terms\/?$/.test(pathname);
   const heading = useId();
-  return <section className="closing-survey" data-closing-survey="" data-audience={carrier ? "carrier" : "consumer"} aria-labelledby={heading}>
+  return <section className="closing-survey" tabIndex={-1} data-closing-survey="" data-audience={carrier ? "carrier" : "consumer"} aria-labelledby={heading}>
     <div className="closing-survey__inner">
       <div className="closing-survey__visual">
         {carrier ? carrierPhoto : consumerPhoto}

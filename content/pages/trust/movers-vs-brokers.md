@@ -192,7 +192,7 @@ If the company is a broker, also ask:
 
 ## Do state rules apply too?
 
-Yes. Moves within one state follow that state's rules, and a state can regulate moving brokers as well as movers. Florida, for example, requires movers and moving brokers to register with its [Department of Agriculture and Consumer Services](https://www.fdacs.gov/Business-Services/Moving-Companies) (FDACS), and a Florida moving broker may arrange moves only with registered movers ([Florida Statutes, chapter 507](https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0500-0599%2F0507%2F0507.html)). Other states have their own rules, which this page doesn't cover.
+Yes. Moves whose entire route stays within one state generally follow that state's rules; a same-state shipment passing through another state is interstate. A state can regulate moving brokers as well as movers. Florida, for example, requires movers and moving brokers to register with its [Department of Agriculture and Consumer Services](https://www.fdacs.gov/Business-Services/Moving-Companies) (FDACS), and a Florida moving broker may arrange moves only with registered movers ([Florida Statutes, chapter 507](https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0500-0599%2F0507%2F0507.html)). Other states have their own rules, which this page doesn't cover.
 
 [Verify: carrier-vs-broker note B17 and A7 (search excerpts of Fla. Stat. §§507.01(10), 507.03(1) and 507.056(1)); the current scope of chapter 507 (§507.02) and its 2026 text weren't seen; intrastate rule from compliance facts §1.] [Counsel: note item 4. This section describes Florida's rule only; whether chapter 507 reaches American Moving Choice is open.]
 
