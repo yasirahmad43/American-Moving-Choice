@@ -35,6 +35,13 @@ describe("protected route expansion and resume",()=>{
     expect(JSON.stringify(page.content)).not.toMatch(/\b\d[\d,]*(?:\.\d+)?\s+(?:road (?:miles|mi)|driving days?)\b/i);
     expect(page.content.sections.some((section:{id:string})=>section.id==="zip-geography")).toBe(true);
     expect(page.content.sections.some((section:{id:string})=>section.id==="relocation-budget-context")).toBe(true);
+    // The admin's ordinary regeneration call does not pass the bootstrap-only format flag.
+    await generateFamily(db,"route",{only:[candidate.slug],limit:1});
+    const regenerated=(await db.query("select title,meta_description,content from seo_pages where url=$1",[`/routes/${candidate.slug}/`])).rows[0];
+    expect(regenerated.title).toBe(page.title);
+    expect(regenerated.meta_description).not.toMatch(/road miles|driving days/i);
+    expect(JSON.stringify(regenerated.content)).not.toMatch(/\b\d[\d,]*(?:\.\d+)?\s+(?:road (?:miles|mi)|driving days?)\b/i);
+    expect(regenerated.content.sections.some((section:{id:string})=>section.id==="zip-geography")).toBe(true);
   });
   it("refuses competing deployment leases and never lowers the two-thousand-route requirement",async()=>{
     const db=getPool();await db.query("insert into seo_bootstrap_runs(version,owner_token,lease_until)values($1,$2,now()+interval '10 minutes')",[ROUTE_BOOTSTRAP_VERSION,randomUUID()]);

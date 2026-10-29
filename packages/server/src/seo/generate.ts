@@ -152,6 +152,8 @@ interface Context {
   usedMedia: Set<string>;
   /** Existing claims by URL, so a regenerated page keeps the assets it already holds. */
   mediaByUrl: Map<string, string[]>;
+  /** Retain the saved evidence format when an admin regenerates a legacy candidate row. */
+  routeEvidenceUrls: Set<string>;
   log: (line: string) => void;
 }
 
@@ -209,6 +211,7 @@ async function loadContext(db: Queryable, options: GenerateOptions): Promise<Con
   const questions = (await db.query<{ keyword: string; intent: string | null; geography: string | null; source: string; researched_on: string | null }>("select keyword, intent, geography, source, researched_on from seo_research where kind = 'question' order by keyword")).rows.map((r) => ({ keyword: r.keyword, intent: r.intent, geography: r.geography, source: r.source, researchedOn: r.researched_on }));
   const usedMedia = new Set((await db.query<{ media_id: string }>("select media_id from seo_media_usage")).rows.map((r) => r.media_id));
   const mediaByUrl = new Map((await db.query<{ url: string; media_ids: string[] }>("select url, media_ids from seo_pages where jsonb_array_length(media_ids) > 0")).rows.map((r) => [r.url, r.media_ids]));
+  const routeEvidenceUrls = new Set((await db.query<{ url: string }>(`select url from seo_pages where family='route' and content @> '{"sections":[{"id":"zip-geography"}]}'::jsonb`)).rows.map((row) => row.url));
   const countyZipRows = await db.query<{ state_code: string; county_fips: string; n: number }>("select state_code, county_fips, count(*)::int as n from seo_zips group by state_code, county_fips order by state_code, n desc, county_fips");
   const countyZips = new Map<string, { fips: string; name: string; zips: number }[]>();
   for (const r of countyZipRows.rows) countyZips.set(r.state_code, [...(countyZips.get(r.state_code) ?? []), { fips: r.county_fips, name: countyByFips(r.county_fips)?.name ?? r.county_fips, zips: r.n }]);
@@ -261,6 +264,7 @@ async function loadContext(db: Queryable, options: GenerateOptions): Promise<Con
     media: options.media ?? [],
     usedMedia,
     mediaByUrl,
+    routeEvidenceUrls,
     log: options.log ?? (() => undefined),
   };
 }
@@ -1043,7 +1047,7 @@ function routeDraft(ctx: Context, route: RouteRec, evidenceBrief = false): Draft
   const oc = route.originCityId ? ctx.cityById.get(route.originCityId) : undefined;
   const dc = route.destinationCityId ? ctx.cityById.get(route.destinationCityId) : undefined;
   const isCity = route.kind === "city";
-  const expandedCityGuide = isCity && (evidenceBrief || route.reason === "city_interstate_hub");
+  const expandedCityGuide = isCity && (evidenceBrief || route.reason === "city_interstate_hub" || ctx.routeEvidenceUrls.has(routeUrl(route.slug)));
   const originName = isCity ? `${oc!.name}, ${o.code}` : o.name;
   const destName = isCity ? `${dc!.name}, ${d.code}` : d.name;
   const originShort = isCity ? oc!.name : o.name;
