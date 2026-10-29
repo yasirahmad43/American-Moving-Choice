@@ -1,12 +1,24 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import manifest from "../../content/media/manifest.json";
-import { chapterKind, guideOverview, storyImageAt, storyMediaPlan, storyNextItems } from "./story-plan.ts";
+import { chapterKind, guideOverview, htmlChapterParts, storyImageAt, storyMediaPlan, storyNextItems } from "./story-plan.ts";
 import { parseFrontMatter } from "./front-matter.ts";
 import { renderMarkdown } from "./markdown.ts";
 import { createTokenResolver } from "./tokens.ts";
 
 describe("shared story contracts", () => {
+  it("attaches empty review-note paragraphs and anchors to real content without a blank first chapter", () => {
+    const empty = '<p></p>\n<p> </p>\n<p>&nbsp;</p>\n<p></p>\n<p></p>\n<a id="original-anchor"></a>\n';
+    const content = '<h2 id="first">Actual guidance</h2><p>Keep every fact.</p><h2 id="second">More detail</h2><table><tr><td>Keep the record.</td></tr></table>';
+    const parts = htmlChapterParts(empty + content);
+    expect(parts).toHaveLength(2);
+    expect(parts[0]).toContain('<h2 id="first">Actual guidance</h2>');
+    expect(parts[0]).toContain('id="original-anchor"');
+    expect(parts.join("")).toBe(empty + content);
+    expect(htmlChapterParts('<p>A substantive introduction.</p>' + content)).toHaveLength(3);
+    expect(htmlChapterParts('<table><tr><td></td></tr></table>' + content)).toHaveLength(3);
+  });
+
   it("preserves all legacy standalone cards and their original offset destinations", () => {
     const images = manifest.assets.filter(asset => asset.kind === "image").slice(0, 5);
     const all = storyNextItems({ images });

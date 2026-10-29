@@ -5,6 +5,18 @@ export type StoryKind = "narrative" | "checklist" | "steps" | "data" | "example"
 export interface StoryChapterHint { heading?: string; kind?: StoryKind }
 export interface StoryStep { title: string; text: string; href: string; image: MediaAsset }
 
+/** Review-note removal can leave empty paragraphs before the first real heading.
+ * Keep their markup/anchors attached to that chapter instead of inventing a photo-only chapter. */
+export function htmlChapterParts(html: string): string[] {
+  const parts = html.split(/(?=<h2\b)/i).filter(part => part.trim());
+  const prefix = parts[0];
+  if (prefix && parts.length > 1 && !/^\s*<h2\b/i.test(prefix)) {
+    const text = prefix.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]+>/g, "").replace(/&(?:nbsp|#160|#x0*a0);/gi, "").trim();
+    if (!text && !/<(?:img|video|audio|svg|table|figure)\b/i.test(prefix)) return [prefix + parts[1]!, ...parts.slice(2)];
+  }
+  return parts;
+}
+
 const LEGACY_NEXT_STEPS = [
   { title: "Start with your route", text: "Tell us where you're moving from and to.", href: "/get-quotes/" },
   { title: "Understand the estimate", text: "Know what changes a mover's quote.", href: "/moving-costs/how-movers-charge/" },
