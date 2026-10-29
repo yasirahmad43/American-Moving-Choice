@@ -1,11 +1,11 @@
 import { Children, Fragment, isValidElement, type ReactNode } from "react";
-import Link from "next/link";
 import { LineIcon } from "@amc/ui";
 import { MediaCreditLine, MediaFrame } from "@/components/media/media-frame";
 import type { MediaAsset } from "@/lib/media";
 import { chapterKind, htmlChapterParts, storyIcon, storyImageAt, storyNextItems, type StoryKind, type StoryStep } from "@/lib/content/story-plan";
 import { storyCaption } from "@/lib/content/story-captions";
 import { adaptiveReactTables } from "./adaptive-react-tables";
+import { StoryActionLink } from "./story-action-link";
 import "./story-sections.css";
 
 interface Chapter { key: string; content: ReactNode; heading?: string; headingContent?: ReactNode; kind?: StoryKind; compactLists?: boolean }
@@ -131,11 +131,13 @@ export function StorySections({ chapters, images, planned = false, url, topic }:
 }
 
 /** Short pages still carry five distinct, useful editorial photographs. */
-export function StoryNextSteps({ items, images = [], usedCount = 0 }: { items?: readonly StoryStep[]; images?: readonly MediaAsset[]; usedCount?: number }) {
-  const steps = storyNextItems({ items, images, usedCount });
+export function StoryNextSteps({ items, images = [], usedCount = 0, url }: { items?: readonly StoryStep[]; images?: readonly MediaAsset[]; usedCount?: number; url?: string }) {
+  const steps = storyNextItems({ items, images, usedCount, url });
   if (!steps.length) return null;
   return <section className="story-next" aria-labelledby="story-next-title">
     <div className="story-next-heading" data-motion="rise"><p className="type-overline text-brand-red">Your next chapter</p><h2 id="story-next-title">A little planning.<br /><span>A better start.</span></h2><p>Turn what you've learned into your next step.</p></div>
-    <div className="story-next-grid" data-motion="stagger">{steps.map((step) => <article className="story-next-card" key={step.image.id}><StoryPhoto asset={step.image} caption={step.title} /><div><h3>{step.title}</h3><p>{step.text}</p><Link href={step.href}>Explore this step <span aria-hidden="true">↗</span></Link></div></article>)}</div>
+    <div className="story-next-grid" data-motion="stagger">{steps.map((step) => <article className="story-next-card" key={step.image.id}><StoryPhoto asset={step.image} caption={step.title} /><div><h3>{step.title}</h3><p>{step.text}</p>{step.href.startsWith("#")
+      ? <a href={step.href}>{step.action ?? step.title} <span aria-hidden="true">↑</span></a>
+      : <StoryActionLink href={step.href} label={step.action ?? step.title} />}</div></article>)}</div>
   </section>;
 }
