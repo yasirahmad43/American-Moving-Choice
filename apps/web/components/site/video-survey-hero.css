@@ -72,7 +72,7 @@
 .vsh-start__steps li[data-complete]>span{background:#fcebed;color:#a90c1c}
 .vsh-start__body{display:grid;gap:20px;padding:23px 26px 21px;animation:vsh-step 320ms ease-out both}
 .vsh-start__heading{display:grid;gap:7px}
-.vsh-start__heading h2{font-family:var(--font-display);font-size:31px;line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:0;color:#102743}
+.vsh-start__heading h2{font-family:var(--font-display);font-size:31px;line-height:1.2;letter-spacing:-.025em;font-weight:800;margin:0;color:#102743}
 .vsh-start__heading p{margin:0;font-size:14px;line-height:1.55;color:#526379}
 .vsh-start__fields{display:grid;gap:12px}
 .vsh-start__field{position:relative;display:grid;gap:4px;border:1px solid #aebed0;border-radius:10px;background:#f6f8fb;padding:10px 14px 9px;transition:border-color .18s,box-shadow .18s,background .18s}
@@ -164,7 +164,7 @@
   .vsh .vsh-start__steps li{padding-bottom:10px}
   .vsh .vsh-start__body{gap:16px;padding:18px 20px 20px}
   .vsh .vsh-start__heading{gap:6px}
-  .vsh .vsh-start__heading :is(h2,h3){font-size:27px;line-height:1.12}
+  .vsh .vsh-start__heading :is(h2,h3){font-size:27px;line-height:1.2}
   .vsh .vsh-start__heading p{font-size:13px}
   .vsh .vsh-start__fields--route{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .vsh .vsh-start__field{gap:4px;padding:8px 10px 6px}

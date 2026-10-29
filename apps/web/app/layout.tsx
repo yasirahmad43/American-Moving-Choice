@@ -1,5 +1,6 @@
 import "@amc/ui/fonts.css";
 import "./globals.css";
+import "@/components/site/content-insets.css";
 import { env } from "@amc/server/env";
 import { JsFlag } from "@amc/ui";
 import type { Metadata, Viewport } from "next";

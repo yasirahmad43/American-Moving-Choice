@@ -3,6 +3,24 @@
 Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Public content inset rule — owner follow-up, 2026-10-29
+
+Every painted public text container must opt into `data-content-inset="card"` (16–24px on
+all four sides) or `data-content-inset="compact"` (12–16px for compact records, fields and
+controls). Mark the text-owning body; leave full-bleed image/split-card shells unmarked so
+padding is not doubled. Unboxed editorial prose inherits its containing chapter inset.
+`content-insets.css` is imported by the root layout and enforces literal padding floors that
+survive missing/malformed tokens and ordinary later route styles. Section gutters retain
+16/24/32px profiles. Text depth transforms must not project through the content inset.
+Shared Card/TiltCard/ExpandableCard expose optional `contentInset` props; TiltCard targets its
+inner body and ExpandableCard its summary/body, preserving existing private-app defaults.
+
+Run `E2E_WEB_URL=<running public URL> pnpm --filter @amc/e2e exec playwright test --config
+content-insets.config.ts` after changing these shared layouts. It measures visible text
+geometry, calibrates failure detection, checks token/style-order failures and real client
+navigation. The public spacing investigation also confirmed older already-loaded home tabs
+were retaining pre-rule content/styles; fresh loads and current client navigation passed.
+
 ### Card spacing and working actions — owner follow-up, 2026-10-29
 
 Keep readable inner padding on painted cards; do not zero the benefit-card body inset. Hero and

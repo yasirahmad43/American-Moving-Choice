@@ -1,0 +1,41 @@
+/* Public spacing contract. Apply the marker to the element that owns the text,
+   never to an outer full-bleed image/split-card shell and its inner copy together.
+   Root-loaded tokens and literal floors keep gaps safe if route CSS arrives later
+   or a component sets a zero/tiny padding value. */
+:root {
+  --content-inset-card:clamp(1rem,1.8vw,1.5rem);
+  --content-inset-compact:clamp(.75rem,1.2vw,1rem);
+}
+
+.site-experience [data-content-inset] {
+  /* Literal protection is intentional: an absent or malformed custom property
+     must not invalidate this declaration and reset padding to zero. */
+  padding:clamp(1rem,1.8vw,1.5rem) !important;
+}
+.site-experience [data-content-inset="compact"] {
+  padding:clamp(.75rem,1.2vw,1rem) !important;
+}
+
+/* Copy stays on its card's content plane. Decorative icons can retain depth,
+   but projecting text forward must not consume its readable border gap. */
+.site-experience [data-content-inset] :is(h2,h3,h4,p).tilt-layer {
+  transform:none;
+}
+
+/* Major section interiors keep the existing 16/24/32px public gutter scale.
+   Full-width backgrounds and photos stay edge-to-edge outside these interiors. */
+.site-experience .gutter {
+  padding-inline:1rem !important;
+}
+@media (min-width:768px) {
+  .site-experience .gutter { padding-inline:1.5rem !important; }
+}
+@media (min-width:1280px) {
+  .site-experience .gutter { padding-inline:2rem !important; }
+}
+
+/* Body-font FAQ titles need a full line box as well as padding: a tight line
+   height lets font ascenders/descenders extend into the protected inset. */
+.site-experience .expandable > summary[data-content-inset] :is(h2,h3,h4) {
+  line-height:1.45;
+}

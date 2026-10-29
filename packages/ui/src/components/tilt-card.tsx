@@ -21,13 +21,15 @@ export interface TiltCardProps {
   padding?: "none" | "md" | "lg";
   className?: string;
   bodyClassName?: string;
+  /** Public text inset, applied to the inner painted body rather than the outer tilt frame. */
+  contentInset?: "card" | "compact";
   style?: CSSProperties;
   children: ReactNode;
   "aria-labelledby"?: string;
   "aria-label"?: string;
 }
 
-export function TiltCard({ as: Tag = "div", max = 9, depth = 24, tone = "surface", padding = "md", className, bodyClassName, style, children, ...aria }: TiltCardProps) {
+export function TiltCard({ as: Tag = "div", max = 9, depth = 24, tone = "surface", padding = "md", className, bodyClassName, contentInset, style, children, ...aria }: TiltCardProps) {
   const ref = useRef<HTMLElement>(null);
   const frame = useRef<number>(0);
   const enabled = useRef(false);
@@ -102,6 +104,7 @@ export function TiltCard({ as: Tag = "div", max = 9, depth = 24, tone = "surface
       {...aria}
     >
       <div
+        data-content-inset={contentInset}
         className={cx(
           "tilt-body h-full min-w-0 rounded-card",
           tone === "surface" && "border border-border bg-surface depth-2",

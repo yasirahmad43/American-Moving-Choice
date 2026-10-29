@@ -60,8 +60,8 @@ export function ContentPageView({ page }: { page: ContentPage }) {
       <EditorialHeader breadcrumbs={page.breadcrumbs} overline={page.meta.family} title={page.h1} lede={page.description} meta={updated ? <>Updated {updated}</> : null} />
       <Container className="pb-20">
           {overview.answer ? <section className="story-answer" aria-labelledby="guide-answer-title">
-            <div className="story-answer-main"><p className="type-overline">A clearer starting point</p><h2 id="guide-answer-title">The short answer.</h2><div className="story-answer-text" dangerouslySetInnerHTML={{ __html: overview.answer }} /><a className="story-answer-jump" href="#guide-contents">Read the full guide <span aria-hidden="true">↓</span></a></div>
-            {overview.actions ? <div className="story-answer-actions prose" dangerouslySetInnerHTML={{ __html: overview.actions }} /> : null}
+            <div className="story-answer-main" data-content-inset="card"><p className="type-overline">A clearer starting point</p><h2 id="guide-answer-title">The short answer.</h2><div className="story-answer-text" dangerouslySetInnerHTML={{ __html: overview.answer }} /><a className="story-answer-jump" href="#guide-contents">Read the full guide <span aria-hidden="true">↓</span></a></div>
+            {overview.actions ? <div className="story-answer-actions prose" data-content-inset="card" dangerouslySetInnerHTML={{ __html: overview.actions }} /> : null}
           </section> : null}
           <details className="story-guide-notes">
             <summary>About this guide <span>Editorial details &amp; review notes</span></summary>
@@ -81,7 +81,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
             </div>
           </details>
           {headings.length ? (
-            <nav id="guide-contents" aria-label="On this page" className="story-index" data-motion="rise">
+            <nav id="guide-contents" aria-label="On this page" className="story-index" data-content-inset="card" data-motion="rise">
               <div><p className="type-overline text-brand-red">Your reading route</p><h2>Inside this guide</h2></div>
               <ul>
                 {headings.map((heading) => (
@@ -99,7 +99,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
           ) : null}
           <article><StorySections chapters={chapters} images={media.chapterImages} planned url={page.meta.url} topic={page.h1} /></article>
           <StoryNextSteps url={page.meta.url} items={media.steps} />
-          <aside className="story-reader-cta" data-motion="rise" data-band="">
+          <aside className="story-reader-cta" data-content-inset="card" data-motion="rise" data-band="">
             <div><p className="type-overline">Your move. Your choice.</p><h2>Ready to compare movers?</h2>
             <p>Check coverage for your route, then choose how many movers may contact you.</p></div>
             <LinkButton href="/get-quotes/" variant="primary" size="sm" className="mt-4 !bg-white !text-brand-navy hover:!bg-on-band-2">

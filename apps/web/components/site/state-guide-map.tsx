@@ -76,13 +76,13 @@ export function StateGuideMap({ guides, overview }: { guides: readonly StateGuid
         const entries = STATES.filter(state => region.codes.includes(state.code) && links.has(state.code));
         if (!entries.length) return null;
         return <details key={region.name} name="state-guide-region" className="state-guide-region">
-          <summary><span>{region.name}</span><span>{entries.length} guides <span className="state-guide-region-toggle" aria-hidden="true" /></span></summary>
+          <summary data-content-inset="compact"><span>{region.name}</span><span>{entries.length} guides <span className="state-guide-region-toggle" aria-hidden="true" /></span></summary>
           <ul className="state-guide-atlas-grid">
             {entries.map(state => {
               const guide = links.get(state.code)!;
               const shape = byFips.get(state.fips);
               const count = counts.get(state.code);
-              return <li key={state.code}><a href={guide.url} className="state-guide-atlas-link" data-state-code={state.code}>
+              return <li key={state.code}><a href={guide.url} className="state-guide-atlas-link" data-content-inset="compact" data-state-code={state.code}>
                 {shape ? <svg viewBox={shape.viewBox} aria-hidden="true" focusable="false" className="state-guide-atlas-shape"><path d={shape.path} /></svg> : null}
                 <span className="state-guide-atlas-copy"><span data-state-name={state.name}>{state.name}</span><small>{count ? `${count.toLocaleString("en-US")} guides` : "State moving guide"}</small></span>
               </a></li>;

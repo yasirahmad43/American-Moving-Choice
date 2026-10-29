@@ -104,10 +104,10 @@ export function TableControls() {
   return (
     <div className="dt-controls flex min-w-0 flex-wrap items-center gap-3">
       {columns.length > 0 && adaptive ? <details ref={chooser} className="dt-sort-picker" data-adaptive-sort="">
-        <summary aria-controls={id}><span><span className="dt-sort-kicker">Sort records</span><span className="dt-sort-current">{sort && selected ? `${selected.label} · ${sort.dir === "ascending" ? "Ascending" : "Descending"}` : "Original order"}</span></span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
+        <summary data-content-inset="compact" aria-controls={id}><span><span className="dt-sort-kicker">Sort records</span><span className="dt-sort-current">{sort && selected ? `${selected.label} · ${sort.dir === "ascending" ? "Ascending" : "Descending"}` : "Original order"}</span></span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
         <div className="dt-sort-options" role="group" aria-label="Sort displayed records">
-          <button type="button" aria-controls={id} aria-pressed={!sort} onClick={() => choose(null)}>Original order</button>
-          {columns.flatMap(column => (["ascending", "descending"] as const).map(direction => <button key={`${column.key}:${direction}`} type="button" data-sort-choice={`${column.key}:${direction}`} aria-controls={id} aria-pressed={sort?.key === column.key && sort.dir === direction} onClick={() => choose({ key: column.key, dir: direction })}><span>{column.label}</span><small>{direction === "ascending" ? "Ascending" : "Descending"}</small></button>))}
+          <button type="button" data-content-inset="compact" aria-controls={id} aria-pressed={!sort} onClick={() => choose(null)}>Original order</button>
+          {columns.flatMap(column => (["ascending", "descending"] as const).map(direction => <button key={`${column.key}:${direction}`} type="button" data-content-inset="compact" data-sort-choice={`${column.key}:${direction}`} aria-controls={id} aria-pressed={sort?.key === column.key && sort.dir === direction} onClick={() => choose({ key: column.key, dir: direction })}><span>{column.label}</span><small>{direction === "ascending" ? "Ascending" : "Descending"}</small></button>))}
         </div>
       </details> : columns.length > 0 ? (
         <label className="dt-mobile-sort min-w-0 text-[0.8125rem] font-semibold text-text-2">
@@ -203,6 +203,6 @@ export function TableRecords({ rows, previewCount = 4, label }: { rows: { key: s
   const ordered = order.length ? [...rows].sort((a, b) => (positions.get(a.key) ?? rows.length) - (positions.get(b.key) ?? rows.length)) : rows;
   return <div ref={root} data-record-list="" data-record-count={rows.length}>
     <div className="dt-record-grid" role="list" aria-label={`${label}: preview`}>{ordered.slice(0, previewCount).map((row) => row.content)}</div>
-    {rows.length > previewCount ? <details className="dt-record-more"><summary>View all {rows.length.toLocaleString("en-US")} records <span aria-hidden="true">+</span></summary><div className="dt-record-grid" role="list" aria-label={`${label}: remaining records`}>{ordered.slice(previewCount).map((row) => row.content)}</div></details> : null}
+    {rows.length > previewCount ? <details className="dt-record-more"><summary data-content-inset="compact">View all {rows.length.toLocaleString("en-US")} records <span aria-hidden="true">+</span></summary><div className="dt-record-grid" role="list" aria-label={`${label}: remaining records`}>{ordered.slice(previewCount).map((row) => row.content)}</div></details> : null}
   </div>;
 }

@@ -45,7 +45,7 @@ export default function GetQuotesPage() {
   return <>
     <VideoSurveyHero url={PAGE} className="vsh--quote-request" eyebrow="Quote request" title="Request quotes from movers in our network"
       description="Nothing goes to any mover until you send your request at Review and send. Going back a step keeps your answers."
-      survey={<div className="quote-survey-full p-4 sm:p-6">
+      survey={<div className="quote-survey-full p-4 sm:p-6" data-content-inset="card">
         <Survey texts={texts} checkCoverage={checkCoverageAction} submitRequest={submitRequestAction} lookupZip={lookupZipAction} webUrl={env().WEB_URL} />
         <noscript><p className="text-text">The quote survey needs JavaScript. Please enable JavaScript to choose your contact preferences and send a request.</p></noscript>
       </div>}>

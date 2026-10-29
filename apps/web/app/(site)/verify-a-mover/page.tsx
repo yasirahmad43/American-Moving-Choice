@@ -51,7 +51,7 @@ export default function VerifyAMoverPage() {
                 <LookupForm />
               </div></div>
             </section> },
-          { key: "verify-usdot", heading: "How to read a federal record", content: <div className="grid gap-6"><SectionHeader title="How to read a federal record" lede="Three numbers tell you most of what you need. Here is what each one means and where to check it." /><ExpandableCard title="What is a USDOT number?" titleAs="h2" name="verify-faq" defaultOpen>
+          { key: "verify-usdot", heading: "How to read a federal record", content: <div className="grid gap-6"><SectionHeader title="How to read a federal record" lede="Three numbers tell you most of what you need. Here is what each one means and where to check it." /><ExpandableCard contentInset="card" title="What is a USDOT number?" titleAs="h2" name="verify-faq" defaultOpen>
               <p>
                 A USDOT number identifies a company&apos;s record with the Federal Motor Carrier Safety Administration (FMCSA). Movers that carry household
                 goods between states need one, and the record shows whether it&apos;s active and whether the company is marked out of service.{" "}
@@ -61,7 +61,7 @@ export default function VerifyAMoverPage() {
                 Check it on the <External href={SAFER_URL}>FMCSA company snapshot (SAFER)</External>.
               </p>
             </ExpandableCard></div> },
-          { key: "verify-mc", heading: "Understand operating authority", content: <ExpandableCard title="What is an MC number?" titleAs="h2" name="verify-faq">
+          { key: "verify-mc", heading: "Understand operating authority", content: <ExpandableCard contentInset="card" title="What is an MC number?" titleAs="h2" name="verify-faq">
               <p>
                 An MC number is the docket number tied to a company&apos;s federal operating authority. The authority itself says whether the company is a
                 carrier, which performs moves, or a broker, which arranges moves that other companies carry out. A docket number alone doesn&apos;t tell you
@@ -72,7 +72,7 @@ export default function VerifyAMoverPage() {
                 numbers are still issued. <Note kind="verify">FMCSA FAQ &ldquo;Will FMCSA stop issuing MC Numbers?&rdquo; (compliance facts §1, search excerpts).</Note>
               </p>
             </ExpandableCard> },
-          { key: "verify-state", heading: "Check state credentials", content: <ExpandableCard title="State licenses for in-state moves" titleAs="h2" name="verify-faq">
+          { key: "verify-state", heading: "Check state credentials", content: <ExpandableCard contentInset="card" title="State licenses for in-state moves" titleAs="h2" name="verify-faq">
               <p>Some states issue their own credentials to movers that work within the state, and some local movers hold only state credentials. For example:</p>
               <ul className="mt-3 grid list-disc gap-1 pl-6">
                 {Object.entries(STATE_CREDENTIAL_SOURCES).map(([code, source]) => (
@@ -85,7 +85,7 @@ export default function VerifyAMoverPage() {
                 <Note kind="verify">state agencies and links (How we verify movers, compliance facts §1); link each agency&apos;s public lookup.</Note>
               </p>
             </ExpandableCard> },
-          { key: "verify-limits", heading: "Know the limits of a lookup", content: <ExpandableCard title="What a lookup can't tell you" titleAs="h2" name="verify-faq">
+          { key: "verify-limits", heading: "Know the limits of a lookup", content: <ExpandableCard contentInset="card" title="What a lookup can't tell you" titleAs="h2" name="verify-faq">
               <ul className="grid list-disc gap-2 pl-6">
                 <li>A record can change after we retrieve it. The time of each lookup is shown with its result.</li>
                 <li>It doesn&apos;t rate work quality, prices or crews, and it isn&apos;t an endorsement by American Moving Choice or the government.</li>

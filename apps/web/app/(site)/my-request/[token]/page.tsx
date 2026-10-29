@@ -89,7 +89,7 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
         <p className="text-text">{status.explain(r)}</p>
       </header>
 
-      <Card as="section" title="Your move" titleAs="h2">
+      <Card contentInset="card" as="section" title="Your move" titleAs="h2">
         <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
           <dt className="font-semibold text-text">Route</dt>
           <dd className="text-text-2">
@@ -122,13 +122,13 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
         ) : null}
       </Card>
 
-      <Card as="section" title="What happens next" titleAs="h2">
+      <Card contentInset="card" as="section" title="What happens next" titleAs="h2">
         <p className="text-text-2">Up to {r.limit} participating moving {r.limit === 1 ? "company" : "companies"} may contact you using the methods you chose. Each company will identify itself when it contacts you.</p>
         <p className="mt-3 type-small text-text-2">{r.buyerCount ? `${r.buyerCount} ${r.buyerCount === 1 ? "company has" : "companies have"} received your request.` : "No company has received your contact details from us yet."}</p>
       </Card>
 
       {r.canWithdraw ? (
-        <Card as="section" title="Withdraw your request" titleAs="h2">
+        <Card contentInset="card" as="section" title="Withdraw your request" titleAs="h2">
           <p className="mb-4 text-text">
             Withdrawing stops additional movers from receiving your contact details through this request. We tell movers that already received your details
             to stop contacting you. It can't take back details a mover already received.

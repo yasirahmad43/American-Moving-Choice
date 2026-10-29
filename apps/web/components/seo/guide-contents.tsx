@@ -4,8 +4,8 @@ interface GuideSection { id: string; heading: string }
 export function GuideContents({ sections, hasFacts, hasFaq, className }: { sections: readonly GuideSection[]; hasFacts: boolean; hasFaq: boolean; className?: string }) {
   if (!sections.length && !hasFacts && !hasFaq) return null;
   return <details className={className} data-guide-contents="">
-    <summary><span>Jump to any section</span><span aria-hidden="true">+</span></summary>
-    <nav aria-label="All guide sections">
+    <summary data-content-inset="compact"><span>Jump to any section</span><span aria-hidden="true">+</span></summary>
+    <nav aria-label="All guide sections" data-content-inset="compact">
       <ol>{sections.map((section, index) => <li key={section.id}><a href={`#${section.id}`}><span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span><span>{section.heading}</span></a></li>)}</ol>
       <ul>
         {hasFacts ? <li><a href="#facts-and-sources">Facts and sources</a></li> : null}

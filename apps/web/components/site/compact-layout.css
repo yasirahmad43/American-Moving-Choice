@@ -2,7 +2,7 @@
 .site-experience {
   --layout-section-space:clamp(2rem,3.5vw,3rem);
   --layout-gap:clamp(.75rem,1.5vw,1.25rem);
-  --layout-card-pad:clamp(1rem,1.8vw,1.5rem);
+  --layout-card-pad:var(--content-inset-card,clamp(1rem,1.8vw,1.5rem));
   --section-pad:var(--layout-section-space);
   min-width:0;
 }
@@ -61,7 +61,7 @@
 .site-experience .home-service-card > a { margin-top:auto; }
 .site-experience .home-service-card h3 { font-size:clamp(1rem,1.8vw,1.4rem); line-height:1.25; }
 .site-experience .home-service-card p { font-size:.9375rem; line-height:1.55; }
-.site-experience .home-benefit-body { min-height:0; height:100%; gap:.75rem; padding:var(--layout-card-pad); }
+.site-experience .home-benefit-body { min-height:0; height:100%; gap:.75rem; padding:clamp(1rem,1.8vw,1.5rem); }
 .site-experience .home-benefit-body h3 { max-width:none; padding-right:1.5rem; font-size:clamp(1.1rem,1.8vw,1.5rem); }
 .site-experience .home-benefit-photo { margin-bottom:1rem; }
 .site-experience .home-benefit-body > :last-child { margin-top:auto; }
@@ -142,6 +142,7 @@
   .site-experience .home-service-photo > span { top:.5rem; left:.5rem; }
   .site-experience .home-service-copy { padding:.75rem 0; }
   .site-experience .home-service-card :is(p,a) { font-size:.875rem; }
+  /* Only the inner text-owning body receives the content inset. */
   .site-experience .home-benefit-card { padding:0; }
   .site-experience .home-benefit-grid > :last-child:nth-child(odd) { grid-column:1/-1; }
   .site-experience .home-benefit-body h3 { font-size:1.1rem; }

@@ -386,7 +386,7 @@
   align-content:start;
   gap:1rem;
   min-height:20rem;
-  padding:.35rem
+  padding:clamp(1rem,1.8vw,1.5rem)
 }
 .home-benefit-body h3 {
   font-family:var(--font-display);
@@ -653,7 +653,6 @@
     grid-template-columns:repeat(3,minmax(0,1fr))
   }
   .home-benefit-body {
-    padding:0;
     min-height:22rem
   }
   .home-benefit-body h3 {
@@ -711,8 +710,7 @@
     text-align:right
   }
   .home-benefit-body {
-    min-height:22rem;
-    padding:.35rem
+    min-height:22rem
   }
   .home-benefit-body h3 {
     font-size:1.75rem
