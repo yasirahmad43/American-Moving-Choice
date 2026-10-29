@@ -39,8 +39,6 @@ export function HowItWorks({
 }) {
   const n = stops.length;
   if (n === 0) return null;
-  // Stop positions along the 1000-unit route, matched to the card columns.
-  const xs = stops.map((_, i) => 12 + ((1000 - 24) / n) * (i + 0.5));
   return (
     <section data-pin-sequence="" aria-labelledby={id} className={tone === "alt" ? "bg-surface-2" : undefined}>
       <div data-pin-target="" className="grid content-center section-pad lg:min-h-[min(44rem,calc(100dvh-7rem))] lg:py-10">
@@ -55,12 +53,12 @@ export function HowItWorks({
             </p>
           </div>
 
-          <div className="relative">
+          <div className="workflow-track relative" style={{ "--step-count": n } as CSSProperties}>
             {/* Desktop route line: origin ring, dashed path that draws with scroll, red destination dot. */}
-            <svg aria-hidden="true" className="absolute inset-x-0 top-7 hidden h-8 w-full lg:block" viewBox="0 0 1000 32" preserveAspectRatio="none" fill="none">
-              <path d={`M${xs[0]} 16 H${xs[n - 1]}`} stroke="var(--border)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+            <svg aria-hidden="true" className="workflow-route-desktop" viewBox="0 0 1000 32" preserveAspectRatio="none" fill="none">
+              <path d="M0 16 H1000" stroke="var(--border)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
               <path
-                d={`M${xs[0]} 16 H${xs[n - 1]}`}
+                d="M0 16 H1000"
                 pathLength={1}
                 data-pin-route=""
                 stroke="var(--brand-navy)"
@@ -70,7 +68,7 @@ export function HowItWorks({
                 vectorEffect="non-scaling-stroke"
               />
             </svg>
-            <ol className="workflow-stops relative grid" style={{ "--step-count": n } as CSSProperties}>
+            <ol className="workflow-stops relative grid">
               {stops.map((stop, index) => {
                 const last = index === n - 1;
                 return (
