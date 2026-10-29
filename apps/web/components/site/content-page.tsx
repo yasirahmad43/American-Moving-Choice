@@ -7,19 +7,19 @@ import { env } from "@amc/server/env";
 import { Container, LinkButton } from "@amc/ui";
 import type { NoteKind } from "@/lib/content/markdown";
 import type { ContentPage } from "@/lib/content/pages";
-import { MediaFrame } from "@/components/media/media-frame";
-import { optionalMedia } from "@/lib/media";
+import { pageMediaPlan } from "@/lib/page-media";
 import { DraftBanner } from "./draft-banner";
 import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
 import { EditorialHeader } from "./page-frame";
 import { ReviewLegend } from "./review-notes";
+import { htmlChapters, separateEditorialNotes, StoryNextSteps, StorySections } from "./story-sections";
 
 /** The page's level-2 headings (id and text) for the "On this page" rail. */
 export function headingsOf(html: string): { id: string; text: string }[] {
   const out: { id: string; text: string }[] = [];
   for (const match of html.matchAll(/<h2 id="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g)) {
     const text = match[2]!
-      .replace(/<a class="heading-anchor"[\s\S]*?<\/a>/, "")
+      .replace(/<a\b[^>]*class="[^"]*heading-anchor[^"]*"[\s\S]*?<\/a>/gi, "")
       .replace(/<mark[\s\S]*?<\/mark>/g, "")
       .replace(/<[^>]+>/g, "")
       .replace(/&amp;/g, "&")
@@ -45,18 +45,23 @@ export function ContentPageView({ page }: { page: ContentPage }) {
   const hasData = page.meta.data_owner !== null && page.meta.data_owner !== "n/a";
   const headings = headingsOf(page.html);
   const updated = formatUpdated(page.meta.last_updated);
-  // A 4:3 still from the page's family (trust, costs), claimed once per page; none if the family has no spare.
   const family = page.meta.family.toLowerCase().includes("cost") ? "costs" : "trust";
-  const still = optionalMedia(page.meta.url, [family, "standard"]);
+  const images = pageMediaPlan(page.meta.url, { family, topic: page.h1 }).images;
+  const editorial = separateEditorialNotes(page.html);
+  const chapters = htmlChapters(editorial.body);
   return (
     <>
       {schema.includes("BreadcrumbList") ? <JsonLd data={breadcrumbListLd(WEB_URL, page.breadcrumbs)} /> : null}
       {schema.includes("Article") ? <JsonLd data={webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description, type: "Article" })} /> : null}
       {schema.includes("WebPage") ? <JsonLd data={webPageLd(WEB_URL, { url: page.meta.url, name: page.h1, description: page.description })} /> : null}
       <EditorialHeader breadcrumbs={page.breadcrumbs} overline={page.meta.family} title={page.h1} lede={page.description} meta={updated ? <>Updated {updated}</> : null} />
-      <Container className="grid gap-12 pb-20 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,18rem)] lg:gap-16">
-        <div className="grid min-w-0 gap-6">
-          <div className="grid max-w-[72ch] gap-3 empty:hidden">
+      <Container className="pb-20">
+          <details className="story-guide-notes">
+            <summary>About this guide <span>Editorial details &amp; review notes</span></summary>
+            <div className="grid max-w-[72ch] gap-3 pt-3">
+            {page.author ? <p>Written by {page.author}.</p> : null}
+            {page.reviewer ? <p>Reviewed by {page.reviewer}.</p> : null}
+            <p>Data sources, assumptions and availability are explained alongside the guidance. Examples are planning information, not a mover's quote.</p>
             <DraftBanner
               status={page.meta.status}
               author={page.author}
@@ -66,24 +71,17 @@ export function ContentPageView({ page }: { page: ContentPage }) {
               aiDrafted={page.meta.ai_assisted && page.meta.ai_role !== "none"}
             />
             {kinds.length ? <ReviewLegend kinds={kinds} /> : null}
-          </div>
-          <article className="prose" dangerouslySetInnerHTML={{ __html: page.html }} />
-        </div>
-        <aside className="grid content-start gap-5 lg:sticky lg:top-6 lg:self-start">
-          {still ? (
-            <figure className="zoom-media relative aspect-[4/3] overflow-hidden rounded-card ring-1 ring-border">
-              <MediaFrame asset={still} sizes="(min-width: 1024px) 18rem, 100vw" />
-            </figure>
-          ) : null}
+            </div>
+          </details>
           {headings.length ? (
-            <nav aria-label="On this page" className="rounded-card border border-border bg-surface p-5 shadow-e1">
-              <p className="type-overline text-text-3">On this page</p>
-              <ul className="mt-3 grid gap-0.5 border-l border-border">
+            <nav aria-label="On this page" className="story-index" data-motion="rise">
+              <div><p className="type-overline text-brand-red">Your reading route</p><h2>Inside this guide</h2></div>
+              <ul>
                 {headings.map((heading) => (
                   <li key={heading.id}>
                     <a
                       href={`#${heading.id}`}
-                      className="-ml-px block border-l-2 border-transparent py-1.5 pl-4 type-small font-semibold text-text-2 no-underline transition-colors duration-[var(--d1)] hover:border-brand-navy hover:text-text"
+                      className="story-index-link"
                     >
                       {heading.text}
                     </a>
@@ -92,14 +90,15 @@ export function ContentPageView({ page }: { page: ContentPage }) {
               </ul>
             </nav>
           ) : null}
-          <div className="rounded-card mesh-navy p-5 text-on-band" data-band="">
-            <p className="type-h4">Ready to compare movers?</p>
-            <p className="mt-1 text-on-band-2">Check coverage for your route, then choose how many movers may contact you.</p>
+          <article><StorySections chapters={chapters} images={images} /></article>
+          <StoryNextSteps images={images} usedCount={chapters.length} />
+          <aside className="story-reader-cta" data-motion="rise" data-band="">
+            <div><p className="type-overline">Your move. Your choice.</p><h2>Ready to compare movers?</h2>
+            <p>Check coverage for your route, then choose how many movers may contact you.</p></div>
             <LinkButton href="/get-quotes/" variant="primary" size="sm" className="mt-4 !bg-white !text-brand-navy hover:!bg-on-band-2">
               Start a quote request
             </LinkButton>
-          </div>
-        </aside>
+          </aside>
       </Container>
     </>
   );

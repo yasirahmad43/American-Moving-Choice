@@ -192,9 +192,9 @@ Each company must identify itself when it contacts you. Before hiring, ask for i
 
 ## Screening is a status, not a recommendation
 
-Approval means a company met the checks that apply to it when they were performed. Spending more doesn't replace a failed check. Approval isn't a rating of work quality, a preferred placement, a government endorsement or a guarantee.
+Approval means a company met the checks that apply to it when they were performed. Every applicable check must pass. Approval isn't a rating of work quality, a preferred placement, a government endorsement or a guarantee.
 
-A suspended company can't buy new requests. It must pass the applicable checks again before reinstatement. [How AMC makes money](/advertising-disclosure/) explains how companies pay for requests.
+A suspended company isn't eligible for new requests. It must pass the applicable checks again before reinstatement.
 
 ## What our checks can and can't tell you
 

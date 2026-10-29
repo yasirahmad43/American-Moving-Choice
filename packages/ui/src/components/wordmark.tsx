@@ -1,15 +1,12 @@
-/**
- * Type-only lockup standing in for the official artwork (VD §4): a tracked "American" over a
- * heavy condensed "Moving Choice", with "Choice" in brand red (display red on dark and navy).
- * The production logo replaces it once a vector master exists.
- */
+/** The owner's supplied national-map/truck logo, unchanged in both applications' public assets. */
+import Image from "next/image";
 import Link from "next/link";
 import { cx } from "../cx";
 
 export interface WordmarkProps {
   /** Wraps the lockup in a link (usually "/") named "American Moving Choice home". */
   href?: string;
-  /** "reversed" for navy bands: white with "Choice" in display red (6.13:1). */
+  /** Dark surroundings use the same original artwork on its white brand tile. */
   tone?: "default" | "reversed";
   size?: "md" | "lg";
   className?: string;
@@ -19,17 +16,15 @@ export function Wordmark({ href, tone = "default", size = "md", className }: Wor
   const lockup = (
     <span
       className={cx(
-        "inline-flex flex-col font-display leading-[0.92]",
-        tone === "reversed" ? "text-on-band" : "text-wordmark",
+        "relative inline-block shrink-0 overflow-hidden bg-white align-middle",
+        size === "lg" ? "h-[5.75rem] w-[17.5rem] rounded-lg" : "h-[4.625rem] w-56 rounded-md",
+        tone === "reversed" && "ring-1 ring-white/20",
         className,
       )}
     >
-      <span className={cx("font-extrabold uppercase [font-stretch:100%]", size === "lg" ? "text-xs tracking-[0.44em]" : "text-[0.625rem] tracking-[0.44em]")}>
-        American
-      </span>
-      <span className={cx("font-black uppercase [font-stretch:70%]", size === "lg" ? "text-[1.875rem]" : "text-[1.375rem]")}>
-        Moving <span className={tone === "reversed" ? "text-[#ff5a5f]" : "text-display-red"}>Choice</span>
-      </span>
+      <Image src="/brand/american-moving-choice-logo.png" alt="American Moving Choice"
+        width={1774} height={887} sizes={size === "lg" ? "280px" : "224px"}
+        className="absolute left-0 top-1/2 h-auto w-full -translate-y-1/2 object-contain" />
     </span>
   );
   if (!href) return lockup;

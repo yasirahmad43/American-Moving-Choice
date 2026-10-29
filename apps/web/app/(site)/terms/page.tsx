@@ -2,7 +2,7 @@ import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
 import { Note, Token } from "@/components/site/review-notes";
-import { storedText } from "@/lib/stored-texts";
+import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
 
 const URL = "/terms/";
 const TITLE = "Terms of Use | American Moving Choice";
@@ -32,7 +32,7 @@ export default function TermsPage() {
 
       <h2>What the service is</h2>
       <blockquote>
-        <p>{storedText("ST-1a")}</p>
+        <p>{PUBLIC_ROLE_STATEMENT}</p>
       </blockquote>
       <p>
         Each mover sets its own prices and terms and is responsible for its services. Any agreement for your move is between you and the mover you

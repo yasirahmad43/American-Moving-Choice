@@ -223,11 +223,11 @@ An estimate comes from a mover, for your move. [Our guide to how movers charge](
 
 <a id="can-a-mover-pay-to-change-a-range"></a>
 
-## Can a mover pay to change a range?
+## What does the calculation use?
 
-No. Our income comes from movers, who pay us for the requests they buy ([How AMC makes money](/advertising-disclosure/) has the details). What movers spend with us never goes into the cost model.
+The cost model uses eligible rate cards and the moving details described above.
 
-- **How much a mover buys or spends never changes a range.** As in our directory and on our location pages, only movers with active accounts count, so a suspended mover's rate card drops out until the mover is reinstated. [Build: the cost model reads no purchase, spend, balance, budget or plan data, and account status is its only account input; a fixture test shows ranges don't change when a mover's spending does (implications §9.2)]
+- **Only active sources count toward a range.** Only movers with active accounts count, so a suspended mover's rate card drops out until the mover is reinstated. [Build: the cost model reads no purchase, spend, balance, budget or plan data, and account status is its only account input; a fixture test shows ranges don't change when a mover's spending does (implications §9.2)]
 - **Giving us a rate card earns a mover no placement.** It doesn't change where the mover appears in our directory, on our location pages or in the list of movers you see before you send a request. [Build: rate-card status is not an input to any order; under the onboarding default it affects only whether a mover can join (implications §9.2)]
 
 <a id="how-is-the-method-updated"></a>
@@ -274,4 +274,3 @@ If a range, or anything on this page, looks wrong, email {{org.editorial_email}}
 - [Moving cost calculator](/moving-cost-calculator/): see a planning range for your move.
 - [How movers charge](/moving-costs/how-movers-charge/): hourly and weight-based pricing, estimate types, valuation and extra charges.
 - [Moving costs](/moving-costs/): what affects the cost of a move, with ranges where the data allows.
-- [How AMC makes money](/advertising-disclosure/): who pays us, and what payment never changes.

@@ -193,8 +193,9 @@ function initialDraft(): { draft: Draft; prefilled: boolean } {
     const destZip = typeof prefill.destZip === "string" ? prefill.destZip : prefill.destinationZip;
     if (typeof destZip === "string" && cleanZip(destZip).length === 5) draft.destZip = cleanZip(destZip);
     if (isSurveyMoveSize(prefill.moveSize)) draft.moveSize = prefill.moveSize;
+    if (typeof prefill.moveDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(prefill.moveDate)) draft.moveDate = prefill.moveDate;
     if (Array.isArray(prefill.services)) draft.services = prefill.services.filter(isSurveyService);
-    prefilled = Boolean(draft.originZip || draft.destZip || draft.moveSize);
+    prefilled = Boolean(draft.originZip || draft.destZip || draft.moveSize || draft.moveDate);
     draft.step = "where";
   }
 
@@ -236,6 +237,7 @@ export interface SurveyProps {
 }
 
 export function Survey(props: SurveyProps) {
+  const restoration = useRef<ReturnType<typeof initialDraft> | null>(null);
   const [mounted, setMounted] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [prefilled, setPrefilled] = useState(false);
@@ -243,7 +245,8 @@ export function Survey(props: SurveyProps) {
   const attribution = useRef<Attribution>({ referrerOrigin: null, utmSource: null, utmMedium: null, utmCampaign: null });
 
   useEffect(() => {
-    const { draft: restored, prefilled: wasPrefilled } = initialDraft();
+    // A one-shot prefill must not be consumed twice by development Strict Mode effect replay.
+    const { draft: restored, prefilled: wasPrefilled } = restoration.current ??= initialDraft();
     setDraft(restored);
     setPrefilled(wasPrefilled);
     setToday(localToday());
@@ -1045,11 +1048,6 @@ function MoveSidebar({ draft, coverage, texts }: { draft: Draft; coverage: Cover
           <strong className="text-text">You choose how many companies</strong> can receive your details. Companies introduce themselves when they contact you.{" "}
           <Link href="/which-companies-receive-my-request/" className="link">
             Which companies receive my request
-          </Link>
-        </li>
-        <li>
-          <Link href="/advertising-disclosure/" className="link">
-            How AMC makes money
           </Link>
         </li>
       </ul>

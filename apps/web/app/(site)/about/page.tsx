@@ -2,20 +2,20 @@ import Link from "next/link";
 import { PageFrame } from "@/components/site/page-frame";
 import { pageMetadata } from "@/components/site/page-meta";
 import { Note, Token } from "@/components/site/review-notes";
-import { storedText } from "@/lib/stored-texts";
+import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
 
 const URL = "/about/";
 const TITLE = "About American Moving Choice";
 
 // ST-1c: only the home, About and "How AMC makes money" pages carry it (site architecture §8.2).
-export const metadata = pageMetadata(URL, TITLE, storedText("ST-1c"));
+export const metadata = pageMetadata(URL, TITLE, "Moving guidance, clear contact preferences and independent moving companies. Learn how American Moving Choice works.");
 
 export default function AboutPage() {
   return (
     <PageFrame
       url={URL}
       h1="About American Moving Choice"
-      description={storedText("ST-1c")}
+      description="Moving guidance, clear contact preferences and independent moving companies."
       trail={[{ label: "About", href: URL }]}
       overline="Trust page"
       lede="What we are, who runs us, and what we don't do."
@@ -23,7 +23,7 @@ export default function AboutPage() {
     >
       <h2>What we are</h2>
       <blockquote>
-        <p>{storedText("ST-1a")}</p>
+        <p>{PUBLIC_ROLE_STATEMENT}</p>
       </blockquote>
       <p>
         <Note kind="counsel">the role statement is ST-1a, rendered from its stored record; counsel approves its final wording (content/stored-texts.md)</Note>
@@ -48,7 +48,7 @@ export default function AboutPage() {
           <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link>
         </li>
         <li>
-          Movers pay us for the requests they buy; you pay us nothing. <Link href="/advertising-disclosure/">How AMC makes money</Link>
+          Requesting quotes is free. You choose how many participating companies may contact you and the channels they may use.
         </li>
         <li>
           Reviews come only from people whose request a mover bought through us. <Link href="/review-methodology/">How reviews work</Link>

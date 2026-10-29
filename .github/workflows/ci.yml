@@ -41,6 +41,8 @@ jobs:
         run: pnpm typecheck
       - name: Unit and database tests
         run: pnpm test
+      - name: Public content, media and presentation tests
+        run: pnpm test:content
       - name: Build both apps
         env:
           # Placeholders only: the builds read no database and no real secret.

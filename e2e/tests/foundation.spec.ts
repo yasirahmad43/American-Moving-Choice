@@ -55,7 +55,8 @@ test.describe("public site shell", () => {
     await expect(page.getByRole("link", { name: "Get quotes" }).first()).toBeVisible();
     await expect(nav).toBeAttached();
     const footer = page.getByRole("contentinfo");
-    await expect(footer).toContainText("We are not a moving company or a moving broker.");
+    await expect(footer).toContainText("We don't transport belongings, give moving estimates, or book your move.");
+    await expect(footer).not.toContainText(/movers pay us|how (?:we|AMC) makes? money/i);
     await expect(footer.getByRole("link", { name: "GeoNames" })).toBeVisible();
   });
 

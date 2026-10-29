@@ -1,0 +1,12 @@
+/* Motion enhances a working native menu; no-JS and reduced-motion menus open immediately. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-nav-enhanced="true"][open] > .navigation-panel {
+    animation: public-menu-enter 180ms ease-out both;
+  }
+  @keyframes public-menu-enter {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+.navigation-trigger { -webkit-tap-highlight-color: transparent; }
+.navigation-trigger:focus-visible { outline-offset: 4px; }

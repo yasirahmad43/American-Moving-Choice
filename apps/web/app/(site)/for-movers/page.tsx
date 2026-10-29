@@ -1,12 +1,14 @@
 import { env } from "@amc/server/env";
-import { Bento, BentoCell, Breadcrumbs, Container, ExpandableCard, MediaHero, Reveal, Section, SectionHeader, Timeline, TrustStrip } from "@amc/ui";
+import { Bento, BentoCell, Container, ExpandableCard, Reveal, Section, SectionHeader, Timeline, TrustStrip } from "@amc/ui";
 import Link from "next/link";
-import { MediaFrame } from "@/components/media/media-frame";
+import { VideoSurveyHero } from "@/components/site/video-survey-hero";
+import { CarrierEligibilityStart } from "@/components/site/carrier-eligibility-start";
+import { StoryPhoto } from "@/components/site/story-sections";
 import { ApplyCta, ForMoversNav } from "@/components/site/for-movers";
 import { JsonLd, breadcrumbListLd, webPageLd } from "@/components/site/json-ld";
 import { pageMetadata } from "@/components/site/page-meta";
 import { Note, Token } from "@/components/site/review-notes";
-import { claimMedia } from "@/lib/media";
+import { pageMediaPlan } from "@/lib/page-media";
 import { storedTextParts } from "@/lib/stored-texts";
 
 const URL = "/for-movers/";
@@ -68,7 +70,7 @@ const FAQ = [
 export default function ForMoversPage() {
   const { WEB_URL, APP_URL } = env();
   const moversOnly = storedTextParts("ST-2");
-  const art = claimMedia(URL, ["for-movers", "theme:fleet", "landscape"]);
+  const { images } = pageMediaPlan(URL, { topic: "carrier fleet business" });
   const crumbs = [
     { label: "Home", href: "/" },
     { label: "For movers", href: URL },
@@ -78,51 +80,15 @@ export default function ForMoversPage() {
       <JsonLd data={breadcrumbListLd(WEB_URL, crumbs)} />
       <JsonLd data={webPageLd(WEB_URL, { url: URL, name: "Moving leads for household-goods carriers", description: DESCRIPTION })} />
 
-      <MediaHero
-        media={<MediaFrame asset={art} priority />}
-        overline="For moving companies"
-        title="Moving leads. Matched to your coverage."
-        lede="Consumers tell us about their move and choose how many movers may contact them. We match requests to your approved coverage. Review the move, buy the requests you want, and introduce your company when you follow up."
-        actions={
-          <>
-            <a href={`${APP_URL}/signup`} className="inline-flex min-h-12 items-center justify-center rounded-control bg-white px-6 font-semibold text-brand-navy no-underline transition-colors duration-[var(--d1)] hover:bg-on-band-2">
-              Apply to join
-            </a>
-            <Link href="/for-movers/pricing/" className="inline-flex min-h-12 items-center justify-center rounded-control px-4 font-semibold text-on-band no-underline ring-1 ring-white/30 hover:bg-white/10">
-              Pricing and buying rules
-            </Link>
-          </>
-        }
-        panel={
-          <div className="grid gap-4">
-            <p className="type-overline text-text-2">What you get</p>
-            <ul className="grid gap-3 text-text">
-              {[
-                "Eligibility to purchase matching requests once your application is approved.",
-                "A screened, movers-only network with no paid rankings or public company showcases.",
-                "Move requests from consumers in the areas and move types you choose, shown to you before you buy.",
-                "A simple pipeline for the leads you buy, private to your company.",
-              ].map((item, index) => (
-                <li key={index} className="flex gap-3">
-                  <span aria-hidden="true" className="mt-2 size-2 shrink-0 rounded-pill bg-brand-red" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="type-small text-text-2">
-              Applying is free. We check your federal record before you can buy any lead.{" "}
-              <Link href="/for-movers/eligibility/" className="link">
-                Who can join
-              </Link>
-            </p>
-          </div>
-        }
-        panelId="for-movers-panel"
-        minHeight="min(40rem, 80dvh)"
-      />
+      <VideoSurveyHero url={URL} eyebrow="For moving companies" title="Moving leads. Matched to your coverage."
+        description="Consumers tell us about their move and choose how many movers may contact them. We match requests to your approved coverage. Review the move, buy the requests you want, and introduce your company when you follow up."
+        breadcrumbs={crumbs.map((crumb, index) => index === crumbs.length - 1 ? { label: crumb.label } : crumb)}
+        survey={<CarrierEligibilityStart appUrl={APP_URL} />} surveyLabel="Check carrier eligibility" mobileActionLabel="Check carrier eligibility">
+        <Link href="/for-movers/pricing/" className="inline-flex min-h-12 w-fit items-center justify-center rounded-control px-4 font-semibold text-white no-underline ring-1 ring-white/40 hover:bg-white/10">Pricing and buying rules</Link>
+        <a href={`${APP_URL}/signup`} className="inline-flex min-h-11 w-fit items-center text-sm font-semibold text-white underline underline-offset-4">Apply to join</a>
+      </VideoSurveyHero>
 
       <Container className="grid gap-6 pt-6">
-        <Breadcrumbs items={crumbs.map((crumb, index) => (index === crumbs.length - 1 ? { label: crumb.label } : crumb))} />
         <ForMoversNav current={URL} />
       </Container>
 
@@ -147,11 +113,37 @@ export default function ForMoversPage() {
               { title: "Pay for requests", body: "Review a move preview before buying. Your spending doesn't buy a public promotion or change your screening result." },
             ]}
           />
+          <div className="grid items-start gap-8 lg:grid-cols-2">
+          <div className="grid gap-4">
+            <p className="type-overline text-text-2">What you get</p>
+            <ul className="grid gap-3 text-text">
+              {[
+                "Eligibility to purchase matching requests once your application is approved.",
+                "A screened, movers-only network with no paid rankings or public company showcases.",
+                "Move requests from consumers in the areas and move types you choose, shown to you before you buy.",
+                "A simple pipeline for the leads you buy, private to your company.",
+              ].map((item, index) => (
+                <li key={index} className="flex gap-3">
+                  <span aria-hidden="true" className="mt-2 size-2 shrink-0 rounded-pill bg-brand-red" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="type-small text-text-2">
+              Applying is free. We check your federal record before you can buy any lead.{" "}
+              <Link href="/for-movers/eligibility/" className="link">
+                Who can join
+              </Link>
+            </p>
+          </div>
+            <StoryPhoto asset={images[0]!} caption="A network built for household-goods carriers" className="max-h-[28rem]" />
+          </div>
         </Reveal>
       </Section>
 
       <Section tone="alt" aria-labelledby="requests">
-        <div className="grid gap-12">
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,.7fr)]">
+          <div className="grid gap-12">
           <Reveal>
             <SectionHeader id="requests" overline="How requests reach you" title="From a consumer's move to your pipeline in four steps" />
           </Reveal>
@@ -165,10 +157,13 @@ export default function ForMoversPage() {
             lists the checks every request passes and what a preview shows.
           </p>
         </div>
+          <StoryPhoto asset={images[1]!} caption="Review the route before you buy" className="lg:sticky lg:top-6" />
+        </div>
       </Section>
 
       <Section aria-labelledby="pricing">
-        <div className="grid gap-10">
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,.7fr)]">
+          <div className="grid gap-10">
           <Reveal>
             <SectionHeader
               id="pricing"
@@ -212,10 +207,13 @@ export default function ForMoversPage() {
             </Bento>
           </Reveal>
         </div>
+          <StoryPhoto asset={images[2]!} caption="Your prices and pipeline stay private" className="lg:sticky lg:top-6" />
+        </div>
       </Section>
 
       <Section tone="band" aria-labelledby="verification" className="mesh-navy">
-        <div className="grid gap-12">
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,.7fr)]">
+          <div className="grid gap-12">
           <Reveal>
             <SectionHeader tone="band" id="verification" overline="How we verify you" title="Four checks before your first lead, then every week" />
           </Reveal>
@@ -229,12 +227,15 @@ export default function ForMoversPage() {
             lists every requirement.
           </p>
         </div>
+          <StoryPhoto asset={images[3]!} caption="Screening comes before the first lead" className="lg:sticky lg:top-6" />
+        </div>
       </Section>
 
       <Section aria-labelledby="mover-questions">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16">
           <Reveal>
             <SectionHeader id="mover-questions" overline="Questions" title="What movers ask before they apply" />
+            <StoryPhoto asset={images[4]!} caption="Plan your next step as a carrier" className="mt-8 max-h-[28rem]" />
           </Reveal>
           <Reveal delay={80} className="grid gap-3">
             {FAQ.map((item) => (

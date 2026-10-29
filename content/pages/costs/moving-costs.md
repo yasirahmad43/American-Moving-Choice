@@ -243,7 +243,7 @@ A mover prices your move from what it sees and what you ask for, so a figure fro
 
 [Counsel: approve ST-6, including its closing clause, since a non-binding estimate's final charges can be higher than the estimate; the method brief proposes "only a mover can price your move, in a written estimate" as a variant (site architecture §6.3 rule 3; stored-texts ST-6 notes; method brief open item 21). It renders here and inside the ranges block, so a quoted table keeps it]
 
-American Moving Choice isn't a moving company or a moving broker: movers in our network pay us for the requests they buy, you pay us nothing, and [How AMC makes money](/advertising-disclosure/) explains what their payment never changes.
+American Moving Choice isn't a moving company or a moving broker. Using this service is free for consumers.
 
 [Counsel: this line restates ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). So the line, worded as above, is held in content/stored-texts.md as the proposed ST-1 variant ST-1e, beside the proposed ST-1d; ST-1e also replaces the first two sentences of How movers charge's "Where does American Moving Choice fit?", which carry the same marker. Once counsel approves the variant, the line renders from the record after an `<!-- ST-1e -->` key comment and joins stored_texts; until then counsel reviews it with ST-1a in one pass. "Isn't … a moving broker" is a legal conclusion about AMC (stored-texts ST-1 notes; carrier-vs-broker note, counsel items 1 to 4; brief open item 15)]
 

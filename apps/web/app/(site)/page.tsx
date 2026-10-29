@@ -4,12 +4,16 @@ import { Icon3D, LineIcon, LinkButton, Section, StickyCta, TiltCard } from "@amc
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MediaFrame } from "@/components/media/media-frame";
-import { HeroZipForm } from "@/components/site/hero-zip-form";
+import { VideoSurveyHero } from "@/components/site/video-survey-hero";
 import { HowItWorks } from "@/components/site/how-it-works";
 import { JsonLd, organizationId } from "@/components/site/json-ld";
-import { MoneyLine } from "@/components/site/money-line";
+import { pageMediaPlan } from "@/lib/page-media";
+import { navigationOverview } from "@/lib/public-discovery";
+import { GuideDiscovery } from "@/components/navigation/guide-discovery";
 import { PLATFORM_SETTING_DEFAULTS } from "@/lib/content/tokens";
 import { claimMediaById } from "@/lib/media";
+import { publishedStateUrls } from "@amc/server/seo";
+import { StateGuideMap } from "@/components/site/state-guide-map";
 
 const TITLE = "Moving Quotes, on Your Terms | American Moving Choice";
 const DESCRIPTION = "Tell us your route, choose how many moving companies may contact you, and compare their quotes directly. Free to request.";
@@ -24,7 +28,7 @@ const STEPS = [
   { icon: "verified" as const, title: "Compare quotes. Make your move.", body: "Companies introduce themselves when they reach out. Compare their estimates and decide who feels right.", meta: "Your decision" },
 ];
 const FAQ = [
-  { q: "Is it free to request moving quotes?", a: "Yes. You don't pay American Moving Choice to request quotes. Participating moving companies pay us for requests. Your moving price and any estimate charges are agreed directly with the company you choose." },
+  { q: "Is it free to request moving quotes?", a: "Yes. Requesting quotes through American Moving Choice is free. Your moving price and any estimate charges are agreed directly with the company you choose." },
   { q: "How many moving companies will contact me?", a: "You choose the maximum before sending your request. We share it only with eligible participating companies, up to that limit. Each company identifies itself when it contacts you." },
   { q: "Are you a moving company?", a: "We're a platform connecting people with independent moving carriers. We don't transport belongings, book your move, or give estimates on a mover's behalf. The companies provide their own quotes directly." },
   { q: "What if you don't cover my route?", a: "We'll tell you before asking for your contact details. You can still use our moving guides and planning resources." },
@@ -40,39 +44,36 @@ const RESOURCES = [
   { href: "/planning/", title: "Get your next steps in order", body: "Useful checklists for the weeks before moving day.", icon: "calendar" as const },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
   const { WEB_URL } = env();
   const maxMovers = PLATFORM_SETTING_DEFAULTS.max_sharing_limit;
-  const hero = claimMediaById("/", "home-hero-crew-loading-golden-hour");
+  const photos = pageMediaPlan("/", { topic: "moving planning packing home" }).images;
+  const processPhotos = pageMediaPlan("/home/moving-process/", { topic: "planning packing moving" }).images;
+  // The aggregate enters the request boundary before any guide query is started at build time.
+  const overview = await navigationOverview();
+  const stateGuides = overview ? await publishedStateUrls() : [];
   const planning = claimMediaById("/", "home-kitchen-table-with-a-laptop");
   const care = claimMediaById("/", "home-inside-of-a-moving-truck");
   return <>
     <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", "@id": WEB_URL + "/#website", name: "American Moving Choice", url: WEB_URL + "/", publisher: { "@id": organizationId(WEB_URL) }, inLanguage: "en-US" }} />
-    <section className="home-hero" aria-labelledby="home-title">
-      <div className="home-hero-grid mx-auto max-w-content gutter">
-        <div className="home-hero-copy">
-          <p className="home-eyebrow"><span aria-hidden="true" />A new place. A fresh start.</p>
-          <h1 id="home-title" className="home-title">A better move.<br /><span>On your terms.</span></h1>
-          <p className="home-intro">Big plans deserve the right moving company. Request quotes from movers who serve your route, on your terms.</p>
-          <div className="home-entry" id="hero-form">
-            <div className="home-entry-top"><span className="home-step">01 <span>/ YOUR MOVE</span></span><span className="home-free"><LineIcon name="check" size={14} />Free to request</span></div>
-            <HeroZipForm moneyLine={<MoneyLine />} />
-          </div>
-          <p className="home-hero-assurance"><LineIcon name="lock" size={16} />Your details are shared only after you give permission.</p>
-        </div>
-        <div className="home-hero-visual">
-          <div className="home-hero-film"><MediaFrame asset={hero} priority /><div className="home-film-shade" aria-hidden="true" /><div className="home-film-caption"><span>THE POSSIBILITIES AHEAD</span><p>New keys.<br />New beginnings.</p></div></div>
-          <div className="home-route-card"><Icon3D name="destination" size={64} /><div><p>Wherever you’re headed</p><strong>Make the move yours.</strong><div className="home-route-track" aria-hidden="true"><span /><i /><b /></div></div></div>
-          <p className="home-visual-note">↗ More possibility. Less guesswork.</p>
-        </div>
-      </div>
-    </section>
+    <VideoSurveyHero url="/" title={<>A better move.<br /><span className="vsh__title-accent">On your terms.</span></>}
+      eyebrow="A new place. A fresh start."
+      description="Big plans deserve the right moving company. Request quotes from movers who serve your route, on your terms.">
+      <p>New keys. New beginnings. Wherever you're headed, make the move yours.</p>
+      <p className="inline-flex items-center gap-2"><LineIcon name="lock" size={16} />Your details are shared only after you give permission.</p>
+    </VideoSurveyHero>
     <section className="home-reassurance" aria-label="Moving, with more control"><div className="mx-auto grid max-w-content gutter sm:grid-cols-3">
       <div><Icon3D name="verified" size={44} /><p><strong>Moving carriers. No brokers.</strong><span>Learn how our network is screened.</span></p></div>
       <div><Icon3D name="chat" size={44} /><p><strong>You set the contact limit.</strong><span>Choose from 1 to {maxMovers} companies.</span></p></div>
       <div><Icon3D name="price" size={44} /><p><strong>Quotes come straight to you.</strong><span>Compare in your own time.</span></p></div>
     </div></section>
-    <HowItWorks id="how-it-works" overline="A clear path from here to there" title="Your move. Four simple steps." lede="A little information from you. More confidence about what comes next." stops={STEPS} />
+    <Section className="home-guide-library" aria-labelledby="home-guides-title">
+      <div className="home-section-heading" data-motion="rise"><div><p className="home-eyebrow"><span aria-hidden="true" />Find your next chapter</p><h2 id="home-guides-title">{overview ? overview.total.toLocaleString("en-US") : "Practical"} moving guides.<br />One place to start.</h2></div><p>Explore your city or state, understand a route, or find a useful moving checklist. Every link opens a published guide.</p></div>
+      <StateGuideMap guides={stateGuides} overview={overview} />
+      <GuideDiscovery overview={overview} id="home-guide-library" showIntro={false} />
+      <Link className="home-text-link" href="/explore/">Browse the complete guide library<LineIcon name="arrow-right" size={18} /></Link>
+    </Section>
+    <HowItWorks id="how-it-works" overline="A clear path from here to there" title="Your move. Four simple steps." lede="A little information from you. More confidence about what comes next." stops={STEPS} images={processPhotos} />
     <Section className="home-services" aria-labelledby="moving-your-way">
       <div className="home-section-heading" data-motion="rise"><div><p className="home-eyebrow"><span aria-hidden="true" />Room for what’s next</p><h2 id="moving-your-way">A few miles.<br />Or a whole new horizon.</h2></div><p>Every move has its own story.<br />Start with a plan that fits yours.</p></div>
       <div className="home-service-grid" data-motion="stagger">{SERVICES.map((s) => <article className="home-service-card" key={s.href}><div className="home-service-photo"><MediaFrame asset={claimMediaById("/", s.asset)} sizes="(min-width: 1024px) 45vw, 100vw" /><span>{s.label}</span></div><div className="home-service-body"><div><h3>{s.title}</h3><p>{s.body}</p></div><Link href={s.href} className="home-arrow-link" aria-label={"Explore " + s.label.toLowerCase()}><LineIcon name="arrow-right" size={22} /></Link></div></article>)}</div>
@@ -83,7 +84,7 @@ export default function HomePage() {
         { number: "01", icon: "chat" as const, title: "Choose your contact limit", body: "Set the maximum number of companies you want to hear from, up to " + maxMovers + ". Nothing is selected for you." },
         { number: "02", icon: "credentials" as const, title: "Moving companies, screened", body: "We check carrier authority and insurance filings against FMCSA records. Learn what we check and what those checks mean." },
         { number: "03", icon: "key" as const, title: "The final decision is yours", body: "Companies introduce themselves and provide their own estimates. Compare the details and choose who you want to hire." },
-      ].map((b) => <TiltCard key={b.number} max={5} depth={20} className="home-benefit-card" bodyClassName="home-benefit-body"><span className="home-card-index">{b.number}</span><Icon3D name={b.icon} size={88} className="tilt-layer-2" /><h3 className="tilt-layer">{b.title}</h3><p className="tilt-layer">{b.body}</p></TiltCard>)}</div>
+      ].map((b, index) => <TiltCard key={b.number} max={5} depth={20} className="home-benefit-card" bodyClassName="home-benefit-body"><div className="home-benefit-photo" data-page-photo={photos[index]!.id}><MediaFrame asset={photos[index]!} sizes="(min-width: 1024px) 30vw, 100vw" /></div><span className="home-card-index">{b.number}</span><Icon3D name={b.icon} size={72} className="tilt-layer-2" /><h3 className="tilt-layer">{b.title}</h3><p className="tilt-layer">{b.body}</p></TiltCard>)}</div>
       <Link href="/how-we-verify-movers/" className="home-text-link">How our network is screened<LineIcon name="arrow-right" size={18} /></Link>
     </div></section>
     <Section aria-labelledby="plan-ahead" className="home-planning"><div className="home-planning-grid">

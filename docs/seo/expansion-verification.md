@@ -1,6 +1,8 @@
 # SEO expansion verification — 2026-10-28
 
-The expansion was generated and published in an isolated local PostgreSQL 16 database. This is local evidence; production must be checked after its deployment. No production credentials or customer records were used.
+The baseline below was generated in an isolated local PostgreSQL 16 database. The production
+verification recorded at the end is separate evidence from approved, read-only database aggregates
+and a public HTML crawl. No production credentials or customer records were downloaded.
 
 ## Actual counts
 
@@ -80,3 +82,45 @@ These populated screens exposed issues that empty catalogue previews could not: 
 The final HTML crawl fetched **2,497 public pages** and all ten sitemap files: every target returned 200. It found zero broken links, duplicate titles/descriptions, missing descriptions, invalid H1 counts, orphans, pages deeper than three clicks, invalid JSON-LD blocks, or FAQPage markup without visible FAQ content. Eight obsolete links found in the initial crawl were corrected to the actual published service/question/planning routes before the successful recrawl. The report is saved in `docs/seo/crawl-report.md` and `outputs/design-pass-2/seo-local-crawl.md`.
 
 The crawler explicitly ran with `--preview`: all 2,497 HTML responses intentionally carry `noindex`, and the report records this separately from content/link failures. Duplicate metadata, orphan and depth checks still examined all public HTML, rather than reporting a vacuous zero over an empty indexable subset. HTTP canonical eligibility is inapplicable while global noindex is enabled; the database's stored self-canonicals were independently checked above. Visible FAQs are valid without FAQPage markup, which AMC deliberately disables.
+
+## Actual production verification
+
+The production bootstrap completed on 2026-10-28 at **20:24:37 UTC** after migration 230 applied
+through the normal application-role migrator. No read-only override, billing change or customer-data
+cleanup was used. Independent Supabase aggregate queries confirmed all **17 migrations**, a complete
+4,782-record compact corpus with no missing/stale entries, and the following publication counts:
+
+| Family | Published and indexable |
+|---|---:|
+| State | 51 |
+| City | 2,378 |
+| Route | 8 |
+| Service | 6 |
+| Cost | 5 |
+| Question | 13 |
+| Planning | 7 |
+| ZIP | 0 |
+| **Total** | **2,468** |
+
+All 2,314 held drafts remain unpublished. Every requested published-page check returned zero:
+failed gates, blocked pages, missing or sub-40% uniqueness, non-self stored canonicals, public
+mover-list blocks, company-profile links, and occurrences of any stored company legal name.
+Unsupported AK/HI route publication and numeric road/day estimates also returned zero. The audit
+at 20:29:30 UTC measured the database at **200,357,555 bytes (191.08 MiB)** and the complete compact
+cache at **28,565,504 bytes (27.24 MiB)**. Its token-free source report is
+`production/seo-production-report.json` in the proof package.
+
+The one-page difference from the local baseline is East Peoria, Illinois. ZIP 61635 occurs under
+both East Peoria and Peoria in the bundled city source; GeoNames names East Peoria. The previous
+first-wins import depended on database row order. Production already chose East Peoria, changing
+its nearby-ZIP facts enough to pass the unchanged quality gate; its local baseline narrowly failed
+at 0.3988957902. The importer now prefers matching GeoNames state/place, then a stable semantic city
+key, including Census-place fallback. Six regressions verify order/ID independence and state/name
+handling. This code fix did not reimport or regenerate the production catalogue.
+
+The complete production crawl finished at **20:52:59 UTC**: **2,498/2,498 public HTML pages**
+(2,468 published guides plus 30 static/hub pages) and all ten sitemap files returned 200. It found
+zero broken links, redirect chains, duplicate titles/descriptions, missing descriptions, H1 issues,
+orphans, pages deeper than three clicks, invalid JSON-LD, FAQ mismatches or oversized HTML. All
+responses intentionally retain noindex; the crawl used explicit `--preview`, and this is not a
+search-engine indexing claim. See `production/seo-production-crawl.md` in the proof package.

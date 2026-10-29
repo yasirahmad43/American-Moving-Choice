@@ -11,32 +11,11 @@ import { env } from "@amc/server/env";
 import { indexableCounts, sitemapEntries, type SeoFamily } from "@amc/server/seo";
 import { servedContentPages } from "@/lib/content/pages";
 import { ROUTES_PER_HUB_PAGE } from "@/components/seo/routes-hub-spec";
+import { PUBLIC_STATIC_LINKS } from "@/lib/site";
 
 export const SITEMAP_CHUNK = 1000;
 
-const STATIC_PAGES = [
-  "/",
-  "/about/",
-  "/contact/",
-  "/complaints/",
-  "/report-a-concern/",
-  "/privacy/",
-  "/terms/",
-  "/mover-terms/",
-  "/for-movers/",
-  "/for-movers/eligibility/",
-  "/for-movers/moving-leads/",
-  "/for-movers/pricing/",
-  "/for-movers/reviews-and-reputation/",
-  "/get-quotes/",
-  "/moving-cost-calculator/",
-  "/verify-a-mover/",
-  "/movers/",
-  "/routes/",
-  "/services/",
-  "/questions/",
-  "/planning/",
-];
+const STATIC_PAGES = PUBLIC_STATIC_LINKS.map((link) => link.href);
 
 const SEGMENTS: { name: string; family: SeoFamily; chunked: boolean }[] = [
   { name: "states", family: "state", chunked: false },
@@ -76,7 +55,7 @@ function urlset(entries: { url: string; lastmod?: Date }[]): string {
 /** The XML for one segment file name ("core", "states", "cities-2"), or null for an unknown name. */
 export async function sitemapSegmentXml(name: string): Promise<string | null> {
   if (name === "core") {
-    const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url)])];
+    const urls = [...new Set([...STATIC_PAGES, ...servedContentPages().map((p) => p.meta.url)])].filter((url) => url !== "/advertising-disclosure/");
     const routes = (await indexableCounts()).get("route")?.count ?? 0;
     for (let page = 2; page <= Math.ceil(routes / ROUTES_PER_HUB_PAGE); page++) urls.push(`/routes/page/${page}/`);
     return urlset(urls.map((url) => ({ url })));

@@ -1,0 +1,2 @@
+/* A functional discovery form must remain still while the surrounding hero enters. */
+.vsh__description:has(#guide-search) { animation: none; transform: none; opacity: 1; }
