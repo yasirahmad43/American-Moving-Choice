@@ -13,6 +13,9 @@ import {
   consentTextSha256,
   CONTACT_INTRODUCTION_VERSION,
   REQUEST_INTAKE_VERSION,
+  REQUEST_SUBMIT_VERSION,
+  REQUEST_SUBMIT_FORM_VERSION,
+  isSubmitButtonConsent,
   isRequestCount,
   generateReferenceCode,
   isSelectableCount,
@@ -147,7 +150,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const size = parseSize(input);
   const details = parseDetails(input);
   for (const step of [where, when, size, details]) if (!step.ok) Object.assign(errors, step.errors);
-  if (!input.consentChecked) errors.consent = "To send your request, tick the box to agree to be contacted by participating moving companies matched to your move.";
+  const buttonAction = input.authorizationMethod === "submit_button";
+  if (!buttonAction && !input.consentChecked) errors.consent = "To send your request, confirm your contact permissions.";
+  if (buttonAction && input.consentChecked) errors.consent = "Refresh the request notice before sending.";
   if (!input.termsAccepted) errors.terms = "To send your request, accept the Terms of Use and acknowledge the Privacy Policy.";
   if (!where.ok || !when.ok || !size.ok || !details.ok || Object.keys(errors).length) return { ok: false, kind: "invalid", errors };
 
@@ -164,7 +169,8 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     return { ok: false, kind: "invalid", errors: coverage.reason === "unknown_origin" ? { originZip: "We don't recognize this ZIP code." } : { destZip: "We don't recognize this ZIP code." } };
   }
   const consent = await activeConsent();
-  const intake = consent.versionId === REQUEST_INTAKE_VERSION && consent.body.includes("{REQUEST_INTAKE_SCOPE}");
+  const submitButton = consent.versionId === REQUEST_SUBMIT_VERSION && isSubmitButtonConsent(consent.body);
+  const intake = submitButton || (consent.versionId === REQUEST_INTAKE_VERSION && consent.body.includes("{REQUEST_INTAKE_SCOPE}"));
   if (!intake && coverage.movers.length === 0) return { ok: false, kind: "no_coverage" };
   if (!intake && consent.versionId !== CONTACT_INTRODUCTION_VERSION) return { ok: false, kind: "invalid", errors: { form: "Quote requests are temporarily unavailable while we update contact preferences. Please try again later." } };
   const changed = (): SubmitResult => ({
@@ -173,6 +179,10 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     coverage: anonymousCoverage(coverage),
     consent,
   });
+  if (submitButton !== buttonAction) return changed();
+  if (submitButton && (details.value.channels.length !== 2 || !details.value.channels.includes("call") || !details.value.channels.includes("email"))) {
+    return { ok: false, kind: "invalid", errors: { channels: "This request permits calls and email only. Refresh the request notice before sending." } };
+  }
 
   // ---------------------------------------------------------------- eligibility snapshot (identities remain server-side)
   const eligible = new Map(coverage.movers.map((m) => [m.companyId, m]));
@@ -220,8 +230,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const source = sourceCategory(input.attribution, ownOrigins());
 
   const manageToken = newToken();
+  const formVersion = submitButton ? REQUEST_SUBMIT_FORM_VERSION : SURVEY_FORM_VERSION;
   const formState = JSON.stringify({
-    form_version: SURVEY_FORM_VERSION,
+    form_version: formVersion,
     need: input.need,
     origin_zip: where.value.originZip,
     dest_zip: where.value.destZip,
@@ -237,6 +248,8 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
     recipient_disclosure_mode: disclosureMode,
     removed: removedMovers.map((m) => m.companyId),
     consent_version: consent.versionId,
+    authorization_method: input.authorizationMethod,
+    contact_automation: submitButton ? "manual_only" : "legacy_text",
   });
 
   const route: RouteText = {
@@ -337,13 +350,15 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           `insert into consent_records (lead_id, consent_text_version_id, rendered_text, rendered_text_sha256, named_company_ids,
                                         removed_company_ids, selected_limit, channel_scope, checkbox_state, terms_version,
                                         terms_accepted, privacy_version, privacy_acknowledged, ip, user_agent, page_url,
-                                        form_version, form_state_sha256, ab_variant, phone_hash, email_hash, tag_manifest_version, recipient_disclosure_mode)
-           values ($1, $2, $3, $4, $5::uuid[], $6::uuid[], $7, $8::text[], true, $9, true, $10, true, $11, $12, $13,
-                   $14, $15, $16, $17, $18, $19, $20)`,
+                                        form_version, form_state_sha256, ab_variant, phone_hash, email_hash, tag_manifest_version, recipient_disclosure_mode,
+                                        authorization_method, contact_automation)
+           values ($1, $2, $3, $4, $5::uuid[], $6::uuid[], $7, $8::text[], $21, $9, true, $10, true, $11, $12, $13,
+                   $14, $15, $16, $17, $18, $19, $20, $22, $23)`,
           [
             leadId, consent.versionId, renderedText, renderedSha, named.map((m) => m.companyId), removedMovers.map((m) => m.companyId),
             input.limit, channels, TERMS_VERSION, PRIVACY_VERSION, meta.ip, meta.userAgent, meta.pageUrl,
-            SURVEY_FORM_VERSION, sha256Hex(formState), AB_VARIANT_NONE, phoneHash, emailHash, TAG_MANIFEST_VERSION, disclosureMode,
+            formVersion, sha256Hex(formState), AB_VARIANT_NONE, phoneHash, emailHash, TAG_MANIFEST_VERSION, disclosureMode,
+            input.consentChecked, input.authorizationMethod, submitButton ? "manual_only" : "legacy_text",
           ],
         );
 

@@ -140,6 +140,8 @@ export async function getLeadDetail(actor: AdminActor, leadId: string, db: Query
       selected_limit: number;
       channel_scope: string[];
       checkbox_state: boolean;
+      authorization_method: "checkbox" | "submit_button";
+      contact_automation: "legacy_text" | "manual_only";
       terms_version: string;
       terms_accepted: boolean;
       privacy_version: string;

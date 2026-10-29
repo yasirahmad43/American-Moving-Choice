@@ -32,7 +32,13 @@ export const CONTACT_INTRODUCTION_BODY = "{RECIPIENT_SCOPE} I agree that up to {
 /** Request intake is independent of current network availability; legacy evidence stays unchanged. */
 export const REQUEST_INTAKE_VERSION = "contact-request-intake-v1";
 export const REQUEST_INTAKE_BODY = "{REQUEST_INTAKE_SCOPE} I agree to be contacted about my move {CHANNELS} by American Moving Choice and up to {N} participating moving companies, and to share my move and contact details with those companies. Each moving company will identify itself when it contacts me. {AUTOMATED}Consent isn't required to buy any goods or services.{RATES} I can opt out at any time by {STOP}contacting the mover or American Moving Choice.";
-export const isRequestIntakeConsent = (body: string): boolean => body.includes("{REQUEST_INTAKE_SCOPE}");
+/** A direct request action authorizes manual calls and email only; it is not an SMS/automation opt-in. */
+export const REQUEST_SUBMIT_VERSION = "contact-request-submit-v1";
+export const REQUEST_SUBMIT_FORM_VERSION = "survey-v3-compact-submit";
+export const REQUEST_SUBMIT_BODY = "{REQUEST_SUBMIT_SCOPE}By sending, I authorize American Moving Choice and up to {N} moving companies to receive my details and call or email me about my move. I accept the Terms of Use and acknowledge the Privacy Policy.";
+export const REQUEST_SUBMIT_CHANNELS = ["call", "email"] as const satisfies readonly Channel[];
+export const isSubmitButtonConsent = (body: string): boolean => body.includes("{REQUEST_SUBMIT_SCOPE}");
+export const isRequestIntakeConsent = (body: string): boolean => body.includes("{REQUEST_INTAKE_SCOPE}") || isSubmitButtonConsent(body);
 
 export interface ConsentMover {
   displayName: string;
@@ -103,10 +109,14 @@ export class ConsentRenderError extends Error {
 export function renderConsentText(versionBody: string, input: ConsentRenderInput): string {
   const channels = orderedChannels(input.channels);
   const intake = isRequestIntakeConsent(versionBody);
+  const submitButton = isSubmitButtonConsent(versionBody);
   if (!intake && input.movers.length === 0) throw new ConsentRenderError("consent must name at least one mover");
   if (!Number.isInteger(input.limit) || input.limit < 1) throw new ConsentRenderError("limit must be a positive whole number");
   if (!intake && input.limit > input.movers.length) throw new ConsentRenderError("limit cannot exceed the movers named");
   if (channels.length === 0) throw new ConsentRenderError("at least one channel is required");
+  if (submitButton && (channels.length !== 2 || !channels.includes("call") || !channels.includes("email"))) {
+    throw new ConsentRenderError("request submission authorizes manual calls and email only");
+  }
 
   const list = input.movers.map(moverLabel).join("; ");
   const sms = channels.includes("sms");
@@ -119,12 +129,13 @@ export function renderConsentText(versionBody: string, input: ConsentRenderInput
     STOP: sms ? "replying STOP to a text or by " : "",
     RECIPIENT_SCOPE: "",
     REQUEST_INTAKE_SCOPE: "",
+    REQUEST_SUBMIT_SCOPE: "",
   };
-  let body = versionBody.replace(/\{(N|MOVERS|CHANNELS|AUTOMATED|RATES|STOP|RECIPIENT_SCOPE|REQUEST_INTAKE_SCOPE)\}/g, (_, key: string) => values[key] ?? "");
+  let body = versionBody.replace(/\{(N|MOVERS|CHANNELS|AUTOMATED|RATES|STOP|RECIPIENT_SCOPE|REQUEST_INTAKE_SCOPE|REQUEST_SUBMIT_SCOPE)\}/g, (_, key: string) => values[key] ?? "");
   if (!versionBody.includes("{CHANNELS}")) body = scopeFixedWording(body, channels);
   // Preserve legacy version rendering exactly, including its named-company heading. The new
   // explicit marker suppresses that heading; it is never inferred from a client preference.
-  if (intake || versionBody.includes("{RECIPIENT_SCOPE}")) return body.trim().replace("up to 1 participating moving companies", "1 participating moving company");
+  if (intake || versionBody.includes("{RECIPIENT_SCOPE}")) return body.trim().replace("up to 1 participating moving companies", "1 participating moving company").replace("up to 1 moving companies", "1 moving company");
   if (versionBody.includes("{MOVERS}")) return body;
   const heading =
     input.limit === 1

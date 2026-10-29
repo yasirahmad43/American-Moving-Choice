@@ -1,10 +1,20 @@
 import { readFileSync } from "node:fs";
-import { publicMarketingHtml, publicMarketingText } from "./public-copy.ts";
+import { PUBLIC_REQUEST_ASSURANCE, PUBLIC_ROLE_STATEMENT, publicMarketingHtml, publicMarketingText } from "./public-copy.ts";
 import { parseFrontMatter } from "./content/front-matter.ts";
 import { renderMarkdown } from "./content/markdown.ts";
 import { createTokenResolver } from "./content/tokens.ts";
 
 describe("consumer marketing presentation", () => {
+  it("describes the current call-and-email request without a channel-picker promise", () => {
+    expect(PUBLIC_ROLE_STATEMENT).toContain("calls and email");
+    expect(PUBLIC_REQUEST_ASSURANCE).toContain("how many companies");
+    expect(`${PUBLIC_ROLE_STATEMENT} ${PUBLIC_REQUEST_ASSURANCE}`).not.toMatch(/channels they|how you'd like to hear/);
+    const historical = "You choose the maximum number of movers who may contact you and the contact channels they may use.";
+    const current = publicMarketingText(historical);
+    expect(current).toContain("calls and email");
+    expect(publicMarketingText(current)).toBe(current);
+    expect(publicMarketingHtml(`<pre><code>${historical}</code></pre>`)).toBe(`<pre><code>${historical}</code></pre>`);
+  });
   it("keeps non-funding prose and HTML byte-for-byte, including code and price whitespace", () => {
     const text = "A crew costs $180   per hour.\n\tA deposit is paid to your mover.";
     const html = '<p class="price">$180   per hour\n\tfor 3 movers.</p>\n<pre><code>line 1\n  line 2\n\tMovers pay us for requests.</code></pre>\n<table><tr><td>$1,200–$1,800</td></tr></table>';

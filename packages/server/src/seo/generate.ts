@@ -1323,7 +1323,7 @@ function catalogDraft(ctx: Context, entry: CatalogEntry): Draft {
       sections,
       faq: entry.faq,
       related: [],
-      quote: { entry: "household", heading: pick(seed, 11, ["Request moving quotes", "Check coverage for your move"]), text: "Check the number of eligible movers for your route, then choose how many may contact you and the channels they may use. Company names are introduced during contact.", cta: pick(seed, 12, ["Start a quote request", "Request moving quotes"]) },
+      quote: { entry: "household", heading: pick(seed, 11, ["Request moving quotes", "Plan your next move"]), text: "Add your move and contact details, choose your company limit, then review and send one request for calls and email. Companies introduce themselves when they contact you.", cta: pick(seed, 12, ["Start a quote request", "Request moving quotes"]) },
       schemaType: "Article",
       credits: [],
       dataAsOf: ctx.today,

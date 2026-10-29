@@ -47,6 +47,8 @@ export const submissionSchema = z.object({
   shownCompanyIds: z.array(z.uuid()).max(200),
   removedCompanyIds: z.array(z.uuid()).max(200),
   profileCompanyId: z.null(),
+  /** The actual affirmative action; omitted historical clients used separate checkboxes. */
+  authorizationMethod: z.enum(["checkbox", "submit_button"]).default("checkbox"),
   consentChecked: z.boolean(),
   termsAccepted: z.boolean(),
   /** The consent version and the sha256 of the text the checkbox showed. */

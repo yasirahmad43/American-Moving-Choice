@@ -337,7 +337,7 @@ If one estimate is much lower than the others, ask what it leaves out.
 
 ## Where does American Moving Choice fit?
 
-We don't set or check movers' prices, and we don't give quotes or estimates. Requesting quotes is free. You choose how many companies may contact you and the channels they may use.
+We don't set or check movers' prices, and we don't give quotes or estimates. Requesting quotes is free. You choose how many companies may contact you by calls and email about your move.
 
 [Counsel: the first two sentences above restate ST-1a's role and money facts outside the stored record. The stored-texts header says a page quotes a stored text by key and never paraphrases it, and a free sentence can't pass the build check that matches body text to the record (site architecture §7.1; implications §3.4). content/stored-texts.md now holds ST-1e (proposed), which replaces these two sentences (stored-texts ST-1e; content/README.md §9). Once counsel approves ST-1e, it renders here after an `<!-- ST-1e -->` key comment and joins stored_texts; until then counsel reviews these sentences with ST-1a in one pass. ST-1e's "isn't … a moving broker" is a legal conclusion about AMC (stored-texts ST-1 notes; carrier-vs-broker note, counsel items 1 to 4)]
 
@@ -348,7 +348,7 @@ Our [moving cost calculator](/moving-cost-calculator/) shows a planning range, b
 
 [Counsel: approve ST-6 (site architecture §6.3 rule 3; stored-texts ST-6 notes). On this page it follows the calculator sentence, so "These ranges" refers to the calculator's ranges.]
 
-When you're ready, [request quotes from movers](/get-quotes/) who serve your move. Eligible movers contact you directly within your chosen contact limit and channels. Ask each for a written estimate, and compare them using [the table above](#how-do-you-compare-quotes-like-for-like).
+When you're ready, [request quotes from movers](/get-quotes/) with your move and contact details. Eligible movers may call or email you within your chosen company limit. Ask each for a written estimate, and compare them using [the table above](#how-do-you-compare-quotes-like-for-like).
 
 ## Worked example: crew-hours are not worker-hours
 

@@ -8,7 +8,8 @@ import { PUBLIC_ROLE_STATEMENT } from "../public-copy.ts";
 
 // Frozen before this presentation change: every substantive h2/p/li from the real pages on
 // 96aa811, normalized for whitespace. New status copy may be added; existing facts and links
-// must remain. Shared layout/business data are isolated so these checks need no database.
+// must remain. Five request-flow blocks were updated for the owner's 2026-10-29 button-submit
+// journey; all unrelated facts and links stay frozen. Shared layout/business data are isolated.
 const ORIGINAL_PUBLIC_BODY_HASHES = {
   "privacy": [
     "310311a0bafe03b6419bf580d8e810f410b42012dbba1275b19edc52f8ecd8a9",
@@ -16,10 +17,10 @@ const ORIGINAL_PUBLIC_BODY_HASHES = {
     "9a12f71ada5e1b6f6f1d598efe16713265a06fb9581a7e30963cb4f32c624f72",
     "415a7abbe0f6396ed52be582835ddd472f29cac06f4c5592514ef01b4b655902",
     "2493842c7565d6c10228c7c8a577d9ff0f733c345448672c1e91267f2373d09b",
-    "ecf359431891cefa4ce4319e339c5b73251e978830e506394ebe67b1b6d651cd",
-    "16e3267177781a66ee2aa3e01813b8ebfdd6bfcd0f0b38d2d1971c96b70b90fc",
+    "db61662f48ad47fe0462a562a5a2e4df07582a426493db77ae6330312bcdbd91",
+    "931ec5b4e112009e094b53cc635b9590872a4e44a522ef7fc715c2dade9f5a09",
     "0080f1f7836dfd64fb2d6f7fd6efb09c78ec0ede84eccbb03f5bd33698b154a3",
-    "4c66eb5c9673f1f75f8bd31e2349a74f24a5b9f0d0f3587f5e47a5517ecde954",
+    "17a0799f4fccfb2393f24c75d32f1143d3613c0f840c9c6f8dfe0f5a09f26e2d",
     "954ce89afdd761372d6c7f922a58163d3d13940342ed0c4db52e5aaef1c2cbf2",
     "438889a45d8839e7417ba13ae713ffc55169d1900f03a9910eea556824f1451d",
     "3976cd8247f622a4ffeec16c78eb38cf2faa2040b88fc2cbb80fc786aa82ba3d",
@@ -32,11 +33,11 @@ const ORIGINAL_PUBLIC_BODY_HASHES = {
     "b5ba8c3ec342e5b83d7cb662f9a4125e72c029a306f1a87528916bc37c8b47ad",
     "7b27ccbc6a076abf338d49738735c70dc287a0feade5ce20d3bcdcc6ac9b2dca",
     "bbee3b62c367d7d373274aee1d9b2f10114c170e1985e3235122dfff517ee3dc",
-    "b468ed58bb475ebf734c206bf881871ed88a7c5621ee1c6b883a60a9b8485b97",
+    "a30b0d1f3142c284d7aafcfe57044061440890586b99c21b6775d37b099f94a4",
     "c8d61f6857d926c19f1e461c2cfdee168ccd8127db0a64aea9c51ab2a01077da",
     "e762e9f38305dca4dc01e40fc6a7d7b1b822e676118f90fcc44292587ac1c01b",
     "391cb176e2435f3dad6b8e251c3f5c88b05a9112762751ba7587d7602030b0c4",
-    "7860bfce6e34d40bac3d1527ed9434e319092d5aee46b9be4c53f7348d5195ac",
+    "3d085baf3b4c41179e3719a3f2c94beeaa28ca307369856aab4a1f56a86878f6",
     "1b953be56cf46e8ce7d316b3b0a20cc9f5fca5a624481f48d11e0308a64d85d8",
     "a390893286ad00bc50491858debfd1e6512410ab0fdf71a4271c43765da0caf3",
     "d87790fcf1cfab726fdbdc3067b7c52adea2221779687a2529f8ecef82e71d50",
@@ -72,6 +73,15 @@ describe("reader-facing preview legal information", () => {
   // The owner retired the public mover-terms page and the consumer terms' final
   // Moving companies heading/link, and replaced one archived buyer-wording privacy item.
   // All unaffected consumer legal blocks stay frozen; new withdrawal wording is checked below.
+  it("describes the current button-submitted call-and-email request", () => {
+    const privacy = renderPage("privacy").body;
+    const terms = renderPage("terms").body;
+    expect(privacy).toContain("when you clicked Send my request");
+    expect(terms).toContain("for calls and email about your move");
+    expect(`${privacy} ${terms}`).not.toMatch(/contact channels you (?:chose|select)|shown you the number of eligible movers/);
+    expect(privacy).toContain("contact details are never stored in your browser");
+    expect(terms).toContain('href="/which-companies-receive-my-request/"');
+  });
   for (const name of ["privacy", "terms"]) {
     it(`${name} explains the preview and legal-review status without internal instructions or empty paragraphs`, () => {
       const { html, body, metadata } = renderPage(name);
