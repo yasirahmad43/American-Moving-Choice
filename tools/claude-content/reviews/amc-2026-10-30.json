@@ -1,0 +1,478 @@
+{
+  "version": 1,
+  "model": "claude-sonnet-5-5",
+  "reviewedAt": "2026-10-30T21:31:40.751Z",
+  "sourceManifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+  "planHash": "0408621b363c1601b3165b98296f1b7e1a7124b8ea3197ec358ab668da9cf228",
+  "sourceCatalogFileSha256": "7c879715fb7f606328d42f08173bfc686dbb592d19519b74a69ec7b3f521d310",
+  "draftCount": 24,
+  "families": {
+    "question": 11,
+    "planning": 13
+  },
+  "paidBatches": 1,
+  "spendingCapUsd": 50,
+  "originalReservationUsd": 2.140836,
+  "knownFullStandardRateUsageUsd": 1.040788,
+  "unresolvedReservedUsd": 0,
+  "discountedBatchCostEstimateUsd": 0.520394,
+  "invoiceVerified": false,
+  "automaticGenerationEnabled": false,
+  "reviews": [
+    "Two editorial reviewers covered every article and its approved source claims.",
+    "An independent reviewer checked product behavior, scope, law, safety and claims.",
+    "Root corrected three remaining product wording references and literal Markdown emphasis in articles 02–04.",
+    "Strict validation and the publication adapter passed all 24 articles; database publication gates remain mandatory."
+  ],
+  "articles": [
+    {
+      "briefId": "claude-pilot-01",
+      "url": "/questions/how-do-i-get-quotes-for-a-small-partial-move/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "e759f526a6005afc0f9e75e9e1e97f69c1deedc719971996a958c8fbcc9c34c6",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1435,
+      "answerWords": 60,
+      "reviewedDraftSha256": "374c23e0bbbdb4f147630e8fc322d3bc11477780c4ace8d3e96cf44f1f0c3a3d"
+    },
+    {
+      "briefId": "claude-pilot-02",
+      "url": "/questions/loading-help-vs-full-service-moving-quotes/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "82e11fa11559b354b9bc358495b53ad11a3a894b642048caf1668c47d0756078",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "ftc-written-estimate",
+        "ftc-deposit-warning"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "ftc-mover-scams"
+      ],
+      "modelWords": 1107,
+      "answerWords": 53,
+      "reviewedDraftSha256": "b768ca8e73090a7bb6979e2c17b8c61677635aab0d6f076f758b6d9177e785d9"
+    },
+    {
+      "briefId": "claude-pilot-03",
+      "url": "/questions/moving-quotes-with-multiple-pickup-locations/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "2b3083f15cbe3d87e552d032dcb638f34bf20afc7afb3214188c4b26b65bdaee",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1343,
+      "answerWords": 56,
+      "reviewedDraftSha256": "719f3d71fb69e102cd54b4de5ffe188b9320a9d13720823e570c79f4677b813a"
+    },
+    {
+      "briefId": "claude-pilot-04",
+      "url": "/questions/moving-quotes-with-two-delivery-addresses/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "60f23f8cb85da7bc3a36ebe356b619e330cee35cc3ec13219b1405da206b4260",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1334,
+      "answerWords": 58,
+      "reviewedDraftSha256": "8c99814edf2e6cad9d6b2a5b594e8e45b919389cb6dfe69762c5e6ba0741baa9"
+    },
+    {
+      "briefId": "claude-pilot-05",
+      "url": "/questions/moving-quote-before-destination-address-is-known/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "4f4e183007c7ed6ffbe1d6dc07e8ae8cf0709a3c56aef58490a5bd764fedf749",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1342,
+      "answerWords": 65,
+      "reviewedDraftSha256": "fe599139d160b476f041594731e7b6ebd79aec481e0336de1580bb7bf4a3aca9"
+    },
+    {
+      "briefId": "claude-pilot-06",
+      "url": "/questions/change-delivery-address-after-booking-movers/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "ff2e1cd2204b4cd567bd29e3fdf2b27ed79f6b19f90d670345f528103b06107b",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1320,
+      "answerWords": 69,
+      "reviewedDraftSha256": "0f37f3f7a98009541b9bf5095942e2fff1643c9608e95528615c27ddd11a0fa9"
+    },
+    {
+      "briefId": "claude-pilot-07",
+      "url": "/questions/do-movers-disassemble-and-reassemble-furniture/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "7df8cebb25b7338e7d00ec33af3bc6a08abec8b60b64078fd5afca087b50a70a",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1327,
+      "answerWords": 53,
+      "reviewedDraftSha256": "78b699d1e2c5b9c991101ac5e1d4db40bd384129eb471023dfd88eb62d02f932"
+    },
+    {
+      "briefId": "claude-pilot-08",
+      "url": "/questions/moving-unpacking-and-box-removal-services/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "72402541461fe48849fbae8cd55a0da80738157a627f11747da7b3ac47bfe20a",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1387,
+      "answerWords": 64,
+      "reviewedDraftSha256": "e76da35e2ef9306bf3bdd227d3e88ce9698c81eaf524c5b5f026eedcc34f5c87"
+    },
+    {
+      "briefId": "claude-pilot-09",
+      "url": "/questions/minimum-charges-on-small-moving-quotes/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "fe22d43a9b1c9d1d4b1c0849af26a16cda2a85c1004ecdd7f81c7c1908cfb052",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1404,
+      "answerWords": 58,
+      "reviewedDraftSha256": "93a1fd049c68625d2ed0d497fa9d2cd071a371a3aa0ac69c7c35359166030d5e"
+    },
+    {
+      "briefId": "claude-pilot-10",
+      "url": "/questions/travel-time-and-truck-fees-in-hourly-moving-quotes/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "ef1696d20e520ced2d3834498fd15288828824b4819373f8cc0294fe54391cf6",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1203,
+      "answerWords": 59,
+      "reviewedDraftSha256": "f9e03b668fe95128bf05ecdc5544289f059ccff99a4754c8651d1c6fea0171cc"
+    },
+    {
+      "briefId": "claude-pilot-11",
+      "url": "/questions/moving-between-apartments-in-the-same-building/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "1909c5255bf33cf262ee2597b4c9c58beb7567ea7371ec6453fda56ac9ecac42",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "ftc-written-estimate",
+        "ftc-deposit-warning"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "ftc-mover-scams"
+      ],
+      "modelWords": 1341,
+      "answerWords": 61,
+      "reviewedDraftSha256": "3f2d693dd0a2857cb694d082da4006747436de3c870ee9529680cb3efa26a573"
+    },
+    {
+      "briefId": "claude-pilot-12",
+      "url": "/planning/self-storage-unit-to-home-moving-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "606385b39aeee0e1412a35058fb253a4f183a828168b1c7a79b44353455660fd",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1298,
+      "answerWords": 63,
+      "reviewedDraftSha256": "acfbb072aadc172edc7959790c6e8aaa7cf49b500a4b432535325c5017b4e243"
+    },
+    {
+      "briefId": "claude-pilot-13",
+      "url": "/planning/last-minute-household-move-quote-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "7c315b6d894fe3e696ea066f38bb25f7c347eb578c43306a9868f95bf3f29ba5",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "modelWords": 1473,
+      "answerWords": 57,
+      "reviewedDraftSha256": "93e88d8b7121a174dfe214294e94e9139eba70902f46fff813719cea2c386909"
+    },
+    {
+      "briefId": "claude-pilot-14",
+      "url": "/planning/uncertain-closing-date-moving-plan-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "4959c0b462056207f39193a8bc626801a51eb888922b7c9203ff0af357111811",
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1330,
+      "answerWords": 61,
+      "reviewedDraftSha256": "f95cfcbf361fac87af21f17a8acf6995557e1380ada7722db2ad73f5cc68845d"
+    },
+    {
+      "briefId": "claude-pilot-15",
+      "url": "/planning/moving-day-key-and-access-handoff-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "d78ea148bb3cb9bfd9d486ee00538531c1f2c932dc3276ec825b09f878961a17",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "modelWords": 1301,
+      "answerWords": 52,
+      "reviewedDraftSha256": "801d282273989aa3a8e1d8d0da2a6da419cceca92c724be04b5c035a679858b6"
+    },
+    {
+      "briefId": "claude-pilot-16",
+      "url": "/planning/moving-deposit-and-cancellation-policy-review-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "45f1a88347fb46e167a7992e7bc5b8b981782dfbd80201ead0f909bf603ef928",
+      "sourceClaimIds": [
+        "ftc-written-estimate",
+        "ftc-deposit-warning",
+        "read-move-documents"
+      ],
+      "sourceIds": [
+        "ftc-mover-scams",
+        "fmcsa-success"
+      ],
+      "modelWords": 1314,
+      "answerWords": 51,
+      "reviewedDraftSha256": "d03e7586fe34a02b5c06789a2c041e0c672c0eaee669a939c2219b70720b423e"
+    },
+    {
+      "briefId": "claude-pilot-17",
+      "url": "/planning/moving-truck-parking-permit-preparation-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "8fbd8805033bbfe90b70a94981f9f23b09c4cee29828b0d7b59bcef3a1354739",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "boston-parking-specific-process"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "boston-moving-parking"
+      ],
+      "modelWords": 1598,
+      "answerWords": 64,
+      "reviewedDraftSha256": "0db548a568e6f8d7a806b43db4bff391ce9922cdc2a99d147cdf1006c208b431"
+    },
+    {
+      "briefId": "claude-pilot-18",
+      "url": "/planning/remote-moving-representative-handoff-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "c537d2c31aa8d16467ad6d1731cd1071af245d2271fe36ac8a10ecf3e5b91a1e",
+      "sourceClaimIds": [
+        "arrange-representative",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "compare-written-service-scope"
+      ],
+      "sourceIds": [
+        "fmcsa-success",
+        "fmcsa-planning"
+      ],
+      "modelWords": 1137,
+      "answerWords": 64,
+      "reviewedDraftSha256": "5eb54f09c13dca2dee53c52875d3a540593bd3f98b824283421f91ca8d317735"
+    },
+    {
+      "briefId": "claude-pilot-19",
+      "url": "/planning/shared-home-partial-shipment-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "092d0cd047a5e367953f299a05928169ba5d36d3bd626b5f8fc82fc4931824b5",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "modelWords": 1393,
+      "answerWords": 53,
+      "reviewedDraftSha256": "3d13e6c2dfd43aacf5db0b997e37de0589c3a3f31e1c0b2afe5ab24faf46edea"
+    },
+    {
+      "briefId": "claude-pilot-20",
+      "url": "/planning/senior-living-household-move-handoff-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "3ab3bfd0f239e3abae69345352eaa66a20af78de573d69b17d42e473825f62aa",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "brookdale-community-specific-move-in"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "brookdale-move-in"
+      ],
+      "modelWords": 1335,
+      "answerWords": 52,
+      "reviewedDraftSha256": "17873ad4498e008a38035876cd245565e131867344dab204c7981a9a2f36d91d"
+    },
+    {
+      "briefId": "claude-pilot-21",
+      "url": "/planning/college-dorm-small-move-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "567469f82f591fe67e07da89e2387676f120786e6b8c6fd6a92ff765a4f9c0e4",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "ucla-location-specific-housing-dates"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "ucla-housing-dates"
+      ],
+      "modelWords": 1120,
+      "answerWords": 55,
+      "reviewedDraftSha256": "7f6a7a1d285eca6e154f3c452bdd3067123c93791424019b1ee8672ce68a2e05"
+    },
+    {
+      "briefId": "claude-pilot-22",
+      "url": "/planning/home-gym-moving-quote-preparation-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "a60c3939cfbc0cf80253838b40438044ef75e16ae9cccfb78d4ab2e1e4f66e4c",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "horizon-model-dependent-moving"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "horizon-treadmill-moving"
+      ],
+      "modelWords": 1217,
+      "answerWords": 47,
+      "reviewedDraftSha256": "34995e23e6ee704511358f6c90865de46683e8b2c61f4bc8f8b9833bd8f584b5"
+    },
+    {
+      "briefId": "claude-pilot-23",
+      "url": "/planning/pool-table-moving-quote-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "cc14a6f87fbc7e9f6f1abc10153ed95a0b0ea342a28c24abc6d8d812161035eb",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "olhausen-provider-specific-relocation-scope"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "olhausen-gamerooms-moving"
+      ],
+      "modelWords": 1301,
+      "answerWords": 48,
+      "reviewedDraftSha256": "1eb441a4f94519f4dffa00445fec8be98ca63de9f3c0def94ad46e368ae058c5"
+    },
+    {
+      "briefId": "claude-pilot-24",
+      "url": "/planning/antique-furniture-moving-survey-checklist/",
+      "manifestSha256": "6ad9bc1eb3075e5d8a7fffe8d83f910c8bba5440c4f859077bcbcd2252d057bc",
+      "draftSha256": "d18932ad86caa07afcb9c54cdb2d3ad7275ac113724783ba451ef56e4b7e9268",
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "cci-condition-before-moving"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "cci-wood-furniture"
+      ],
+      "modelWords": 1260,
+      "answerWords": 60,
+      "reviewedDraftSha256": "efe40c6a2c09fb49129c1f45fbab192a710e67e5a9a43b4defc6fac1b415847d"
+    }
+  ]
+}

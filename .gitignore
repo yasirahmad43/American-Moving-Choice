@@ -12,6 +12,9 @@ db/out/
 next-env.d.ts
 *.tsbuildinfo
 .vercel/
+.secrets/
+/work/
+/outputs/
 # Playwright
 test-results/
 playwright-report/

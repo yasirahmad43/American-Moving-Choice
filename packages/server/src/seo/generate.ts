@@ -1558,6 +1558,9 @@ export interface GenerateOptions {
   preserveExisting?: boolean;
   /** Reassess the whole family even when an interrupted run already saved every candidate. */
   refreshQuality?: boolean;
+  /** Atomic new cohorts: score the full family, but apply quality decisions only to these URLs.
+   * Abort if a prior live page would fail uniqueness. Call inside a transaction. */
+  qualityApplyUrls?: readonly string[];
   /** New city-route cohort: sourced concise brief, with no unverified road/day predictions. */
   routeEvidenceBrief?: boolean;
   log?: (line: string) => void;
@@ -1580,6 +1583,8 @@ export async function uniqueShares(db: Queryable, family: SeoFamily, urls: strin
 }
 
 async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options: GenerateOptions = {}): Promise<GenerateSummary> {
+  const qualityScope = options.qualityApplyUrls ? new Set(options.qualityApplyUrls) : null;
+  if (qualityScope && (!qualityScope.size || qualityScope.size > 100 || qualityScope.size !== options.qualityApplyUrls!.length)) throw new Error("scoped generation requires one to 100 distinct quality URLs");
   const ctx = await loadContext(db, options);
   const limit = options.limit ?? 50;
   const chunkSize = options.chunkSize ?? 250;
@@ -1604,6 +1609,7 @@ async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options
       if (options.preserveExisting && make.url && previous.has(make.url)) continue;
       const draft = await make();
       if (options.preserveExisting && previous.has(draft.url)) continue;
+      if (qualityScope && !qualityScope.has(draft.url)) throw new Error("scoped generation produced a URL outside its quality apply scope");
       if (draft._finish) await draft._finish();
       drafts.push(draft);
     }
@@ -1673,6 +1679,10 @@ async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options
     const w = writtenByUrl.get(page.url) ?? { url: page.url, blocked: page.blocked_reason && !page.blocked_reason.startsWith("blocked: below 40% unique content") ? [page.blocked_reason] : [] };
     const share = shares.get(w.url) ?? 0;
     const unique = { passed: share >= UNIQUE_SHARE_MIN, detail: `${Math.round(share * 100)}% of 5-word shingles unique within the family; ${Math.round(UNIQUE_SHARE_MIN * 100)}% needed` };
+    if (qualityScope && !qualityScope.has(page.url)) {
+      if (previous.get(page.url)?.status === "published" && !unique.passed) throw new Error(`scoped generation would make a prior live article fail uniqueness: ${page.url}`);
+      continue;
+    }
     const blocked = [...w.blocked];
     if (!unique.passed) blocked.push(`blocked: below ${Math.round(UNIQUE_SHARE_MIN * 100)}% unique content (${Math.round(share * 100)}%)`);
     const reason = blocked[0] ?? null;
@@ -1704,7 +1714,7 @@ async function generateFamilyUnchecked(db: Queryable, family: SeoFamily, options
 export async function generateFamily(db: Queryable, family: SeoFamily, options: GenerateOptions = {}): Promise<GenerateSummary> {
   try { return await generateFamilyUnchecked(db, family, options); }
   catch (error) {
-    if (error instanceof CorpusChangedError) await db.query(
+    if (error instanceof CorpusChangedError && !options.qualityApplyUrls) await db.query(
       "update seo_pages set status='draft',indexable=false,unique_share=null,blocked_reason=coalesce(blocked_reason,'blocked: corpus changed; regenerate family'),gate_results=gate_results||jsonb_build_object('unique',jsonb_build_object('passed',false,'detail','Corpus changed while scoring; retry generation')) where family=$1", [family],
     ).catch(() => undefined);
     throw error;

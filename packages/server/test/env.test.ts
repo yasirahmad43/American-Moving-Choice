@@ -58,6 +58,14 @@ describe("environment", () => {
     expect(JSON.stringify(summary)).not.toMatch(/secret|pm-secret|postgres/);
   });
 
+  it("keeps the Claude pilot disabled by default and caps its private budget", () => {
+    expect(parseEnv({})).toMatchObject({ AI_CONTENT_ENABLED: false, AI_CONTENT_BUDGET_USD: 0 });
+    const configured = parseEnv({ ANTHROPIC_API_KEY: "private-provider-credential", ANTHROPIC_WORKSPACE_ID: "private-workspace", AI_CONTENT_BUDGET_USD: "50" });
+    expect(configured.AI_CONTENT_BUDGET_USD).toBe(50);
+    expect(JSON.stringify(describeEnv(configured))).not.toMatch(/private-provider|private-workspace|ANTHROPIC/);
+    for (const budget of ["51", "-1", "Infinity", "not-money"]) expect(() => parseEnv({ AI_CONTENT_BUDGET_USD: budget })).toThrow(EnvError);
+  });
+
   it("strips SSL parameters from connection strings when DATABASE_SSL decides", () => {
     const url = "postgres://u:p@host:6543/postgres?sslmode=require&application_name=x";
     expect(connectionStringFor(url, "require")).toBe("postgres://u:p@host:6543/postgres?application_name=x");

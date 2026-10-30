@@ -1,0 +1,1460 @@
+{
+  "version": 1,
+  "cohortId": "amc-claude-pilot-reviewed-2026-10-30-v2",
+  "preparedOn": "2026-10-30",
+  "scope": "Source-reviewed future draft manifest. Frozen v1 and first-12 manifests remain unchanged; this does not authorize paid runs or publication.",
+  "budgetUsd": 50,
+  "sources": [
+    {
+      "id": "fmcsa-estimates",
+      "label": "49 CFR 375.401: interstate estimates and services",
+      "url": "https://www.ecfr.gov/current/title-49/subtitle-B/chapter-III/subchapter-B/part-375/subpart-D/section-375.401",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "fmcsa-planning",
+      "label": "FMCSA Moving Checklist",
+      "url": "https://www.fmcsa.dot.gov/protect-your-move/moving-checklist",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "fmcsa-success",
+      "label": "FMCSA Tips for a Successful Move",
+      "url": "https://www.fmcsa.dot.gov/protect-your-move/tips-for-success",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "ftc-mover-scams",
+      "label": "FTC: Avoid scams when you hire a moving company",
+      "url": "https://consumer.ftc.gov/consumer-alerts/2024/09/avoid-scams-when-you-hire-moving-company",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "boston-moving-parking",
+      "label": "Boston Parking Clerk: reserve a moving-truck parking spot",
+      "url": "https://www.boston.gov/departments/parking-clerk/reserve-parking-spot-your-moving-truck",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "brookdale-move-in",
+      "label": "Brookdale: what to expect on moving day",
+      "url": "https://www.brookdale.com/en/where-to-begin/making-the-move/what-to-expect-on-moving-day.html",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "ucla-housing-dates",
+      "label": "UCLA Housing: undergraduate contract dates",
+      "url": "https://ask.housing.ucla.edu/app/answers/detail/a_id/1797/~/undergraduate-contract-dates",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "horizon-treadmill-moving",
+      "label": "Horizon Fitness: folding and moving a treadmill",
+      "url": "https://help.horizonfitness.com/hc/en-us/articles/47020139681044-How-to-Fold-and-Move-Your-Treadmill",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "olhausen-gamerooms-moving",
+      "label": "Olhausen Gamerooms: its pool-table relocation FAQ",
+      "url": "https://olhausengo.com/faq/",
+      "accessedOn": "2026-10-30"
+    },
+    {
+      "id": "cci-wood-furniture",
+      "label": "Canadian Conservation Institute: basic care of wooden furniture",
+      "url": "https://www.canada.ca/en/conservation-institute/services/care-objects/furniture-wooden-objects-basketry/basic-care-furniture-objects-wood.html",
+      "accessedOn": "2026-10-30"
+    }
+  ],
+  "briefs": [
+    {
+      "id": "claude-pilot-01",
+      "family": "question",
+      "slug": "how-do-i-get-quotes-for-a-small-partial-move",
+      "proposedUrl": "/questions/how-do-i-get-quotes-for-a-small-partial-move/",
+      "title": "How do I get quotes for a small or partial move?",
+      "primaryKeyword": "small move quotes",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The current catalog has cost/service pillars but no standalone partial-shipment decision guide.",
+      "readerDecision": "Compare a short household inventory using the same pickup, delivery and preparation scope.",
+      "uniquePracticalArtifact": "An item-count and dimensions worksheet, with a minimum-charge comparison column.",
+      "outline": [
+        "Define the exact items staying and moving",
+        "Record item size and access at both ends",
+        "Ask how minimums and service inclusions work",
+        "Compare written scope before choosing a provider"
+      ],
+      "relatedExistingUrls": [
+        "/questions/how-do-moving-companies-charge/",
+        "/questions/how-to-compare-moving-estimates/",
+        "/services/local/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not infer per-item rates, minimum weights, availability or delivery promises.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "demandContext": {
+        "kind": "measured_existing_cluster_not_exact_new_query",
+        "keyword": "small moves",
+        "volumeUS": 1900,
+        "kd": 40,
+        "researchDate": "2026-10-28",
+        "sourceFile": "docs/research/competitor-gaps.csv"
+      },
+      "h1": "How do I get quotes for a small or partial move?",
+      "metaDescription": "Compare a short household inventory using the same pickup, delivery and preparation scope.",
+      "supportingKeywords": [],
+      "readerGoal": "Compare a short household inventory using the same pickup, delivery and preparation scope.",
+      "related": [
+        "/questions/how-do-moving-companies-charge/",
+        "/questions/how-to-compare-moving-estimates/",
+        "/services/local/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-02",
+      "family": "question",
+      "slug": "loading-help-vs-full-service-moving-quotes",
+      "proposedUrl": "/questions/loading-help-vs-full-service-moving-quotes/",
+      "title": "Loading help or full-service movers: which quote do I need?",
+      "primaryKeyword": "loading help vs full service movers",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Labor-only appears briefly in existing pricing copy; the transport/equipment responsibility decision has no dedicated guide.",
+      "readerDecision": "Decide who supplies the truck, driver, equipment, loading and unloading at each end.",
+      "uniquePracticalArtifact": "A responsibility matrix for truck/driver/equipment/loading/unloading and separate service contacts.",
+      "outline": [
+        "Separate transportation from labor tasks",
+        "Compare pickup and destination responsibilities",
+        "Confirm supplies, equipment and access requirements",
+        "Build a like-for-like request"
+      ],
+      "relatedExistingUrls": [
+        "/services/local/",
+        "/questions/how-many-movers-do-i-need/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "ftc-mover-scams"
+      ],
+      "claimBoundary": "Do not claim the AMC form supplies a rental truck, a driver, universal loading equipment or coverage for every provider.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Loading help or full-service movers: which quote do I need?",
+      "metaDescription": "Decide who supplies the truck, driver, equipment, loading and unloading at each end.",
+      "supportingKeywords": [],
+      "readerGoal": "Decide who supplies the truck, driver, equipment, loading and unloading at each end.",
+      "related": [
+        "/services/local/",
+        "/questions/how-many-movers-do-i-need/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "ftc-written-estimate",
+        "ftc-deposit-warning"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-03",
+      "family": "question",
+      "slug": "moving-quotes-with-multiple-pickup-locations",
+      "proposedUrl": "/questions/moving-quotes-with-multiple-pickup-locations/",
+      "title": "Can movers collect belongings from two pickup locations?",
+      "primaryKeyword": "movers multiple pickup locations",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Existing survey guidance mentions extra pickups but does not resolve the multi-stop quote and item-routing task.",
+      "readerDecision": "Create one shipment description with an inventory and access plan for each origin.",
+      "uniquePracticalArtifact": "A stop-by-stop pickup register with address, items, contact, access and timing fields.",
+      "outline": [
+        "Decide whether one provider should handle both stops",
+        "Keep separate item lists and access details",
+        "Ask how the extra stop changes written scope",
+        "Confirm the final stop order and contact plan"
+      ],
+      "relatedExistingUrls": [
+        "/questions/does-a-mover-have-to-do-a-survey/",
+        "/planning/video-moving-survey-preparation-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not assert that every mover offers extra stops or quote a standard additional-stop fee.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Can movers collect belongings from two pickup locations?",
+      "metaDescription": "Create one shipment description with an inventory and access plan for each origin.",
+      "supportingKeywords": [],
+      "readerGoal": "Create one shipment description with an inventory and access plan for each origin.",
+      "related": [
+        "/questions/does-a-mover-have-to-do-a-survey/",
+        "/planning/video-moving-survey-preparation-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-04",
+      "family": "question",
+      "slug": "moving-quotes-with-two-delivery-addresses",
+      "proposedUrl": "/questions/moving-quotes-with-two-delivery-addresses/",
+      "title": "Can a moving company deliver to two addresses?",
+      "primaryKeyword": "movers two delivery addresses",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The catalog covers ordinary delivery and storage, not splitting a single household inventory into identified destination groups.",
+      "readerDecision": "Make the intended destination of each item unambiguous before comparing split-delivery quotes.",
+      "uniquePracticalArtifact": "A destination-label key and two-stop delivery-scope checklist.",
+      "outline": [
+        "Divide the inventory by destination",
+        "Describe each delivery access route",
+        "Ask about scheduling and separate handling",
+        "Check labels and documents before loading"
+      ],
+      "relatedExistingUrls": [
+        "/planning/delivery-day-checklist/",
+        "/questions/what-is-a-moving-delivery-spread/",
+        "/questions/what-is-a-bill-of-lading/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not decide disputed ownership, promise a single contract or assume one liability arrangement covers all services.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Can a moving company deliver to two addresses?",
+      "metaDescription": "Make the intended destination of each item unambiguous before comparing split-delivery quotes.",
+      "supportingKeywords": [],
+      "readerGoal": "Make the intended destination of each item unambiguous before comparing split-delivery quotes.",
+      "related": [
+        "/planning/delivery-day-checklist/",
+        "/questions/what-is-a-moving-delivery-spread/",
+        "/questions/what-is-a-bill-of-lading/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-05",
+      "family": "question",
+      "slug": "moving-quote-before-destination-address-is-known",
+      "proposedUrl": "/questions/moving-quote-before-destination-address-is-known/",
+      "title": "Can I get a moving quote before I know my new address?",
+      "primaryKeyword": "moving quote destination address unknown",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Existing storage-gap guidance assumes a destination; it does not explain what is provisional in an early request.",
+      "readerDecision": "Separate confirmed move facts from destination/access questions that still need a written update.",
+      "uniquePracticalArtifact": "A confirmed/provisional information sheet and follow-up-question list.",
+      "outline": [
+        "Provide the locations and dates actually known",
+        "Separate a planning conversation from a written estimate",
+        "Explore a storage contingency without assuming availability",
+        "Update the exact address and access before finalizing"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-with-a-storage-gap/",
+        "/questions/are-online-moving-quotes-accurate/",
+        "/questions/does-a-mover-have-to-do-a-survey/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Never invent a destination ZIP for the live survey. Explain that its current form requires real origin and destination ZIPs.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Can I get a moving quote before I know my new address?",
+      "metaDescription": "Separate confirmed move facts from destination/access questions that still need a written update.",
+      "supportingKeywords": [],
+      "readerGoal": "Separate confirmed move facts from destination/access questions that still need a written update.",
+      "related": [
+        "/planning/moving-with-a-storage-gap/",
+        "/questions/are-online-moving-quotes-accurate/",
+        "/questions/does-a-mover-have-to-do-a-survey/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-06",
+      "family": "question",
+      "slug": "change-delivery-address-after-booking-movers",
+      "proposedUrl": "/questions/change-delivery-address-after-booking-movers/",
+      "title": "Changing your delivery address after booking movers",
+      "primaryKeyword": "change delivery address after booking movers",
+      "intent": "informational",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The existing inventory-change checklist is about added goods; a destination change has different access and route dependencies.",
+      "readerDecision": "Give the carrier a documented destination change and obtain its written effect on service, price and timing.",
+      "uniquePracticalArtifact": "An address-change notice with old/new destinations, access differences and confirmation fields.",
+      "outline": [
+        "Notify the carrier through its agreed contact",
+        "Describe address and access changes separately",
+        "Request a revised written scope before relying on it",
+        "Keep the old and new documents together"
+      ],
+      "relatedExistingUrls": [
+        "/planning/binding-estimate-inventory-change-checklist/",
+        "/questions/what-is-a-bill-of-lading/",
+        "/planning/moving-with-a-storage-gap/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not promise free changes or state a universal right to alter a contract after loading.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "What should I do if my delivery address changes after booking?",
+      "metaDescription": "Give the carrier a documented destination change and obtain its written effect on service, price and timing.",
+      "supportingKeywords": [],
+      "readerGoal": "Give the carrier a documented destination change and obtain its written effect on service, price and timing.",
+      "related": [
+        "/planning/binding-estimate-inventory-change-checklist/",
+        "/questions/what-is-a-bill-of-lading/",
+        "/planning/moving-with-a-storage-gap/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-07",
+      "family": "question",
+      "slug": "do-movers-disassemble-and-reassemble-furniture",
+      "proposedUrl": "/questions/do-movers-disassemble-and-reassemble-furniture/",
+      "title": "Do movers disassemble and reassemble furniture?",
+      "primaryKeyword": "do movers disassemble furniture",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Existing object guides mention assembly incidentally; no standalone task/service-boundary comparison exists.",
+      "readerDecision": "Agree the named furniture tasks, preparation, hardware custody and rebuilding responsibility before booking.",
+      "uniquePracticalArtifact": "A furniture task schedule: item/model, disassembly, packing, hardware, reassembly and specialist.",
+      "outline": [
+        "Name each furniture item rather than saying assembly included",
+        "Identify the correct model instructions",
+        "Record who retains hardware and parts",
+        "Confirm rebuilding and any separate installer"
+      ],
+      "relatedExistingUrls": [
+        "/services/packing/",
+        "/planning/estimate-service-inclusions-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not provide structural DIY instructions or claim every mover assembles every product.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Do movers disassemble and reassemble furniture?",
+      "metaDescription": "Agree the named furniture tasks, preparation, hardware custody and rebuilding responsibility before booking.",
+      "supportingKeywords": [],
+      "readerGoal": "Agree the named furniture tasks, preparation, hardware custody and rebuilding responsibility before booking.",
+      "related": [
+        "/services/packing/",
+        "/planning/estimate-service-inclusions-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-08",
+      "family": "question",
+      "slug": "moving-unpacking-and-box-removal-services",
+      "proposedUrl": "/questions/moving-unpacking-and-box-removal-services/",
+      "title": "Do moving services include unpacking and box removal?",
+      "primaryKeyword": "movers unpacking and box removal",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The packing pillar mentions unpacking but does not distinguish opening cartons, placing items, assembly and debris removal.",
+      "readerDecision": "Quote the destination tasks actually wanted and identify which materials the provider will remove.",
+      "uniquePracticalArtifact": "A destination-service matrix with room, task, packaging and completion criteria.",
+      "outline": [
+        "Separate carton opening from arranging possessions",
+        "Describe destination rooms and receiving space",
+        "Confirm what packaging can be removed and when",
+        "Record exclusions and any follow-up visit"
+      ],
+      "relatedExistingUrls": [
+        "/services/packing/",
+        "/questions/how-much-does-packing-cost/",
+        "/planning/delivery-day-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not guarantee recycling acceptance, disposal service, setup work or a universal per-box charge.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Do moving services include unpacking and box removal?",
+      "metaDescription": "Quote the destination tasks actually wanted and identify which materials the provider will remove.",
+      "supportingKeywords": [],
+      "readerGoal": "Quote the destination tasks actually wanted and identify which materials the provider will remove.",
+      "related": [
+        "/services/packing/",
+        "/questions/how-much-does-packing-cost/",
+        "/planning/delivery-day-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-09",
+      "family": "question",
+      "slug": "minimum-charges-on-small-moving-quotes",
+      "proposedUrl": "/questions/minimum-charges-on-small-moving-quotes/",
+      "title": "How do minimum charges affect a small moving quote?",
+      "primaryKeyword": "moving company minimum charge",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Weighing and cost articles mention minimums without a dedicated worksheet for comparing different billing floors.",
+      "readerDecision": "Compare each quoted billing minimum and included work on the same shipment without treating the headline rate as the total.",
+      "uniquePracticalArtifact": "A minimum-hours/minimum-weight versus included-services comparison table using blank fields.",
+      "outline": [
+        "Identify the quoted billing unit and minimum",
+        "Separate travel and service fees",
+        "Ask how unused quoted time or capacity is treated",
+        "Compare the full written total for the same job"
+      ],
+      "relatedExistingUrls": [
+        "/questions/how-do-moving-companies-charge/",
+        "/questions/how-much-do-local-movers-cost/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "No invented typical minimum, fixed legal minimum, current market rate or guaranteed savings.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "How do minimum charges affect a small moving quote?",
+      "metaDescription": "Compare each quoted billing minimum and included work on the same shipment without treating the headline rate as the total.",
+      "supportingKeywords": [],
+      "readerGoal": "Compare each quoted billing minimum and included work on the same shipment without treating the headline rate as the total.",
+      "related": [
+        "/questions/how-do-moving-companies-charge/",
+        "/questions/how-much-do-local-movers-cost/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-10",
+      "family": "question",
+      "slug": "travel-time-and-truck-fees-in-hourly-moving-quotes",
+      "proposedUrl": "/questions/travel-time-and-truck-fees-in-hourly-moving-quotes/",
+      "title": "What are travel-time and truck fees in a moving quote?",
+      "primaryKeyword": "moving company travel time charge",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The hourly-cost coverage lacks a standalone start/stop-clock and non-working-time comparison.",
+      "readerDecision": "Identify when the billing clock starts and stops and whether the vehicle, travel and crew are priced separately.",
+      "uniquePracticalArtifact": "A timeline with provider-defined clock start, pickup, drive, delivery and clock stop.",
+      "outline": [
+        "Distinguish working time from quoted travel",
+        "Ask how truck and crew costs are listed",
+        "Record route, waiting and access assumptions",
+        "Check the provider-defined total and terms"
+      ],
+      "relatedExistingUrls": [
+        "/questions/how-much-do-local-movers-cost/",
+        "/questions/how-do-moving-companies-charge/",
+        "/planning/estimate-service-inclusions-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Do not state a universal clock rule or travel fee; local legal terms require the actual state source.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "What are travel-time and truck fees in a moving quote?",
+      "metaDescription": "Identify when the billing clock starts and stops and whether the vehicle, travel and crew are priced separately.",
+      "supportingKeywords": [],
+      "readerGoal": "Identify when the billing clock starts and stops and whether the vehicle, travel and crew are priced separately.",
+      "related": [
+        "/questions/how-much-do-local-movers-cost/",
+        "/questions/how-do-moving-companies-charge/",
+        "/planning/estimate-service-inclusions-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-11",
+      "family": "question",
+      "slug": "moving-between-apartments-in-the-same-building",
+      "proposedUrl": "/questions/moving-between-apartments-in-the-same-building/",
+      "title": "Can I hire movers for a move within the same building?",
+      "primaryKeyword": "same building movers",
+      "intent": "commercial",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The apartment checklist assumes a truck/loading-zone move; a no-road household transfer has a distinct service scope.",
+      "readerDecision": "Specify floors, elevator use, furniture preparation and the exact handling tasks even when no truck is needed.",
+      "uniquePracticalArtifact": "A from-unit/to-unit access and item-transfer plan.",
+      "outline": [
+        "Describe the transfer without assuming a truck",
+        "Record both unit layouts and elevator controls",
+        "Ask about preparation, crew and equipment",
+        "Confirm the service scope with building management"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-from-an-apartment-checklist/",
+        "/questions/do-movers-charge-for-stairs-and-long-carries/",
+        "/services/local/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "ftc-mover-scams"
+      ],
+      "claimBoundary": "Do not apply interstate carriage rules automatically or promise providers accept labor-only in-building moves.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Can I hire movers for a move within the same building?",
+      "metaDescription": "Specify floors, elevator use, furniture preparation and the exact handling tasks even when no truck is needed.",
+      "supportingKeywords": [],
+      "readerGoal": "Specify floors, elevator use, furniture preparation and the exact handling tasks even when no truck is needed.",
+      "related": [
+        "/planning/moving-from-an-apartment-checklist/",
+        "/questions/do-movers-charge-for-stairs-and-long-carries/",
+        "/services/local/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "ftc-written-estimate",
+        "ftc-deposit-warning"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-12",
+      "family": "planning",
+      "slug": "self-storage-unit-to-home-moving-checklist",
+      "proposedUrl": "/planning/self-storage-unit-to-home-moving-checklist/",
+      "title": "Storage unit to home moving checklist",
+      "primaryKeyword": "storage unit movers checklist",
+      "intent": "informational",
+      "priority": "first_pilot",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The current storage-redelivery page concerns mover custody/SIT, not a customer-controlled self-storage pickup.",
+      "readerDecision": "Prepare a privately rented storage unit, access permission, item list and destination for a separate moving service.",
+      "uniquePracticalArtifact": "A gate/access handoff and unit-inventory worksheet.",
+      "outline": [
+        "Confirm access hours and who can authorize entry",
+        "List the unit contents and packaging condition",
+        "Describe truck access and loading restrictions",
+        "Document release, pickup and delivery responsibilities"
+      ],
+      "relatedExistingUrls": [
+        "/planning/storage-redelivery-readiness-checklist/",
+        "/planning/moving-with-a-storage-gap/",
+        "/questions/what-is-storage-in-transit/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "Keep self-storage terms distinct from interstate storage-in-transit; no automatic insurance or custody equivalence.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Storage unit to home moving checklist",
+      "metaDescription": "Prepare a privately rented storage unit, access permission, item list and destination for a separate moving service.",
+      "supportingKeywords": [],
+      "readerGoal": "Prepare a privately rented storage unit, access permission, item list and destination for a separate moving service.",
+      "related": [
+        "/planning/storage-redelivery-readiness-checklist/",
+        "/planning/moving-with-a-storage-gap/",
+        "/questions/what-is-storage-in-transit/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-13",
+      "family": "planning",
+      "slug": "last-minute-household-move-quote-checklist",
+      "proposedUrl": "/planning/last-minute-household-move-quote-checklist/",
+      "title": "Last-minute move quote checklist",
+      "primaryKeyword": "last minute moving checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The eight-week timeline and booking lead-time answer do not prioritize an urgent booking when time is limited.",
+      "readerDecision": "Create a complete urgent request and a realistic fallback without accepting an undocumented offer.",
+      "uniquePracticalArtifact": "A must-confirm-today list and unresolved-dependency register.",
+      "outline": [
+        "Confirm the actual move-out and receiving deadlines",
+        "Make a concise item and service list",
+        "Ask each provider about dates and required documents",
+        "Build a fallback for unresolved access or receiving time"
+      ],
+      "relatedExistingUrls": [
+        "/questions/how-far-in-advance-should-i-book-movers/",
+        "/planning/moving-timeline-8-weeks/",
+        "/questions/does-a-mover-have-to-do-a-survey/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "claimBoundary": "Do not guarantee same-day availability or compress federal paperwork into invented deadlines; cite current rules before making any timing claim.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Last-minute move quote checklist",
+      "metaDescription": "Create a complete urgent request and a realistic fallback without accepting an undocumented offer.",
+      "supportingKeywords": [],
+      "readerGoal": "Create a complete urgent request and a realistic fallback without accepting an undocumented offer.",
+      "related": [
+        "/questions/how-far-in-advance-should-i-book-movers/",
+        "/planning/moving-timeline-8-weeks/",
+        "/questions/does-a-mover-have-to-do-a-survey/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-14",
+      "family": "planning",
+      "slug": "uncertain-closing-date-moving-plan-checklist",
+      "proposedUrl": "/planning/uncertain-closing-date-moving-plan-checklist/",
+      "title": "Moving when your closing date is uncertain: checklist",
+      "primaryKeyword": "moving closing date uncertain checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The storage-gap page addresses a known gap, not managing a provisional closing date and booking-change decisions.",
+      "readerDecision": "Record date certainty, who communicates changes and which provider terms need confirmation before committing.",
+      "uniquePracticalArtifact": "A date-confidence and change-notification decision log.",
+      "outline": [
+        "Separate confirmed possession from a target closing date",
+        "Record the mover and property contacts",
+        "Request written rescheduling and storage terms",
+        "Set trigger points for each contingency"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-with-a-storage-gap/",
+        "/questions/what-is-a-moving-delivery-spread/",
+        "/questions/how-far-in-advance-should-i-book-movers/"
+      ],
+      "sourceIds": [
+        "fmcsa-estimates",
+        "fmcsa-planning"
+      ],
+      "claimBoundary": "No real-estate legal advice, guaranteed closing timetable, universal refund right or automatic storage availability.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Moving when your closing date is uncertain: checklist",
+      "metaDescription": "Record date certainty, who communicates changes and which provider terms need confirmation before committing.",
+      "supportingKeywords": [],
+      "readerGoal": "Record date certainty, who communicates changes and which provider terms need confirmation before committing.",
+      "related": [
+        "/planning/moving-with-a-storage-gap/",
+        "/questions/what-is-a-moving-delivery-spread/",
+        "/questions/how-far-in-advance-should-i-book-movers/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "interstate-estimate-services",
+        "interstate-preloading-amendment",
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-15",
+      "family": "planning",
+      "slug": "moving-day-key-and-access-handoff-checklist",
+      "proposedUrl": "/planning/moving-day-key-and-access-handoff-checklist/",
+      "title": "Moving-day keys and access handoff checklist",
+      "primaryKeyword": "moving day key handoff checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "General moving-day guidance does not provide an access-owner/key-contact register for two properties.",
+      "readerDecision": "Make access available to the authorized crew without publishing private door or gate codes.",
+      "uniquePracticalArtifact": "An access-owner register that keeps actual secret codes out of shared/public worksheets.",
+      "outline": [
+        "Confirm who can open each property",
+        "Check key collection and crew arrival dependencies",
+        "Use a private contact channel for access instructions",
+        "Record the fallback if the receiver is delayed"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-day-checklist/",
+        "/planning/delivery-day-checklist/",
+        "/planning/moving-elevator-reservation-handoff-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "claimBoundary": "No assumption that a driver may enter unattended property or that a relative can sign binding documents.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Moving-day keys and access handoff checklist",
+      "metaDescription": "Make access available to the authorized crew without publishing private door or gate codes.",
+      "supportingKeywords": [],
+      "readerGoal": "Make access available to the authorized crew without publishing private door or gate codes.",
+      "related": [
+        "/planning/moving-day-checklist/",
+        "/planning/delivery-day-checklist/",
+        "/planning/moving-elevator-reservation-handoff-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-16",
+      "family": "planning",
+      "slug": "moving-deposit-and-cancellation-policy-review-checklist",
+      "proposedUrl": "/planning/moving-deposit-and-cancellation-policy-review-checklist/",
+      "title": "Moving deposit and cancellation-policy review checklist",
+      "primaryKeyword": "moving deposit cancellation checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Existing scam and broker articles warn about deposits; a prebooking policy-comparison worksheet is missing.",
+      "readerDecision": "Understand the actual written payment, cancellation and date-change terms before paying a provider.",
+      "uniquePracticalArtifact": "A policy table with amount, payee, due date, cancellation trigger, refund language and receipt.",
+      "outline": [
+        "Verify the exact company and payment recipient",
+        "Read the written deposit and cancellation terms",
+        "Ask unresolved questions before payment",
+        "Save the policy version and payment receipt"
+      ],
+      "relatedExistingUrls": [
+        "/questions/how-to-spot-a-moving-scam/",
+        "/questions/how-to-check-if-a-moving-company-is-legitimate/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "ftc-mover-scams",
+        "fmcsa-success"
+      ],
+      "claimBoundary": "No legal deposit percentage, standard refund promise or claim that all deposits are scams.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Moving deposit and cancellation-policy review checklist",
+      "metaDescription": "Understand the actual written payment, cancellation and date-change terms before paying a provider.",
+      "supportingKeywords": [],
+      "readerGoal": "Understand the actual written payment, cancellation and date-change terms before paying a provider.",
+      "related": [
+        "/questions/how-to-spot-a-moving-scam/",
+        "/questions/how-to-check-if-a-moving-company-is-legitimate/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "ftc-written-estimate",
+        "ftc-deposit-warning",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-17",
+      "family": "planning",
+      "slug": "moving-truck-parking-permit-preparation-checklist",
+      "proposedUrl": "/planning/moving-truck-parking-permit-preparation-checklist/",
+      "title": "Moving-truck parking and permit preparation checklist",
+      "primaryKeyword": "moving truck parking permit checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Apartment/access pages mention loading zones but do not separate official street rules, property permission and the application owner.",
+      "readerDecision": "Locate address-specific official instructions and coordinate a legal usable loading position with the provider.",
+      "uniquePracticalArtifact": "A parking-permission register with authority, vehicle details, applicant, date/window and confirmation.",
+      "outline": [
+        "Record the actual truck or container and both curb addresses",
+        "Ask each local authority and building manager which permissions apply",
+        "Separate the applicant, sign posting and mover responsibilities",
+        "Confirm the provider has acknowledged the written parking plan"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-from-an-apartment-checklist/",
+        "/planning/moving-shuttle-access-assessment-checklist/",
+        "/questions/do-movers-charge-for-stairs-and-long-carries/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "boston-moving-parking"
+      ],
+      "claimBoundary": "Treat Boston only as an example showing why the address-specific authority must be checked. Do not reproduce fees, application windows, guarantee availability, say all cities require a permit, or confuse truck reservations with containers.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Moving-truck parking and permit preparation checklist",
+      "metaDescription": "Locate address-specific official instructions and coordinate a legal usable loading position with the provider.",
+      "supportingKeywords": [],
+      "readerGoal": "Locate address-specific official instructions and coordinate a legal usable loading position with the provider.",
+      "related": [
+        "/planning/moving-from-an-apartment-checklist/",
+        "/planning/moving-shuttle-access-assessment-checklist/",
+        "/questions/do-movers-charge-for-stairs-and-long-carries/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "boston-parking-specific-process"
+      ],
+      "evidenceInstructions": "Use only listed registry claims. Institution, manufacturer, jurisdiction and provider examples must retain their named scope. Ask readers to obtain their own current rules or manual. Practical worksheets are editorial recommendations, not invented legal or technical requirements.",
+      "sourceReview": {
+        "reviewedOn": "2026-10-30",
+        "priorReadiness": "needs_target_jurisdiction_source",
+        "resolution": "Primary evidence reviewed; article narrowed to planning and written-scope questions. Model-specific technical instructions and generalized policies remain excluded."
+      }
+    },
+    {
+      "id": "claude-pilot-18",
+      "family": "planning",
+      "slug": "remote-moving-representative-handoff-checklist",
+      "proposedUrl": "/planning/remote-moving-representative-handoff-checklist/",
+      "title": "Remote moving representative handoff checklist",
+      "primaryKeyword": "manage move remotely checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The moving-day article says to be present but does not give an operational handoff for an absent customer.",
+      "readerDecision": "Agree which tasks an accepted local representative may perform and where decisions must return to the customer.",
+      "uniquePracticalArtifact": "A responsibility/contact/escalation sheet with written carrier confirmation.",
+      "outline": [
+        "Ask the carrier what authorization it accepts",
+        "Provide a task and inventory handoff",
+        "Keep customer approval routes available",
+        "Arrange document and condition-photo delivery"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-day-checklist/",
+        "/planning/pickup-condition-photo-inventory-checklist/",
+        "/planning/delivery-day-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "claimBoundary": "Do not infer a power of attorney, permission to sign, ownership rights or blanket legal authority.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Remote moving representative handoff checklist",
+      "metaDescription": "Agree which tasks an accepted local representative may perform and where decisions must return to the customer.",
+      "supportingKeywords": [],
+      "readerGoal": "Agree which tasks an accepted local representative may perform and where decisions must return to the customer.",
+      "related": [
+        "/planning/moving-day-checklist/",
+        "/planning/pickup-condition-photo-inventory-checklist/",
+        "/planning/delivery-day-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-19",
+      "family": "planning",
+      "slug": "shared-home-partial-shipment-checklist",
+      "proposedUrl": "/planning/shared-home-partial-shipment-checklist/",
+      "title": "Moving part of a shared home: shipment checklist",
+      "primaryKeyword": "moving out shared house checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Downsizing removes unwanted volume; this page separates belongings moving out of a still-occupied shared home.",
+      "readerDecision": "Create an agreed move/stay/uncertain inventory and keep household members items from being accidentally loaded.",
+      "uniquePracticalArtifact": "A three-column move/stay/unresolved item register with destination labels.",
+      "outline": [
+        "Resolve the intended shipment before requesting estimates",
+        "Use room-level item decisions and labels",
+        "Keep unresolved property out of the loading instruction",
+        "Give the crew one agreed authorized inventory"
+      ],
+      "relatedExistingUrls": [
+        "/planning/downsizing-before-a-move/",
+        "/planning/pickup-condition-photo-inventory-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "fmcsa-success"
+      ],
+      "claimBoundary": "No divorce, tenancy, inheritance or property-ownership advice; stop disputed decisions and seek appropriate help.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Moving part of a shared home: shipment checklist",
+      "metaDescription": "Create an agreed move/stay/uncertain inventory and keep household members items from being accidentally loaded.",
+      "supportingKeywords": [],
+      "readerGoal": "Create an agreed move/stay/uncertain inventory and keep household members items from being accidentally loaded.",
+      "related": [
+        "/planning/downsizing-before-a-move/",
+        "/planning/pickup-condition-photo-inventory-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "read-move-documents",
+        "arrange-representative"
+      ],
+      "evidenceInstructions": "Use only the listed verified claims as sourced facts; practical worksheet steps are editorial recommendations. Federal claims must be expressly limited to interstate household-goods transport. Do not present FMCSA planning recommendations as universal local/labor-only legal requirements."
+    },
+    {
+      "id": "claude-pilot-20",
+      "family": "planning",
+      "slug": "senior-living-household-move-handoff-checklist",
+      "proposedUrl": "/planning/senior-living-household-move-handoff-checklist/",
+      "title": "Moving into senior living: household handoff checklist",
+      "primaryKeyword": "senior living moving checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "General downsizing does not cover the receiving facility and family/mover coordination needed for a small household shipment.",
+      "readerDecision": "Coordinate the accepted item list, receiving room, delivery appointment and decision contact with the actual facility.",
+      "uniquePracticalArtifact": "A facility-acceptance and receiving-room handoff form.",
+      "outline": [
+        "Ask the actual community for its move-in contact and written access instructions",
+        "List only the resident belongings going to the new apartment",
+        "Assign keys, receiving and first-day essentials to named helpers",
+        "Compare mover work separately from community staff or family tasks"
+      ],
+      "relatedExistingUrls": [
+        "/planning/downsizing-before-a-move/",
+        "/planning/first-night-box-checklist/",
+        "/planning/delivery-day-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "brookdale-move-in"
+      ],
+      "claimBoundary": "Brookdale is a limited first-party example. Do not imply AMC partnership, recommend a named mover, promise maintenance help or early access, or supply medical, care-level or facility-policy advice. Confirm all facility rules directly.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Moving into senior living: household handoff checklist",
+      "metaDescription": "Coordinate the accepted item list, receiving room, delivery appointment and decision contact with the actual facility.",
+      "supportingKeywords": [],
+      "readerGoal": "Coordinate the accepted item list, receiving room, delivery appointment and decision contact with the actual facility.",
+      "related": [
+        "/planning/downsizing-before-a-move/",
+        "/planning/first-night-box-checklist/",
+        "/planning/delivery-day-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "brookdale-community-specific-move-in"
+      ],
+      "evidenceInstructions": "Use only listed registry claims. Institution, manufacturer, jurisdiction and provider examples must retain their named scope. Ask readers to obtain their own current rules or manual. Practical worksheets are editorial recommendations, not invented legal or technical requirements.",
+      "sourceReview": {
+        "reviewedOn": "2026-10-30",
+        "priorReadiness": "needs_facility_primary_example",
+        "resolution": "Primary evidence reviewed; article narrowed to planning and written-scope questions. Model-specific technical instructions and generalized policies remain excluded."
+      }
+    },
+    {
+      "id": "claude-pilot-21",
+      "family": "planning",
+      "slug": "college-dorm-small-move-checklist",
+      "proposedUrl": "/planning/college-dorm-small-move-checklist/",
+      "title": "College or dorm small-move checklist",
+      "primaryKeyword": "college student movers checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Current family/apartment checklists do not handle institution-controlled move windows, limited room contents and student receiving rules.",
+      "readerDecision": "Confirm the actual campus rules and build a small-shipment scope without assuming a campus affiliation.",
+      "uniquePracticalArtifact": "A campus-policy, room-inventory and move-window worksheet.",
+      "outline": [
+        "Get the actual housing assignment, dates and receiving instructions",
+        "Separate student belongings from school or roommate property",
+        "List compact-shipment and access details for written quotes",
+        "Assign room access, checkout and destination receipt responsibilities"
+      ],
+      "relatedExistingUrls": [
+        "/planning/moving-from-an-apartment-checklist/",
+        "/planning/first-night-box-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "ucla-housing-dates"
+      ],
+      "claimBoundary": "UCLA demonstrates institution and building-specific dates only. Do not copy academic dates, prices, student eligibility, loading privileges, vendor restrictions or checkout procedures to other schools. Ask the actual housing office for current instructions.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "College or dorm small-move checklist",
+      "metaDescription": "Confirm the actual campus rules and build a small-shipment scope without assuming a campus affiliation.",
+      "supportingKeywords": [],
+      "readerGoal": "Confirm the actual campus rules and build a small-shipment scope without assuming a campus affiliation.",
+      "related": [
+        "/planning/moving-from-an-apartment-checklist/",
+        "/planning/first-night-box-checklist/",
+        "/questions/how-to-compare-moving-estimates/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "ucla-location-specific-housing-dates"
+      ],
+      "evidenceInstructions": "Use only listed registry claims. Institution, manufacturer, jurisdiction and provider examples must retain their named scope. Ask readers to obtain their own current rules or manual. Practical worksheets are editorial recommendations, not invented legal or technical requirements.",
+      "sourceReview": {
+        "reviewedOn": "2026-10-30",
+        "priorReadiness": "needs_institution_primary_example",
+        "resolution": "Primary evidence reviewed; article narrowed to planning and written-scope questions. Model-specific technical instructions and generalized policies remain excluded."
+      }
+    },
+    {
+      "id": "claude-pilot-22",
+      "family": "planning",
+      "slug": "home-gym-moving-quote-preparation-checklist",
+      "proposedUrl": "/planning/home-gym-moving-quote-preparation-checklist/",
+      "title": "Home gym moving-quote preparation checklist",
+      "primaryKeyword": "home gym movers checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "The specialty pillar lists exercise equipment, but the item/model/access and specialist-task handoff is absent.",
+      "readerDecision": "Identify each exercise machine and the preparation/reassembly work needing a provider or specialist.",
+      "uniquePracticalArtifact": "A model-specific equipment and service schedule.",
+      "outline": [
+        "Record equipment brand, exact model and the owner manual",
+        "Photograph the equipment and measure its actual access route",
+        "Ask who provides any required specialist preparation and reassembly",
+        "Compare transport and specialist work as separate written responsibilities"
+      ],
+      "relatedExistingUrls": [
+        "/services/specialty/",
+        "/questions/how-to-compare-moving-estimates/",
+        "/planning/estimate-service-inclusions-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "horizon-treadmill-moving"
+      ],
+      "claimBoundary": "This is a quote-preparation checklist, not assembly or lifting instructions. Horizon is a limited manufacturer example. Identify each actual model and obtain its own manual; no DIY folding, lifting, cable, disassembly or electrical advice and no universal mover reassembly promise.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Home gym moving-quote preparation checklist",
+      "metaDescription": "Identify each exercise machine and the preparation/reassembly work needing a provider or specialist.",
+      "supportingKeywords": [],
+      "readerGoal": "Identify each exercise machine and the preparation/reassembly work needing a provider or specialist.",
+      "related": [
+        "/services/specialty/",
+        "/questions/how-to-compare-moving-estimates/",
+        "/planning/estimate-service-inclusions-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "horizon-model-dependent-moving"
+      ],
+      "evidenceInstructions": "Use only listed registry claims. Institution, manufacturer, jurisdiction and provider examples must retain their named scope. Ask readers to obtain their own current rules or manual. Practical worksheets are editorial recommendations, not invented legal or technical requirements.",
+      "sourceReview": {
+        "reviewedOn": "2026-10-30",
+        "priorReadiness": "needs_model_manufacturer_source",
+        "resolution": "Primary evidence reviewed; article narrowed to planning and written-scope questions. Model-specific technical instructions and generalized policies remain excluded."
+      }
+    },
+    {
+      "id": "claude-pilot-23",
+      "family": "planning",
+      "slug": "pool-table-moving-quote-checklist",
+      "proposedUrl": "/planning/pool-table-moving-quote-checklist/",
+      "title": "Pool-table moving quote and specialist checklist",
+      "primaryKeyword": "pool table movers checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "A specialty FAQ mentions pool tables, but no standalone slate/assembly/responsibility quote worksheet exists.",
+      "readerDecision": "Identify the actual table and arrange the specialist tasks required before comparing service offers.",
+      "uniquePracticalArtifact": "A table/model, access, disassembly, slate handling and leveling responsibility matrix.",
+      "outline": [
+        "Identify the actual table maker, model and construction privately",
+        "Describe pickup route and receiving-room access for the specialist",
+        "Separate breakdown, crating, transport, reinstallation and finishing questions",
+        "Name the responsible provider for every accepted task in the written scope"
+      ],
+      "relatedExistingUrls": [
+        "/services/specialty/",
+        "/planning/estimate-service-inclusions-checklist/",
+        "/questions/do-movers-charge-for-stairs-and-long-carries/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "olhausen-gamerooms-moving"
+      ],
+      "claimBoundary": "The cited dealer illustrates only its own service breakdown. Do not imply AMC partnership or endorsement, quote prices, preserve or promise a warranty, universalize slate crating, provide DIY slate handling, or promise setup or leveling. Get the actual table maker and specialist scope.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Pool-table moving quote and specialist checklist",
+      "metaDescription": "Identify the actual table and arrange the specialist tasks required before comparing service offers.",
+      "supportingKeywords": [],
+      "readerGoal": "Identify the actual table and arrange the specialist tasks required before comparing service offers.",
+      "related": [
+        "/services/specialty/",
+        "/planning/estimate-service-inclusions-checklist/",
+        "/questions/do-movers-charge-for-stairs-and-long-carries/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "olhausen-provider-specific-relocation-scope"
+      ],
+      "evidenceInstructions": "Use only listed registry claims. Institution, manufacturer, jurisdiction and provider examples must retain their named scope. Ask readers to obtain their own current rules or manual. Practical worksheets are editorial recommendations, not invented legal or technical requirements.",
+      "sourceReview": {
+        "reviewedOn": "2026-10-30",
+        "priorReadiness": "needs_model_manufacturer_source",
+        "resolution": "Primary evidence reviewed; article narrowed to planning and written-scope questions. Model-specific technical instructions and generalized policies remain excluded."
+      }
+    },
+    {
+      "id": "claude-pilot-24",
+      "family": "planning",
+      "slug": "antique-furniture-moving-survey-checklist",
+      "proposedUrl": "/planning/antique-furniture-moving-survey-checklist/",
+      "title": "Antique furniture moving-survey checklist",
+      "primaryKeyword": "antique furniture movers checklist",
+      "intent": "informational",
+      "priority": "follow_up",
+      "demandStatus": "hypothesis_no_query_volume_measured",
+      "gapRationale": "Framed artwork and general furniture preparation do not cover identifying delicate furniture surfaces, existing repairs and specialist packing decisions.",
+      "readerDecision": "Give a provider a documented condition and access description while separating conservation from ordinary moving work.",
+      "uniquePracticalArtifact": "An object-level condition, prior-repair and specialist-packing record.",
+      "outline": [
+        "Document object identity, dimensions and current condition privately",
+        "Record loose joints, components, past repairs and sensitive finishes",
+        "Ask whether a conservator or specialist should advise before transport",
+        "Agree who supplies packing, handling and unpacking for the actual object"
+      ],
+      "relatedExistingUrls": [
+        "/services/specialty/",
+        "/planning/moving-high-value-article-schedule-checklist/",
+        "/planning/pickup-condition-photo-inventory-checklist/"
+      ],
+      "sourceIds": [
+        "fmcsa-planning",
+        "cci-wood-furniture"
+      ],
+      "claimBoundary": "Use the conservation source only for condition checks and the distinction between conservation and ordinary transport. No restoration, solvent, humidity target, universal wrapping or lifting instruction, assumed value, appraisal, or fabricated conservator credential.",
+      "readiness": "draft_ready",
+      "cta": "Request moving quotes",
+      "ctaContext": "Invite the reader to describe this exact household shipment in the existing quote survey; never promise price, coverage, contact timing or a named provider.",
+      "publicationAction": "New candidate only after live inventory/duplicate-intent and normal publication gates. Brief and drafted content are not published counts.",
+      "h1": "Antique furniture moving-survey checklist",
+      "metaDescription": "Give a provider a documented condition and access description while separating conservation from ordinary moving work.",
+      "supportingKeywords": [],
+      "readerGoal": "Give a provider a documented condition and access description while separating conservation from ordinary moving work.",
+      "related": [
+        "/services/specialty/",
+        "/planning/moving-high-value-article-schedule-checklist/",
+        "/planning/pickup-condition-photo-inventory-checklist/"
+      ],
+      "factTopics": [],
+      "sourceClaimIds": [
+        "compare-written-service-scope",
+        "confirm-pickup-delivery-contact",
+        "cci-condition-before-moving"
+      ],
+      "evidenceInstructions": "Use only listed registry claims. Institution, manufacturer, jurisdiction and provider examples must retain their named scope. Ask readers to obtain their own current rules or manual. Practical worksheets are editorial recommendations, not invented legal or technical requirements.",
+      "sourceReview": {
+        "reviewedOn": "2026-10-30",
+        "priorReadiness": "needs_conservation_primary_source",
+        "resolution": "Primary evidence reviewed; article narrowed to planning and written-scope questions. Model-specific technical instructions and generalized policies remain excluded."
+      }
+    }
+  ],
+  "firstWaveIds": [
+    "claude-pilot-01",
+    "claude-pilot-02",
+    "claude-pilot-03",
+    "claude-pilot-04",
+    "claude-pilot-05",
+    "claude-pilot-06",
+    "claude-pilot-07",
+    "claude-pilot-08",
+    "claude-pilot-09",
+    "claude-pilot-10",
+    "claude-pilot-11",
+    "claude-pilot-12"
+  ],
+  "sourceInventory": {
+    "authoredQuestions": 54,
+    "authoredPlanning": 41,
+    "livePublishedCount": "not queried",
+    "exactSlugCollisions": 0,
+    "semanticNovelty": "Reviewed against dedicated authored intent; broad existing guides may still cover related points. Normal semantic/lexical gates must decide publication."
+  },
+  "commonDraftContract": {
+    "audience": "People planning household moves; no public B2B lead-sale, pricing or mover-list promotion.",
+    "answerFirstWords": [
+      40,
+      60
+    ],
+    "targetWordRange": [
+      650,
+      1000
+    ],
+    "structure": [
+      "Direct answer",
+      "Distinct decision worksheet/table",
+      "Scenario specific to this task",
+      "Questions to send the provider",
+      "Relevant existing guides and neutral quote CTA"
+    ],
+    "facts": [
+      "No invented prices, demand, current mover availability, reviews, qualifications, legal business details or local statistics.",
+      "Regulatory claims apply only in their verified scope and cite a current primary source.",
+      "Practical planning steps are editorial advice, not invented legal requirements.",
+      "No synthetic authors or expert-review claims.",
+      "No city-name permutations and no source-text copying.",
+      "Use the existing design/media/hero and closing survey templates."
+    ],
+    "conversionMeasurement": [
+      "Organic landing sessions once indexing is enabled",
+      "Survey starts by landing page",
+      "Completed valid quote requests by landing page",
+      "Cost per accepted new article and per resulting quote request"
+    ],
+    "gates": "Retain source/evidence, duplicate intent, minimum length and whole-family uniqueness gates; save failed candidates as held, not published."
+  },
+  "launchConstraint": "The repository handoff says demo/noindex remains enabled. Publishing more pages alone does not enable search traffic; root must verify current live indexability and launch prerequisites separately.",
+  "claims": [
+    {
+      "id": "interstate-estimate-services",
+      "sourceId": "fmcsa-estimates",
+      "text": "For interstate household-goods moves, 49 CFR 375.401 requires a written estimate covering transportation and related services."
+    },
+    {
+      "id": "interstate-preloading-amendment",
+      "sourceId": "fmcsa-estimates",
+      "text": "49 CFR 375.401 permits estimate amendments before loading by mutual agreement; the section does not permit amending an estimate after loading."
+    },
+    {
+      "id": "compare-written-service-scope",
+      "sourceId": "fmcsa-planning",
+      "text": "FMCSA recommends obtaining several estimates and comparing the services provided, not only the quoted total."
+    },
+    {
+      "id": "confirm-pickup-delivery-contact",
+      "sourceId": "fmcsa-planning",
+      "text": "FMCSA recommends establishing pickup and delivery arrangements and how to contact the provider before, during and after the move."
+    },
+    {
+      "id": "read-move-documents",
+      "sourceId": "fmcsa-success",
+      "text": "FMCSA advises reviewing completed shipment documents and not signing blank documents."
+    },
+    {
+      "id": "arrange-representative",
+      "sourceId": "fmcsa-success",
+      "text": "FMCSA recommends supervising loading and unloading, or asking a known person to act on the customer behalf when unavailable. This does not establish legal signing authority."
+    },
+    {
+      "id": "ftc-written-estimate",
+      "sourceId": "ftc-mover-scams",
+      "text": "FTC recommends written estimates describing the property being moved and comparing the estimates."
+    },
+    {
+      "id": "ftc-deposit-warning",
+      "sourceId": "ftc-mover-scams",
+      "text": "FTC warns against demands for cash or a large deposit before a move. Its guidance does not set a universal legal deposit limit or refund deadline."
+    },
+    {
+      "id": "boston-parking-specific-process",
+      "sourceId": "boston-moving-parking",
+      "text": "Boston publishes its own process for reserving moving-truck parking. This is a Boston example, not a nationwide rule."
+    },
+    {
+      "id": "brookdale-community-specific-move-in",
+      "sourceId": "brookdale-move-in",
+      "text": "Brookdale advises coordinating move-in with the specific community and checking what the new home includes and what belongings may be brought. This describes Brookdale guidance, not every senior-living community."
+    },
+    {
+      "id": "ucla-location-specific-housing-dates",
+      "sourceId": "ucla-housing-dates",
+      "text": "UCLA Housing says undergraduate contract dates and move-in and move-out periods vary by assigned housing location. This is a UCLA example, not a rule for other schools."
+    },
+    {
+      "id": "horizon-model-dependent-moving",
+      "sourceId": "horizon-treadmill-moving",
+      "text": "Horizon Fitness distinguishes folding and non-folding treadmills and different wheel arrangements in its moving guidance, and refers readers to the owner manual for handrail assembly. This does not establish a moving method for other brands or machines."
+    },
+    {
+      "id": "olhausen-provider-specific-relocation-scope",
+      "sourceId": "olhausen-gamerooms-moving",
+      "text": "Olhausen Gamerooms describes breakdown, transport, reinstallation and slate crating among its own pool-table relocation arrangements. This is one provider example, not a service inclusion or warranty promise from other movers."
+    },
+    {
+      "id": "cci-condition-before-moving",
+      "sourceId": "cci-wood-furniture",
+      "text": "The Canadian Conservation Institute recommends checking wooden furniture for damage or loose joints before moving it and referring extensive repair or cleaning to a conservator."
+    }
+  ],
+  "supersedesForFutureRunsOnly": "amc-claude-pilot-2026-10-30-v1",
+  "sourceReviewSummary": {
+    "draftReady": 24,
+    "held": 0,
+    "notPublicationApproval": true
+  }
+}

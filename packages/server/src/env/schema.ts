@@ -82,6 +82,12 @@ export const envSchema = z.object({
   DEMO_ADMIN_PASSWORD_ONLY: flag(false),
   SITE_INDEXABLE: flag(false),
 
+  // Claude manuscript generation is private and opt-in; no public request can turn it on.
+  ANTHROPIC_API_KEY: optionalString,
+  ANTHROPIC_WORKSPACE_ID: optionalString,
+  AI_CONTENT_BUDGET_USD: z.preprocess(blankToUndefined, z.coerce.number().finite().min(0).max(50).default(0)),
+  AI_CONTENT_ENABLED: flag(false),
+
   /** Sender for transactional email when Postmark is configured. */
   EMAIL_FROM: z.preprocess(
     blankToUndefined,
