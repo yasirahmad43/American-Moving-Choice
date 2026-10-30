@@ -39,7 +39,8 @@ describe("initial bootstrap and reviewed publication boundary", () => {
       const pages = (await db.query<{ url: string; family: string }>("select url, family from seo_pages order by url")).rows;
       expect(pages.some(page => page.family === "question")).toBe(true);
       expect(pages.some(page => page.family === "planning")).toBe(true);
-      expect(pages.map(page => page.url)).toEqual(ordinary.map(editorialUrl).sort());
+      // Compare membership independently of the host database's locale/collation.
+      expect(pages.map(page => page.url).sort()).toEqual(ordinary.map(editorialUrl).sort());
       const reservedUrls = CATALOG.filter(entry => entry.publicationCohort && (entry.family === "question" || entry.family === "planning")).map(editorialUrl);
       expect(reservedUrls.length).toBeGreaterThanOrEqual(2);
       expect((await db.query("select url from seo_pages where url = any($1::text[])", [reservedUrls])).rows).toEqual([]);
