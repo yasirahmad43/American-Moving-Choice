@@ -41,6 +41,8 @@ jobs:
         run: pnpm typecheck
       - name: Unit and database tests
         run: pnpm test
+      - name: Offline content spending and replay tests
+        run: node --test tools/claude-content/runner.test.mjs
       - name: Public content, media and presentation tests
         run: pnpm test:content
       - name: Build both apps

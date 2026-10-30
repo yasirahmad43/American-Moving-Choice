@@ -1,7 +1,46 @@
 # American Moving Choice — handoff
 
-Updated 2026-10-29 for whoever (or whatever tool) continues this project. Everything below is
+Updated 2026-10-30 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
+
+### Bounded Claude content pilot — owner follow-up, 2026-10-30
+
+The owner authorized the supplied Anthropic credential and a **$50 ceiling**. The key is a
+sensitive Production environment variable on `amc-app`; workspace ID, budget `50`, and
+`AI_CONTENT_ENABLED=false` are configured alongside it. Never expose it to a browser or put
+it in source, command arguments or logs. This Windows user's local copy is DPAPI encrypted
+under ignored `.secrets/`; the private wrapper is `work/claude-pilot/run-private.ps1`.
+
+`tools/claude-content` provides a server-only, source-bound batch runner pinned to
+`claude-sonnet-5-5`. Its shared, durable ledger is **`work/claude-pilot/runner/ledger.json`**.
+Preserve that ledger and all run folders together; do not reset/delete them or resubmit an
+uncertain POST. The $50 guard applies to these runner requests, not unrelated account usage
+or a new checkout without its ledger. Automatic generation remains disabled.
+
+Run `amc-2026-10-30-v1` submitted one 24-request batch. Its maximum reservation was $2.140836;
+reported tokens account for $1.040788 at full standard rates, with no unresolved reservation.
+The 50%-discounted batch estimate is $0.520394; this is not an invoice reconciliation. The
+guard therefore retains at least $48.959212 for this project. No regeneration was purchased
+to repair formatting or editorial issues. Default thinking blocks are discarded; cached
+original results stay immutable and parser corrections use explicit offline revalidation.
+
+The final 24 articles (11 questions, 13 checklists) were edited against the approved sources,
+independently checked against the actual five-step form, and imported as literal reviewed
+source in `packages/server/src/seo/claude-pilot-catalog.ts`. Detailed inventories, access
+instructions and equipment notes stay in readers' private worksheets for direct company
+conversations; the form has no notes/upload field. Do not add wording that implies otherwise.
+The committed brief and review proof are under `tools/claude-content/briefs` and `reviews`.
+These are already-authored topics; research new useful gaps before spending on another batch.
+
+`bootstrapClaudePilot` publishes only this exact source cohort in a serializable transaction.
+The initial bootstrap skips catalog entries with `publicationCohort` so a fresh install cannot
+occupy their URLs first. All 24 passed existing quality/publication gates against the complete
+prior editorial corpus locally; all prior page rows, including gates/timestamps, stayed exact.
+Idempotent replay made no changes. Production builds use the reviewed source, **no AI calls**.
+
+`SITE_INDEXABLE=false` and `DEMO_MODE=true` remain intentional launch blockers. Preparing or
+publishing these articles does not enable crawling or prove rankings/leads. Resolve the real
+business/fixture/secret launch requirements before changing those flags.
 
 ### Compact request submission — owner follow-up, 2026-10-29
 

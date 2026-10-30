@@ -15,6 +15,7 @@ import { migrate } from "./migrate";
 import { bootstrapSeo } from "../../packages/server/src/seo/bootstrap";
 import { bootstrapRoutes } from "../../packages/server/src/seo/route-bootstrap";
 import { bootstrapEditorialBatch } from "../../packages/server/src/seo/editorial-bootstrap";
+import { bootstrapClaudePilot } from "../../packages/server/src/seo/claude-pilot-release";
 import { verifyMediaStorage } from "../../packages/server/src/media/storage-probe";
 
 async function main(): Promise<void> {
@@ -86,6 +87,7 @@ async function main(): Promise<void> {
     await bootstrapSeo(client, { maxRunMs: 25 * 60_000 });
     await bootstrapRoutes(client, { maxRunMs: Math.max(1, 25 * 60_000 - (Date.now() - seoStarted)) });
     await bootstrapEditorialBatch(client, { maxRunMs: Math.max(1, Math.min(5 * 60_000, 25 * 60_000 - (Date.now() - seoStarted))) });
+    await bootstrapClaudePilot(client, { maxRunMs: Math.max(1, Math.min(5 * 60_000, 25 * 60_000 - (Date.now() - seoStarted))) });
     await verifyMediaStorage();
   } finally {
     await client.end();

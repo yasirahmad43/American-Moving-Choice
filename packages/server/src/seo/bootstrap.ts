@@ -14,6 +14,7 @@ import { pipelineCounts, publishPages, rebuildLinks } from "./publish";
 import { importResearch } from "./research";
 import type { SeoFamily } from "./slugs";
 import { ensureShingleCorpus } from "./shingle-corpus";
+import { CATALOG } from "./catalog";
 
 export const SEO_BOOTSTRAP_VERSION = "census-contact-introduction-v1";
 export const SEO_BOOTSTRAP_MIN_PAGES = 2_000;
@@ -71,7 +72,12 @@ export async function bootstrapSeo(db: Queryable, options: { log?: (line: string
     const families: [SeoFamily, number][] = [["state", 51], ["city", 10_000], ["route", 1_000], ["service", 100], ["cost", 100], ["question", 1_000], ["planning", 1_000], ["zip", 500]];
     for (const [family, limit] of families) await phase(`family:${family}`, async () => {
       const media = await claimableMedia(db);
-      await generateFamily(db, family, { limit, chunkSize: 100, media, log, onProgress: heartbeat });
+      // Reviewed cohorts have their own collision checks and atomic publication. Leave their
+      // URLs unoccupied on a fresh install so this initial pass cannot publish them first.
+      const only = family === "question" || family === "planning"
+        ? CATALOG.filter(entry => entry.family === family && !entry.publicationCohort).map(entry => entry.slug)
+        : undefined;
+      await generateFamily(db, family, { only, limit, chunkSize: 100, media, log, onProgress: heartbeat });
       await publishPages(db, { status: "ready", family, log });
     });
     await phase("links", () => rebuildLinks(db, log));

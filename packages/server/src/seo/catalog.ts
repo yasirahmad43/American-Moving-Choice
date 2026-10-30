@@ -11,6 +11,7 @@
 import type { ContentBlock, FaqItem, SourceRef } from "./types";
 import { QUESTION_EXPANSION_CATALOG, QUESTION_EXPANSION_SOURCES } from "./question-expansion-catalog";
 import { PLANNING_EXPANSION } from "./planning-expansion-catalog";
+import { CLAUDE_PILOT_CATALOG } from "./claude-pilot-catalog";
 
 export interface CatalogEntry {
   family: "service" | "question" | "planning";
@@ -28,6 +29,8 @@ export interface CatalogEntry {
   factTopics: string[];
   /** Additional primary references for the entry's material/model-specific advice. */
   sources?: SourceRef[];
+  /** Reserved for an explicit, atomic reviewed release; initial bootstrap must not preempt it. */
+  publicationCohort?: string;
   faq: FaqItem[];
   /** Links: "service:local", "cost:state", "question:<slug>", "planning:<slug>", "movers:index". */
   related: string[];
@@ -1267,6 +1270,7 @@ export const CATALOG: CatalogEntry[] = [
   ...SERVICES, ...QUESTIONS, ...PLANNING,
   ...QUESTION_EXPANSION_CATALOG.map(entry => ({ ...entry, sources: QUESTION_EXPANSION_SOURCES[entry.slug] ?? [] })),
   ...PLANNING_EXPANSION,
+  ...CLAUDE_PILOT_CATALOG,
 ];
 
 export function catalogEntry(family: CatalogEntry["family"], slug: string): CatalogEntry | null {
