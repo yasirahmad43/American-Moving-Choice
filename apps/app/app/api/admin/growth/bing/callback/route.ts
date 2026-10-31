@@ -24,27 +24,43 @@ function loginRedirect(origin: string): Response {
   return new Response(null, { status: 303, headers: { ...headers, Location: origin + "/login?next=%2Fadmin%2Fgrowth" } });
 }
 
-/** Never render, log, retain in a redirect, or send callback codes/errors to a client component. */
+type CallbackFailureReason = "origin" | "input_too_large" | "missing_state" | "duplicate_state" | "malformed_state" | "provider_error" | "missing_code" | "duplicate_code" | "malformed_code";
+function inputFailure(reason: CallbackFailureReason): void {
+  console.warn("reporting_bing_callback_failure", { stage: "callback_input", reason });
+}
+
+/** Callback values never enter logs, redirects or client components; diagnostics are fixed categories. */
 export async function GET(request: Request): Promise<Response> {
   let origin: string | undefined;
+  let stage: "callback_config" | "callback_auth" | "callback_input" | "callback_complete" = "callback_config";
   try {
     origin = configuredOrigin();
+    stage = "callback_auth";
     const user = await getCurrentUser();
     if (!user || user.mfa !== "ok") return loginRedirect(origin);
     if (user.adminRole !== "super_admin") return Response.json({ error: "forbidden" }, { status: 403, headers });
+    stage = "callback_input";
     const url = new URL(request.url);
-    if (url.origin !== origin || request.url.length > 32_768) return cleanRedirect(origin, "bing_failed");
+    if (url.origin !== origin) { inputFailure("origin"); return cleanRedirect(origin, "bing_failed"); }
+    if (request.url.length > 32_768) { inputFailure("input_too_large"); return cleanRedirect(origin, "bing_failed"); }
     const values = url.searchParams;
     const states = values.getAll("state"), codes = values.getAll("code"), errors = values.getAll("error");
-    if (states.length !== 1 || !/^[A-Za-z0-9_-]{43}$/u.test(states[0]!)) return cleanRedirect(origin, "bing_failed");
+    if (states.length !== 1) { inputFailure(states.length === 0 ? "missing_state" : "duplicate_state"); return cleanRedirect(origin, "bing_failed"); }
+    if (!/^[A-Za-z0-9_-]{43}$/u.test(states[0]!)) { inputFailure("malformed_state"); return cleanRedirect(origin, "bing_failed"); }
     if (errors.length) {
       // Cancellation changes no credentials and never attempts a token exchange.
-      return cleanRedirect(origin, errors.length === 1 && errors[0] === "access_denied" && codes.length === 0 ? "bing_cancelled" : "bing_failed");
+      const cancelled = errors.length === 1 && errors[0] === "access_denied" && codes.length === 0;
+      if (!cancelled) inputFailure("provider_error");
+      return cleanRedirect(origin, cancelled ? "bing_cancelled" : "bing_failed");
     }
-    if (codes.length !== 1 || !/^[\x21-\x7e]{1,8192}$/u.test(codes[0]!)) return cleanRedirect(origin, "bing_failed");
+    if (codes.length !== 1) { inputFailure(codes.length === 0 ? "missing_code" : "duplicate_code"); return cleanRedirect(origin, "bing_failed"); }
+    if (!/^[\x21-\x7e]{1,8192}$/u.test(codes[0]!)) { inputFailure("malformed_code"); return cleanRedirect(origin, "bing_failed"); }
+    stage = "callback_complete";
     await completeBingConnection({ userId: user.id, sessionId: user.session.id, state: states[0]!, code: codes[0]! });
     return cleanRedirect(origin, "bing_connected");
   } catch {
+    // The core logs its exact completion stage; avoid duplicating that failure with a vague route log.
+    if (stage !== "callback_complete") console.warn("reporting_bing_callback_failure", { stage, reason: "unavailable" });
     // Even a configuration/auth outage must remove the sensitive callback query from navigation.
     return cleanRedirect(origin ?? "", "bing_failed");
   }

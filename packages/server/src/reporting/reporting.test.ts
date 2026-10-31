@@ -142,7 +142,7 @@ describe("read-only reporting integration", () => {
     expect(fetcher.mock.calls.filter(([url]) => String(url) === "https://oauth2.googleapis.com/token")).toHaveLength(2);
   });
 
-  it("maps invalid credentials and provider errors without leaking raw messages or logging", async () => {
+  it("maps invalid credentials and provider errors without leaking raw messages into diagnostics", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const fetcher = googleMock({ tokenStatus: 400 });
@@ -152,12 +152,15 @@ describe("read-only reporting integration", () => {
     expect(snapshot.tagManager.data).toBeNull();
     expect(JSON.stringify(snapshot)).not.toContain("PROVIDER_SECRET");
     expect(errorSpy).not.toHaveBeenCalled();
-    expect(warnSpy).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+    expect(warnSpy.mock.calls.every(([event, details]) => event === "reporting_ga4_failure" &&
+      ["totals", "events"].includes(details.variant) && details.phase === "request" && details.status === "access_denied")).toBe(true);
     const unused = vi.fn();
     const invalid = await createReportingService({ ...CONFIG, GOOGLE_REPORTING_PRIVATE_KEY: "PRIVATE_KEY_BAD_SECRET" }, { fetch: unused, now: () => NOW })();
     expect(invalid.ga4.status).toBe("access_denied");
     expect(unused).not.toHaveBeenCalled();
     expect(JSON.stringify(invalid)).not.toContain("PRIVATE_KEY_BAD_SECRET");
+    expect(JSON.stringify(warnSpy.mock.calls)).not.toMatch(/PROVIDER_SECRET|PRIVATE_KEY_BAD_SECRET|PRIVATE KEY|access_token|assertion|https:\/\//u);
   });
 
   it("refuses malformed aggregate values instead of displaying zero", async () => {

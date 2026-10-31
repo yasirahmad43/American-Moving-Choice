@@ -1,0 +1,63 @@
+{
+  "recordedAt": "2026-10-31T14:38:50Z",
+  "pullRequest": "https://github.com/yasirahmad43/American-Moving-Choice/pull/39",
+  "headSha": "069616b69c447b56638cbcfc8d44a41999c96f52",
+  "mergeSha": "9f022b877e48a5967a51f33c83fa59aa8f7cc0ad",
+  "ci": {
+    "runId": 41208321418,
+    "conclusion": "success",
+    "newPostgresConnectionTests": 12,
+    "newPostgresConnectionTestsObservedPassedInJobLog": true,
+    "fullSuiteAndBothBuildsPassed": true
+  },
+  "productionDeployments": {
+    "app": { "id": "dpl_8GR2KEde9htVgfiyN2ms3fb2dW7e", "state": "READY", "alias": "app.americanmovingchoice.com", "sha": "9f022b877e48a5967a51f33c83fa59aa8f7cc0ad" },
+    "web": { "id": "dpl_HDEP4AAGZgwpZYda8NDUzX888yvJ", "state": "READY" }
+  },
+  "google": {
+    "projectId": "amc-website-reporting-513311",
+    "projectNumber": "652176198135",
+    "serviceAccount": "amc-reporting@amc-website-reporting-513311.iam.gserviceaccount.com",
+    "reportingApisEnabledObserved": ["analyticsdata.googleapis.com", "searchconsole.googleapis.com", "tagmanager.googleapis.com"],
+    "workloadPool": "amc-production-reporting",
+    "workloadProvider": "vercel",
+    "exactProductionSubjectGrantSavedAndAccountLinkedObserved": true,
+    "productionOnlyPublicConfigurationVariablesSaved": ["GOOGLE_REPORTING_CLIENT_EMAIL", "GOOGLE_REPORTING_WORKLOAD_IDENTITY_AUDIENCE"],
+    "assetPermissionListsObserved": {
+      "ga4Property561692313": "Viewer",
+      "canonicalSearchConsoleProperty": "Restricted",
+      "gtmContainer284497986": "Read / Has access"
+    },
+    "privateKeyCreatedOrConfigured": false,
+    "vercelTeamIssuerOidcUpdateAccepted": true,
+    "vercelOidcFieldReadbackAvailableThroughNormalizedConnector": false,
+    "actualDeployedFederationExchangeVerified": true,
+    "actualLiveReportReadVerified": true,
+    "observedReportStatuses": {
+      "searchConsole": { "status": "connected", "clicks": 0, "impressions": 0, "submittedUrls": 4806, "sitemapErrors": 0, "sitemapWarnings": 12 },
+      "tagManager": { "status": "connected", "publishedVersion": "3" },
+      "ga4": { "status": "unavailable", "visitorMetricsVerified": false }
+    }
+  },
+  "bing": {
+    "clientRegistered": true,
+    "clientName": "American Moving Choice Reporting",
+    "registeredCallback": "https://app.americanmovingchoice.com/api/admin/growth/bing/callback",
+    "credentialsPrintedOrWrittenToRepository": false,
+    "credentialsSavedToVercel": true,
+    "credentialStorage": "Both variables verified sensitive and app Production only through non-decrypting Vercel metadata",
+    "temporaryCredentialCopiesCleared": true,
+    "ownerConsentUserReportedCompleted": true,
+    "appReturnNoticeObserved": "bing_failed",
+    "storedGrantVerified": false,
+    "liveReportReadVerified": false
+  },
+  "continuation": {
+    "browserControlStoppedForTurn": false,
+    "priorTurnGuardRecoveredAfterUserReady": true,
+    "pending": "Signed-in owner dashboard confirmed; Bing user approval returned a connection-failed notice. Bounded server diagnostics are being prepared for GA4 and Bing.",
+    "remaining": ["Identify and fix GA4 response failure", "Identify and fix Bing callback/exchange failure", "Verify actual Analytics and Bing report reads"]
+  },
+  "unchanged": ["BotID remains enabled", "US/Pakistan country controls", "Public measurement consent", "Private-app measurement exclusion", "Password-only demo admin preference"],
+  "paidServicesOrBillingAttachmentEnabled": false
+}

@@ -1,0 +1,63 @@
+{
+  "origin": "https://app.americanmovingchoice.com",
+  "checkedAt": "2026-10-31T14:30:16.551Z",
+  "scope": "Unauthenticated production GET boundaries only",
+  "method": "GET",
+  "cookiesSent": false,
+  "authorizationSent": false,
+  "redirectsFollowed": false,
+  "postRequests": 0,
+  "checks": [
+    {
+      "path": "/admin/growth",
+      "status": 307,
+      "headers": {
+        "location": "/login?next=%2Fadmin%2Fgrowth",
+        "cache-control": "public, max-age=0, must-revalidate",
+        "x-robots-tag": "noindex, nofollow",
+        "content-type": "text/plain"
+      }
+    },
+    {
+      "path": "/api/admin/growth",
+      "status": 401,
+      "headers": {
+        "cache-control": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "x-robots-tag": "noindex, nofollow",
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/admin/growth/providers",
+      "status": 401,
+      "headers": {
+        "cache-control": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "x-robots-tag": "noindex, nofollow",
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/admin/growth/bing/connect",
+      "status": 405,
+      "headers": {
+        "allow": "POST",
+        "cache-control": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "x-robots-tag": "noindex, nofollow",
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/admin/growth/bing/callback",
+      "status": 303,
+      "headers": {
+        "location": "https://app.americanmovingchoice.com/login?next=%2Fadmin%2Fgrowth",
+        "cache-control": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "x-robots-tag": "noindex, nofollow"
+      }
+    }
+  ]
+}

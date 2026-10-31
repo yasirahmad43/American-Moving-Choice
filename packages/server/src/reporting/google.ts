@@ -103,6 +103,23 @@ function metricValues(row: Record<string, unknown>, length: number): number[] {
   return row.metricValues.map((value) => wholeCount(record(value).value));
 }
 
+type Ga4Variant = "totals" | "events";
+type Ga4Phase = "configuration" | "request" | "metric_headers" | "rows" | "dimension_values" | "metric_values";
+function ga4Failure(variant: Ga4Variant, phase: Ga4Phase, error: unknown): void {
+  const diagnostic: { variant: Ga4Variant; phase: Ga4Phase; status: ReportingFailure["status"]; httpStatus?: number } = { variant, phase, status: "unavailable" };
+  if (error instanceof ReportingFailure) {
+    if (["not_configured", "access_denied", "unavailable"].includes(error.status)) diagnostic.status = error.status;
+    const http = error.httpStatus;
+    if (typeof http === "number" && Number.isInteger(http) && http >= 100 && http <= 599) diagnostic.httpStatus = http;
+  }
+  // Only fixed enums and a bounded HTTP integer. Never pass the error or provider data to logs.
+  console.warn("reporting_ga4_failure", diagnostic);
+}
+function ga4Parse<T>(variant: Ga4Variant, phase: Ga4Phase, parse: () => T): T {
+  try { return parse(); }
+  catch (error) { ga4Failure(variant, phase, error); throw error; }
+}
+
 function pacificDate(milliseconds: number): string {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(milliseconds);
   return `${parts.find((p) => p.type === "year")!.value}-${parts.find((p) => p.type === "month")!.value}-${parts.find((p) => p.type === "day")!.value}`;
@@ -139,29 +156,38 @@ export function createGoogleReporters(
   return {
     ga4: async () => {
       const property = config.GOOGLE_REPORTING_PROPERTY_ID ?? "561692313";
-      if (!isNumericId(property)) throw new ReportingFailure("unavailable");
+      ga4Parse("totals", "configuration", () => {
+        if (!isNumericId(property)) throw new ReportingFailure("unavailable");
+      });
       const url = `https://analyticsdata.googleapis.com/v1beta/properties/${property}:runRealtimeReport`;
+      const read = async (variant: Ga4Variant, body: unknown) => {
+        try { return await client.read(url, body); }
+        catch (error) { ga4Failure(variant, "request", error); throw error; }
+      };
       // Unique active users must come from an ungrouped report, never a sum of per-event users.
       const [totals, byEvent] = await Promise.all([
-        client.read(url, { metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }], returnPropertyQuota: true }),
-        client.read(url, {
+        read("totals", { metrics: [{ name: "activeUsers" }, { name: "screenPageViews" }], returnPropertyQuota: true }),
+        read("events", {
           dimensions: [{ name: "eventName" }], metrics: [{ name: "eventCount" }],
           dimensionFilter: { filter: { fieldName: "eventName", inListFilter: { values: [...REPORTING_EVENTS], caseSensitive: true } } },
           limit: "4", returnPropertyQuota: true,
         }),
       ]);
-      checkMetricHeaders(totals, ["activeUsers", "screenPageViews"]);
-      checkMetricHeaders(byEvent, ["eventCount"]);
-      const totalRows = rows(totals.rows, 1);
-      const values = totalRows.length ? metricValues(totalRows[0]!, 2) : [0, 0];
+      ga4Parse("totals", "metric_headers", () => checkMetricHeaders(totals, ["activeUsers", "screenPageViews"]));
+      ga4Parse("events", "metric_headers", () => checkMetricHeaders(byEvent, ["eventCount"]));
+      const totalRows = ga4Parse("totals", "rows", () => rows(totals.rows, 1));
+      const values = ga4Parse("totals", "metric_values", () => totalRows.length ? metricValues(totalRows[0]!, 2) : [0, 0]);
       const events = Object.fromEntries(REPORTING_EVENTS.map((name) => [name, 0])) as Record<ReportingEvent, number>;
       const seen = new Set<string>();
-      for (const row of rows(byEvent.rows, 4)) {
-        if (!Array.isArray(row.dimensionValues) || row.dimensionValues.length !== 1) throw new ReportingFailure("unavailable");
-        const event = record(row.dimensionValues[0]).value;
-        if (typeof event !== "string" || !REPORTING_EVENTS.includes(event as ReportingEvent) || seen.has(event)) throw new ReportingFailure("unavailable");
+      for (const row of ga4Parse("events", "rows", () => rows(byEvent.rows, 4))) {
+        const event = ga4Parse("events", "dimension_values", () => {
+          if (!Array.isArray(row.dimensionValues) || row.dimensionValues.length !== 1) throw new ReportingFailure("unavailable");
+          const value = record(row.dimensionValues[0]).value;
+          if (typeof value !== "string" || !REPORTING_EVENTS.includes(value as ReportingEvent) || seen.has(value)) throw new ReportingFailure("unavailable");
+          return value;
+        });
         seen.add(event);
-        events[event as ReportingEvent] = metricValues(row, 1)[0]!;
+        events[event as ReportingEvent] = ga4Parse("events", "metric_values", () => metricValues(row, 1)[0]!);
       }
       return { data: { windowMinutes: 30, activeUsers: values[0]!, screenPageViews: values[1]!, events }, reportedThrough: null };
     },

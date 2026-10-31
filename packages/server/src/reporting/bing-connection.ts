@@ -63,6 +63,47 @@ function connectionError(error: unknown): BingConnectionError {
   return new BingConnectionError("unavailable");
 }
 
+type BingConnectionStage =
+  | "begin_config" | "begin_owner" | "begin_state" | "begin_audit" | "begin_commit" | "begin_authorize"
+  | "complete_config" | "complete_input" | "complete_owner" | "complete_state_claim" | "complete_state_commit"
+  | "complete_token_exchange" | "complete_token_parse" | "complete_encrypt" | "complete_store_owner"
+  | "complete_store" | "complete_audit" | "complete_store_commit";
+type ScopeCategory = "missing" | "read" | "webmaster_read" | "manage" | "webmaster_manage" | "other";
+
+function tokenScopeDiagnostic(value: unknown): { category: ScopeCategory; rejected: boolean } | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const response = value as Record<string, unknown>;
+  if (response.scope === undefined) return { category: "missing", rejected: false };
+  const scope = typeof response.scope === "string" ? response.scope.trim().toLowerCase() : undefined;
+  const category: ScopeCategory = scope === "read" ? "read" : scope === "webmaster.read" ? "webmaster_read"
+    : scope === "manage" ? "manage" : scope === "webmaster.manage" ? "webmaster_manage" : "other";
+  return { category, rejected: response.error === undefined && category !== "webmaster_read" };
+}
+
+/** Failure-only, fixed-schema diagnostics. Never pass the error itself or any callback/provider value. */
+function connectionFailure(stage: BingConnectionStage, error: unknown, scope?: ReturnType<typeof tokenScopeDiagnostic>): void {
+  const diagnostic: {
+    stage: BingConnectionStage;
+    reason: "not_configured" | "invalid_state" | "access_denied" | "unavailable" | "scope_rejected";
+    httpStatus?: number;
+    sqlState?: "42P01" | "42501";
+    scopeCategory?: ScopeCategory;
+  } = { stage, reason: "unavailable" };
+  if (error instanceof BingConnectionError && ["not_configured", "invalid_state", "access_denied", "unavailable"].includes(error.reason)) {
+    diagnostic.reason = error.reason;
+  }
+  if (error instanceof ReportingFailure) {
+    if (["not_configured", "access_denied", "unavailable"].includes(error.status)) diagnostic.reason = error.status;
+    if (typeof error.httpStatus === "number" && Number.isInteger(error.httpStatus) && error.httpStatus >= 100 && error.httpStatus <= 599) diagnostic.httpStatus = error.httpStatus;
+  }
+  if (error instanceof Error && "code" in error && (error.code === "42P01" || error.code === "42501")) diagnostic.sqlState = error.code;
+  if (stage === "complete_token_parse" && scope) {
+    diagnostic.scopeCategory = scope.category;
+    if (scope.rejected) diagnostic.reason = "scope_rejected";
+  }
+  console.warn("reporting_bing_connection_failure", diagnostic);
+}
+
 async function requireOwner(db: Queryable, identity: BingConnectionIdentity): Promise<void> {
   if (!isUuid(identity.userId) || !SESSION.test(identity.sessionId)) throw new BingConnectionError("access_denied");
   // Caller still uses the normal completed-session guard; this does not change MFA policy.
@@ -102,8 +143,8 @@ export function createBingConnectionManager(config: ReportingConfiguration, depe
         method: "POST", headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" }, body,
       });
     } catch (error) {
-      if (error instanceof ReportingFailure && [400, 401, 403].includes(error.httpStatus ?? 0) && error.status !== "unavailable") throw new ReportingFailure("access_denied");
-      if (error instanceof ReportingFailure && error.httpStatus === 400) throw new ReportingFailure("access_denied");
+      if (error instanceof ReportingFailure && [400, 401, 403].includes(error.httpStatus ?? 0) && error.status !== "unavailable") throw new ReportingFailure("access_denied", undefined, error.httpStatus);
+      if (error instanceof ReportingFailure && error.httpStatus === 400) throw new ReportingFailure("access_denied", undefined, error.httpStatus);
       throw error;
     }
   };
@@ -112,34 +153,45 @@ export function createBingConnectionManager(config: ReportingConfiguration, depe
     available,
 
     async begin(identity: BingConnectionIdentity): Promise<{ authorizeUrl: string }> {
+      let stage: BingConnectionStage = "begin_config";
       try {
         const bound = binding();
         const state = randomBytes(32).toString("base64url");
         const stateHash = createHash("sha256").update(state).digest("hex");
         await tx(async (client) => {
+          stage = "begin_owner";
           await requireOwner(client, identity);
+          stage = "begin_state";
           await client.query("delete from reporting_oauth_states where expires_at < now() - interval '1 day'");
           await client.query(
             `insert into reporting_oauth_states (state_hash, provider, site_url, client_id, redirect_uri, user_id, session_id, expires_at)
              values ($1, 'bing', $2, $3, $4, $5, $6, now() + interval '10 minutes')`,
             [stateHash, bound.siteUrl, bound.clientId, bound.redirectUri, identity.userId, identity.sessionId],
           );
+          stage = "begin_audit";
           await metadata("reporting.bing.begin", identity.userId, bound.siteUrl, client);
+          stage = "begin_commit";
         }, pool());
+        stage = "begin_authorize";
         const url = new URL(AUTHORIZE_URL);
         url.search = new URLSearchParams({ client_id: bound.clientId, response_type: "code", redirect_uri: bound.redirectUri, scope: BING_READ_SCOPE, state }).toString();
         return { authorizeUrl: url.toString() };
-      } catch (error) { throw connectionError(error); }
+      } catch (error) { connectionFailure(stage, error); throw connectionError(error); }
     },
 
     async complete(input: BingConnectionIdentity & { state: string; code: string }): Promise<void> {
+      let stage: BingConnectionStage = "complete_config";
+      let tokenScope: ReturnType<typeof tokenScopeDiagnostic>;
       try {
         const bound = binding();
+        stage = "complete_input";
         if (!STATE.test(input.state) || !CODE.test(input.code)) throw new BingConnectionError("invalid_state");
         const stateHash = createHash("sha256").update(input.state).digest("hex");
         // Commit consumption before contacting Bing. A failed exchange cannot resurrect this state.
         await tx(async (client) => {
+          stage = "complete_owner";
           await requireOwner(client, input);
+          stage = "complete_state_claim";
           const claimed = await client.query(
             `update reporting_oauth_states set used_at = now()
              where state_hash = $1 and provider = 'bing' and site_url = $2 and client_id = $3 and redirect_uri = $4
@@ -148,15 +200,23 @@ export function createBingConnectionManager(config: ReportingConfiguration, depe
             [stateHash, bound.siteUrl, bound.clientId, bound.redirectUri, input.userId, input.sessionId],
           );
           if (!claimed.rowCount) throw new BingConnectionError("invalid_state");
+          stage = "complete_state_commit";
         }, pool());
-        const grant = parseBingTokenGrant(await exchange(new URLSearchParams({
+        stage = "complete_token_exchange";
+        const tokenResponse = await exchange(new URLSearchParams({
           client_id: bound.clientId, client_secret: config.BING_REPORTING_CLIENT_SECRET!, code: input.code,
           grant_type: "authorization_code", redirect_uri: bound.redirectUri,
-        })), now());
+        }));
+        stage = "complete_token_parse";
+        tokenScope = tokenScopeDiagnostic(tokenResponse);
+        const grant = parseBingTokenGrant(tokenResponse, now());
+        stage = "complete_encrypt";
         const refresh = encrypt(grant.refreshToken, key(), bingCredentialAad(bound.siteUrl, bound.clientId, "refresh"));
         const access = encrypt(grant.accessToken, key(), bingCredentialAad(bound.siteUrl, bound.clientId, "access"));
         await tx(async (client) => {
+          stage = "complete_store_owner";
           await requireOwner(client, input);
+          stage = "complete_store";
           await client.query(
             `insert into reporting_oauth_connections
              (provider, site_url, client_id, scope, refresh_token_enc, access_token_enc, access_expires_at, connected_by)
@@ -168,10 +228,12 @@ export function createBingConnectionManager(config: ReportingConfiguration, depe
                reauthorization_required = false, connected_at = now(), updated_at = now()`,
             [bound.siteUrl, bound.clientId, BING_READ_SCOPE, refresh, access, grant.expiresAt, input.userId],
           );
+          stage = "complete_audit";
           await metadata("reporting.bing.connected", input.userId, bound.siteUrl, client);
+          stage = "complete_store_commit";
         }, pool());
         invalidateBingReportingCache();
-      } catch (error) { throw connectionError(error); }
+      } catch (error) { connectionFailure(stage, error, tokenScope); throw connectionError(error); }
     },
 
     async status(): Promise<BingConnectionStatus> {
