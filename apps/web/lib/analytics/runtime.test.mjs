@@ -44,6 +44,18 @@ describe("consent-gated GTM runtime",()=>{
     expect(document.head.appendChild).toHaveBeenCalledTimes(1);
     expect(window.dataLayer.filter(item=>item.amc_analytics_consent==="granted")).toHaveLength(1);
   });
+  it("keeps consent API privacy controls out of ordinary measurement defaults",async()=>{
+    const {window}=browser();const runtime=await import("./runtime.ts");
+    runtime.initializeAnalytics("GTM-TEST1234","https://www.americanmovingchoice.com");
+    const initial=window.dataLayer.find(item=>item[0]==="set");
+    expect(Array.from(initial)).toEqual(["set",{send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false}]);
+    runtime.trackPageView();
+    for(const command of window.dataLayer.filter(item=>item[0]==="set")){
+      expect(typeof command[1]).toBe("object");
+      expect(command[1]).not.toHaveProperty("ads_data_redaction");
+      expect(command[1]).not.toHaveProperty("url_passthrough");
+    }
+  });
   it("never publishes a grant marker for refused, absent or browser-overridden permission",async()=>{
     for(const choice of [null,"denied","granted"]){
       vi.resetModules();const {window,document}=browser(choice);

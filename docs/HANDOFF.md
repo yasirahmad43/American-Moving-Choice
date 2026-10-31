@@ -50,9 +50,10 @@ and sibling tokens; records and authorized admin access are preserved. Do not re
 automatic grouping without verified ownership. See `docs/SECURITY.md`.
 
 Consented first/latest campaign attribution is stored with accepted requests and displayed
-only in authorized admin lead details. Optional Google measurement remains disabled until
-real GA4/GTM accounts and a published container are connected. Choices still work for
-first-party campaign attribution with no Google container. No contact details, ZIPs, dates,
+only in authorized admin lead details. Public web Production now has
+`ANALYTICS_ENABLED=true` and `GTM_CONTAINER_ID=GTM-569KB26S`; the portal and Preview remain
+unmeasured. Choices also work for first-party campaign attribution without Google.
+No contact details, ZIPs, dates,
 services or request IDs enter Google events. Private/token documents do not load Google.
 The dedicated Google Analytics account/property and website stream now exist: account
 `414235382`, property `561692313`, stream `16241880293`, measurement `G-7P7TKLBZXH`.
@@ -61,7 +62,12 @@ The owner confirmed United States and 11–100 employees. Enhanced Measurement i
 event-scoped `form_placement` and `step_name` reporting dimensions exist. The verified GTM
 container is `GTM-569KB26S` (account `6401413548`, container `284497986`). Publication,
 Production activation and live event receipt must be verified separately; IDs alone do
-not prove measurement is live. Search Console and Bing ownership setup remain pending.
+not prove measurement is live. Google Search Console ownership for the canonical URL is
+verified using the deployed HTML meta tag. Google accepted `/sitemap.xml` and reports
+**Sitemap index processed successfully**. Live checks found valid XML in the index and all
+12 children, with 4,806 canonical page URLs. This does not establish indexing or rankings.
+Bing account sign-in remains pending. Tracking proof and sanitized QA receipts belong in
+`work/tracking`; do not treat intercepted test requests as remote GA4 report ingestion.
 Chrome access and account setup were authorized; do not ask for Chrome permission again.
 See `docs/ANALYTICS.md`.
 

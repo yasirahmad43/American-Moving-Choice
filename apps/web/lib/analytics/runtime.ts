@@ -23,7 +23,7 @@ export function initializeAnalytics(id: string, origin: string): boolean {
   window.dataLayer ??= [];
   window.gtag ??= function (..._args: unknown[]) { window.dataLayer!.push(arguments); };
   window.gtag("consent", "default", DENIED);
-  window.gtag("set", { send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false, ads_data_redaction: true, url_passthrough: false });
+  window.gtag("set", { send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false });
   window.gtag("consent", "update", { ...DENIED, analytics_storage: "granted" });
   const { event: _event, ...page } = base;
   // The GTM Consent Initialization template reads this literal before measurement can start.

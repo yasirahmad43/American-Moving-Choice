@@ -38,6 +38,10 @@ The website queues that marker after its consent/public-page gates and before lo
 GTM. Its internal `amc_analytics_consent_update` event applies denial before cleanup and
 reload. Only the consent template listens to this control event; never forward it to GA4.
 Queued `gtag` consent commands are retained as fallback, not used as the template bridge.
+Set `ads_data_redaction=true` and `url_passthrough=false` through the sandbox template's
+`gtagSet` API, with write access restricted to those two keys. Do not put these controls in
+the Google tag's ordinary configuration table or the app's ordinary measurement defaults:
+that serializes them as extra GA4 event parameters rather than applying their consent scope.
 
 - Trigger: Initialization – All Pages (the container itself loads only after consent).
 - Set `send_page_view` to false. Set `allow_google_signals` and
