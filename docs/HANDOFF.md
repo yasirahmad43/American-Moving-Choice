@@ -88,7 +88,33 @@ was performed manually by the user. Browser Use still cannot initialize. Read-on
 observations are possible; use provider APIs/runtime logs and manual handoff for any blocked
 browser input. Do not automate authentication dialogs or extract cookies.
 
-Next: deploy and inspect the bounded diagnostics, fix the actual responses, then verify
+PR #40 is merged (`be65f1c1285bc17a153f6863009c4b4f1ae33098`); CI `41213593284`
+passed every check and both builds. App deployment `dpl_CRWoaDuFKAu9287DTFBRBAmBVCS7`
+is READY and its alias list confirms the canonical app domain. Safe failure events are
+`reporting_ga4_failure`, `reporting_bing_connection_failure` and
+`reporting_bing_callback_failure`. Narrow Vercel runtime-log queries on this deployment
+initially returned no matching records. After the user's fresh attempt, the actual GA4
+diagnostic is **variant `totals`, phase `metric_headers`, status `unavailable`**. The HTTP
+read/JSON decode succeeded, but returned columns failed validation. No Bing completion or
+callback diagnostic has been observed yet; absence of a log is not proof of its cause.
+
+A follow-up change is prepared: GA4 reads values by the exact unique returned header names
+instead of assuming request-column order, while still rejecting missing/duplicate/unknown
+headers. Failure-only shape details are bounded and contain recognized metric names/types
+only, no row values. Bing's start route now also classifies pre-core failures with fixed
+reasons and origin-match booleans. The scope/state/authorization checks are unchanged.
+Focused reporting tests (108), start/callback route tests (83) and package/app typechecks
+passed. A clarification asks whether the user actually sees Bing's permission screen or
+remains on AMC; do not assume that the previously reported return means consent succeeded.
+
+Computer Use was stopped by the physical Escape key. Do not issue more Computer Use
+operations in that turn. A pending asynchronous question asks the user to refresh
+Growth & analytics, retry Connect Bing once and confirm the return. No fresh attempt after
+the diagnostic deployment has been confirmed. Browser input is unnecessary for log review;
+use the purpose-built Vercel runtime-log tool with the exact deployment and event filters,
+and print only the fixed diagnostic enums/status fields, never request query values.
+
+Next: inspect the fresh diagnostics, fix the actual responses, then verify
 Analytics and Bing before calling the connections complete. BotID, country controls,
 public consent and password-only demo admin preference are unchanged. No paid services or
 billing attachment were enabled.
