@@ -17,10 +17,11 @@ PR #32 (`ec64011`) keeps first-party privacy choices available with Google off, 
 BotID to exact quote/report form routes and derives client enablement from the same server
 flag, permitting a real rollback on the next build. Automated live-browser preparation was
 refused by the security check without issuing a ticket; that proves automated refusal,
-not a successful human flow. The optional `BOT_PROTECTION_ENABLED` is now configured **false**
-for web Production and Preview for the next build, until ordinary Chrome preparation can
-be checked. Do not claim invisible verification is active. Country, database rate limits,
-signed tickets, nonce replay limits and honeypots remain active independently.
+not a successful human flow. `BOT_PROTECTION_ENABLED` remains **true** for web Production
+and Preview. Automatic approval rejected the proposed temporary rollback as weakening a
+security boundary without exact authorization; the owner has been asked to approve that
+specific rollback. Do not disable it through another route or claim the rollback happened.
+Country, database rate limits, signed tickets, replay limits and honeypots are independent.
 Windows Computer Use is currently misreading Chrome's second-display coordinates; the
 owner has been asked to move Chrome to the main display as a normal, unmaximized window.
 No Google or Bing account settings were changed through that unreliable control.
