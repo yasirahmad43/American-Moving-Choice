@@ -5,6 +5,27 @@ verifiable from the repository; nothing here depends on the previous assistant's
 
 ### Country access, request security and measurement — PR #31, 2026-10-31
 
+Production rollout: PR #31 is merged (`6695ecb`) and both projects deployed it. Live HTTP
+checks passed for public pages, forged location headers, private admin redirects/noindex,
+unauthenticated cron rejection, inactive Stripe rejection and reserved security scripts;
+evidence is `work/security/live-security-verification.json`. This is not a foreign-egress
+test. All 4,806 public URLs were received by IndexNow with HTTP 200 (one initial URL, then
+4,805 more, no uncertain deliveries); evidence/ledger is under `work/tracking/indexnow`.
+Receipt does not mean indexing or rankings. Do not resubmit unchanged versions.
+
+PR #32 (`ec64011`) keeps first-party privacy choices available with Google off, narrows
+BotID to exact quote/report form routes and derives client enablement from the same server
+flag, permitting a real rollback on the next build. Automated live-browser preparation was
+refused by the security check without issuing a ticket; that proves automated refusal,
+not a successful human flow. `BOT_PROTECTION_ENABLED` remains **true** for web Production
+and Preview. Automatic approval rejected the proposed temporary rollback as weakening a
+security boundary without exact authorization; the owner has been asked to approve that
+specific rollback. Do not disable it through another route or claim the rollback happened.
+Country, database rate limits, signed tickets, replay limits and honeypots are independent.
+Windows Computer Use is currently misreading Chrome's second-display coordinates; the
+owner has been asked to move Chrome to the main display as a normal, unmaximized window.
+No Google or Bing account settings were changed through that unreliable control.
+
 PR #31 adds the owner-requested US/Pakistan visitor restriction to both Next 16 proxies,
 without replacing Vercel's firewall configuration or changing the owner's sign-in/MFA
 preference. `COUNTRY_ACCESS_ENABLED=true` is configured for Production and Preview on both
@@ -14,7 +35,7 @@ crawler bypass. Exact authenticated cron, signature-checked Stripe and reserved 
 security-service exceptions remain narrow. Unknown visitor countries fail closed. See
 `docs/COUNTRY-ACCESS.md`, including the manual crawler-range refresh procedure.
 
-Web `BOT_PROTECTION_ENABLED=true` selects free BotID Basic for quote preparation, final
+Web `BOT_PROTECTION_ENABLED=true`, when deliberately activated later, selects free BotID Basic for quote preparation, final
 submission and valid concern reports; client and server both explicitly select Basic.
 Project OIDC enablement was requested through the Vercel project API. A real deployed browser
 quote-preparation check must confirm the challenge and runtime OIDC together; a script 200

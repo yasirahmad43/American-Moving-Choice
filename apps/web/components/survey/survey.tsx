@@ -50,6 +50,7 @@ import { Alert, Button, Checkbox, Field, FieldError, Input, RadioCardGroup, Step
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { ConfirmationView, type ConfirmationData } from "./confirmation-view";
+import { SurveyFormNotice } from "./form-notice";
 import { EMPTY_DRAFT, restoreSurveyDraft, type SurveyDraft as Draft } from "./draft";
 import { StoredTextLine, type SurveyTexts } from "./texts";
 import { completeLeadAnalytics, trackSurveyStart, trackSurveyStep } from "@/lib/analytics/runtime";
@@ -545,13 +546,7 @@ function SurveyFlow({
     </div>
   );
 
-  const formAlert = alert ? (
-    <div id="form-alert" tabIndex={-1} className="focus:outline-none">
-      <Alert tone={alert.tone} title={alert.title}>
-        {alert.body}
-      </Alert>
-    </div>
-  ) : null;
+  const formAlert = <SurveyFormNotice alert={alert} formError={errors.form} />;
 
   let body: ReactNode;
   if (infoPath) {
