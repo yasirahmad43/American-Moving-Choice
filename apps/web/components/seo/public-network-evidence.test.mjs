@@ -15,12 +15,15 @@ describe("public network evidence projection",()=>{
     expect(publicNetworkSummary(guidance)).toEqual(guidance);
   });
   it("removes availability sentences and clauses while retaining genuine geographic facts",()=>{
-    const source=page(),before=JSON.stringify(source);const result=suppressUnverifiedNetworkEvidence(source);
+    const source=page();
+    source.content.sections.push({id:"legacy-count-note",heading:"Note",blocks:[{type:"note",text:"Coverage counts are recomputed when movers change their rules."}]});
+    const before=JSON.stringify(source);const result=suppressUnverifiedNetworkEvidence(source);
     expect(result.content.intro.answer).toBe("Austin has 74 ZIP codes and 967,862 residents in 466,428 housing units.");
     expect(result.content.sections[0].blocks[0].text).toBe("Travis County has 1,000 residents in 500 housing units.");
     expect(result.content.intro.dataPoints).toEqual([source.content.intro.dataPoints[0]]);
     expect(result.metaDescription).toBe("Austin moving guidance.");
     expect(result.content.faq).toEqual([]);
+    expect(result.content.sections.some(section=>section.id==="legacy-count-note")).toBe(false);
     expect(JSON.stringify(source)).toBe(before);
     expect(suppressUnverifiedNetworkEvidence(result)).toEqual(result);
   });
