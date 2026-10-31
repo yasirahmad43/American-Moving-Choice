@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@amc/core": "workspace:*",
+    "@vercel/oidc": "4.0.5",
     "bcryptjs": "3.0.3",
     "otpauth": "9.5.2",
     "pg": "8.23.1",

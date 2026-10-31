@@ -99,6 +99,25 @@ beforeEach(() => {
 afterEach(() => { unmount(); vi.clearAllTimers(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe("growth dashboard presentation and coupled report lifecycle", () => {
+  it("shows a fixed native POST connection form only when the server authorizes it", async () => {
+    render(); await flush();
+    expect(html(render({}))).not.toContain("/api/admin/growth/bing/connect");
+    const allowed = html(render({ canConnectBing: true }));
+    expect(allowed).toContain('method="post"');
+    expect(allowed).toContain('action="/api/admin/growth/bing/connect"');
+    expect(allowed).toContain('type="submit"');
+    expect(allowed).toContain("Connect Bing");
+    expect(html(render({ compact: true, canConnectBing: true }))).not.toContain("/api/admin/growth/bing/connect");
+  });
+  it("renders fixed connection notices without reflecting arbitrary provider/code text", async () => {
+    render(); await flush();
+    expect(plain(render({ connectionNotice: "bing_connected" }))).toContain("Bing sign-in is complete");
+    expect(plain(render({ connectionNotice: "bing_cancelled" }))).toContain("Bing connection was cancelled");
+    expect(html(render({ connectionNotice: "bing_failed" }))).toContain('role="alert"');
+    const unsafe = html(render({ connectionNotice: "provider-secret-code" }));
+    expect(unsafe).not.toContain("provider-secret-code");
+    expect(html(render({ connectionNotice: "__proto__" }))).not.toContain("function Object");
+  });
   it("renders honest loading, empty-request and disconnected-provider states", async () => {
     expect(plain(render())).toContain("Loading request totals and campaign activity");
     await flush();

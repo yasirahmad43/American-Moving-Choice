@@ -27,8 +27,10 @@ tabs, manual pause and cleanup abort work; late results are ignored.
 Website measurement and provider dashboard sign-in do **not** grant the backend API access.
 Until a successful authorized API read is available, panels explicitly show API access not
 connected, permission needed or provider unavailable, with null data rather than invented
-zero metrics. Provider credentials belong only in the app project's server environment;
-never use a `NEXT_PUBLIC_` variable or commit downloaded credential files.
+zero metrics. Provider configuration and client secrets belong only in the app project's
+server environment; Bing's delegated tokens use the encrypted database store described
+below. No credentials belong in a `NEXT_PUBLIC_` variable, downloaded files in the repository
+or reporting responses.
 
 Google uses a dedicated reporting service account with access limited to these resources:
 
@@ -36,23 +38,87 @@ Google uses a dedicated reporting service account with access limited to these r
 - Search Console property `https://www.americanmovingchoice.com/`: read access.
 - GTM account `6401413548`, container `284497986`: Read access.
 
-Enable the Analytics Data, Search Console and Tag Manager APIs in its dedicated Cloud
-project. Server variables: `GOOGLE_REPORTING_CLIENT_EMAIL`, `GOOGLE_REPORTING_PRIVATE_KEY`
-(RSA PEM; escaped newlines accepted). Optional resource overrides are
+The preferred Production connection uses keyless Workload Identity Federation (WIF). Its
+dedicated Google Cloud project is `amc-website-reporting-513311` / `652176198135`, with service
+account `amc-reporting@amc-website-reporting-513311.iam.gserviceaccount.com`. Configure these
+two server variables on **amc-app Production only**:
+
+- `GOOGLE_REPORTING_CLIENT_EMAIL`: that service-account email.
+- `GOOGLE_REPORTING_WORKLOAD_IDENTITY_AUDIENCE`:
+  `//iam.googleapis.com/projects/652176198135/locations/global/workloadIdentityPools/amc-production-reporting/providers/vercel`.
+
+The second value identifies the Google workload provider for STS; it is not the Vercel
+token's audience. The runtime obtains a fresh request-scoped identity through `@vercel/oidc`
+using Vercel's default team audience. The Google provider trusts issuer
+`https://oidc.vercel.com/yasirahmad43s-projects` and allows audience
+`https://vercel.com/yasirahmad43s-projects`, with this exact condition:
+
+```text
+assertion.owner_id == 'team_wqgzo2vAXEDvcnukphUOqtdP' &&
+assertion.project_id == 'prj_bqwEmVfIYeWDPqtmh5aFRIZLoZb1' &&
+assertion.environment == 'production' &&
+assertion.sub == 'owner:yasirahmad43s-projects:project:amc-app:environment:production'
+```
+
+Service-account impersonation is granted to that exact subject, rather than a wildcard
+pool, team or Preview deployment. The provider condition, subject grant and two Production
+variables have been configured. **No Google private key was created or configured.**
+
+Enable the Analytics Data, Search Console and Tag Manager APIs in the dedicated project,
+and ensure the STS/IAM Service Account Credentials exchange is available. Optional resource overrides are
 `GOOGLE_REPORTING_PROPERTY_ID`, `GOOGLE_REPORTING_GTM_ACCOUNT_ID`,
 `GOOGLE_REPORTING_GTM_CONTAINER_ID`, `GOOGLE_REPORTING_SITE_URL`. The site defaults to
 `WEB_URL` with a trailing slash; Production must use the canonical public website.
 
-OAuth JWT assertions request only `analytics.readonly`, `webmasters.readonly` and
-`tagmanager.readonly`. The service account needs no general project/data-administration role
-for reading these existing resources. Keep its private key server-side and rotate/revoke it
-through the provider when needed.
+The request identity is exchanged through fixed Google STS and IAM Credentials endpoints.
+The intermediate cloud-platform scope is used only for service-account impersonation;
+the final token requests only `analytics.readonly`, `webmasters.readonly` and
+`tagmanager.readonly`. Subject/intermediate tokens are not stored or returned. Short-lived
+final tokens use expiry-aware singleflight caching. The service account needs the resource
+read grants listed above, not project Owner/Editor or general data-administration roles.
+Configured federation failures stay failed; they never fall back to a private key. Existing
+PEM support is a legacy compatibility path, not the Production setup procedure.
 
-Bing requires its own delegated `webmaster.read` OAuth connection, configured as
-`BING_REPORTING_CLIENT_ID`, `BING_REPORTING_CLIENT_SECRET`, `BING_REPORTING_REFRESH_TOKEN`
-and optional `BING_REPORTING_SITE_URL`. There is no broad API-key fallback. If Bing rotates
-the refresh token, this initial adapter fails closed and requires secure reconnection;
-durable encrypted rotation is not implemented. No mutation/submission methods are called.
+Bing uses a separate delegated `webmaster.read` OAuth connection. Register its client in
+Bing Webmaster Tools under Settings → API Access → OAuth Client. Configure
+`BING_REPORTING_CLIENT_ID` and `BING_REPORTING_CLIENT_SECRET` on the app server, with optional
+`BING_REPORTING_SITE_URL`; its default is the canonical `WEB_URL` with a trailing slash.
+There is no broad API-key fallback.
+
+Only a signed-in owner (`super_admin`) can start connection using
+`POST /api/admin/growth/bing/connect`. Register the callback exactly as
+`${APP_URL}/api/admin/growth/bing/callback`; Production uses the trusted app origin, with no
+request-provided redirect target. The POST checks the configured origin and same-origin
+request context. Both routes require the current completed owner session. Other permitted
+admins can view aggregate reports but cannot connect a provider.
+
+Apply additive migration `270_bing_reporting_connection.sql` before using this flow.
+`reporting_oauth_states` stores only the SHA-256 hash of a random 256-bit state, bound to the
+owner, exact session, site, client and callback, with a ten-minute expiry. Callback state is
+consumed once and committed before exchanging the provider code. Failed exchanges require
+a fresh connection attempt. Cancellation returns to a clean admin URL without exchanging
+the code or changing credentials.
+
+`reporting_oauth_connections` stores access and refresh tokens sealed with the existing
+AES-256-GCM `APP_ENCRYPTION_KEY`. Authenticated associated data binds ciphertext to its
+purpose, site, client and token kind. The migration grants only the backend `amc_app` role
+and table owner access, enables RLS, and adds no public REST grants or realtime publication.
+Audit records contain operation metadata, never token values, authorization codes or raw
+provider errors. Tokens are not stored through generic platform settings.
+
+Refreshes lock the connection row across serverless instances, validate the read-only scope,
+and commit any rotated refresh token plus access token/expiry/version before the new access
+token can be used for reporting. Revoked or broader grants fail closed. Local completion
+invalidates the Bing report cache; other instances retry missing-grant results after 15
+seconds. The environment-only refresh adapter remains legacy compatibility for fixtures;
+the owner connection flow uses the durable store. Reporting calls use fixed read methods,
+not submission or account-mutation methods.
+
+Live setup remains incomplete until the service account's GA4/Search Console/GTM read
+grants and an actual deployed WIF exchange are verified, and Bing's real client registration,
+owner consent and reporting read are completed. Configured trust, stored credentials and
+successful report reads are separate states; the guide does not claim these pending provider
+checks have passed.
 
 The browser checks provider summaries every minute. Server process caches/singleflight use
 30 seconds for GA4, 30 minutes for Search Console, 5 minutes for GTM and 6 hours for Bing.
@@ -83,7 +149,24 @@ DTO tests, and `test/admin-growth-sql.test.ts`, which executes the actual SQL ag
 synthetic PostgreSQL relations without inserting requests. CI runs these plus both app
 typechecks/builds and the existing suites.
 
+The connection changes add coverage for owner-only start/callback routes, exact origin and
+redirect checks, malformed/duplicate callback fields, cancellation and clean status redirects.
+The 56 mocked reporting tests include Google federation audience/token validation, request-scoped
+SDK identity, fixed STS/IAM exchanges, final read scopes, token bounds, expiry/singleflight,
+no private-key fallback after federation failure, and generic permission/quota handling.
+Bing tests cover read-only scope, retained/replaced refresh tokens, stored-grant activation,
+15-second missing-grant retries, local invalidation and credential-free DTOs.
+
+`test/bing-connection.test.ts` adds 12 PostgreSQL regressions for state hashing/bindings/expiry,
+committed consumption, callback replay and concurrent replay, owner/session revocation,
+scope enforcement, AES-GCM purpose binding, metadata/audit redaction, serialized refresh
+rotation across independent managers, and actual RLS/ACL/no-realtime migration checks.
+Provider traffic is mocked. These database tests were not run locally because the disposable
+PostgreSQL listener was unavailable; migration 270 and these regressions must pass isolated
+CI before merge. No live grant/consent result is inferred from mocked tests.
+
 API resource references: [GA4 Realtime](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runRealtimeReport),
 [Search Console](https://developers.google.com/webmaster-tools/v1/how-tos/all-your-data),
 [GTM live version](https://developers.google.com/tag-platform/tag-manager/api/reference/rest/v2/accounts.containers.versions/live),
-[Bing OAuth](https://learn.microsoft.com/en-us/bingwebmaster/oauth2).
+[Bing OAuth](https://learn.microsoft.com/en-us/bingwebmaster/oauth2),
+[Vercel OIDC](https://vercel.com/docs/oidc).

@@ -93,6 +93,7 @@ export const envSchema = z.object({
   // Admin-only read-only reporting. These are independent of public tracking consent/IDs.
   GOOGLE_REPORTING_CLIENT_EMAIL: optionalString,
   GOOGLE_REPORTING_PRIVATE_KEY: optionalString,
+  GOOGLE_REPORTING_WORKLOAD_IDENTITY_AUDIENCE: optionalString,
   GOOGLE_REPORTING_PROPERTY_ID: optionalString,
   GOOGLE_REPORTING_GTM_ACCOUNT_ID: optionalString,
   GOOGLE_REPORTING_GTM_CONTAINER_ID: optionalString,

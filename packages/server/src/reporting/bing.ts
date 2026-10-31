@@ -16,6 +16,10 @@ export function hasBingCredentials(config: ReportingConfiguration): boolean {
   return [config.BING_REPORTING_CLIENT_ID, config.BING_REPORTING_CLIENT_SECRET, config.BING_REPORTING_REFRESH_TOKEN].every(credential);
 }
 
+export function hasBingAppCredentials(config: ReportingConfiguration): boolean {
+  return [config.BING_REPORTING_CLIENT_ID, config.BING_REPORTING_CLIENT_SECRET].every(credential);
+}
+
 function siteUrl(value: string): string {
   try {
     // Even empty query/fragment delimiters, whitespace and URL-normalized traversal are unnecessary.
@@ -81,7 +85,7 @@ function feedStatus(value: unknown): string {
 /** Two fixed read methods only. This adapter has no submission, mutation or API-key fallback. */
 export function createBingReporter(
   config: ReportingConfiguration,
-  deps: { fetch: typeof globalThis.fetch; now: () => number },
+  deps: { fetch: typeof globalThis.fetch; now: () => number; accessToken?: () => Promise<string>; invalidateAccessToken?: () => Promise<void> },
 ): () => Promise<{ data: BingReportingData; reportedThrough: string | null }> {
   let token: { value: string; expiresAt: number } | undefined;
   let pendingToken: Promise<string> | undefined;
@@ -128,7 +132,7 @@ export function createBingReporter(
     try {
       // Validate before transmitting credentials or making any provider request.
       const site = siteUrl(config.BING_REPORTING_SITE_URL ?? config.WEB_URL);
-      const bearer = await refresh();
+      const bearer = deps.accessToken ? await deps.accessToken() : await refresh();
       const read = (method: "GetRankAndTrafficStats" | "GetFeeds") => readReportingJson(deps.fetch,
         `${API_URL}${method}?${new URLSearchParams({ siteUrl: site })}`, {
           method: "GET", headers: { authorization: `Bearer ${bearer}`, accept: "application/json" },
@@ -155,7 +159,11 @@ export function createBingReporter(
       return { data: { siteUrl: site, traffic, feeds }, reportedThrough: traffic.at(-1)?.date ?? null };
     } catch (error) {
       if (error instanceof ReportingFailure) {
-        if (error.status === "access_denied") token = undefined;
+        if (error.status === "access_denied") {
+          token = undefined;
+          // Do not retain a rejected stored access token across serverless instances.
+          if (deps.invalidateAccessToken) await deps.invalidateAccessToken();
+        }
         throw error;
       }
       throw new ReportingFailure("unavailable");

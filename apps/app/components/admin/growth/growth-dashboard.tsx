@@ -62,7 +62,14 @@ function ProviderStatus({ report }: { report: { status: string; checkedAt: strin
   return <p className="growth-provider-status"><span className={`growth-dot ${report?.status === "connected" ? "growth-dot-live" : ""}`} aria-hidden="true" />{label}</p>;
 }
 
-export function GrowthDashboard({ compact = false }: { compact?: boolean }) {
+export type BingConnectionNotice = "bing_connected" | "bing_cancelled" | "bing_failed";
+const CONNECTION_NOTICES: Record<BingConnectionNotice, string> = {
+  bing_connected: "Bing sign-in is complete. Your reports will update automatically.",
+  bing_cancelled: "Bing connection was cancelled. You can try again whenever you’re ready.",
+  bing_failed: "Bing could not be connected. Please try connecting again.",
+};
+
+export function GrowthDashboard({ compact = false, canConnectBing = false, connectionNotice }: { compact?: boolean; canConnectBing?: boolean; connectionNotice?: BingConnectionNotice }) {
   const [touch, setTouch] = useState<"first" | "last">("last");
   const [paused, setPaused] = useState(false);
   const { requests: data, providers, requestState, providerState, revoked, refresh } = useGrowth(touch, paused, compact);
@@ -71,6 +78,7 @@ export function GrowthDashboard({ compact = false }: { compact?: boolean }) {
   const status = paused ? "Automatic updates paused" : requestState.error ? "Connection interrupted · retrying" : data ? "Requests update every 15 seconds" : "Loading saved requests…";
   return (
     <div className="growth-dashboard">
+      {!compact && connectionNotice && Object.hasOwn(CONNECTION_NOTICES, connectionNotice) ? <p className="growth-alert" role={connectionNotice === "bing_failed" ? "alert" : "status"}>{CONNECTION_NOTICES[connectionNotice]}</p> : null}
       <div className="growth-toolbar">
         <div role="status"><p className="growth-status"><span className={`growth-dot ${data && !paused && !requestState.error ? "growth-dot-live" : ""}`} aria-hidden="true" />{status}</p><p className="growth-caption">{data ? `Updated ${time(data.generatedAt)}` : "All dates use US Eastern time."}</p></div>
         <div className="growth-actions">
@@ -128,6 +136,7 @@ export function GrowthDashboard({ compact = false }: { compact?: boolean }) {
             <Panel title="Bing Webmaster Tools" note="Traffic updates daily. Submission and crawling do not guarantee indexing.">
               <ProviderStatus report={bing} />
               {bing?.data ? <><div className="growth-inline-metrics"><Metric label="Reported clicks" value={bing.data.traffic.reduce((sum, day) => sum + day.clicks, 0)} /><Metric label="Reported impressions" value={bing.data.traffic.reduce((sum, day) => sum + day.impressions, 0)} /></div><p className="growth-caption">Through {bing.reportedThrough ? date(bing.reportedThrough) : "the provider’s latest available day"}. Bing combines search verticals in these totals.</p><dl className="growth-list">{bing.data.feeds.map(row => <div key={row.url}><dt>{new URL(row.url).pathname}<small>{row.status}</small></dt><dd>{number(row.urlCount)} URLs</dd></div>)}</dl></> : <Empty>Bing is verified and the sitemap has been submitted. A read-only reporting connection is needed to show daily results here.</Empty>}
+              {canConnectBing ? <form method="post" action="/api/admin/growth/bing/connect"><Button type="submit" variant="secondary" size="sm">Connect Bing</Button><p className="growth-caption">Connect your Bing account to bring its search reports into this screen.</p></form> : null}
               <ProviderFooter at={bing?.checkedAt} href="https://www.bing.com/webmasters/sitemaps?siteUrl=https://www.americanmovingchoice.com/">Open Bing Webmaster Tools</ProviderFooter>
             </Panel>
             <Panel title="Tracking & website operations" note="Published tag configuration and the website’s operational dashboards.">
