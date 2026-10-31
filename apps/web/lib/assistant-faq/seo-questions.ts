@@ -102,8 +102,8 @@ export const EDITORIAL_ASSISTANT_QUESTIONS: Record<string, readonly EditorialAss
   "how-much-do-local-movers-cost": [
     q("What affects the cost of hiring local movers?", "intro", "What drives an hourly price"),
     q("Which assumptions should I compare in hourly local moving prices?", "What drives an hourly price"),
-    q("How are local moving planning ranges built from rate cards?", "How our ranges are built"),
-    q("Why might the calculator show no local moving range for my state?", "Why does the calculator show no range for my state?"),
+    q("What should I get before comparing local moving prices?", "verified-pricing-policy"),
+    q("Which extras should I confirm when comparing hourly local moving prices?", "What drives an hourly price", "Extras"),
   ],
   "how-do-moving-companies-charge": [
     q("How do moving companies calculate household moving charges?", "intro"),
@@ -211,12 +211,12 @@ export const EDITORIAL_ASSISTANT_QUESTIONS: Record<string, readonly EditorialAss
     q("What's the best way to compare written moving estimates for the same shipment?", "intro"),
     q("Which shipment, service and valuation details should match across moving estimates?", "Line them up"),
     q("Is the lowest moving estimate necessarily the best choice?", "Is the lowest estimate the best?"),
-    q("Can American Moving Choice's planning range replace a company's written estimate?", "What this site adds"),
+    q("What should I get from a mover before treating an online figure as my moving price?", "verified-pricing-policy", "intro"),
   ],
   "are-online-moving-quotes-accurate": [
     q("How should I judge the accuracy of an online moving quote?", "intro"),
     q("How is a planning range different from a mover's written estimate?", "Planning range vs estimate", "Binding?", "Who gives it"),
-    q("Why does the moving calculator show a range rather than one final price?", "Why does your calculator show a range and not a price?"),
+    q("Does American Moving Choice give a binding moving price from an online calculator?", "verified-pricing-policy"),
     q("What should a mover assess before I rely on its estimate?", "Planning range vs estimate", "survey"),
   ],
   "what-is-storage-in-transit": [

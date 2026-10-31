@@ -50,7 +50,7 @@ export default function MovingCostCalculatorPage() {
       <VideoSurveyHero url={PAGE} title={page.h1} eyebrow="Planning range, not a quote"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Moving cost calculator" }]}
         mobileActionHref="#planning-calculator" mobileActionLabel="Use cost calculator"
-        description="A range built from movers' own rate cards, shown only when enough different movers have shared recent rates for a move like yours.">
+        description="Plan around your route, home size and services. A price range appears only when enough verified, recent rate cards support it; otherwise, use the guidance to prepare for a written estimate.">
         <a href="#planning-calculator" className="vsh__tool-action">Use cost calculator <span aria-hidden="true">↓</span></a>
       </VideoSurveyHero>
 
@@ -58,7 +58,7 @@ export default function MovingCostCalculatorPage() {
         <Reveal>
           <TrustStrip
             items={[
-              { title: "Built from rate cards", body: "Movers in our network share the rates they actually charge. We never invent a price." },
+              { title: "Verified evidence first", body: "Recent rates must be approved and come from real moving companies. Without enough reliable data, no amount is shown." },
               { title: "Only with enough data", body: `A range needs rate cards from several different movers. Fewer, and we say so.` },
               { title: "Never a quote", body: "Only a mover can price your move, in a written estimate. This is for planning." },
               { title: "Nothing stored", body: "Your answers stay in your browser session; the result never gets its own URL." },
@@ -92,7 +92,7 @@ export default function MovingCostCalculatorPage() {
             </div>
             <div className="rounded-card mesh-navy p-5 text-on-band" data-band="">
               <p className="type-h4">Ready for real prices?</p>
-              <p className="mt-1 text-on-band-2">Movers in our network quote your move directly. You choose how many can contact you.</p>
+              <p className="mt-1 text-on-band-2">Each participating company provides its own estimate. You choose how many may contact you.</p>
               <a href="/get-quotes/" className="mt-4 inline-flex min-h-11 items-center rounded-control bg-white px-4 font-semibold text-brand-navy no-underline hover:bg-on-band-2">
                 Request quotes
               </a>

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 const STEPS = [
   { icon: "origin" as const, title: "Tell us where life is taking you", body: "Start with your ZIP codes, moving date, and the size of your move.", meta: "Your move" },
   { icon: "route" as const, title: "Keep your move together", body: "Review your route, date and moving needs together before sending your request.", meta: "Your plan" },
-  { icon: "chat" as const, title: "Set your contact preferences", body: "Choose how many moving companies may contact you and how you'd like to hear from them.", meta: "Your choice" },
+  { icon: "chat" as const, title: "Set your contact limit", body: "Choose the maximum number of moving companies that may call or email you about your move.", meta: "Your choice" },
   { icon: "verified" as const, title: "Compare quotes. Make your move.", body: "Companies introduce themselves when they reach out. Compare their estimates and decide who feels right.", meta: "Your decision" },
 ];
 const SERVICES = [
@@ -54,12 +54,12 @@ export default async function HomePage() {
     <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", "@id": WEB_URL + "/#website", name: "American Moving Choice", url: WEB_URL + "/", publisher: { "@id": organizationId(WEB_URL) }, inLanguage: "en-US" }} />
     <VideoSurveyHero url="/" title={<>A better move.<br /><span className="vsh__title-accent">On your terms.</span></>}
       eyebrow="A new place. A fresh start."
-      description="Big plans deserve the right moving company. Request quotes from movers who serve your route, on your terms.">
+      description="Big plans deserve a clear starting point. Tell us about your move, choose your contact limit and compare companies' estimates directly.">
       <p>New keys. New beginnings. Wherever you're headed, make the move yours.</p>
       <p className="inline-flex items-center gap-2"><LineIcon name="lock" size={16} />Your details are shared only after you give permission.</p>
     </VideoSurveyHero>
     <section className="home-reassurance" aria-label="Moving, with more control"><div className="mx-auto grid max-w-content gutter sm:grid-cols-3">
-      <div><Icon3D name="verified" size={44} /><p><strong>Moving carriers. No brokers.</strong><span>Learn how our network is screened.</span></p></div>
+      <div><Icon3D name="verified" size={44} /><p><strong>Know what to check.</strong><span>Understand a mover's credentials before hiring.</span></p></div>
       <div><Icon3D name="chat" size={44} /><p><strong>You set the contact limit.</strong><span>Choose from 1 to {maxMovers} companies.</span></p></div>
       <div><Icon3D name="price" size={44} /><p><strong>Quotes come straight to you.</strong><span>Compare in your own time.</span></p></div>
     </div></section>
@@ -78,10 +78,10 @@ export default async function HomePage() {
       <div className="home-control-heading" data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />A little less moving stress</p><h2 id="your-move-your-rules">The choice stays<br /><em>with you.</em></h2><p>One request. Clear preferences.<br />Space to make a considered decision.</p></div>
       <div className="home-benefit-grid" data-motion="stagger">{[
         { number: "01", icon: "chat" as const, title: "Choose your contact limit", body: "Set the maximum number of companies you want to hear from, up to " + maxMovers + ". Nothing is selected for you." },
-        { number: "02", icon: "credentials" as const, title: "Moving companies, screened", body: "We check carrier authority and insurance filings against FMCSA records. Learn what we check and what those checks mean." },
+        { number: "02", icon: "credentials" as const, title: "Check before you choose", body: "Learn how to check carrier authority, insurance filings and the company's identity using official FMCSA sources." },
         { number: "03", icon: "key" as const, title: "The final decision is yours", body: "Companies introduce themselves and provide their own estimates. Compare the details and choose who you want to hire." },
       ].map((b, index) => <TiltCard contentInset="card" key={b.number} max={5} depth={20} className="home-benefit-card" bodyClassName="home-benefit-body"><div className="home-benefit-photo" data-page-photo={photos[index]!.id}><MediaFrame asset={photos[index]!} sizes="(min-width: 1024px) 30vw, 100vw" /></div><span className="home-card-index">{b.number}</span><Icon3D name={b.icon} size={72} className="tilt-layer-2" /><h3 className="tilt-layer">{b.title}</h3><p className="tilt-layer">{b.body}</p></TiltCard>)}</div>
-      <Link href="/how-we-verify-movers/" className="home-text-link">How our network is screened<LineIcon name="arrow-right" size={18} /></Link>
+      <Link href="/how-we-verify-movers/" className="home-text-link">Understand mover screening<LineIcon name="arrow-right" size={18} /></Link>
     </div></section>
     <Section aria-labelledby="plan-ahead" className="home-planning"><div className="home-planning-grid">
       <div className="home-planning-art" data-motion="scale"><div className="home-planning-media"><MediaFrame asset={planning} sizes="(min-width: 1024px) 48vw, 100vw" /></div><div className="home-planning-stamp" data-content-inset="card"><Icon3D name="calculator" size={60} /><span>A clearer plan.<br /><strong>A calmer move.</strong></span></div></div>
@@ -91,7 +91,7 @@ export default async function HomePage() {
       <AssistantFaq id="home-faq" url="/" items={staticAssistantFaq("/")!} title="Before you request moving quotes" />
       <Link href="/questions/" className="home-text-link">More moving questions<LineIcon name="arrow-right" size={18} /></Link>
     </Section>
-    <section className="home-final" aria-labelledby="ready-to-move"><div className="home-final-photo" aria-hidden="true"><MediaFrame asset={care} alt="" sizes="100vw" /></div><div className="home-final-shade" aria-hidden="true" /><div className="mx-auto max-w-content gutter" data-motion="rise"><p className="home-eyebrow">Good things are ahead</p><h2 id="ready-to-move">Let’s get you<br />to your next chapter.</h2><p>Start with your route. Take it one step at a time.</p><LinkButton href="/get-quotes/" variant="cta" data-magnetic="">Start my moving request</LinkButton><span className="home-final-note">Free to request · Your contact preferences · No brokers</span></div></section>
+    <section className="home-final" aria-labelledby="ready-to-move"><div className="home-final-photo" aria-hidden="true"><MediaFrame asset={care} alt="" sizes="100vw" /></div><div className="home-final-shade" aria-hidden="true" /><div className="mx-auto max-w-content gutter" data-motion="rise"><p className="home-eyebrow">Good things are ahead</p><h2 id="ready-to-move">Let’s get you<br />to your next chapter.</h2><p>Start with your route. Take it one step at a time.</p><LinkButton href="/get-quotes/" variant="cta" data-magnetic="">Start my moving request</LinkButton><span className="home-final-note">Free to request · Your contact limit · You choose who to hire</span></div></section>
     <StickyCta href="/get-quotes/" watch="hero-survey" label="Get moving quotes" />
   </>;
 }

@@ -34,7 +34,7 @@ describe("Louisiana county labels require actual field or row context", () => {
     expect(projected.content.sections[0].blocks[0].rows).toEqual([["Orleans Parish population", "376,035"], ["Orleans Parish housing units", "194,758"]]);
     expect(projected.content.sections[1].blocks[0].text).toContain("Orleans Parish as of 2026-10-28");
     expect(projected.content.sections[2]).toEqual(stored.content.sections[2]);
-    expect(projected.content.faq[0].answer).toBe("None names Orleans Parish as of 2026-10-28.");
+    expect(projected.content.faq).toEqual([]);
     expect(JSON.stringify(stored)).toBe(frozen);
     preserved(stored, projected);
   });

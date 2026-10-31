@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { parseArgs } from "node:util";
 import type { SeoPageRecord } from "../packages/server/src/seo/types";
 import { publicSeoPage } from "../apps/web/components/seo/public-content";
+import { publicNetworkSummary } from "../apps/web/components/seo/public-network-evidence";
 import { seoAssistantFaq } from "../apps/web/lib/assistant-faq/seo";
 import { STATIC_ASSISTANT_FAQ_PAGES, staticAssistantFaq } from "../apps/web/lib/assistant-faq/static";
 import { hubAssistantFaq, moversIndexAssistantFaq, catalogAssistantFaq } from "../apps/web/lib/assistant-faq/hubs";
@@ -50,7 +51,7 @@ async function main() {
   for (const record of records) add(record.url, record.h1, record.family, () => seoAssistantFaq(record));
   const staticPaths = Array.isArray(STATIC_ASSISTANT_FAQ_PAGES) ? STATIC_ASSISTANT_FAQ_PAGES : Object.keys(STATIC_ASSISTANT_FAQ_PAGES);
   for (const url of staticPaths) add(url, PUBLIC_STATIC_LINKS.find(link => link.href === url)?.label ?? url, "page", () => staticAssistantFaq(url)!);
-  const summaries = rawRows.map(record => ({ url: String(record.url), h1: String(record.h1), title: String(record.title ?? record.h1), family: String(record.family), stateCode: (record.stateCode ?? record.state_code ?? null) as string | null }));
+  const summaries = rawRows.map(record => publicNetworkSummary({ url: String(record.url), h1: String(record.h1), title: String(record.title ?? record.h1), family: String(record.family), stateCode: (record.stateCode ?? record.state_code ?? null) as string | null }));
   // Snapshot SELECT uses ORDER BY url: preserve database collation for exact hub boundaries.
   for (const spec of [ROUTES_HUB, QUESTIONS_HUB, PLANNING_HUB]) {
     const entries = summaries.filter(page => page.family === spec.family).map(page => spec.family === "route" ? { ...page, h1: page.title } : page);

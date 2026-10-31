@@ -3,7 +3,7 @@ id: trust-how-we-verify-movers
 url: /how-we-verify-movers/
 family: Trust page
 title: "How We Verify Movers | American Moving Choice"
-meta_description: "Movers only: we check each mover in our network for household-goods carrier authority, no broker authority and insurance filings, then recheck weekly."
+meta_description: "Understand carrier-screening requirements, their limits and how to check a mover's current registration, operating authority and insurance records."
 h1: "How we verify movers"
 breadcrumb: "Home › How we verify movers"
 indexation: index once approved
@@ -15,7 +15,7 @@ reviewer: "{{page.reviewer}}"
 data_owner: n/a                          # no data blocks on this page
 ai_assisted: true
 ai_role: drafted
-stored_texts: [ST-2, ST-8]
+stored_texts: [ST-8]
 tokens: [badge.name, company.verified_date, setting.require_mc_number, setting.credential_alert_days, setting.new_to_network_days, org.support_email, org.support_phone, page.author, page.reviewer]
 depends_on:
   - "Owner: MC-number requirement vs a state-licensed local track (mover verification §9 decision 1; brief §11 Q4)"
@@ -46,7 +46,7 @@ last_updated: 2026-10-29
 
 # How we verify movers
 
-American Moving Choice accepts only moving carriers: companies that perform moves themselves. Before approval, we check each company's federal record for an active USDOT number, household-goods carrier authority, no broker authority and insurance filings, and a person reviews the file. We recheck that record weekly. If a check fails, the mover can't receive new requests.
+American Moving Choice's screening policy is for moving carriers: companies that perform moves themselves. It calls for checking identity, federal authority, applicable insurance and documents before approval. This guide explains those requirements and their limits; it is not a current verification result for a particular company. Before hiring, use the official sources below to check the company's present record.
 
 Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with AI
 
@@ -64,8 +64,7 @@ Edited by {{page.author}} · Reviewed by {{page.reviewer}} · First drafted with
 
 ## Who can join our network?
 
-<!-- ST-2 -->
-> **Movers only, no brokers.** Every company in our network must show active household-goods carrier authority and no broker authority on its federal (FMCSA) record, give us its USDOT and MC numbers, and agree not to resell your request or hand your move to another company. We recheck federal records every week. [How we verify movers]
+> **Carrier-only participation policy.** The screening requirements call for active household-goods carrier authority, no broker authority, matching USDOT and MC numbers, applicable insurance evidence and agreement to keep contact details within the company and perform the move itself. A policy describes required checks; it does not establish that a particular company has passed a current live check.
 
 [Counsel: confirm ST-2's phrasing while the MC number is a platform rule (stored-texts ST-2 notes; consent draft §2), and whether "no broker authority on its federal record" is accurate when it rests on the broker status reading None on every linked docket (carrier-vs-broker note, counsel item 8(c)).] [Build: ST-2 renders from its record, drops "and MC" if `{{setting.require_mc_number}}` turns off, and hides if the weekly authority check fails to run (stored-texts ST-2 notes; implications §4.1).]
 
@@ -77,7 +76,7 @@ The company gives us its USDOT number, which is how we find its record with the 
 
 ### An MC number, while we require one
 
-We also require the company's MC number, the docket number tied to its federal operating authority. [Verify: MC docket as the operating-authority number (compliance facts §1, search excerpts of FMCSA registration pages and the OP-1 form).] This is our rule, not a legal requirement for every mover. [Verify: compliance facts §1 says intrastate-only movers have no MC number, and gives FMCSA's modernization FAQ as saying MC docket numbers "were never a statutory or regulatory requirement", marked [confirm] (search excerpts).] It limits our network to companies whose authority, insurance filings and broker status are on a federal record that we recheck automatically every week. [Owner: confirm this reason; mover verification §1 states the rule but not why. The requirement itself is the owner's open decision — default shown (mover verification §9 decision 1; brief §11 Q4).]
+We also require the company's MC number, the docket number tied to its federal operating authority. [Verify: MC docket as the operating-authority number (compliance facts §1, search excerpts of FMCSA registration pages and the OP-1 form).] This is our rule, not a legal requirement for every mover. [Verify: compliance facts §1 says intrastate-only movers have no MC number, and gives FMCSA's modernization FAQ as saying MC docket numbers "were never a statutory or regulatory requirement", marked [confirm] (search excerpts).] It identifies a federal authority record for the documented review process. An actual result must identify the source and retrieval date; the policy alone does not establish current authority or insurance. [Owner: confirm this reason; mover verification §1 states the rule but not why. The requirement itself is the owner's open decision — default shown (mover verification §9 decision 1; brief §11 Q4).]
 
 Two things to know about this rule:
 
@@ -128,7 +127,7 @@ Every company agrees to our terms for movers. Among them: it keeps your request 
 
 ## What we check before a mover joins
 
-We find each company by its USDOT number and pull its record from FMCSA. We check state records where they apply and review the documents the company sends us. Every result then goes to a person on our team.
+The process identifies a company by USDOT number, compares its federal and applicable state records, and reviews the documents it supplies. The evidence must identify its source and retrieval date, and the application goes to a person for review. A recorded example or scheduled check is not evidence that a real company's current official record has been retrieved.
 
 | What we check | Where the record comes from | What passing means | If it fails |
 |---|---|---|---|
@@ -150,7 +149,7 @@ The identity, recent-changes and callback checks guard against impostors: people
 
 ## A person reviews every application
 
-No company is approved automatically. After the automated and document checks, someone on our team reviews the whole file, including any highlighted mismatches, flagged record changes and the callback, before approving or rejecting it.
+The approval process requires a person to review the whole file after the automated and document checks, including highlighted mismatches, flagged record changes and the callback. An automated pass alone is not approval.
 
 Every check leaves a dated evidence record: where the data came from, a copy of what we retrieved, when we retrieved it, the result, and who reviewed it and what they decided. We add to these records but never edit them.
 
@@ -162,12 +161,12 @@ Our application asks about ties to people who own or work for American Moving Ch
 
 ## How often we recheck
 
-Passing once isn't enough to stay in our network.
+The documented workflow calls for ongoing rechecks. This schedule describes the process, not a claim that any particular company's live FMCSA record has just been checked. Review the source and date of an actual result and consult the current official record before hiring.
 
-- **Every week:** we recheck every approved mover's FMCSA record for its USDOT status, operating authority and insurance filings.
-- **Before documents expire:** we alert the mover {{setting.credential_alert_days}} days before its certificate of insurance or a state credential expires, and again on the day it expires.
-- **Every year:** we run every check again for every mover.
-- **Right away after certain events:** we run every check again when someone reports broker activity, when someone complains about a mover's credentials, when a mover's ownership changes, or when an account review raises a concern.
+- **Every week:** the workflow schedules rechecks of approved movers' USDOT status, operating authority and applicable insurance filings.
+- **Before documents expire:** the workflow schedules alerts {{setting.credential_alert_days}} days before a certificate of insurance or a state credential expires, and again on the day it expires.
+- **Every year:** the process calls for repeating all applicable checks.
+- **Right away after certain events:** the process calls for repeating checks after a broker-activity report, a credential complaint, a change of ownership or an account-review concern.
 - **Before sharing a request:** our system confirms from our records that the mover is still approved, has no broker authority on file, has its numbers on file and has no expired credentials.
 
 [Build: weekly FMCSA recheck job; expiry alerts at 30, 14, 7 and 0 days; annual full re-verification; immediate re-verification on a broker-activity report, credential complaint, ownership change or chargeback pattern; automatic suspension; the purchase-time check (mover verification §3, §8 Phase 6; implications §9.6)]
@@ -209,11 +208,11 @@ A suspended company isn't eligible for new requests. It must pass the applicable
 
 Our checks are our own. They aren't a license, a certification or a government approval.
 
-**What a pass tells you:** that the company met every requirement on this page that applies to it when we approved it or last ran every check again, and that its federal record passed our latest weekly recheck. The underlying evidence records the date of each check.
+**How to interpret a recorded pass:** look for the company identity, the checks completed, the evidence source and the retrieval date. A scheduled recheck is not a completed check, and a sample record is not a real company's federal record. This guide itself does not certify a particular mover or state that its current record has passed.
 
 **What it can't tell you:**
 
-- **Changes since our last check.** A federal record can change between our weekly rechecks, so check the date shown and the mover's live FMCSA record.
+- **Changes after a check.** A federal record can change after retrieval, so check the recorded date and the mover's current official FMCSA record.
 - **How good the work is.** We don't assess how well a mover packs, loads or delivers your things.
 - **Prices.** We don't set or check movers' prices or estimates. [How movers charge](/moving-costs/how-movers-charge/) explains how pricing works.
 - **Who the crew is.** We don't run background checks on owners, staff or crews, and we don't check who will turn up on moving day.

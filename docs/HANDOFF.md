@@ -3,6 +3,33 @@
 Updated 2026-10-30 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Custom domain and public search launch — owner follow-up, 2026-10-30
+
+The owner confirmed ownership of `americanmovingchoice.com`, requested launch, and applied
+the DNS records. Vercel now verifies all three hosts and HTTPS works. The public origin is
+`https://www.americanmovingchoice.com`; the apex redirects there with 308. The portal origin is
+`https://app.americanmovingchoice.com`. Production `WEB_URL` and `APP_URL` on both projects
+use these origins. Preview keeps its previous Vercel URLs and remains noindex.
+
+This release enables `SITE_INDEXABLE=true` for **web Production only**, after the launch
+corrections below pass checks. The owner's explicit launch instruction supersedes older
+blanket noindex hold instructions in this document. The authenticated app stays noindex.
+`DEMO_MODE=true` and the owner's password-only admin exception remain unchanged: changing
+them would reinstate an authenticator requirement and does not configure real integrations.
+
+Demo company rate cards cannot support calculator ranges, SEO rate evidence or candidate
+counts. Legacy saved ranges lack non-demo approval provenance, so public presentation uses
+cost drivers and written-estimate guidance instead of presenting fixture prices as observed
+market data; stored records are preserved. Production request routing excludes demo company
+accounts even with demo mode enabled. A valid request with no real recipient still saves.
+Public mover checks link to FMCSA's own tools when a live lookup provider is absent.
+
+Requests are stored and a private management link is shown on confirmation. Postmark and a
+verified sender are not configured at this cutover, so the public confirmation must not claim
+that an email has been sent. Live email, payments and automated federal-record checks each
+require their actual provider credentials; a domain or demo flag does not create them. Do not
+invent business contact details, live screening results or credentials to fill these gaps.
+
 ### Page-specific assistant questions — owner follow-up, 2026-10-30
 
 The owner explicitly requested four or five natural, page-specific questions on every public

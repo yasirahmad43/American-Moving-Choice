@@ -1,12 +1,13 @@
 import { buildSeedSql } from "@amc/db/seed/build";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { signupCompany } from "../src/auth/signup";
 import { closePool, getPool } from "../src/db/pool";
+import { resetEnvCache } from "../src/env/env";
 import { assessCarrier, normalizeCompanyName, similarity } from "../src/verification/assess";
 import { evaluateEligibility } from "../src/verification/eligibility";
 import { fixtureAdapter, fixtureRecord } from "../src/verification/fixtures";
 import { mapQcMobile, qcMobileAdapter } from "../src/verification/qcmobile";
-import { fmcsaSnapshotUrl, getCompanyEligibility, latestChecks, runAutomatedChecks } from "../src/verification/run";
+import { fmcsaSnapshotUrl, getCompanyEligibility, getFmcsaAdapter, latestChecks, runAutomatedChecks } from "../src/verification/run";
 import type { ApplicationFacts, CheckOutcome, FmcsaLookup } from "../src/verification/types";
 import { resetDatabase } from "./helpers";
 
@@ -209,6 +210,46 @@ describe("live QCMobile adapter (mapped defensively)", () => {
 describe("runAutomatedChecks", () => {
   const countChecks = async (companyId: string) =>
     Number((await pool().query<{ n: string }>("select count(*) as n from verification_checks where company_id = $1", [companyId])).rows[0]!.n);
+
+  it("requires manual review in production without live configuration, even for a non-demo applicant in the fixture USDOT range", async () => {
+    const fixture = fixtureRecord("9000042")!;
+    const applicant = await signupCompany({
+      fullName: "Production Applicant", email: "production-verification@example.test", password: "production-test-password",
+      legalName: fixture.legalName!, usdot: fixture.usdot, mc: fixture.authorities[0]!.docket, phone: fixture.phone!,
+    }, { bcryptCost: 4 });
+    const address = fixture.physicalAddress!;
+    await pool().query("update companies set address_line1=$2,address_city=$3,address_state=$4,address_zip=$5 where id=$1", [applicant.companyId, address.line1, address.city, address.state, address.zip]);
+    expect((await pool().query("select is_demo from companies where id=$1", [applicant.companyId])).rows[0].is_demo).toBe(false);
+    const originalMode = process.env.NODE_ENV;
+    const lookupSpy = vi.spyOn(fixtureAdapter, "lookupCarrier");
+    Object.assign(process.env, { NODE_ENV: "production" });
+    resetEnvCache();
+    try {
+      const lookup = await getFmcsaAdapter().lookupCarrier(fixture.usdot);
+      expect(lookup).toMatchObject({ status: "unavailable", source: "fmcsa_qcmobile", raw: { liveLookupAttempted: false } });
+      expect(lookup).not.toHaveProperty("record");
+      for (const options of [{}, { adapter: fixtureAdapter }]) {
+        const summary = await runAutomatedChecks(applicant.companyId, options);
+        expect(summary).toMatchObject({ source: "fmcsa_qcmobile", lookup: "unavailable", outcome: "needs_review", hasBrokerAuthority: null });
+        expect(summary.checks).toHaveLength(6);
+        expect(summary.checks.every(check => check.result === "needs_review")).toBe(true);
+      }
+      expect(lookupSpy).not.toHaveBeenCalled();
+      const checks = (await pool().query("select source,source_url,result,payload_snapshot from verification_checks where company_id=$1", [applicant.companyId])).rows;
+      expect(checks).toHaveLength(12);
+      for (const check of checks) {
+        expect(check).toMatchObject({ source: "fmcsa_qcmobile", result: "needs_review", payload_snapshot: { lookup: "unavailable" } });
+        expect(check.source_url).toBe(fmcsaSnapshotUrl(fixture.usdot));
+      }
+      expect((await pool().query("select status from credentials where company_id=$1", [applicant.companyId])).rows).toEqual([{ status: "pending" }, { status: "pending" }]);
+      expect((await pool().query("select count(*)::int n from authority_records where company_id=$1", [applicant.companyId])).rows[0].n).toBe(0);
+      expect((await getCompanyEligibility(applicant.companyId)).approvable).toBe(false);
+    } finally {
+      lookupSpy.mockRestore();
+      Object.assign(process.env, { NODE_ENV: originalMode });
+      resetEnvCache();
+    }
+  });
 
   it("appends passing checks for a clean seeded carrier and refreshes its credentials", async () => {
     const before = await countChecks(company(1));

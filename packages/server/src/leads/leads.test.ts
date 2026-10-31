@@ -161,6 +161,23 @@ afterAll(async () => {
 });
 
 describe("checkCoverage", () => {
+  it("excludes fixture recipients and profile fallback names in production while retaining real companies", async () => {
+    const originalMode = process.env.NODE_ENV;
+    await pool().query("update companies set is_demo = false where id = $1", [alpha]);
+    Object.assign(process.env, { NODE_ENV: "production" });
+    try {
+      const result = await matchMovers({ originZip: "75201", destZip: "77002", moveSize: "2br", services: [], profileCompanyId: bravo });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.movers.map(mover => mover.companyId)).toEqual([alpha]);
+      expect(result.movers[0]!.isDemo).toBe(false);
+      expect(result.profileCompany).toBeNull();
+    } finally {
+      Object.assign(process.env, { NODE_ENV: originalMode });
+      await pool().query("update companies set is_demo = true where id = $1", [alpha]);
+    }
+  });
+
   it("returns only companies that can buy and serve the move, with display fields", async () => {
     const result = await checkCoverage({ originZip: "75201", destZip: "77002", moveSize: "2br", services: [] });
     expect(result.ok).toBe(true);
@@ -218,6 +235,27 @@ describe("checkCoverage", () => {
 });
 
 describe("submitRequest", () => {
+  it("accepts a valid production request when every otherwise eligible company is a demo fixture", async () => {
+    const originalMode = process.env.NODE_ENV;
+    Object.assign(process.env, { NODE_ENV: "production" });
+    try {
+      const { input, coverage } = await draft({ limit: 5, email: "production-intake@example.com", phone: "2145550172" });
+      expect(coverage.ok && coverage.movers).toEqual([]);
+      const result = await submitRequest(input, meta("198.51.100.217"));
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      const lead = (await pool().query("select id, group_id, status from leads where reference_code = $1", [result.confirmation.referenceCode])).rows[0];
+      expect(lead.status).toBe("unmatched");
+      expect((await pool().query("select request_intake_pending from lead_groups where id = $1", [lead.group_id])).rows[0].request_intake_pending).toBe(true);
+      expect((await pool().query("select count(*)::int n from lead_eligibility where group_id = $1", [lead.group_id])).rows[0].n).toBe(0);
+      expect((await pool().query("select named_company_ids from consent_records where lead_id = $1", [lead.id])).rows[0].named_company_ids).toEqual([]);
+      expect((await pool().query("select template from messages where related_id = $1 or related_id = $2", [lead.id, lead.group_id])).rows).toEqual([{ template: "request_received" }]);
+      expect(result.confirmation.movers).toEqual([]);
+    } finally {
+      Object.assign(process.env, { NODE_ENV: originalMode });
+    }
+  });
+
   it("stores the request, consent evidence and eligibility, and enqueues the emails after commit", async () => {
     const { input, coverage } = await draft({ limit: 2, removed: [charlie] });
     const result = await submitRequest(input, meta());
