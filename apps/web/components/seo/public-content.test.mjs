@@ -36,6 +36,35 @@ function legacyPage() {
 }
 
 describe("public SEO projection", () => {
+  it("suppresses saved seed rates across structured blocks, metadata and summaries while preserving sourced money facts", () => {
+    const stored=legacyPage();
+    stored.title="Movers in Austin, TX: compare screened moving companies";
+    stored.h1=stored.title;
+    stored.metaDescription="Austin movers screened on their FMCSA record: 5 movers' active rate cards support a local range from $9,999 to $10,999.";
+    stored.content.intro.answer="Austin is in Travis County. A local move ranges from $9,999 to $10,999 across 5 movers' rate cards.";
+    stored.content.intro.dataPoints.push({label:"Active rate cards",value:"5",basis:"rate_cards"},{label:"Historical rent",value:"$900 to $1,100",basis:"2019–2023 ACS Census estimates"});
+    stored.content.sections=[
+      {id:"costs",heading:"Moving price ranges",blocks:[
+        {type:"cost",block:{scope:"a Texas local move",moveType:"local",band:null,rows:[{homeSize:"2 bedrooms",low:"$9,999",high:"$10,999",movers:5,typical:"3 movers, 5.5 hours"}],asOf:"2026-03-27",modelVersion:"cost-model-v1"}},
+        {type:"paragraph",text:"The typical 2-bedroom job is 3 movers, 5.5 hours from five movers' cards."},
+      ]},
+      {id:"housing",heading:"Historical Census housing costs",blocks:[{type:"table",caption:"2019–2023 ACS estimates",columns:["Measure","Range"],rows:[["Median gross rent","$900 to $1,100"]]}]},
+      {id:"law",heading:"Interstate arbitration",blocks:[{type:"facts",items:[{claim:"The arbitration rule distinguishes claims of $10,000 or less from larger claims.",source:{label:"49 CFR 375.211",url:"https://www.ecfr.gov/current/title-49/section-375.211",accessedOn:"2026-10-29"}}]}]},
+    ];
+    const before=JSON.stringify(stored);
+    const projected=publicSeoPage(stored);
+    const payload=JSON.stringify(projected);
+    expect(JSON.stringify(stored)).toBe(before);
+    expect(payload).not.toMatch(/9,999|10,999|5\.5 hours|cost-model-v1|rate_cards|active rate cards/iu);
+    expect(projected.h1).toBe("Movers in Austin, TX");
+    expect(projected.metaDescription).not.toMatch(/screened|5 movers/iu);
+    expect(projected.content.sections.flatMap(section=>section.blocks).some(block=>block.type==="cost")).toBe(false);
+    expect(payload).toContain("$900 to $1,100");
+    expect(payload).toContain("$10,000 or less");
+    expect(projected.content.intro.dataPoints.find(point=>point.label==="Historical rent").value).toBe("$900 to $1,100");
+    expect(publicSeoPage(projected)).toEqual(projected);
+  });
+
   it("removes legacy company identities from the body, metadata fields, linked props and sources", () => {
     const projected = publicSeoPage(legacyPage());
     const payload = JSON.stringify(projected);
@@ -43,7 +72,7 @@ describe("public SEO projection", () => {
     expect(payload).not.toContain(SLUG);
     expect(payload).not.toMatch(/\/(?:companies|directory)\//);
     expect(projected.content.sections.flatMap((section) => section.blocks).some((block) => block.type === "movers")).toBe(false);
-    expect(projected.content.faq[0].answer).toContain("Companies introduce themselves");
+    expect(projected.content.faq).toEqual([]);
     expect(projected.content.quote.text).toContain("maximum number");
     expect(projected.content.quote.text).not.toMatch(/by name|USDOT/);
   });
@@ -69,7 +98,7 @@ describe("public SEO projection", () => {
     expect(publicSeoPage(projected)).toEqual(projected);
   });
 
-  it("replaces obsolete funding copy while preserving historical records and moving price facts", () => {
+  it("replaces obsolete funding copy and withholds prices that have no approved rate provenance", () => {
     const stored = legacyPage();
     stored.metaDescription = "Plan your move. Movers pay us for requests.";
     stored.content.intro.answer = "Movers pay us for requests.";
@@ -85,8 +114,10 @@ describe("public SEO projection", () => {
     expect(JSON.stringify(projected)).not.toMatch(/pay us|makes money|advertising-disclosure|what a mover pays/i);
     expect(projected.content.sections[0].id).toBe("payment");
     expect(projected.content.sections[0].heading).toBe("Your moving company. Your choice.");
-    expect(projected.content.sections[0].blocks[0].text).toContain("screening checks");
-    expect(projected.content.sections[0].blocks[1]).toEqual(stored.content.sections[0].blocks[1]);
+    expect(projected.content.sections[0].blocks[0].text).toContain("maximum number of companies");
+    expect(projected.content.sections[0].blocks[0].text).not.toContain("screening checks");
+    expect(projected.content.sections[0].blocks[1].rows).toEqual([["Deposit", "Ask your mover what you pay before booking"]]);
+    expect(JSON.stringify(projected)).not.toContain("$180");
     expect(projected.sources).toEqual([stored.sources[1]]);
     expect(projected.content.related[0].links.map((link) => link.href)).toEqual(["/how-we-verify-movers/"]);
   });
@@ -113,12 +144,11 @@ describe("public SEO projection", () => {
     expect(publicSeoPage(city).content.intro.answer).toBe(stored.content.intro.answer);
   });
 
-  it("uses a grammatical coverage heading for any city name without changing its data", () => {
+  it("omits company-count-only sections without changing the stored record", () => {
     const stored = legacyPage();
     stored.content.sections.push({ id: "request", heading: "Coverage for a Austin request", blocks: [{ type: "table", columns: ["Coverage", "Count"], rows: [["Interstate", "2"]] }] });
     const projected = publicSeoPage(stored);
-    expect(projected.content.sections.at(-1).heading).toBe("Moving coverage in Austin");
-    expect(projected.content.sections.at(-1).blocks).toEqual(stored.content.sections.at(-1).blocks);
+    expect(projected.content.sections.find(section=>section.id==="request")).toBeUndefined();
     expect(stored.content.sections.at(-1).heading).toBe("Coverage for a Austin request");
   });
 
@@ -142,8 +172,8 @@ describe("public SEO projection", () => {
     const projected = publicSeoPage(stored);
     expect(JSON.stringify(stored)).toBe(before);
     expect(JSON.stringify(projected)).not.toMatch(/may purchase it|complete a purchase|buy requests|paid relationship|lead pricing|for-movers|mover-terms/i);
-    expect(projected.content.sections[0].blocks[0].text).toContain("within the contact limit and channels you choose");
-    expect(projected.content.sections[0].blocks[4]).toEqual(stored.content.sections[0].blocks[4]);
+    expect(projected.content.sections[0].blocks[0].text).toContain("Companies identify themselves during contact");
+    expect(projected.content.sections[0].blocks.find(block=>block.type==="table")).toEqual(stored.content.sections[0].blocks[4]);
     expect(projected.content.related[0].links.map(link => link.href)).toEqual(["/planning/"]);
     expect(projected.sources).toEqual([]);
     expect(projected.content.quote.text).toContain("Companies introduce themselves");

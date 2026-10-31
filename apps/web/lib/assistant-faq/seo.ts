@@ -1,4 +1,4 @@
-import type { ContentBlock, ContentSection, CostBlock, SeoPageRecord } from "@amc/server/seo";
+import type { ContentBlock, ContentSection, SeoPageRecord } from "@amc/server/seo";
 import { assertAssistantFaq, FAQ_BUSINESS_NAME, faqWordCount, type AssistantFaqItem } from "./types";
 import { EDITORIAL_ASSISTANT_QUESTIONS } from "./seo-questions";
 import { SERVICE_ANSWER_OVERRIDES } from "./service-answers";
@@ -40,14 +40,6 @@ function sourceIntro(page: Page): string {
     return "American Moving Choice cites the BLS May 2025 national median for hand laborers and freight, stock and material movers (SOC 53-7062): $40,240 annually, about $19.35 an hour. This describes that occupation group, not a moving-service quote or what American Moving Choice or any individual employer pays.";
   return text;
 }
-function dollars(value: string): string {
-  const normalized = plain(value).replace(/[$,]/gu, "");
-  if (!/^\d+(?:\.\d+)?$/u.test(normalized)) return plain(value);
-  const decimals = Math.min(20, normalized.split(".")[1]?.length ?? 0);
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(Number(normalized));
-}
-const homeLabel = (value: string): string => plain(value).replace(/^(\d+) bedrooms?$/iu,"$1-bedroom home").replace(/^Studio$/u,"studio home");
-
 function blockEvidence(block: ContentBlock, section: ContentSection): Evidence[] {
   const make = (text: string, kind: Evidence["kind"], anchor?: string): Evidence => ({ text: plain(text), heading: plain(section.heading), sectionId: section.id, kind, ...(anchor ? {anchor}: {}) });
   // A legacy heading can say "network" while its repaired public paragraph contains
@@ -56,11 +48,8 @@ function blockEvidence(block: ContentBlock, section: ContentSection): Evidence[]
   if (block.type === "paragraph" || block.type === "note") return qualifiedParts(block.text).map(text => make(text, "prose"));
   if (block.type === "list") return block.items.filter(item => safe(plain(item))).map(text => make(text, "prose"));
   if (block.type === "facts") return block.items.filter(item => safe(plain(item.claim))).map(item => make(`${item.claim} Source: ${item.source.label}, read ${item.source.accessedOn}.`, "fact"));
-  if (block.type === "cost") {
-    const cost = block.block;
-    if (!cost.rows.length && cost.noData) return parts(cost.noData).map(text => make(text, "cost"));
-    return cost.rows.slice(0, 3).map(row => make(`For ${cost.scope}, the ${homeLabel(row.homeSize)} planning range is ${dollars(row.low)} to ${dollars(row.high)}, as of ${cost.asOf}. This is a planning range, not a moving quote.`, "cost"));
-  }
+  // Persisted cost rows lack approval/demo provenance and are never FAQ price evidence.
+  if (block.type === "cost") return [];
   if (block.type === "table") {
     const indexes = block.columns.map((column, index) => ({ column: plain(column), index })).filter(({ column }) => !INTERNAL.test(column) && !MODELLED_TRANSIT.test(column));
     return block.rows.slice(0, 6).filter(row=>!( /^cargo\b/iu.test(plain(row[0]??"")) && !/contract|common carrier/iu.test(`${section.heading} ${row.join(" ")}`))).map(row => {
@@ -211,55 +200,25 @@ function geoFaq(page: Page, evidence: Evidence[]): AssistantFaqItem[] {
   ];
 }
 
-function costFaq(page: Page, evidence: Evidence[]): AssistantFaqItem[] {
-  const state = /^Moving costs in (.+)$/iu.exec(title(page))?.[1];
-  const blocks = page.content.sections.flatMap(section => section.blocks).filter((block): block is Extract<ContentBlock,{type:"cost"}> => block.type === "cost").map(item => item.block);
-  const makeRange = (cost: CostBlock, homeSize: string): string => {
-    const row = cost.rows.find(item => item.homeSize === homeSize)!;
-    return `For ${cost.scope}, the ${homeLabel(row.homeSize)} planning range is ${dollars(row.low)} to ${dollars(row.high)}, as of ${cost.asOf}. These are planning figures from rate cards, not a quote for an individual move.`;
-  };
-  if (state && blocks.length) {
-    const local = blocks.find(block => block.moveType === "local" && block.rows.length) ?? blocks.find(block => block.rows.length)!;
-    const size = local.rows.find(row => /2.bed/iu.test(row.homeSize))?.homeSize ?? local.rows[0]!.homeSize;
-    const displaySize = homeLabel(size);
-    const intrastate = blocks.find(block => block.moveType === "intrastate" && block.rows.some(row => row.homeSize === size));
-    const interstate = blocks.find(block => block.moveType === "interstate" && block.rows.some(row => row.homeSize === size));
-    const lead = `${FAQ_BUSINESS_NAME}'s ${state} moving-cost guide states:`;
-    const result: AssistantFaqItem[] = [{ question: `How much does a local move for a ${displaySize} within ${state} cost?`, answer: answer(page, lead, [makeRange(local,size)], [],true) }];
-    if (intrastate) {
-      const pair = /\(([^()]+ to [^()]+)\)/u.exec(intrastate.scope)?.[1];
-      result.push({ question: pair ? `How much does moving a ${displaySize} from ${pair} cost?` : `What is the in-state long-distance moving range for a ${displaySize} in ${state}?`, answer: answer(page, lead, [makeRange(intrastate,size)],[],true) });
-    }
-    if (interstate) {
-      const destination = /\(to ([^()]+)\)/u.exec(interstate.scope)?.[1];
-      result.push({ question: `What is the published interstate moving range for a ${displaySize} from ${state}${destination?` to ${destination}`:""}?`, answer: answer(page, lead,[makeRange(interstate,size)],[],true) });
-    }
-    result.push({ question: `What crew and working-time planning example is listed for a local ${displaySize} move in ${state}?`, answer: answer(page, lead, texts(evidence.filter(item => item.sectionId === "summary" && item.kind === "prose")), evidence.filter(item => /typical.*job/iu.test(item.heading)),true) });
-    if (result.length >=4) return result.slice(0,5);
-    throw new Error(`assistant-faq: insufficient distinct cost examples for ${page.slug}`);
-  }
-  const local = page.slug === "local";
-  const kind = local ? "local" : "long-distance";
-  const table = page.content.sections.flatMap(section=>section.blocks).find((block):block is Extract<ContentBlock,{type:"table"}>=>block.type === "table" && block.columns.some(column=>/origin state/iu.test(column)));
-  const example = table?.rows[0];
-  if (!table || !example) throw new Error(`assistant-faq: no published national cost example for ${page.slug}`);
-  const origin = plain(example[0]!);
-  const tableExample = `${plain(table.caption??"")}. ${table.columns.map((column,index)=>`${plain(column)}: ${plain(example[index]??"")}`).join("; ")}. These are planning ranges, not quotes.`;
-  const method = evidence.filter(item=>item.kind === "prose" && /cost-model-v1|25th to 75th/iu.test(item.text));
-  const methodSource=page.content.sections.flatMap(section=>section.blocks).filter((block):block is Extract<ContentBlock,{type:"paragraph"}>=>block.type ==="paragraph").map(block=>plain(block.text)).find(text=>/cost-model-v1.*25th to 75th/iu.test(text));
-  const rounding=methodSource?.match(/rounded outward to (\$[\d,]+)/iu)?.[1];
-  const methodAnswer=methodSource && rounding && /at least five different movers/iu.test(methodSource) && /older than 12 months/iu.test(methodSource)
-    ? `${FAQ_BUSINESS_NAME}'s cost-model-v1 builds a typical job from median figures supplied for a home size, prices it using each mover's rates, and shows the 25th to 75th percentile. It requires at least five different movers' active cards for the origin state, excludes cards older than 12 months, and rounds the ${kind} figures outward to ${rounding}.`
-    : answer(page,`${FAQ_BUSINESS_NAME} explains the published calculation:`,texts(method),method,true);
-  const factors = evidence.filter(item=>item.sectionId === "factors" && item.kind === "prose");
-  const quoteLimits = page.content.faq.filter(item=>/range a quote|include packing|include storage/iu.test(item.question)).flatMap(item=>parts(item.answer));
-  return [
-    { question: local ? `What 2-bedroom local moving-cost example is published for ${origin}?` : `What 2-bedroom interstate moving-cost example is published for about 750 miles from ${origin}?`, answer: answer(page,`${FAQ_BUSINESS_NAME}'s ${kind} moving-cost guide lists this example:`,[tableExample],[],true) },
-    { question: `What can change the ${local?"hourly cost of a local":"price of a long-distance"} household move?`, answer: answer(page,`${FAQ_BUSINESS_NAME}'s ${kind} moving-cost guide lists these price factors:`,texts(factors),factors,true) },
-    { question: `How are American Moving Choice's ${kind} moving-cost planning ranges calculated?`, answer: methodAnswer },
-    { question: `Are the ${kind} moving-cost ranges quotes, and do they include ${local?"packing":"storage"}?`, answer: answer(page,`${FAQ_BUSINESS_NAME} distinguishes ${kind} planning ranges from a quote:`,quoteLimits,[],true) },
+function costFaq(page: Page): AssistantFaqItem[] {
+  const state=/^Moving costs in (.+)$/iu.exec(title(page))?.[1];
+  const local=page.slug==="local";
+  const context=state ? `a move in ${state}` : local ? "a local household move" : "a long-distance household move";
+  const questions=[
+    `How much does ${context} cost?`,
+    `What can change the price of ${context}?`,
+    `What information should I give a moving company for a written estimate for ${context}?`,
+    `How can I compare written moving estimates for ${context}?`,
   ];
+  const ids=["verified-pricing-policy","verified-pricing-drivers","verified-estimate-details","verified-estimate-comparison"];
+  return ids.map((id,index)=>{
+    const section=page.content.sections.find(item=>item.id===id);
+    const source=section?.blocks.find((block):block is Extract<ContentBlock,{type:"paragraph"}>=>block.type==="paragraph");
+    if(!source)throw new Error(`assistant-faq: verified cost guidance missing for ${page.slug}`);
+    return {question:questions[index]!,answer:plain(source.text)};
+  });
 }
+
 
 /** Carefully condensed from short, repeatedly referenced source articles. */
 function condensedEditorial(page: Page): readonly string[] | null {
@@ -284,6 +243,17 @@ function condensedEditorial(page: Page): readonly string[] | null {
   return null;
 }
 function condensedLiteral(page: Page, question: string): string | null {
+  if(page.slug==="how-to-compare-moving-estimates" && /treating an online figure/iu.test(question))return "American Moving Choice recommends asking each mover for a written estimate after its survey and comparing estimates item by item. The same inventory, services, estimate type and valuation level should underpin the comparison. Its guide does not publish a verified moving-price range, so an online planning figure does not establish your individual mover's price.";
+  if(page.slug==="how-do-i-file-a-complaint-against-a-mover" && /report misconduct/iu.test(question))return "American Moving Choice's guide directs concerns about a company contacted through this site to the report-a-concern page. Keep the mover's name and registration numbers, dates, estimate and billing details, and copies of the relevant documents. For an interstate move, that report does not replace a complaint to FMCSA or a separate claim.";
+  if(page.slug==="are-online-moving-quotes-accurate") {
+    if(/judge the accuracy/iu.test(question))return "American Moving Choice explains that an online quote made sight unseen, without a survey of your goods, is an FMCSA warning sign. For an interstate move, its guide says the mover must survey the belongings before preparing a written estimate unless you waive the survey in writing. An online planning figure is not the mover's written estimate.";
+    if(/planning range different/iu.test(question))return "American Moving Choice distinguishes a tool's planning figure from the written estimate issued by the moving company that will perform the move. The comparison table says a planning figure is not binding, while a written estimate may be binding or non-binding as stated. Check the document's type rather than treating every displayed number as a committed moving price.";
+    if(/binding moving price/iu.test(question))return "American Moving Choice does not give moving estimates; moving companies set their own prices. Its guide does not currently publish a verified moving-price range. Ask the moving company for a written estimate based on your belongings, route, requested services and address access, then compare the work included before deciding.";
+    if(/mover assess/iu.test(question))return "American Moving Choice says an interstate mover must assess your goods through a survey before preparing its written estimate unless you waive that survey in writing. The estimate comes from the mover that will perform the move. Confirm whether it is binding or non-binding; an online tool's planning figure is not a substitute for that document.";
+  }
+  if(page.slug==="how-much-do-local-movers-cost" && /before comparing local/iu.test(question))return "Before comparing local moving prices, American Moving Choice recommends obtaining a written estimate from the moving company. Provide the actual belongings, route, services and address-access details directly to that company. The guide does not currently publish a verified moving-price range, so compare what the estimates include instead of treating a generic figure as your move's price.";
+  if(page.slug==="how-much-do-local-movers-cost" && /Which extras/iu.test(question))return "American Moving Choice lists packing, storage and specialty items as extras that are priced separately from a local move. Stairs, elevators, long carrying distances and parking can also add time or tariff charges. Ask the moving company which of those services and access-related costs are included in its written estimate.";
+  if(page.slug==="what-is-storage-in-transit" && /same as every storage/iu.test(question))return "American Moving Choice distinguishes storage-in-transit tied to an interstate move and its tariff from monthly storage that may have separate terms. Ask the mover which arrangement applies to your belongings. Its guide recommends confirming the daily or monthly charges, handling in and out, conversion to permanent storage and whether your valuation choice continues.";
   if(page.slug==="can-i-watch-my-shipment-being-weighed" && /weight tickets/iu.test(question))
     return "American Moving Choice says that, when a non-binding interstate estimate depends on weight, each weighing needs a weight ticket. Keep these tickets with the bill of lading because they are the basis of the weight-based bill. Its guide also says the mover must use a certified scale and tell you where and when each weighing happens.";
   if(page.slug==="how-does-american-moving-choice-work" && /Who can receive/iu.test(question))
@@ -304,7 +274,7 @@ export function seoAssistantFaq(page: Page): AssistantFaqItem[] {
     const result = geoFaq(page, evidence).map(item => scopeAnswer(page, item)); assertAssistantFaq(result); return result;
   }
   if (page.family === "cost") {
-    const result=costFaq(page,evidence).map(item=>scopeAnswer(page,item)); assertAssistantFaq(result); return result;
+    const result=costFaq(page).map(item=>scopeAnswer(page,item)); assertAssistantFaq(result); return result;
   }
   const specifications = EDITORIAL_ASSISTANT_QUESTIONS[page.slug];
   if (!specifications) throw new Error(`assistant-faq: missing authored questions for ${page.slug}`);

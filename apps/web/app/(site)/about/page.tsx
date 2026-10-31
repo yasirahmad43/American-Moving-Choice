@@ -41,11 +41,11 @@ export default function AboutPage() {
       <h2>How we work</h2>
       <ul>
         <li>
-          We work only with movers: companies with household-goods carrier authority and no broker authority on their FMCSA record.{" "}
+          Our participation policy is for moving carriers with household-goods carrier authority and no broker authority. Learn what those credentials mean and how to check a company's current official record.{" "}
           <Link href="/how-we-verify-movers/">How we verify movers</Link>
         </li>
         <li>
-          You choose how many eligible movers can receive your details for calls and email about your move. Companies introduce themselves when they contact you.{" "}
+          You choose the maximum number of participating companies that may receive your details for calls and email about your move. Companies introduce themselves when they contact you.{" "}
           <Link href="/which-companies-receive-my-request/">Which companies receive my request</Link>
         </li>
         <li>

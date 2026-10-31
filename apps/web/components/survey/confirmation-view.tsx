@@ -1,7 +1,6 @@
 /**
- * Confirmation (step 9; build plan §7.2; implications §2.5; consent draft §6 without
- * {typical_window}, VD §13.8): reference code, the movers named, the maximum, what happens next,
- * the manage link and the report link. No timing promise, no upsells. Used inline after sending
+ * Saved-request confirmation: reference code, contact limit, next steps, private management
+ * link and concern link. No company identities, delivery claims or timing promises. Used inline after sending
  * and by /get-quotes/confirmation/.
  */
 import { CHANNEL_LABELS, MOVE_SIZE_LABELS, type Channel } from "@amc/core/src/survey";
@@ -47,8 +46,9 @@ export function ConfirmationView({
           Request received
         </Heading>
         <p className="type-lede text-text-2">
-          Your move details and contact preferences are saved. Your reference number is <strong className="tabular text-text">{c.referenceCode}</strong>.
+          Your request is saved. Your reference number is <strong className="tabular text-text">{c.referenceCode}</strong>. Save your private link so you can review or withdraw the request later.
         </p>
+        <p className="mt-2"><a href={manageUrl} className="inline-flex min-h-12 w-fit items-center rounded-control bg-brand-navy px-5 py-3 font-semibold text-white no-underline" rel="noreferrer">Manage your saved request</a></p>
       </header>
 
       {c.joinedReferenceCode ? (
@@ -93,15 +93,15 @@ export function ConfirmationView({
 
       <Card contentInset="card" as="section" title="Changed your mind?" titleAs="h2">
         <p className="text-text">
-          You can see your request status and contact preferences, and withdraw it at any time. Withdrawing stops additional movers from receiving your
-          contact details, and we tell movers that already received them to stop contacting you. It cannot take back details already shared.
+          You can see your request status and contact preferences, and withdraw it at any time. Withdrawing stops additional companies from receiving your
+          contact details. It cannot take back details already shared; contact a company directly if you want it to stop contacting you.
         </p>
         <p className="mt-3">
           <a href={manageUrl} className="link font-semibold" rel="noreferrer">
             Manage your request
           </a>
         </p>
-        <p className="mt-2 type-small text-text-2">Keep this link private: anyone who has it can see and withdraw your request. It's also in your email.</p>
+        <p className="mt-2 type-small text-text-2">Save this link before leaving the page. Keep it private: anyone who has it can see and withdraw your request.</p>
       </Card>
 
       <section aria-labelledby="concern-heading" className="grid gap-2">

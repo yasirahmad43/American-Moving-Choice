@@ -38,13 +38,15 @@ describe("page-specific assistant questions for public core pages", () => {
     }
   });
 
-  it("retains the verification page's real preview limitation instead of inventing live credentials", () => {
+  it("directs verification questions to official records without promising fictional or completed live checks", () => {
     const page = source("apps/web/app/(site)/verify-a-mover/page.tsx");
-    expect(page).toContain("recorded demo data for fictional USDOT numbers 9000001 to 9000099");
+    expect(page).toContain("FMCSA_LI_URL");
     const text = staticAssistantFaq("/verify-a-mover/").map(item => item.answer).join(" ");
-    expect(text).toContain("fictional USDOT numbers 9000001 to 9000099");
-    expect(text).toContain("complaint history is not part of its lookup");
-    expect(text).toContain("not a live official determination");
+    expect(text).toContain("official FMCSA sources");
+    expect(text).toContain("Complaint history is not part of its lookup");
+    expect(text).not.toMatch(/fictional USDOT|recorded-data preview|current preview/iu);
+    const process = staticAssistantFaq("/how-we-verify-movers/").map(item => item.answer).join(" ");
+    expect(process).toContain("A schedule is not proof that a live official record has been retrieved");
   });
 
   it("keeps request answers tied to the existing form rather than promising new intake fields", () => {

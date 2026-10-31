@@ -10,7 +10,7 @@
 import { createHash } from "node:crypto";
 import { audit } from "../audit/audit";
 import { getPool, tx, type Queryable } from "../db/pool";
-import { env } from "../env/env";
+import { env, isProduction } from "../env/env";
 import { getSetting } from "../settings/settings";
 import { assessCarrier, brokerAuthorityOf, worstResult, type PreviousIdentity } from "./assess";
 import { evaluateEligibility, type BillingStatus, type CompanyStatus, type EligibilityEvaluation } from "./eligibility";
@@ -18,10 +18,25 @@ import { fixtureAdapter } from "./fixtures";
 import { qcMobileAdapter } from "./qcmobile";
 import type { ApplicationFacts, AutomatedCheckType, CheckOutcome, CheckResult, CheckType, FmcsaAdapter, FmcsaLookup, VerificationSource } from "./types";
 
-/** The live QCMobile adapter when FMCSA_WEBKEY is set; the fixture adapter otherwise. */
+/** No fabricated carrier evidence is permitted when the production lookup is unavailable. */
+const productionUnavailableAdapter: FmcsaAdapter = {
+  source: "fmcsa_qcmobile",
+  async lookupCarrier(usdot) {
+    return {
+      status: "unavailable",
+      reason: "Live FMCSA verification is not configured for this check. Fictional fixture records are disabled in production; manually review the official FMCSA record.",
+      source: "fmcsa_qcmobile",
+      sourceUrl: fmcsaSnapshotUrl(usdot),
+      retrievedAt: new Date(),
+      raw: { usdot, liveLookupAttempted: false },
+    };
+  },
+};
+
+/** Live QCMobile with a key; missing production configuration requires manual review. */
 export function getFmcsaAdapter(): FmcsaAdapter {
   const webKey = env().FMCSA_WEBKEY;
-  return webKey ? qcMobileAdapter(webKey) : fixtureAdapter;
+  return webKey ? qcMobileAdapter(webKey) : isProduction() ? productionUnavailableAdapter : fixtureAdapter;
 }
 
 /** Public FMCSA SAFER company snapshot for a USDOT number (for "official record" links). */
@@ -124,7 +139,8 @@ export async function runAutomatedChecks(companyId: string, options: RunOptions 
   const company = companyResult.rows[0];
   if (!company) throw new Error("company_not_found");
 
-  const adapter = options.adapter ?? getFmcsaAdapter();
+  const configuredAdapter = options.adapter ?? getFmcsaAdapter();
+  const adapter = isProduction() && configuredAdapter.source === "fixture" ? productionUnavailableAdapter : configuredAdapter;
   const requireMcNumber = await getSetting("require_mc_number");
   const app: ApplicationFacts = {
     legalName: company.legal_name,

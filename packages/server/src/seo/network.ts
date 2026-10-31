@@ -288,12 +288,12 @@ export async function costBlockFor(db: Queryable, request: CostRequest, now = ne
   };
 }
 
-/** Active-card counts per state, for the cost family (pages only where ≥5 distinct movers). */
+/** Active non-demo card counts per state, for the cost family (pages only where ≥5 distinct movers). */
 export async function rateCardMoversByState(db: Queryable): Promise<Map<string, number>> {
   const result = await db.query<{ state: string; n: number }>(
     `select s as state, count(distinct rc.company_id)::int as n
        from rate_cards rc join companies c on c.id = rc.company_id, unnest(rc.states) as s
-      where rc.status = 'active' and c.status = 'approved' and c.suspended_at is null
+      where rc.status = 'active' and c.status = 'approved' and not c.is_demo and c.suspended_at is null
       group by s`,
   );
   return new Map(result.rows.map((r) => [r.state, r.n]));

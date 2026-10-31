@@ -61,12 +61,12 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
         <h1 className="type-display-l text-text">Manage your request</h1>
         {result.reason === "rate_limited" ? (
           <Alert tone="error" title="Too many attempts">
-            Too many requests came from your connection. Wait 15 minutes, then open the link from your email again.
+            Too many requests came from your connection. Wait 15 minutes, then open your saved private management link again.
           </Alert>
         ) : (
           <EmptyState
             title="We can't find this request"
-            description="Check that you opened the full link from your confirmation email. Links can't be guessed or recovered from a reference number."
+            description="Open the full private management link shown when your request was saved. For your privacy, access can't be recovered from a reference number alone."
             action={
               <LinkButton href="/get-quotes/" variant="secondary">
                 Start a quote request
@@ -135,8 +135,8 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
       {r.canWithdraw ? (
         <Card contentInset="card" as="section" title="Withdraw your request" titleAs="h2">
           <p className="mb-4 text-text">
-            Withdrawing stops additional movers from receiving your contact details through this request. We tell movers that already received your details
-            to stop contacting you. It can't take back details a mover already received.
+            Withdrawing stops additional companies from receiving your contact details through this request. It can't take back details already shared.
+            Contact a company directly if you want it to stop contacting you.
           </p>
           <WithdrawForm action={withdrawAction.bind(null, token)} buyers={r.buyerCount} />
         </Card>

@@ -104,7 +104,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
           <StoryNextSteps url={page.meta.url} items={media.steps} />
           <aside className="story-reader-cta" data-content-inset="card" data-motion="rise" data-band="">
             <div><p className="type-overline">Your move. Your choice.</p><h2>Ready to compare movers?</h2>
-            <p>Check coverage for your route, then choose how many movers may contact you.</p></div>
+            <p>Tell us about your move, then choose the maximum number of companies that may contact you.</p></div>
             <LinkButton href="/get-quotes/" variant="primary" size="sm" className="mt-4 !bg-white !text-brand-navy hover:!bg-on-band-2">
               Start a quote request
             </LinkButton>

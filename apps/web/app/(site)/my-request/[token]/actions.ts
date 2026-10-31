@@ -13,7 +13,7 @@ export async function withdrawAction(token: string, _previous: WithdrawState, fo
   if (!result.ok) {
     return {
       status: "error",
-      message: result.reason === "rate_limited" ? "Too many attempts from your connection. Wait 15 minutes, then try again." : "We couldn't find this request. Check the link in your email.",
+      message: result.reason === "rate_limited" ? "Too many attempts from your connection. Wait 15 minutes, then try again." : "We couldn't find this request. Check the full private management link you saved.",
     };
   }
   refresh();

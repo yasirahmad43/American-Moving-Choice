@@ -8,6 +8,7 @@ import "server-only";
  */
 import { env } from "@amc/server/env";
 import { publicDiscoveryPages, publishedPages, publishedPagesPage, type DiscoveryOverview, type PageSummary, type SeoFamily } from "@amc/server/seo";
+import { publicNetworkSummary } from "./public-network-evidence";
 import { stateByCode } from "@amc/server/geo";
 import { ArrowRightIcon, Container, EmptyState, Icon3D, LinkButton, Reveal, type Icon3DName } from "@amc/ui";
 import type { Metadata } from "next";
@@ -148,7 +149,7 @@ export async function HubPage({ spec, page = 1 }: { spec: HubSpec; page?: number
       : spec.perPage ? publishedPagesPage(spec.family, page, spec.perPage) : publishedPages(spec.family).then(pages => ({ pages, total: pages.length })),
     spec.family === "route" ? navigationOverview() : Promise.resolve(null),
   ]);
-  const pages = listed.pages;
+  const pages = listed.pages.map(entry => ({ ...entry, h1: publicNetworkSummary({ title: entry.h1, h1: entry.h1 }).h1 }));
   const total = spec.perPage ? listed.total : pages.length;
   const assistantFaq = hubAssistantFaq({ family: spec.family, url: hubPageUrl(spec, page), title: spec.h1, description: spec.description, page, total, perPage: spec.perPage, entries: pages });
   if (page > 1 && (!pages.length || !spec.perPage || page > Math.ceil(total / spec.perPage))) notFound();
@@ -188,10 +189,10 @@ export async function HubPage({ spec, page = 1 }: { spec: HubSpec; page?: number
           {pages.length ? spec.groupByState ? grouped.map((group) => <section key={group.heading ?? "all"} className={hubStyles.hubGroup} aria-label={group.heading ?? spec.h1}>
             <header className={hubStyles.hubGroupHead}><h2 className="type-display-l text-text">From {group.heading ?? spec.h1}</h2><div><p className="type-small text-text-2">{group.pages.length} {group.pages.length === 1 ? "guide" : "guides"} on this page</p>{group.code ? <Link href={catalogUrl({ type: "route", state: group.code })} className="link inline-flex min-h-11 items-center gap-2 text-sm">All routes from this state <ArrowRightIcon size={15} /></Link> : null}</div></header>
             <LinkCards pages={group.pages} grouped cardImages={cardImages} />
-          </section>) : <LinkCards pages={pages} grouped={false} cardImages={cardImages} /> : <EmptyState showMark title="No pages in this family are published yet" description="Each one is published only after its data and checks pass. The quote survey shows coverage for your move right now." action={<LinkButton href="/get-quotes/">Start a quote request</LinkButton>} />}
+          </section>) : <LinkCards pages={pages} grouped={false} cardImages={cardImages} /> : <EmptyState showMark title="No pages in this family are published yet" description="Each guide is published after its data and checks pass. You can still describe your move and send a quote request." action={<LinkButton href="/get-quotes/">Start a quote request</LinkButton>} />}
         </section>
         {spec.perPage ? <PageNav spec={spec} page={page} total={total} /> : null}
-        <Reveal as="section" aria-labelledby="hub-next-step" className={styles.quoteBand}><figure className={styles.quotePhoto} data-editorial-image={images[4]!.id}><MediaFrame asset={images[4]!} sizes="(min-width: 760px) 35vw, 100vw" /></figure><div className={styles.quoteCopy} data-content-inset="card"><p className="type-overline">Your move, your terms</p><h2 id="hub-next-step">Turn a little research into a real next step.</h2><p>Check your route, tell us what you need, and choose the maximum number of screened movers who may contact you.</p><div><LinkButton href="/get-quotes/" variant="cta">Start my moving request</LinkButton></div></div></Reveal>
+        <Reveal as="section" aria-labelledby="hub-next-step" className={styles.quoteBand}><figure className={styles.quotePhoto} data-editorial-image={images[4]!.id}><MediaFrame asset={images[4]!} sizes="(min-width: 760px) 35vw, 100vw" /></figure><div className={styles.quoteCopy} data-content-inset="card"><p className="type-overline">Your move, your terms</p><h2 id="hub-next-step">Turn a little research into a real next step.</h2><p>Describe your route, tell us what you need, and choose the maximum number of companies who may contact you.</p><div><LinkButton href="/get-quotes/" variant="cta">Start my moving request</LinkButton></div></div></Reveal>
         <AssistantFaq url={url} items={assistantFaq} title={`Questions about ${spec.h1.toLowerCase()}`} />
         <p className="type-legal text-text-3">Photography and video are commissioned editorial illustrations. They illustrate moving situations and do not identify a particular customer or moving company.</p>
       </Container>

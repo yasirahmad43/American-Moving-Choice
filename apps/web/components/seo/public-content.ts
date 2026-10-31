@@ -2,6 +2,8 @@ import type { SeoPageRecord } from "@amc/server/seo";
 import { normalizeLegacyCityCountyLabels } from "@amc/core";
 import { PUBLIC_REQUEST_ASSURANCE, publicMarketingText } from "../../lib/public-copy";
 import { repairCountyLabelContexts } from "./county-label-context";
+import { suppressUnverifiedSeoPricing } from "./verified-pricing";
+import { suppressUnverifiedNetworkEvidence } from "./public-network-evidence";
 
 const CONTACT_EXPLANATION = "Tell us about your move and choose the maximum number of participating companies that may contact you. Companies introduce themselves when they reach out.";
 const RETIRED_DIRECTORY_LINK = /\[[^\]]*\]\((?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)\/[^)]*\)/gi;
@@ -9,20 +11,11 @@ const RETIRED_DIRECTORY_URL = /(?:https?:\/\/[^/\s)]+)?\/(?:companies|directory)
 const LEGACY_DISCLOSURE = /by name and USDOT|movers? named on (?:your|the) Review and send screen|every mover named before|review every name|the list above names them|remove any (?:named )?mover/i;
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const COUNTY_DISPLAY_EXCLUDED_KEYS = new Set(["id", "url", "href", "slug", "canonicalUrl", "parentUrl", "contentHash", "mediaIds"]);
-const ZIP_RULE_COUNTS_NOTE = "Named counts are ZIP- or county-specific local rules; total matches can also include broader rules. These dated counts describe a representative local move. The quote survey checks the rules against your exact route and move details.";
 const BINDING_ESTIMATE_DESCRIPTION = "Compare binding and non-binding interstate estimates, the extra charges that can apply, and what may be due at delivery.";
 const LEGACY_BINDING_DESCRIPTIONS = new Set([
   "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an…",
   "A binding estimate guarantees the total cost for the goods and services it lists; a non-binding one can change, within the 110% rule. What each means on an interstate move.",
 ]);
-
-function legacyZipRuleCount(value: string): string {
-  const count = "(?:0|[1-9]\\d*|[1-9]\\d{0,2}(?:,\\d{3})+)";
-  const named = new RegExp(`^(${count}) of (${count})$`).exec(value);
-  if (named) return `${named[1]} named / ${named[2]} matches`;
-  // The old generator emitted only the total when its explicit named count was zero.
-  return new RegExp(`^${count}$`).test(value) ? `0 named / ${value} matches` : value;
-}
 
 // Exact published catalog wording, repaired at read time because completed SEO bootstraps
 // deliberately keep existing authored records. These are not general number/keyword rewrites.
@@ -139,16 +132,8 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   content.sections = content.sections.map((section) => {
     const paymentSection = /^What never changes with payment$/i.test(section.heading);
     const cityZipSection = page.family === "city" && section.id === "zips";
-    const legacyZipTable = cityZipSection && section.blocks.some((block) => block.type === "table" && block.columns.includes("Movers naming it (local)"));
     const originalBlocks = page.content.sections.find((original) => original.id === section.id)?.blocks.filter((block) => block.type !== "movers") ?? [];
     const blocks = section.blocks.filter((block) => block.type !== "movers").map((block, index) => {
-      if (cityZipSection && block.type === "table") {
-        const countIndex = block.columns.indexOf("Movers naming it (local)");
-        if (countIndex >= 0) return { ...block,
-          columns: block.columns.map((column, index) => index === countIndex ? "Local rule counts (named / total matches)" : column),
-          rows: block.rows.map((row) => row.map((cell, index) => index === countIndex ? legacyZipRuleCount(cell) : cell)),
-        };
-      }
       if (block.type !== "paragraph") return block;
       const original = originalBlocks[index];
       if (paymentSection && original?.type === "paragraph" && /^What a mover pays never changes/i.test(original.text)) return {
@@ -157,10 +142,9 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
       };
       return block.text ? block : { ...block, text: PUBLIC_REQUEST_ASSURANCE };
     });
-    if (legacyZipTable && !blocks.some((block) => block.type === "note" && block.text === ZIP_RULE_COUNTS_NOTE)) blocks.push({ type: "note", text: ZIP_RULE_COUNTS_NOTE });
     return {
       ...section,
-      heading: paymentSection ? "Your moving company. Your choice." : cityZipSection && /, with movers naming each$/.test(section.heading) ? section.heading.replace(/, with movers naming each$/, ", with local coverage-rule counts") : page.family === "city" && /^Coverage for an? (.+) request$/i.test(section.heading) ? section.heading.replace(/^Coverage for an? (.+) request$/i, "Moving coverage in $1") : /preferred|listed movers|movers (?:in|near|serving)/i.test(section.heading) ? "Request quotes for your move" : section.heading,
+      heading: paymentSection ? "Your moving company. Your choice." : cityZipSection && /, with movers naming each$/.test(section.heading) ? section.heading.replace(/, with movers naming each$/, "") : page.family === "city" && /^Coverage for an? (.+) request$/i.test(section.heading) ? "Plan your move" : /preferred|listed movers|movers (?:in|near|serving)/i.test(section.heading) ? "Request quotes for your move" : section.heading,
       blocks: blocks.length ? blocks : [{ type: "paragraph" as const, text: CONTACT_EXPLANATION }],
     };
   });
@@ -171,5 +155,5 @@ export function publicSeoPage(page: SeoPageRecord): SeoPageRecord {
   const retiredBusinessLink = (href: string) => /\/(?:advertising-disclosure|how-we-make-money|for-movers|mover-terms)(?:\/|$|[?#])/i.test(href);
   content.related = content.related.map((group) => ({ ...group, links: group.links.filter((link) => !retiredBusinessLink(link.href)) })).filter((group) => group.links.length);
   result.sources = result.sources.filter((source) => !retiredBusinessLink(source.url));
-  return repairCountyLabelContexts(result);
+  return suppressUnverifiedNetworkEvidence(suppressUnverifiedSeoPricing(repairCountyLabelContexts(result)));
 }

@@ -39,9 +39,9 @@ describe("source-bound assistant FAQs for SEO pages", () => {
     expect(JSON.stringify(items)).not.toMatch(/licensed|certified|years of experience|guarantee/iu);
     expect(JSON.stringify(source)).toBe(before);
     const cost = items.find(item => /cost to hire/iu.test(item.question));
-    expect(cost.answer).toContain("$480 to $700");
-    expect(cost.answer).toContain("Texas, not an Austin-only sample");
-    expect(cost.answer).toContain("planning range, not a moving quote");
+    expect(cost.answer).not.toMatch(/\$480|\$700/);
+    expect(cost.answer).toContain("does not publish a verified moving-price range");
+    expect(cost.answer).toContain("written estimate");
     expect(cost.answer).not.toContain("largest destinations");
     expect(items[0].answer).not.toMatch(/ZIP codes|Population:/iu);
     expect(items[2].answer).toContain("Travis County");
@@ -78,12 +78,12 @@ describe("source-bound assistant FAQs for SEO pages", () => {
     source.content.sections = source.content.sections.filter(section => section.id !== "costs");
     const items = seoAssistantFaq(publicSeoPage(source));
     const cost = items.find(item => /cost to hire/iu.test(item.question));
-    expect(cost.answer).toContain("No moving-price range is published in this guide");
+    expect(cost.answer).toContain("does not publish a verified moving-price range");
     expect(cost.answer).not.toContain("$");
     expect(items.every(item => item.question.includes("Alaska"))).toBe(true);
   });
 
-  it("separates cost pages from service slugs and retains numeric USD bands and working-time scope", () => {
+  it("separates cost pages from service slugs and withholds saved price and crew-hour samples", () => {
     const source = page({ family: "cost", slug: "texas", h1: "Moving costs in Texas" });
     const local=source.content.sections.find(section=>section.id === "costs").blocks[0].block;
     local.rows[0].low="1000";local.rows[0].high="1100";
@@ -93,12 +93,11 @@ describe("source-bound assistant FAQs for SEO pages", () => {
     source.content.sections.push({id:"summary",heading:"Texas planning jobs",blocks:[{type:"paragraph",text:"The typical job is the median crew and hours stated for the home size. A two-bedroom local planning example uses a crew of three movers for five and a half hours; it is an example rather than a delivery or completion promise."}]});
     const items=seoAssistantFaq(publicSeoPage(source));
     expect(items).toHaveLength(4);
-    expect(items[0].answer).toContain("$1,000 to $1,100");
-    expect(items[1].question).toContain("Houston to San Antonio");
-    expect(items[2].answer).toContain("250 to 500 miles");
-    expect(items[2].answer).toContain("$3,600 to $3,900");
-    expect(items[2].answer).not.toMatch(/driving days/iu);
-    expect(items[3].question).toMatch(/planning example/iu);
+    expect(items.every(item=>item.question.includes("Texas"))).toBe(true);
+    expect(JSON.stringify(items)).not.toMatch(/\$1,000|\$3,600|crew of three|five and a half hours/iu);
+    expect(items[0].answer).toContain("does not currently publish a verified moving-price range");
+    expect(items[2].answer).toContain("directly with the moving company");
+    expect(items[3].question).toMatch(/compare written moving estimates/iu);
   });
 
   it("keeps the verified BLS subgroup separate from AMC wages and rejects archived channel choices", () => {

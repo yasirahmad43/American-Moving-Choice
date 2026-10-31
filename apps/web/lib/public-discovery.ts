@@ -5,6 +5,7 @@ import { STATES } from "@amc/server/geo";
 import { cache } from "react";
 import { connection } from "next/server";
 import { GUIDE_FAMILIES, PUBLIC_NAV_GROUPS, PUBLIC_STATIC_LINKS } from "./site";
+import { publicNetworkSummary } from "../components/seo/public-network-evidence";
 
 export const CATALOG_PAGE_SIZE = 60;
 export type CatalogFilters = { query: string; type: string; state: string; page: number };
@@ -51,7 +52,8 @@ export async function publicCatalog(filters: CatalogFilters): Promise<{ pages: C
   const staticPage = staticMatches.slice(offset, offset + CATALOG_PAGE_SIZE);
   if (filters.type === "page") return { pages: staticPage, total: staticMatches.length };
   const result = await publicDiscoveryPages({ query: filters.query, family: filters.type, state: filters.state || undefined, offset: Math.max(0, offset - staticMatches.length), limit: Math.max(1, CATALOG_PAGE_SIZE - staticPage.length) });
-  return { pages: [...staticPage, ...result.pages].slice(0, CATALOG_PAGE_SIZE), total: staticMatches.length + result.total };
+  const pages = result.pages.map(entry => ({ ...entry, title: publicNetworkSummary({ title: entry.title, h1: entry.title }).title }));
+  return { pages: [...staticPage, ...pages].slice(0, CATALOG_PAGE_SIZE), total: staticMatches.length + result.total };
 }
 
 export const publicGroup = (id: string) => PUBLIC_NAV_GROUPS.find((group) => group.id === id)!;

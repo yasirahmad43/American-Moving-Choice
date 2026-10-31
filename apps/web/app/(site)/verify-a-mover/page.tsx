@@ -1,5 +1,6 @@
 import { Container, ExpandableCard, SectionHeader } from "@amc/ui";
 import { FMCSA_LI_URL, PROTECT_YOUR_MOVE_URL, STATE_CREDENTIAL_SOURCES } from "@amc/server/profiles";
+import { env } from "@amc/server/env";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JsonLd, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
@@ -8,6 +9,8 @@ import { socialMetadata } from "@/components/site/social-metadata";
 import { StorySections } from "@/components/site/story-sections";
 import { Note } from "@/components/site/review-notes";
 import { pageMediaPlan } from "@/lib/page-media";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { staticAssistantFaq } from "@/lib/assistant-faq/static";
 import { LookupForm } from "./lookup-form";
 
 const PAGE = "/verify-a-mover/";
@@ -33,13 +36,14 @@ function External({ href, children }: { href: string; children: React.ReactNode 
 /** Verify a mover (site architecture §1.2): the landing page indexes; lookup results are never URLs. */
 export default function VerifyAMoverPage() {
   const plan = pageMediaPlan(PAGE, { topic: "trust verification safety" });
+  const liveLookup = Boolean(env().FMCSA_WEBKEY);
   return (
     <>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Verify a mover", path: "/verify-a-mover/" }])} />
-      <VideoSurveyHero url={PAGE} title="Check a mover before you hire it" eyebrow="Any mover, in our network or not"
+      <VideoSurveyHero url={PAGE} title="Check a mover before you hire it" eyebrow="Know who you are hiring"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Verify a mover" }]}
         mobileActionHref="#lookup-heading" mobileActionLabel="Check a USDOT number"
-        description="Look up any moving company by its USDOT or MC number. You'll see what its federal record shows: whether it holds carrier or broker authority, its USDOT status and its insurance filings, with the time we retrieved them.">
+        description="Use a moving company's USDOT or MC number to check its official FMCSA records. Review its registration, operating authority and insurance filings before deciding who to hire.">
         <a href="#lookup-heading" className="vsh__tool-action">Check a USDOT number <span aria-hidden="true">↓</span></a>
       </VideoSurveyHero>
       <Container>
@@ -47,8 +51,15 @@ export default function VerifyAMoverPage() {
           { key: "verify-lookup", heading: "Look up a mover", content: <section aria-labelledby="lookup-heading" className="min-w-0 scroll-mt-24">
               <div className="bezel"><div className="bezel-inner grid gap-4 p-5 sm:p-7">
                 <h2 id="lookup-heading" tabIndex={-1} className="type-h3 scroll-mt-24 text-text">Look up a mover</h2>
-                <p className="type-small text-text-2">Search by number rather than by name, because different companies can have similar names. In this preview, lookups use recorded demo data for fictional USDOT numbers 9000001 to 9000099.</p>
-                <LookupForm />
+                <p className="type-small text-text-2">Search by number rather than by name, because different companies can have similar names. Compare the company details with the written estimate you received.</p>
+                {liveLookup ? <LookupForm /> : <div className="grid gap-4">
+                  <p>Check the current records directly with FMCSA:</p>
+                  <ul className="grid list-disc gap-3 pl-5">
+                    <li><External href={SAFER_URL}>Company Snapshot: registration and safety information</External></li>
+                    <li><External href={FMCSA_LI_URL}>Licensing and Insurance: authority and insurance filings</External></li>
+                  </ul>
+                  <p className="type-small text-text-2">These links open FMCSA's own services. American Moving Choice does not issue licenses or certify the result of your lookup.</p>
+                </div>}
               </div></div>
             </section> },
           { key: "verify-usdot", heading: "How to read a federal record", content: <div className="grid gap-6"><SectionHeader title="How to read a federal record" lede="Three numbers tell you most of what you need. Here is what each one means and where to check it." /><ExpandableCard contentInset="card" title="What is a USDOT number?" titleAs="h2" name="verify-faq" defaultOpen>
@@ -87,7 +98,7 @@ export default function VerifyAMoverPage() {
             </ExpandableCard> },
           { key: "verify-limits", heading: "Know the limits of a lookup", content: <ExpandableCard contentInset="card" title="What a lookup can't tell you" titleAs="h2" name="verify-faq">
               <ul className="grid list-disc gap-2 pl-6">
-                <li>A record can change after we retrieve it. The time of each lookup is shown with its result.</li>
+                <li>A record can change. Check the current status on the official source when you are ready to hire.</li>
                 <li>It doesn&apos;t rate work quality, prices or crews, and it isn&apos;t an endorsement by American Moving Choice or the government.</li>
                 <li>
                   Complaint history isn&apos;t part of this lookup. See <External href={PROTECT_YOUR_MOVE_URL}>FMCSA Protect Your Move</External>.
@@ -105,6 +116,7 @@ export default function VerifyAMoverPage() {
               </p>
             </ExpandableCard> },
         ]} />
+        <AssistantFaq url={PAGE} items={staticAssistantFaq(PAGE)!} />
       </Container>
     </>
   );

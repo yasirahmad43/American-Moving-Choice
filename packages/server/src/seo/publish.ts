@@ -154,7 +154,7 @@ export async function pipelineCounts(db: Queryable): Promise<PipelineCounts[]> {
     zip: (await db.query<{ n: number }>("select count(*)::int as n from seo_zips")).rows[0]!.n,
     route: (await db.query<{ n: number }>("select count(*)::int as n from seo_routes")).rows[0]!.n,
     service: 6,
-    cost: 2 + (await db.query<{ n: number }>("select count(*)::int as n from (select s from rate_cards rc join companies c on c.id = rc.company_id, unnest(rc.states) s where rc.status = 'active' and c.status = 'approved' group by s having count(distinct rc.company_id) >= 5) t")).rows[0]!.n,
+    cost: 2 + (await db.query<{ n: number }>("select count(*)::int as n from (select s from rate_cards rc join companies c on c.id = rc.company_id, unnest(rc.states) s where rc.status = 'active' and c.status = 'approved' and not c.is_demo and c.suspended_at is null group by s having count(distinct rc.company_id) >= 5) t")).rows[0]!.n,
     question: 0,
     planning: 0,
   };

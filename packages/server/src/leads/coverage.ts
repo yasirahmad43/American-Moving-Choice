@@ -94,6 +94,9 @@ interface RuleRow {
 const FEDERAL_CHECKS = ["usdot_active", "authority_type", "authority_status", "insurance_filings"];
 
 async function loadPurchasableCompanies(db: Queryable): Promise<CompanyRow[]> {
+  // Fixtures remain usable in local/test workflows, but can never receive a real
+  // production customer's request, even if DEMO_MODE was left enabled at launch.
+  const allowDemoCompanies = process.env.NODE_ENV !== "production";
   const result = await db.query<CompanyRow>(
     `select c.id, c.usdot_number, c.coverage_version, c.is_demo,
             coalesce(p.display_name, c.dba_name, c.legal_name) as display_name,
@@ -105,8 +108,9 @@ async function loadPurchasableCompanies(db: Queryable): Promise<CompanyRow[]> {
        left join company_profiles p on p.company_id = c.id
        left join company_capabilities cap on cap.company_id = c.id
       where company_can_purchase(c)
+        and ($2::boolean or not c.is_demo)
       order by c.id`,
-    [FEDERAL_CHECKS],
+    [FEDERAL_CHECKS, allowDemoCompanies],
   );
   return result.rows;
 }
@@ -204,8 +208,9 @@ export async function matchMovers(input: CoverageInput, db: Queryable = getPool(
       const found = await db.query<{ display_name: string }>(
         `select coalesce(p.display_name, c.dba_name, c.legal_name) as display_name
            from companies c left join company_profiles p on p.company_id = c.id
-          where c.id = $1 and c.status = 'approved' and p.public_status = 'live'`,
-        [profileId],
+          where c.id = $1 and c.status = 'approved' and p.public_status = 'live'
+            and ($2::boolean or not c.is_demo)`,
+        [profileId, process.env.NODE_ENV !== "production"],
       );
       if (found.rows[0]) profileCompany = { companyId: profileId, displayName: found.rows[0].display_name, eligible: false };
     }

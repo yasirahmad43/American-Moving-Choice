@@ -16,7 +16,10 @@ function page(url, text, { family = "question", sectionText = text, faq = [] } =
 
 function assertPreserved(stored, projected) {
   expect(projected.content.sections[0].id).toBe("payment");
-  expect(projected.content.sections[0].blocks[1]).toEqual(stored.content.sections[0].blocks[1]);
+  if(["city","state","route","zip","cost"].includes(stored.family)) {
+    expect(projected.content.sections[0].blocks[1]).toEqual({type:"table",columns:["Date","Link"],rows:[["2026-10-28","[Read the rule](https://www.fmcsa.dot.gov/protect-your-move/how-to/subpartD)"]]});
+    expect(JSON.stringify(projected)).not.toContain("$110 per hour");
+  } else expect(projected.content.sections[0].blocks[1]).toEqual(stored.content.sections[0].blocks[1]);
   expect(projected.content.intro.dataPoints).toEqual(stored.content.intro.dataPoints);
   expect(projected.sources).toEqual(stored.sources);
   expect(projected.content.related).toEqual(stored.content.related);

@@ -36,7 +36,7 @@ export default async function ConfirmationPage() {
           <h1 className="type-display-l text-text">Request confirmation</h1>
           <EmptyState
           title="No recent request to show"
-          description="This page shows your confirmation for a short time after you send a request. Your confirmation email has your reference number and a link to manage your request."
+          description="This page shows a recently saved request for a short time. If you saved its private management link, open that link to review or withdraw it."
           action={
             <LinkButton href="/get-quotes/" variant="secondary">
               Start a quote request

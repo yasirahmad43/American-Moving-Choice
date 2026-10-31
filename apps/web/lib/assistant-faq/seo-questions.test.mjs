@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "../../../../packages/server/src/seo/catalog.ts";
 import { EDITORIAL_ASSISTANT_QUESTIONS } from "./seo-questions.ts";
+import { publicSeoPage } from "../../components/seo/public-content.ts";
 
 describe("human search questions for every authored editorial guide", () => {
   it("provides four distinct natural questions for every current catalog slug", () => {
@@ -21,7 +22,8 @@ describe("human search questions for every authored editorial guide", () => {
 
   it("binds every question to an actual source introduction, heading, FAQ or text topic", () => {
     for (const entry of CATALOG) {
-      const source = JSON.stringify([entry.answer, entry.sections, entry.faq]).toLowerCase();
+      const projected=publicSeoPage({...entry,url:`/${entry.family}/${entry.slug}/`,title:entry.title??entry.h1,metaDescription:entry.metaDescription??entry.h1,sources:entry.sources??[],content:{intro:{answer:entry.answer,dataPoints:[]},sections:entry.sections.map((section,index)=>({...section,id:`s${index}`})),faq:entry.faq,related:[],quote:{text:""},credits:[],dataAsOf:"2026-10-30"}});
+      const source = JSON.stringify([projected.content.intro.answer, projected.content.sections, projected.content.faq]).toLowerCase();
       for (const spec of EDITORIAL_ASSISTANT_QUESTIONS[entry.slug]) {
         expect(spec.evidence.length, `${entry.slug}: ${spec.question}`).toBeGreaterThan(0);
         expect(spec.evidence.some(term => term === "intro" || source.includes(term.toLowerCase())), `${entry.slug}: ${spec.question}`).toBe(true);

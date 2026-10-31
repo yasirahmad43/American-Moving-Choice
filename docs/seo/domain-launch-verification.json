@@ -1,0 +1,20 @@
+{
+  "publicOrigin": "https://www.americanmovingchoice.com",
+  "portalOrigin": "https://app.americanmovingchoice.com",
+  "apexRedirectStatus": 308,
+  "dnsAndHttpsVerifiedBeforeRelease": true,
+  "productionOriginsUpdated": true,
+  "previewOriginsPreserved": true,
+  "sourceSnapshotSha256": "01cbc7dc056542f256ea1476c1299a1a09646631f1371527808e62b7b19dfb1c",
+  "publishedGuideRecordsValidated": 4745,
+  "guideQuestionsValidated": 23630,
+  "storedRecordsMutated": 0,
+  "unverifiedRateEvidenceRemaining": 0,
+  "localContentTestsPassed": 261,
+  "localFullServerTestsPassedBeforeVerificationGuard": 422,
+  "focusedVerificationTestsPassed": 17,
+  "allPackageTypechecksPassed": true,
+  "paidContentProviderCalls": 0,
+  "releaseChecks": "Exact-head CI and live custom-domain verification follow merge; results are recorded on the launch pull request and in ignored work/domain-launch proof files.",
+  "limits": "Search permission does not establish search indexing or ranking. Email delivery requires an actual Postmark configuration and verified sender; saved request access is available from the on-screen private link. Business credentials, contact details and observed prices are never invented."
+}

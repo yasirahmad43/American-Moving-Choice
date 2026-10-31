@@ -1,5 +1,5 @@
 /**
- * Rate cards and the calculator against the demo seed (build plan §7.3; slice S3 acceptance):
+ * Rate cards and the calculator against explicitly non-demo test fixtures (slice S3 acceptance):
  * Dallas 75201 to Houston 77002, 2 bedrooms, gives a range from at least 5 movers; a Wyoming pair
  * gives no range; saving a card supersedes the old one and changes the output.
  */
@@ -11,6 +11,8 @@ import { closePool, getPool } from "../db/pool";
 import { resetDatabase } from "../../test/helpers";
 import { RateCardValidationError, calculatorRange, checkRoute, getActiveRateCard, listRateCards, loadAreaRateCards, saveRateCard } from "./rates";
 import { parseRateCardForm, rateCardToFormValues, type RateCardData } from "./schema";
+import { rateCardMoversByState } from "../seo/network";
+import { pipelineCounts } from "../seo/publish";
 
 const DALLAS_HOUSTON = { origin: "75201", destination: "77002", size: "2br", services: [] as string[] };
 let ownerId: string;
@@ -33,13 +35,47 @@ beforeAll(async () => {
   );
   ownerId = owner!.user_id;
   companyId = owner!.company_id;
+  // These are isolated calculation fixtures, not a change to the production/demo seed.
+  // Mark the test card owners explicitly live so the range tests exercise real-evidence logic.
+  await getPool().query("update companies c set is_demo = false where exists(select 1 from rate_cards rc where rc.company_id = c.id)");
 });
 
 afterAll(async () => {
   await closePool();
 });
 
-describe("calculatorRange on the demo seed", () => {
+describe("calculatorRange with non-demo rate fixtures", () => {
+  it("never counts demo cards as live evidence or toward the five-company cost threshold", async () => {
+    const db = getPool();
+    const eligible = await loadAreaRateCards("TX");
+    expect(eligible.length).toBeGreaterThanOrEqual(5);
+    const ids = eligible.map(card => card.companyId);
+    const allCardOwnerIds = (await q<{ company_id: string }>("select distinct company_id from rate_cards")).map(row => row.company_id);
+    try {
+      await db.query("update companies set is_demo = true where id = any($1::uuid[])", [allCardOwnerIds]);
+      expect(await loadAreaRateCards("TX")).toEqual([]);
+      expect((await rateCardMoversByState(db)).get("TX") ?? 0).toBe(0);
+      expect((await pipelineCounts(db)).find(row => row.family === "cost")?.planned).toBe(2);
+      const onlyDemo = await calculatorRange(DALLAS_HOUSTON);
+      expect(onlyDemo.status === "ok" && onlyDemo.result).toMatchObject({ kind: "no_data", cause: "too_few_movers", moverCount: 0 });
+
+      await db.query("update companies set is_demo = false where id = any($1::uuid[])", [ids.slice(0, 4)]);
+      expect(await loadAreaRateCards("TX")).toHaveLength(4);
+      expect((await rateCardMoversByState(db)).get("TX")).toBe(4);
+      expect((await pipelineCounts(db)).find(row => row.family === "cost")?.planned).toBe(2);
+      const fourReal = await calculatorRange(DALLAS_HOUSTON);
+      expect(fourReal.status === "ok" && fourReal.result).toMatchObject({ kind: "no_data", cause: "too_few_movers", moverCount: 4 });
+
+      await db.query("update companies set is_demo = false where id = $1", [ids[4]]);
+      expect((await rateCardMoversByState(db)).get("TX")).toBe(5);
+      expect((await pipelineCounts(db)).find(row => row.family === "cost")?.planned).toBeGreaterThan(2);
+      const fiveReal = await calculatorRange(DALLAS_HOUSTON);
+      expect(fiveReal.status === "ok" && fiveReal.result).toMatchObject({ kind: "range", moverCount: 5 });
+    } finally {
+      await db.query("update companies set is_demo = false where id = any($1::uuid[])", [allCardOwnerIds]);
+    }
+  });
+
   it("gives Dallas 75201 to Houston 77002, 2 bedrooms, a range from at least 5 movers", async () => {
     const outcome = await calculatorRange(DALLAS_HOUSTON);
     expect(outcome.status).toBe("ok");

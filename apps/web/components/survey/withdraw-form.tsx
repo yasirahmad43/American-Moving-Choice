@@ -20,7 +20,7 @@ export function WithdrawForm({ action, buyers }: { action: (state: WithdrawState
     return (
       <Alert tone="success" title="Your request is withdrawn">
         No additional movers can receive your contact details through this request.
-        {buyers > 0 ? " We've told the movers that already received your details to stop contacting you. Withdrawing can't take back details already shared." : " No mover had received your contact details."}
+        {buyers > 0 ? " Withdrawing can't take back details already shared. Contact a company directly if you want it to stop contacting you." : " No mover had received your contact details."}
       </Alert>
     );
   }
@@ -39,7 +39,7 @@ export function WithdrawForm({ action, buyers }: { action: (state: WithdrawState
         title="Withdraw your request?"
         description={
           buyers > 0
-            ? "No additional movers will receive your contact details through this request, and we'll tell movers that already received them to stop contacting you. Withdrawing can't take back details a mover already received."
+            ? "No additional companies will receive your contact details through this request. Withdrawing can't take back details already shared. Contact a company directly if you want it to stop contacting you."
             : "No mover will receive your contact details through this request. You can't undo this; to hear from movers later, send a new request."
         }
         footer={

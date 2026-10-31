@@ -2,7 +2,7 @@
  * Rate cards and the public calculator (build plan §7.3).
  *
  * - calculatorRange: resolves the ZIP codes, distance, move type and band, loads the active rate
- *   cards of approved companies covering the origin state and runs cost-model-v1 from @amc/core.
+ *   cards of approved, non-demo companies covering the origin state and runs cost-model-v1 from @amc/core.
  *   It reads no billing, purchase, spend or plan data: account status is its only account input.
  * - saveRateCard: validates a card, supersedes the company's active card and audits the change in
  *   one transaction. The caller must already have checked the user's role for the company.
@@ -96,8 +96,9 @@ interface CardRow {
 }
 
 /**
- * Active cards covering a state, from approved companies that aren't suspended, whatever their
- * age (the model applies the 12-month limit and names "stale" when it decides the outcome).
+ * Active cards covering a state, from approved non-demo companies that aren't suspended,
+ * whatever their age (the model applies the 12-month limit). Demo fixture prices are never
+ * live market evidence, including while the application itself is running in preview mode.
  */
 export async function loadAreaRateCards(state: string, db: Queryable = getPool()): Promise<CostRateCard[]> {
   const result = await db.query<CardRow>(
@@ -107,6 +108,7 @@ export async function loadAreaRateCards(state: string, db: Queryable = getPool()
       where rc.status = 'active'
         and $1 = any(rc.states)
         and c.status = 'approved'
+        and not c.is_demo
         and c.suspended_at is null
       order by rc.company_id`,
     [state],
