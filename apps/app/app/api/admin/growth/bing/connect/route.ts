@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@amc/server/auth";
 import { env } from "@amc/server/env";
-import { beginBingConnection, bingConnectionAvailable } from "@amc/server/reporting";
+import { beginBingConnection, bingConnectionAvailable, BingConnectionError } from "@amc/server/reporting";
 
 export const dynamic = "force-dynamic";
 
@@ -31,21 +31,42 @@ function authorizationUrl(value: string, origin: string): string {
   return url.toString();
 }
 
+type StartStage = "connect_auth" | "connect_config" | "connect_request" | "connect_configured" | "connect_core" | "connect_authorize";
+type StartReason = "unauthorized" | "forbidden" | "unavailable" | "request_origin" | "origin_header" | "fetch_site" | "not_configured" | "authorize_url";
+interface OriginChecks { headerPresent: boolean; headerMatches: boolean; requestOriginMatches: boolean; fetchSiteMatches: boolean }
+function startFailure(stage: StartStage, reason: StartReason, checks?: OriginChecks): void {
+  // Fixed enums and booleans only; never inspect/log a header value, callback value or error.
+  console.warn("reporting_bing_start_failure", { stage, reason, ...checks });
+}
+
 /** A native same-origin POST starts the owner-bound authorization; URL/body redirect inputs are ignored. */
 export async function POST(request: Request): Promise<Response> {
   let origin: string | undefined;
+  let stage: StartStage = "connect_auth";
   try {
     const user = await getCurrentUser();
-    if (!user || user.mfa !== "ok") return Response.json({ error: "unauthorized" }, { status: 401, headers });
-    if (user.adminRole !== "super_admin") return Response.json({ error: "forbidden" }, { status: 403, headers });
+    if (!user || user.mfa !== "ok") { startFailure(stage, "unauthorized"); return Response.json({ error: "unauthorized" }, { status: 401, headers }); }
+    if (user.adminRole !== "super_admin") { startFailure(stage, "forbidden"); return Response.json({ error: "forbidden" }, { status: 403, headers }); }
+    stage = "connect_config";
     origin = configuredOrigin();
-    if (new URL(request.url).origin !== origin || request.headers.get("origin") !== origin || request.headers.get("sec-fetch-site") !== "same-origin") {
+    stage = "connect_request";
+    const checks: OriginChecks = {
+      headerPresent: request.headers.has("origin"), headerMatches: request.headers.get("origin") === origin,
+      requestOriginMatches: new URL(request.url).origin === origin, fetchSiteMatches: request.headers.get("sec-fetch-site") === "same-origin",
+    };
+    if (!checks.requestOriginMatches || !checks.headerMatches || !checks.fetchSiteMatches) {
+      startFailure(stage, !checks.requestOriginMatches ? "request_origin" : !checks.headerMatches ? "origin_header" : "fetch_site", checks);
       return Response.json({ error: "forbidden" }, { status: 403, headers });
     }
-    if (!bingConnectionAvailable()) return cleanFailure(origin);
+    stage = "connect_configured";
+    if (!bingConnectionAvailable()) { startFailure(stage, "not_configured"); return cleanFailure(origin); }
+    stage = "connect_core";
     const started = await beginBingConnection({ userId: user.id, sessionId: user.session.id });
+    stage = "connect_authorize";
     return new Response(null, { status: 303, headers: { ...headers, Location: authorizationUrl(started.authorizeUrl, origin) } });
-  } catch {
+  } catch (error) {
+    // Classified core errors already have diagnostics; route failures and unexpected core-entry errors need one event.
+    if (stage !== "connect_core" || !(error instanceof BingConnectionError)) startFailure(stage, stage === "connect_authorize" ? "authorize_url" : "unavailable");
     return origin ? cleanFailure(origin) : Response.json({ error: "unavailable" }, { status: 503, headers });
   }
 }

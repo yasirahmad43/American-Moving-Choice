@@ -3,10 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocked = vi.hoisted(() => ({
   user: vi.fn(), requireAdmin: vi.fn(), begin: vi.fn(), complete: vi.fn(), available: vi.fn(),
   config: { APP_URL: "https://app.americanmovingchoice.com" },
+  ConnectionError: class extends Error {},
 }));
 vi.mock("@amc/server/auth", () => ({ getCurrentUser: mocked.user, requireAdmin: mocked.requireAdmin }));
 vi.mock("@amc/server/env", () => ({ env: () => mocked.config }));
-vi.mock("@amc/server/reporting", () => ({ beginBingConnection: mocked.begin, completeBingConnection: mocked.complete, bingConnectionAvailable: mocked.available }));
+vi.mock("@amc/server/reporting", () => ({ beginBingConnection: mocked.begin, completeBingConnection: mocked.complete, bingConnectionAvailable: mocked.available, BingConnectionError: mocked.ConnectionError }));
 vi.mock("@amc/ui", () => ({ PageHeader: () => null }));
 vi.mock("@/components/admin/growth/growth-dashboard", () => ({ GrowthDashboard: () => null }));
 
@@ -233,5 +234,77 @@ describe("Bing callback failure-only diagnostics", () => {
     await callback(returned());
     expect(diagnostic).toHaveBeenCalledWith("reporting_bing_callback_failure", { stage: "callback_auth", reason: "unavailable" });
     expect(JSON.stringify(diagnostic.mock.calls)).not.toContain("private-auth-error");
+  });
+});
+
+describe("Bing start-route failure-only diagnostics", () => {
+  function safeStartWarning(expected) {
+    expect(diagnostic).toHaveBeenCalledTimes(1);
+    expect(diagnostic).toHaveBeenCalledWith("reporting_bing_start_failure", expected);
+    const encoded = JSON.stringify(diagnostic.mock.calls);
+    for (const value of [APP, STATE, CODE, "owner-user", "owner-session", "public-test-client", "untrusted-provider-private-detail", "synthetic-secret", "https://", '"headers":', '"message":', '"error":']) expect(encoded).not.toContain(value);
+    expect(Object.keys(diagnostic.mock.calls[0][1]).sort()).toEqual(Object.keys(expected).sort());
+  }
+
+  it("keeps successful POST and non-state-creating GET silent", async () => {
+    expect((await connect(start())).headers.get("location")).toBe(authorize());
+    expect((await connectGet()).status).toBe(405);
+    expect(diagnostic).not.toHaveBeenCalled();
+  });
+
+  it.each([[null, "unauthorized", 401], [owner("super_admin", "verify"), "unauthorized", 401], [owner("ops"), "forbidden", 403]])("identifies an auth rejection without session or role values", async (user, reason, status) => {
+    mocked.user.mockResolvedValue(user);
+    expect((await connect(start())).status).toBe(status);
+    safeStartWarning({ stage: "connect_auth", reason });
+    expect(mocked.begin).not.toHaveBeenCalled();
+  });
+
+  it("identifies an auth service outage without the raw error", async () => {
+    mocked.user.mockRejectedValue(new Error("untrusted-provider-private-detail"));
+    expect((await connect(start())).status).toBe(503);
+    safeStartWarning({ stage: "connect_auth", reason: "unavailable" });
+  });
+
+  it("identifies invalid app configuration without the configured value", async () => {
+    mocked.config.APP_URL = "https://synthetic-secret@external.invalid/private?secret=synthetic-secret";
+    expect((await connect(start())).status).toBe(503);
+    safeStartWarning({ stage: "connect_config", reason: "unavailable" });
+  });
+
+  it.each([
+    [{ origin: APP, "sec-fetch-site": "same-origin" }, "https://external.invalid", "request_origin", { headerPresent: true, headerMatches: true, requestOriginMatches: false, fetchSiteMatches: true }],
+    [{ "sec-fetch-site": "same-origin" }, APP, "origin_header", { headerPresent: false, headerMatches: false, requestOriginMatches: true, fetchSiteMatches: true }],
+    [{ origin: "https://synthetic-secret.external.invalid", "sec-fetch-site": "same-origin" }, APP, "origin_header", { headerPresent: true, headerMatches: false, requestOriginMatches: true, fetchSiteMatches: true }],
+    [{ origin: APP, "sec-fetch-site": "synthetic-secret" }, APP, "fetch_site", { headerPresent: true, headerMatches: true, requestOriginMatches: true, fetchSiteMatches: false }],
+  ])("reports only origin-provenance booleans for %s", async (headers, requestOrigin, reason, checks) => {
+    expect((await connect(start(headers, requestOrigin))).status).toBe(403);
+    safeStartWarning({ stage: "connect_request", reason, ...checks });
+    expect(mocked.begin).not.toHaveBeenCalled();
+  });
+
+  it("distinguishes absent backend credentials without exposing any configuration", async () => {
+    mocked.available.mockReturnValue(false);
+    const response = await connect(start());
+    expect(response.headers.get("location")).toBe(APP + "/admin/growth?connection=bing_failed");
+    safeStartWarning({ stage: "connect_configured", reason: "not_configured" });
+    expect(mocked.begin).not.toHaveBeenCalled();
+  });
+
+  it("distinguishes unsafe authorization URL validation without logging the URL", async () => {
+    mocked.begin.mockResolvedValue({ authorizeUrl: "https://synthetic-secret@external.invalid/?code=" + CODE + "&state=" + STATE });
+    const response = await connect(start());
+    expect(response.headers.get("location")).toBe(APP + "/admin/growth?connection=bing_failed");
+    safeStartWarning({ stage: "connect_authorize", reason: "authorize_url" });
+  });
+
+  it("does not duplicate a classified core failure and diagnoses only unexpected pre-entry errors", async () => {
+    mocked.begin.mockRejectedValue(new mocked.ConnectionError("untrusted-provider-private-detail"));
+    const classified = await connect(start());
+    expect(classified.headers.get("location")).toBe(APP + "/admin/growth?connection=bing_failed");
+    expect(diagnostic).not.toHaveBeenCalled();
+    mocked.begin.mockRejectedValue(new Error("untrusted-provider-private-detail"));
+    const unexpected = await connect(start());
+    expect(unexpected.headers.get("location")).toBe(APP + "/admin/growth?connection=bing_failed");
+    safeStartWarning({ stage: "connect_core", reason: "unavailable" });
   });
 });
