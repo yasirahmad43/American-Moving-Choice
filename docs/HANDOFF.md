@@ -3,6 +3,49 @@
 Updated 2026-10-31 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Live admin growth dashboard — PR #37, 2026-10-31
+
+PR #37 is merged (`441a981b275d5f818fe13201e7afbb1808887b44`). Both projects deployed
+that commit successfully, including `app.americanmovingchoice.com`. Owner/operations admins
+now have a 15-second request summary on `/admin` and a full `/admin/growth` view: saved
+request totals, 14 Eastern calendar days, first/latest attribution, campaigns, observed
+public landing pages and programmatic SEO publication counts. These are saved requests and
+published/indexable pages, not visitor counts, conversion rates or search-engine indexing.
+See `docs/ADMIN-GROWTH.md` for the implementation and provider setup.
+
+Final-head CI `41196998768` passed all typechecks, unit/database tests, existing public tests,
+the new admin reporting suite and both builds. Focused coverage includes 51 admin API/poller/UI
+tests, 9 aggregate tests, 25 mocked provider tests and 3 actual SQL regressions. The actual
+components/shell/CSS/fonts/logo passed 40 offline layout cases at 375/390/768/1440px, including
+200% text, reduced motion and expanded daily totals. Fixtures were synthetic. Production
+checks confirmed `/admin/growth` redirects an unauthenticated visitor to login and both
+reporting APIs return private/no-store 401 responses. No production sign-in or live provider
+read was verified. Proof: `docs/verification/admin-growth-layout-2026-10-31.json` and
+`docs/verification/admin-growth-live-2026-10-31.json`.
+
+**Provider connection remains unfinished.** The app has secure optional read-only Google/Bing
+adapters, but no reporting credentials are configured. Browser sign-in and public tracking IDs
+do not grant backend API access. Panels honestly show unconnected/null data. The existing
+public GA4/GTM tracking and GSC/Bing verification/sitemap setup below remain in place.
+
+The owner explicitly approved creating **AMC Website Reporting** under `d1techcreative.com`,
+a dedicated read-only Google reporting connection and a read-only Bing connection, with no
+paid services. The Google Cloud project now exists: **`amc-website-reporting-513311`**.
+The current Chrome tab is its Analytics Data API library page; the **Enable** button is still
+shown. No reporting API enablement, service-account/key creation or Bing OAuth registration
+has been completed. Do not ask for the already-granted setup approval again. The initial
+project-creation automatic-review rejection was superseded by the owner's explicit approval.
+
+Continuation needs working browser placement. Native control again sees Chrome on monitor2
+(x=1920) but its inputs sometimes restore the old 1215×354 position and target the desktop;
+the safety guard refused those clicks. Browser Use also failed to initialize with
+`failed to write kernel assets ... (os error 3)`. A pending user question asks them to move
+Chrome onto the main screen in a large normal window and reply **Ready**. Wait for that
+readiness before resuming browser input. Use fresh states; do not bypass geometry guards,
+extract browser cookies, alter other projects or enable paid services. BotID/country controls
+and the owner's app sign-in preference are unchanged. Bing refresh-token rotation currently
+fails closed until secure reconnection; durable encrypted rotation is not implemented.
+
 ### Country access, request security and measurement — PR #31, 2026-10-31
 
 Production rollout: PR #31 is merged (`6695ecb`) and both projects deployed it. Live HTTP
