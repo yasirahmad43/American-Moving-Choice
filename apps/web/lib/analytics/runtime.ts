@@ -26,7 +26,8 @@ export function initializeAnalytics(id: string, origin: string): boolean {
   window.gtag("set", { send_page_view: false, allow_google_signals: false, allow_ad_personalization_signals: false, ads_data_redaction: true, url_passthrough: false });
   window.gtag("consent", "update", { ...DENIED, analytics_storage: "granted" });
   const { event: _event, ...page } = base;
-  window.dataLayer.push(page, { "gtm.start": Date.now(), event: "gtm.js" });
+  // The GTM Consent Initialization template reads this literal before measurement can start.
+  window.dataLayer.push({ amc_analytics_consent: "granted" }, page, { "gtm.start": Date.now(), event: "gtm.js" });
   const script = document.createElement("script");
   script.id = ANALYTICS_SCRIPT_ID; script.async = true; script.referrerPolicy = "origin";
   script.src = `https://www.googletagmanager.com/gtm.js?id=${id}`;
@@ -76,7 +77,11 @@ export function completeLeadAnalytics(accepted: boolean, navigate: () => void): 
 export function revokeAnalytics(): void {
   if (typeof window === "undefined") return;
   const loaded = Boolean(context);
-  if (loaded) window.gtag?.("consent", "update", DENIED);
+  if (loaded) {
+    // Internal consent control only; no GA4 measurement trigger listens to this event.
+    window.dataLayer?.push({ event: "amc_analytics_consent_update", amc_analytics_consent: "denied" });
+    window.gtag?.("consent", "update", DENIED);
+  }
   started = false;
   try { window.sessionStorage.removeItem(START_KEY); } catch { /* optional metrics */ }
   for (const cookie of document.cookie.split(";")) {

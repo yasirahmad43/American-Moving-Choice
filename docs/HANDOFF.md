@@ -18,13 +18,13 @@ BotID to exact quote/report form routes and derives client enablement from the s
 flag, permitting a real rollback on the next build. Automated live-browser preparation was
 refused by the security check without issuing a ticket; that proves automated refusal,
 not a successful human flow. `BOT_PROTECTION_ENABLED` remains **true** for web Production
-and Preview. Automatic approval rejected the proposed temporary rollback as weakening a
-security boundary without exact authorization; the owner has been asked to approve that
-specific rollback. Do not disable it through another route or claim the rollback happened.
+and Preview. After automatic approval rejected the proposed temporary rollback, the owner
+explicitly chose **Keep BotID enabled**. That decision supersedes the earlier pending
+approval request. Do not disable it through another route or ask for the rollback again.
 Country, database rate limits, signed tickets, replay limits and honeypots are independent.
-Windows Computer Use is currently misreading Chrome's second-display coordinates; the
-owner has been asked to move Chrome to the main display as a normal, unmaximized window.
-No Google or Bing account settings were changed through that unreliable control.
+Windows Computer Use needed a fresh foreground Chrome window and a usable window size.
+The owner has since restored it and authorized continuing the Google setup; use fresh
+observations and do not reuse old screen coordinates.
 
 PR #31 adds the owner-requested US/Pakistan visitor restriction to both Next 16 proxies,
 without replacing Vercel's firewall configuration or changing the owner's sign-in/MFA
@@ -35,7 +35,7 @@ crawler bypass. Exact authenticated cron, signature-checked Stripe and reserved 
 security-service exceptions remain narrow. Unknown visitor countries fail closed. See
 `docs/COUNTRY-ACCESS.md`, including the manual crawler-range refresh procedure.
 
-Web `BOT_PROTECTION_ENABLED=true`, when deliberately activated later, selects free BotID Basic for quote preparation, final
+Web `BOT_PROTECTION_ENABLED=true` selects free BotID Basic for quote preparation, final
 submission and valid concern reports; client and server both explicitly select Basic.
 Project OIDC enablement was requested through the Vercel project API. A real deployed browser
 quote-preparation check must confirm the challenge and runtime OIDC together; a script 200
@@ -54,10 +54,15 @@ only in authorized admin lead details. Optional Google measurement remains disab
 real GA4/GTM accounts and a published container are connected. Choices still work for
 first-party campaign attribution with no Google container. No contact details, ZIPs, dates,
 services or request IDs enter Google events. Private/token documents do not load Google.
-Google Analytics, Tag Manager, Search Console and Bing account setup is still pending reliable
-browser control. Chrome access was approved, but Computer Use stopped because it could not
-verify the current browser URL. The owner was asked to open Google Analytics and reply ready;
-do not ask for Chrome permission again or claim these account connections are complete.
+The dedicated Google Analytics account/property and website stream now exist: account
+`414235382`, property `561692313`, stream `16241880293`, measurement `G-7P7TKLBZXH`.
+The owner confirmed United States and 11–100 employees. Enhanced Measurement is off;
+`generate_lead` is registered as a key event with no invented monetary value, and the
+event-scoped `form_placement` and `step_name` reporting dimensions exist. The verified GTM
+container is `GTM-569KB26S` (account `6401413548`, container `284497986`). Publication,
+Production activation and live event receipt must be verified separately; IDs alone do
+not prove measurement is live. Search Console and Bing ownership setup remain pending.
+Chrome access and account setup were authorized; do not ask for Chrome permission again.
 See `docs/ANALYTICS.md`.
 
 Production web has a public `INDEXNOW_KEY` configured; `/indexnow-key.txt` proves ownership.

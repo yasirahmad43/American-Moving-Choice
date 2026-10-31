@@ -25,6 +25,20 @@ analytics event payload. This is basic consent mode: no pre-consent cookieless p
 
 Use one Google tag for the actual GA4 web-stream measurement ID:
 
+The verified American Moving Choice account is `414235382`, property `561692313`, web
+stream `16241880293`, measurement ID `G-7P7TKLBZXH`. Its GTM account is `6401413548`,
+container `284497986` / `GTM-569KB26S`. These identifiers are public configuration, not
+credentials. They do not by themselves prove that a container is published or that the
+Production environment is enabled; verify both before reporting live measurement.
+
+Use the sandboxed AMC consent template on Consent Initialization. It reads only the
+`amc_analytics_consent` Data Layer marker and uses Tag Manager's consent APIs to grant
+analytics storage only for the literal `granted`; all advertising consent stays denied.
+The website queues that marker after its consent/public-page gates and before loading
+GTM. Its internal `amc_analytics_consent_update` event applies denial before cleanup and
+reload. Only the consent template listens to this control event; never forward it to GA4.
+Queued `gtag` consent commands are retained as fallback, not used as the template bridge.
+
 - Trigger: Initialization – All Pages (the container itself loads only after consent).
 - Set `send_page_view` to false. Set `allow_google_signals` and
   `allow_ad_personalization_signals` to false.

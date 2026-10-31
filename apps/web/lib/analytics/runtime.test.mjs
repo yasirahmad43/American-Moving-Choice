@@ -31,6 +31,28 @@ describe("consent-gated GTM runtime",()=>{
     expect(window.dataLayer.filter(item=>item.event==="page_view")).toHaveLength(2);
     expect(JSON.stringify(window.dataLayer)).not.toMatch(/private@example|private-token/iu);
   });
+  it("exposes the literal grant to Consent Initialization before the container script can execute",async()=>{
+    const {window,document}=browser();const runtime=await import("./runtime.ts");
+    document.head.appendChild.mockImplementation(()=>{
+      const marker=window.dataLayer.findIndex(item=>item.amc_analytics_consent==="granted");
+      const start=window.dataLayer.findIndex(item=>item.event==="gtm.js");
+      expect(marker).toBeGreaterThanOrEqual(0);expect(start).toBeGreaterThan(marker);
+      expect(window.dataLayer[marker]).toEqual({amc_analytics_consent:"granted"});
+    });
+    expect(runtime.initializeAnalytics("GTM-TEST1234","https://www.americanmovingchoice.com")).toBe(true);
+    runtime.initializeAnalytics("GTM-TEST1234","https://www.americanmovingchoice.com");
+    expect(document.head.appendChild).toHaveBeenCalledTimes(1);
+    expect(window.dataLayer.filter(item=>item.amc_analytics_consent==="granted")).toHaveLength(1);
+  });
+  it("never publishes a grant marker for refused, absent or browser-overridden permission",async()=>{
+    for(const choice of [null,"denied","granted"]){
+      vi.resetModules();const {window,document}=browser(choice);
+      vi.stubGlobal("navigator",choice==="granted"?{globalPrivacyControl:true}:{});
+      const runtime=await import("./runtime.ts");
+      expect(runtime.initializeAnalytics("GTM-TEST1234","https://www.americanmovingchoice.com")).toBe(false);
+      expect(window.dataLayer).toBeUndefined();expect(document.head.appendChild).not.toHaveBeenCalled();
+    }
+  });
   it("never loads a Google runtime or queues events in fresh private documents after opt-in",async()=>{
     for(const path of ["/get-quotes/confirmation/","/my-request/private-token/","/report-a-concern/"]){
       vi.resetModules(); const {window,document}=browser("granted",path); const runtime=await import("./runtime.ts");
@@ -55,5 +77,23 @@ describe("consent-gated GTM runtime",()=>{
     runtime.revokeAnalytics();expect(window.location.reload).toHaveBeenCalledOnce();
     vi.resetModules();browser();vi.stubGlobal("navigator",{globalPrivacyControl:true});const next=await import("./runtime.ts");
     expect(next.initializeAnalytics("GTM-TEST1234","https://www.americanmovingchoice.com")).toBe(false);
+  });
+  it("denies the sandbox bridge before the fallback consent command and private reload",async()=>{
+    const {window,local}=browser();const runtime=await import("./runtime.ts");
+    runtime.initializeAnalytics("GTM-TEST1234","https://www.americanmovingchoice.com");
+    local.set("amc.analytics.consent.v1",JSON.stringify({version:1,choice:"denied",savedAt:Date.now()}));
+    window.location.reload.mockImplementation(()=>{
+      const control=window.dataLayer.findIndex(item=>item.event==="amc_analytics_consent_update");
+      expect(window.dataLayer[control]).toEqual({event:"amc_analytics_consent_update",amc_analytics_consent:"denied"});
+      expect(Array.from(window.dataLayer[control+1])).toEqual(["consent","update",{analytics_storage:"denied",ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied"}]);
+    });
+    runtime.revokeAnalytics();
+    expect(window.location.reload).toHaveBeenCalledOnce();
+    expect(runtime.trackPageView()).toBe(false);expect(runtime.trackSurveyStart("survey")).toBe(false);
+    expect(runtime.trackSurveyStep("contact","survey")).toBe(false);
+    expect(window.dataLayer.some(item=>item.event==="generate_lead")).toBe(false);
+    vi.resetModules();const fresh=browser("denied");const inactive=await import("./runtime.ts");
+    inactive.revokeAnalytics();expect(fresh.window.dataLayer).toBeUndefined();
+    expect(fresh.window.location.reload).not.toHaveBeenCalled();
   });
 });
