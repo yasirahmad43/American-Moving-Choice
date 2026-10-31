@@ -166,6 +166,8 @@
 .sectionNo { font-size:.65rem; letter-spacing:.1em; }
 .sectionBody { padding:var(--layout-card-pad,1.25rem); font-size:1rem; line-height:1.65; overflow-wrap:anywhere; }
 .sectionBody :global(p) { max-width:none; }
+/* A full line box keeps caption font ascenders inside the shared card inset. */
+.sectionBody :global(.dt-toolbar) :global(.type-h4) { line-height:1.45; }
 .visualList { gap:.75rem; margin-block:1rem!important; }
 .visualList li { grid-template-columns:1.75rem minmax(0,1fr); gap:.625rem; padding:.75rem!important; font-size:.9375rem; line-height:1.6; }
 .listPhoto { display:grid; place-items:center; border-radius:.4rem; }
