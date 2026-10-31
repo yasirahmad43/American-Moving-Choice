@@ -17,6 +17,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // One source flag controls server verification and the browser bundle. Rebuild after changes.
+  env: { NEXT_PUBLIC_BOT_PROTECTION_ENABLED: truthy(process.env.BOT_PROTECTION_ENABLED) ? "true" : "false" },
   transpilePackages: ["@amc/core", "@amc/server", "@amc/ui"],
   // Every public HTML page ends with a slash; slashless URLs redirect (site architecture §2.2).
   trailingSlash: true,

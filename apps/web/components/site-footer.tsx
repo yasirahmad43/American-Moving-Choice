@@ -9,7 +9,7 @@ import { CategoryIcon } from "./navigation/category-icon";
 import { AnalyticsChoicesButton } from "./analytics/analytics-controller";
 
 export async function SiteFooter() {
-  const { APP_URL, SITE_INDEXABLE, ANALYTICS_ENABLED, GTM_CONTAINER_ID } = env();
+  const { APP_URL, SITE_INDEXABLE } = env();
   const overview = await navigationOverview();
   return <footer tabIndex={-1} data-band="" className="relative isolate overflow-hidden bg-brand-navy text-on-band">
     <div className="pointer-events-none absolute -right-36 -top-24 -z-10 h-[34rem] w-[52rem] opacity-25 [mask-image:radial-gradient(closest-side,black,transparent)]" aria-hidden="true"><RouteMapArt gradientId="site-footer-route-glow" /></div>
@@ -26,7 +26,7 @@ export async function SiteFooter() {
       <nav aria-label="Footer: every public section" className="flex flex-wrap gap-x-7 gap-y-8 py-10">{PUBLIC_NAV_GROUPS.map((group) => <div key={group.id} className="min-w-0 basis-full grow sm:basis-[calc((100%_-_1.75rem)/2)] lg:basis-[calc((100%_-_3.5rem)/3)] xl:basis-[calc((100%_-_7rem)/5)]"><h2 className="type-overline text-white">{group.label}</h2><ul className="mt-3 grid gap-0.5">{group.links.map((link) => <li key={link.href}><Link href={link.href} className="inline-flex min-h-11 items-center py-1 text-on-band-2 underline-offset-4 transition-colors hover:text-white hover:underline">{link.label}</Link></li>)}</ul></div>)}</nav>
       <div className="flex flex-wrap items-center justify-between gap-6 border-y border-white/20 py-7"><Wordmark href="/" tone="reversed" size="lg" className="max-w-60" /><a href={`${APP_URL}/login`} className="inline-flex min-h-12 items-center gap-3 rounded-control border border-white/30 px-5 font-semibold text-white no-underline hover:bg-white/10">Moving company sign-in <ArrowRightIcon size={17} /></a></div>
       <p className="max-w-[75ch] pb-3 pt-6 type-small leading-relaxed text-on-band-2">{PUBLIC_ROLE_STATEMENT}</p>
-      {ANALYTICS_ENABLED && GTM_CONTAINER_ID ? <div className="type-small text-on-band-2"><AnalyticsChoicesButton /></div> : null}
+      <div className="type-small text-on-band-2"><AnalyticsChoicesButton /></div>
       <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2 pb-7 type-small text-on-band-2"><Link href="/" className="inline-flex min-h-11 items-center text-on-band underline-offset-4 hover:underline">American Moving Choice home</Link><p>ZIP code data from <a href={GEONAMES_CREDIT.sourceUrl} className="text-on-band underline underline-offset-4">GeoNames</a>, licensed under <a href={GEONAMES_CREDIT.licenseUrl} className="text-on-band underline underline-offset-4">CC BY 4.0</a>.</p></div>
     </div>
     {SITE_INDEXABLE ? null : <section aria-label="Preview notice" className="border-t border-white/10 bg-black/10"><p className="mx-auto max-w-content py-3 gutter type-legal text-on-band-2">{PREVIEW_BANNER_TEXT}</p></section>}
