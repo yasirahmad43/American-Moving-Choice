@@ -17,14 +17,21 @@ export const coverageRequestSchema = z.object({
 });
 export type CoverageRequest = z.infer<typeof coverageRequestSchema>;
 
-export const attributionSchema = z
+const attributionTouchSchema = z
   .object({
+    landingPath: shortText(2048).nullable(),
     referrerOrigin: shortText(300).nullable(),
     utmSource: shortText(200).nullable(),
     utmMedium: shortText(200).nullable(),
     utmCampaign: shortText(200).nullable(),
+    utmTerm: shortText(200).nullable(),
+    utmContent: shortText(200).nullable(),
+    clickIds: z.object({ gclid: shortText(512), gbraid: shortText(512), wbraid: shortText(512), msclkid: shortText(512), fbclid: shortText(512) }).partial(),
+    device: z.enum(["mobile", "tablet", "desktop"]).nullable(),
   })
   .partial();
+/** Campaign metadata must never make an otherwise valid moving request fail. */
+export const attributionSchema = attributionTouchSchema.extend({ first: attributionTouchSchema.optional(), last: attributionTouchSchema.optional() }).catch({});
 
 export const submissionSchema = z.object({
   need: z.enum(["household", "loading_help", "vehicle_only", "truck_rental"]).nullable(),

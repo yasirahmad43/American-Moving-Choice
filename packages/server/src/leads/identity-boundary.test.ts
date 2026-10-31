@@ -25,4 +25,11 @@ describe("consumer company identity boundary", () => {
     expect(JSON.stringify({ confirmation, purchase })).not.toMatch(/Private Carrier|1234567|private-carrier/);
     expect(purchase.body).toContain("identify itself when it contacts you");
   });
+
+  it("does not disclose an earlier request through a legacy confirmation field", () => {
+    const confirmation = requestReceivedEmail({ referenceCode: "AMC-CURRENT", route: { originCity: "Dallas", originState: "TX", destCity: "Houston", destState: "TX" }, limit: 1,
+      movers: [], manageUrl: "https://example.test/my-request/private/", webUrl: "https://example.test", joinedReferenceCode: "AMC-PRIOR-PRIVATE" });
+    expect(JSON.stringify(confirmation)).not.toMatch(/AMC-PRIOR-PRIVATE|joins it|lowest number/u);
+    expect(confirmation.bodyText).toContain("AMC-CURRENT");
+  });
 });

@@ -1,7 +1,56 @@
 # American Moving Choice — handoff
 
-Updated 2026-10-30 for whoever (or whatever tool) continues this project. Everything below is
+Updated 2026-10-31 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
+
+### Country access, request security and measurement — PR #31, 2026-10-31
+
+PR #31 adds the owner-requested US/Pakistan visitor restriction to both Next 16 proxies,
+without replacing Vercel's firewall configuration or changing the owner's sign-in/MFA
+preference. `COUNTRY_ACCESS_ENABLED=true` is configured for Production and Preview on both
+projects. Verified public crawler reads use exact official IP ranges paired with the
+corresponding agent; all 4,806 public sitemap URLs remain in scope. The private app has no
+crawler bypass. Exact authenticated cron, signature-checked Stripe and reserved Vercel
+security-service exceptions remain narrow. Unknown visitor countries fail closed. See
+`docs/COUNTRY-ACCESS.md`, including the manual crawler-range refresh procedure.
+
+Web `BOT_PROTECTION_ENABLED=true` selects free BotID Basic for quote preparation, final
+submission and valid concern reports; client and server both explicitly select Basic.
+Project OIDC enablement was requested through the Vercel project API. A real deployed browser
+quote-preparation check must confirm the challenge and runtime OIDC together; a script 200
+alone is insufficient. No paid Deep Analysis is enabled. Public attempts have bounded IP,
+IPv6-network and signed-ticket replay limits; malformed attempts count. Errors never echo
+driver rows or challenge payloads.
+
+Anonymous repeats now have independent groups/references/management links/contact limits.
+Contact knowledge never grants control over an earlier request. Potential duplicates are
+admin-only flags. Public token resolution refuses legacy combined groups for both primary
+and sibling tokens; records and authorized admin access are preserved. Do not restore
+automatic grouping without verified ownership. See `docs/SECURITY.md`.
+
+Consented first/latest campaign attribution is stored with accepted requests and displayed
+only in authorized admin lead details. Optional Google measurement remains disabled until
+real GA4/GTM accounts and a published container are connected. Choices still work for
+first-party campaign attribution with no Google container. No contact details, ZIPs, dates,
+services or request IDs enter Google events. Private/token documents do not load Google.
+Google Analytics, Tag Manager, Search Console and Bing account setup is still pending reliable
+browser control. Chrome access was approved, but Computer Use stopped because it could not
+verify the current browser URL. The owner was asked to open Google Analytics and reply ready;
+do not ask for Chrome permission again or claim these account connections are complete.
+See `docs/ANALYTICS.md`.
+
+Production web has a public `INDEXNOW_KEY` configured; `/indexnow-key.txt` proves ownership.
+The bounded IndexNow runner defaults to a read-only plan; live delivery is a separate
+`--submit` operation, recorded under `work/tracking/indexnow`. Receipts do not prove indexing
+or rankings. See `docs/INDEXNOW.md`. FAQ artifacts were refreshed offline for the changed
+privacy answer: `outputs/assistant-faq/delivery-live-2026-10-31` has 4,885 pages and 24,247
+HTML/JSON-LD pairs with exact parity. No paid content generation was run for this release.
+
+Local release checks passed: all package typechecks, both production builds, 241 core,
+13 UI, 59 database, 465 backend and 310 public/content tests, 14 offline spending/replay
+tests and 4 crawler-builder tests. Live proof files belong under `work/security`; verify
+the exact production deployment SHA, forged location headers, admin protection, public
+proof/sitemaps and real-browser survey preparation before declaring activation complete.
 
 ### Custom domain and public search launch — owner follow-up, 2026-10-30
 

@@ -6,6 +6,8 @@ import { ReviewModeFlag } from "./site/review-mode-flag";
 import { ClosingSurvey } from "./site/closing-survey";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
+import { env } from "@amc/server/env";
+import { AttributionCapture } from "./attribution-capture";
 
 /**
  * Skip link, header, main landmark and footer around public pages. The preview notice lives in
@@ -13,11 +15,13 @@ import { SiteHeader } from "./site-header";
  * line-icon sprite, the scroll progress line and the lazy GSAP MotionProvider.
  */
 export function SiteChrome({ children }: { children: ReactNode }) {
+  const { WEB_URL, APP_URL } = env();
   return (
     <div className="site-experience flex min-h-dvh flex-col">
       <IconSprite />
       <SkipLink />
       <ScrollProgress />
+      <Suspense fallback={null}><AttributionCapture ownOrigins={[WEB_URL, APP_URL]} /></Suspense>
       {REVIEW_NOTES_IN_HTML ? (
         <Suspense fallback={null}>
           <ReviewModeFlag />

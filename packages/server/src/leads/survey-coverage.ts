@@ -5,7 +5,7 @@
  * Nothing here receives or stores contact details.
  */
 import { parseSize, parseWhere, servicesForNeed, type FieldErrors } from "@amc/core/src/survey";
-import { checkRateLimit, rateLimitKey } from "../auth/rate-limit";
+import { publicFormRateLimit } from "../public-forms/guards";
 import { hmacSecret } from "../env/env";
 import { getSettings } from "../settings/settings";
 import { anonymousCoverage, checkCoverage, type CoverageResult } from "./coverage";
@@ -22,6 +22,8 @@ export type SurveyCoverageResult =
   | { ok: true; coverage: CoverageResult; ticket: string; consent: ActiveConsent; maxLimit: number };
 
 export async function surveyCoverage(raw: unknown, meta: { ip: string | null }): Promise<SurveyCoverageResult> {
+  const limit = await publicFormRateLimit("survey:coverage:ip", meta.ip, COVERAGE_RATE_LIMIT.limit, COVERAGE_RATE_LIMIT.windowSeconds);
+  if (!limit.allowed) return { ok: false, kind: "rate_limited" };
   const parsed = coverageRequestSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, kind: "invalid", errors: { form: "Something in the form didn't come through. Check your answers and try again." } };
   const input = parsed.data;
@@ -32,11 +34,6 @@ export async function surveyCoverage(raw: unknown, meta: { ip: string | null }):
   if (!size.ok) Object.assign(errors, size.errors);
   if (input.need === "vehicle_only" || input.need === "truck_rental") errors.need = "We don't send vehicle-only or truck-rental requests to movers.";
   if (!where.ok || !size.ok || Object.keys(errors).length) return { ok: false, kind: "invalid", errors };
-
-  if (meta.ip) {
-    const limit = await checkRateLimit(rateLimitKey("survey:coverage:ip", meta.ip), COVERAGE_RATE_LIMIT.limit, COVERAGE_RATE_LIMIT.windowSeconds);
-    if (!limit.allowed) return { ok: false, kind: "rate_limited" };
-  }
 
   const coverage = await checkCoverage({
     originZip: where.value.originZip,

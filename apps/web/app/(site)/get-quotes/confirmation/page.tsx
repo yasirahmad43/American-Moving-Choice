@@ -38,9 +38,10 @@ export default async function ConfirmationPage() {
           title="No recent request to show"
           description="This page shows a recently saved request for a short time. If you saved its private management link, open that link to review or withdraw it."
           action={
-            <LinkButton href="/get-quotes/" variant="secondary">
-              Start a quote request
-            </LinkButton>
+            <div className="flex flex-wrap gap-3">
+              <LinkButton href="/get-quotes/" variant="secondary">Start a quote request</LinkButton>
+              <LinkButton href="/report-a-concern/" variant="secondary">Get help with a request</LinkButton>
+            </div>
           }
           />
         </div>

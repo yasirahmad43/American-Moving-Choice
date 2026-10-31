@@ -5,16 +5,16 @@
 import { renderConsentText, consentTextSha256, isSubmitButtonConsent, type Channel } from "@amc/core/src/survey";
 import type { Service } from "@amc/core";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { sha256Hex } from "../auth/tokens";
+import { newToken, sha256Hex } from "../auth/tokens";
 import { listLeads } from "../admin/leads";
 import { closePool, getPool } from "../db/pool";
-import { hmacSecret } from "../env/env";
+import { env, hmacSecret } from "../env/env";
 import { resetDatabase } from "../../test/helpers";
 import { checkCoverage, matchMovers } from "./coverage";
 import { getConfirmationByToken, getRequestByToken, withdrawRequest } from "./manage";
 import { checkSurveyTicket, issueSurveyTicket, riskScore, sourceCategory, MIN_COMPLETION_SECONDS } from "./quality";
-import { activeConsent, submitRequest, type SubmitMeta } from "./submit";
-import { surveyCoverage } from "./survey-coverage";
+import { activeConsent, submitRequest, SUBMIT_RATE_LIMIT, TICKET_SUBMIT_RATE_LIMIT, type SubmitMeta } from "./submit";
+import { surveyCoverage, COVERAGE_RATE_LIMIT } from "./survey-coverage";
 
 const pool = () => getPool();
 
@@ -68,7 +68,7 @@ async function addCompany(c: CompanyFixture): Promise<string> {
   return companyId;
 }
 
-const meta = (ip = "203.0.113.7"): SubmitMeta => ({ ip, userAgent: "vitest", pageUrl: "http://localhost:3000/get-quotes/" });
+const meta = (ip: string | null = "203.0.113.7"): SubmitMeta => ({ ip, userAgent: "vitest", pageUrl: "http://localhost:3000/get-quotes/" });
 
 function futureDate(days: number): string {
   const d = new Date();
@@ -396,6 +396,8 @@ describe("submitRequest", () => {
     await expect(pool().query(`insert into consent_records
       select (jsonb_populate_record(null::consent_records, to_jsonb(c) || jsonb_build_object('id',gen_random_uuid(),'lead_id',$1::uuid,'recipient_disclosure_mode','contact_introduction','authorization_method','checkbox','checkbox_state',true,'contact_automation','legacy_text','consent_text_version_id','contact-introduction-v1-draft'))).*
       from consent_records c where lead_id=$2`, [guardLead,lead.id])).rejects.toThrow(/consent_records_recipient_snapshot_check/);
+    // The synthetic constraint fixture is not part of this consumer's independent request.
+    await pool().query("delete from leads where id=$1", [guardLead]);
     await pool().query("update lead_groups set expires_at=now()-interval '1 day',status='expired' where id=$1", [lead.group_id]);
     const later = await getRequestByToken(result.manageToken, { ip: null });
     if (later.ok) expect(later.value).toMatchObject({ status: "received", canWithdraw: true });
@@ -422,7 +424,7 @@ describe("submitRequest", () => {
     expect(row.named_company_ids.sort()).toEqual([alpha, bravo, charlie].sort());
   });
 
-  it("blocks an older reservation when an unmatched duplicate replaces its recipient scope", async () => {
+  it("keeps an earlier reservation available when an unverified repeat has no eligible recipient", async () => {
     const first = await draft({ limit: 2, email: "pending-repeat@example.com", phone: "2145550164" });
     const one = await submitRequest(first.input, meta("198.51.100.204"));
     expect(one.ok).toBe(true);
@@ -433,13 +435,14 @@ describe("submitRequest", () => {
     const two = await submitRequest(second.input, meta("198.51.100.205"));
     expect(two.ok).toBe(true);
     if (!two.ok) return;
-    expect(two.confirmation.joinedReferenceCode).toBe(one.confirmation.referenceCode);
-    expect((await pool().query("select complete_purchase($1,'synthetic-paid-before-unmatched') is null as refused", [attempt])).rows[0].refused).toBe(true);
-    expect((await pool().query("select count(*)::int n from purchases where group_id=$1", [group])).rows[0].n).toBe(0);
-    expect((await pool().query("select count(*)::int n from disclosures where purchase_id in (select id from purchases where group_id=$1)", [group])).rows[0].n).toBe(0);
-    // Even a mistakenly added eligibility flag cannot make the pending group reservable.
-    await pool().query("update lead_eligibility set named_in_consent=true where group_id=$1 and company_id=$2", [group, bravo]);
-    await expect(pool().query("select reserve_purchase($1,$2,'after-unmatched')", [bravo, group])).rejects.toThrow(/lead_unavailable/);
+    expect(two.confirmation.joinedReferenceCode).toBeNull();
+    const newGroup = (await pool().query("select group_id from leads where reference_code=$1", [two.confirmation.referenceCode])).rows[0].group_id;
+    expect(newGroup).not.toBe(group);
+    expect((await pool().query("select sharing_limit, request_intake_pending from lead_groups where id=$1", [group])).rows[0]).toMatchObject({ sharing_limit: 2, request_intake_pending: false });
+    expect((await pool().query("select request_intake_pending from lead_groups where id=$1", [newGroup])).rows[0].request_intake_pending).toBe(true);
+    expect((await pool().query("select (complete_purchase($1,'synthetic-paid-before-unmatched')).id is not null as completed", [attempt])).rows[0].completed).toBe(true);
+    expect((await pool().query("select count(*)::int n from purchases where group_id=$1", [group])).rows[0].n).toBe(1);
+    await expect(pool().query("select reserve_purchase($1,$2,'unmatched-repeat')", [bravo, newGroup])).rejects.toThrow(/lead_unavailable|not_eligible_for_lead/);
   });
 
   it("retains legacy snapshot and empty-coverage protections when the legacy consent version is active", async () => {
@@ -501,37 +504,86 @@ describe("submitRequest", () => {
     }
   });
 
-  it("joins a repeat request within the duplicate window to the original group and keeps the lowest limit", async () => {
-    const first = await draft({ limit: 3, email: "repeat@example.com", phone: "2145550120" });
-    const one = await submitRequest(first.input, meta("198.51.100.30"));
+  it.each([
+    { label: "email only", n: 0, sameEmail: true, samePhone: false },
+    { label: "phone only", n: 1, sameEmail: false, samePhone: true },
+    { label: "both contact details", n: 2, sameEmail: true, samePhone: true },
+  ])("does not grant an unverified submission access to another request using $label", async ({ n, sameEmail, samePhone }) => {
+    const originalEmail = `request-owner-${n}@example.com`;
+    const originalPhone = `214555012${n}`;
+    const first = await draft({ limit: 3, email: originalEmail, phone: originalPhone });
+    const one = await submitRequest(first.input, meta(`198.51.100.${30 + n * 2}`));
     expect(one.ok).toBe(true);
-    // Same phone number, different email address, same route; one mover removed and a lower number.
-    const second = await draft({ limit: 2, removed: [charlie], email: "repeat.other@example.com", phone: "214-555-0120" });
-    const two = await submitRequest(second.input, meta("198.51.100.31"));
+    if (!one.ok) return;
+    // Contact and route knowledge are not management authorization, even when both contacts match.
+    const second = await draft({ limit: 1, removed: [charlie], email: sameEmail ? originalEmail : `unverified-repeat-${n}@example.com`, phone: samePhone ? originalPhone : `214555014${n}` });
+    const two = await submitRequest(second.input, meta(`198.51.100.${31 + n * 2}`));
     expect(two.ok).toBe(true);
-    if (!one.ok || !two.ok) return;
-    expect(two.confirmation.joinedReferenceCode).toBe(one.confirmation.referenceCode);
-    expect(two.confirmation.limit).toBe(2);
-    const rows = (await pool().query("select group_id, is_primary, selected_limit from leads where email in ('repeat@example.com', 'repeat.other@example.com') order by created_at")).rows;
-    expect(rows).toHaveLength(2);
-    expect(rows[0].group_id).toBe(rows[1].group_id);
-    expect(rows.map((r) => r.is_primary)).toEqual([true, false]);
-    const group = (await pool().query("select sharing_limit from lead_groups where id = $1", [rows[0].group_id])).rows[0];
-    expect(group.sharing_limit).toBe(2);
-    const eligibility = (await pool().query("select company_id, named_in_consent from lead_eligibility where group_id = $1", [rows[0].group_id])).rows;
-    expect(Object.fromEntries(eligibility.map((r) => [r.company_id, r.named_in_consent]))).toEqual({ [alpha]: true, [bravo]: true, [charlie]: false });
-    // A repeat with a higher number can't widen the limit; its consent list replaces the group's.
-    const third = await draft({ limit: 3, email: "repeat@example.com", phone: "2145550120" });
-    const three = await submitRequest(third.input, meta("198.51.100.32"));
-    expect(three.ok && three.confirmation.limit).toBe(2);
-    const relisted = (await pool().query("select named_in_consent from lead_eligibility where group_id = $1 and company_id = $2", [rows[0].group_id, charlie])).rows[0];
-    expect(relisted.named_in_consent).toBe(true);
-    const notices = await pool().query("select count(*)::int as n from messages where related_id = $1 and template = 'lead_available'", [rows[0].group_id]);
-    expect(notices.rows[0].n).toBe(2); // only the first request was announced
+    if (!two.ok) return;
+    expect(two.confirmation).toMatchObject({ joinedReferenceCode: null, limit: 1 });
+    expect(JSON.stringify(two.confirmation)).not.toContain(one.confirmation.referenceCode);
+    const original = (await pool().query("select id, group_id, is_primary from leads where reference_code=$1", [one.confirmation.referenceCode])).rows[0];
+    const repeated = (await pool().query("select id, group_id, is_primary from leads where reference_code=$1", [two.confirmation.referenceCode])).rows[0];
+    expect(original.group_id).not.toBe(repeated.group_id);
+    expect(original.is_primary).toBe(true);
+    expect(repeated.is_primary).toBe(true);
+    expect((await pool().query("select sharing_limit, request_intake_pending, status from lead_groups where id=$1", [original.group_id])).rows[0]).toMatchObject({ sharing_limit: 3, request_intake_pending: false, status: "available" });
+    const eligibility = (await pool().query("select company_id, named_in_consent from lead_eligibility where group_id=$1", [original.group_id])).rows;
+    expect(Object.fromEntries(eligibility.map(r => [r.company_id, r.named_in_consent]))).toEqual({ [alpha]: true, [bravo]: true, [charlie]: true });
+    const check = (await pool().query("select result, reason from lead_validation_results where lead_id=$1 and check_type='duplicate_check'", [repeated.id])).rows[0];
+    expect(check.result).toBe("flag");
+    expect(check.reason).toContain(one.confirmation.referenceCode); // Admin-only evidence is retained.
+    expect(check.reason).toContain("Saved separately");
+    const confirmation = await getConfirmationByToken(two.manageToken);
+    expect(confirmation?.joinedReferenceCode).toBeNull();
+    expect(JSON.stringify(confirmation)).not.toContain(one.confirmation.referenceCode);
+    const messages = (await pool().query("select body_text from messages where related_id=$1", [repeated.id])).rows;
+    expect(JSON.stringify(messages)).not.toContain(one.confirmation.referenceCode);
+    const managed = await getRequestByToken(two.manageToken, { ip: `198.51.100.${80 + n}` });
+    expect(managed.ok && managed.value).toMatchObject({ joined: false, limit: 1, buyerCount: 0 });
+    expect(await withdrawRequest(two.manageToken, { ip: `198.51.100.${80 + n}` })).toMatchObject({ ok: true, alreadyWithdrawn: false, buyersNotified: 0 });
+    const stillOpen = await getRequestByToken(one.manageToken, { ip: `198.51.100.${90 + n}` });
+    expect(stillOpen.ok && stillOpen.value).toMatchObject({ status: "open", withdrawnAt: null, canWithdraw: true, limit: 3 });
+    expect((await pool().query("select withdrawn_at from leads where id=$1", [original.id])).rows[0].withdrawn_at).toBeNull();
+    expect((await pool().query("select count(*)::int n from consumer_contact_preferences where lead_id=$1", [original.id])).rows[0].n).toBe(0);
   });
 });
 
 describe("manage and withdraw", () => {
+  it.each(["primary", "secondary"] as const)("refuses a legacy combined group's %s token without changing its records", async tokenKind => {
+    const { input } = await draft({ email: `legacy-combined-${tokenKind}@example.com`, phone: tokenKind === "primary" ? "2145550173" : "2145550174" });
+    const submitted = await submitRequest(input, meta("198.51.100.73"));
+    expect(submitted.ok).toBe(true);
+    if (!submitted.ok) return;
+    const primary = (await pool().query("select id, group_id from leads where reference_code=$1", [submitted.confirmation.referenceCode])).rows[0];
+    const secondaryToken = newToken();
+    // Recreate stored legacy state. Current public intake can no longer join this group.
+    await pool().query(
+      `insert into leads (group_id, selected_limit, first_name, last_name, email, phone_e164, origin_zip, dest_zip,
+                          is_primary, status, move_date, move_date_flexible, move_size, channel_scope,
+                          origin_city, origin_state, dest_city, dest_state, email_hash, phone_hash, manage_token_hash)
+       select group_id, selected_limit, first_name, last_name, email, phone_e164, origin_zip, dest_zip,
+              false, status, move_date, move_date_flexible, move_size, channel_scope,
+              origin_city, origin_state, dest_city, dest_state, email_hash, phone_hash, $2
+       from leads where id=$1`,
+      [primary.id, sha256Hex(secondaryToken)],
+    );
+    const token = tokenKind === "primary" ? submitted.manageToken : secondaryToken;
+    const snapshot = async () => ({
+      group: (await pool().query("select id, status, sharing_limit, request_intake_pending from lead_groups where id=$1", [primary.group_id])).rows,
+      leads: (await pool().query("select id, is_primary, withdrawn_at from leads where group_id=$1 order by id", [primary.group_id])).rows,
+      preferences: (await pool().query("select id from consumer_contact_preferences where lead_id in (select id from leads where group_id=$1) order by id", [primary.group_id])).rows,
+      audit: (await pool().query("select id from audit_log where entity='lead_group' and entity_id=$1 order by id", [primary.group_id])).rows,
+      messages: (await pool().query("select id from messages where related_id=$1 or related_id in (select id from leads where group_id=$1) order by id", [primary.group_id])).rows,
+    });
+    const before = await snapshot();
+    expect(before.leads).toHaveLength(2);
+    expect(await getRequestByToken(token, { ip: "198.51.100.74" })).toEqual({ ok: false, reason: "not_found" });
+    expect(await getConfirmationByToken(token)).toBeNull();
+    expect(await withdrawRequest(token, { ip: "198.51.100.74" })).toEqual({ ok: false, reason: "not_found" });
+    expect(await snapshot()).toEqual(before);
+  });
+
   it("shows the request, blocks purchases after withdrawal and emails the buyers", async () => {
     const { input } = await draft({ limit: 2, email: "withdraw@example.com", phone: "2145550130" });
     const submitted = await submitRequest(input, meta("198.51.100.40"));
@@ -618,5 +670,65 @@ describe("quality helpers", () => {
     expect(sourceCategory({ referrerOrigin: "https://blog.example.org" }, own)).toBe("referral");
     expect(sourceCategory({ referrerOrigin: "http://localhost:3000" }, own)).toBe("direct");
     expect(sourceCategory({}, own)).toBe("direct");
+    expect(sourceCategory({ clickIds: { msclkid: "1234567890abcdef1234567890abcdef" } }, own)).toBe("paid_search");
+    expect(sourceCategory({ utmMedium: "cpc", utmSource: "facebook" }, own)).toBe("paid_social");
+    expect(sourceCategory({ clickIds: { fbclid: "FacebookClick_A12345" } }, own)).toBe("other");
+  });
+});
+
+describe("campaign attribution persistence", () => {
+  it("stores distinct first and last touches in the existing table without exposing click identifiers to consumers", async () => {
+    const { input } = await draft({ email: "campaign-first-last@example.com", phone: "2145550187" });
+    const result = await submitRequest({ ...input, attribution: {
+      first: { landingPath: "/planning/?email=private@example.com&originZip=75201", referrerOrigin: "https://www.google.com/search?q=private", utmSource: "google", utmMedium: "cpc", utmCampaign: "summer-first", utmTerm: "moving quotes", utmContent: "hero-A", clickIds: { gclid: "GoogleAdClick_A12345" }, device: "mobile" },
+      last: { landingPath: "/services/local/", referrerOrigin: "https://www.bing.com/search?q=private", utmSource: "bing", utmMedium: "cpc", utmCampaign: "summer-last", utmTerm: "local movers", utmContent: "text-B", clickIds: { msclkid: "1234567890abcdef1234567890abcdef" }, device: "desktop" },
+    } }, meta("198.51.100.171"));
+    expect(result.ok).toBe(true); if (!result.ok) return;
+    const lead = (await pool().query("select id, source_category from leads where reference_code = $1", [result.confirmation.referenceCode])).rows[0];
+    const touches = (await pool().query("select touch, landing_url, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, click_ids, device, source_category, evidence_level from attribution_touches where lead_id = $1 order by case touch when 'first' then 0 else 1 end", [lead.id])).rows;
+    expect(lead.source_category).toBe("paid_search");
+    expect(touches).toEqual([
+      { touch: "first", landing_url: `${env().WEB_URL}/planning/`, referrer: "https://www.google.com", utm_source: "google", utm_medium: "cpc", utm_campaign: "summer-first", utm_term: "moving quotes", utm_content: "hero-A", click_ids: { gclid: "GoogleAdClick_A12345" }, device: "mobile", source_category: "paid_search", evidence_level: "observed" },
+      { touch: "last", landing_url: `${env().WEB_URL}/services/local/`, referrer: "https://www.bing.com", utm_source: "bing", utm_medium: "cpc", utm_campaign: "summer-last", utm_term: "local movers", utm_content: "text-B", click_ids: { msclkid: "1234567890abcdef1234567890abcdef" }, device: "desktop", source_category: "paid_search", evidence_level: "observed" },
+    ]);
+    expect(JSON.stringify(touches)).not.toMatch(/private@|originZip|75201|search\?/u);
+    const consumerView = await getRequestByToken(result.manageToken, { ip: "198.51.100.172" });
+    expect(JSON.stringify([result, consumerView])).not.toMatch(/GoogleAdClick|1234567890abcdef1234567890abcdef|summer-first|summer-last/u);
+  });
+  it("does not reject a valid request because optional marketing metadata is malformed", async () => {
+    const { input } = await draft({ email: "campaign-invalid@example.com", phone: "2145550186" });
+    const result = await submitRequest({ ...input, attribution: { first: { utmSource: { wrong: true }, clickIds: "invalid" } } }, meta("198.51.100.173"));
+    expect(result.ok).toBe(true); if (!result.ok) return;
+    const touches = (await pool().query("select a.touch, a.evidence_level, a.click_ids from attribution_touches a join leads l on l.id = a.lead_id where l.reference_code = $1", [result.confirmation.referenceCode])).rows;
+    expect(touches).toHaveLength(2);
+    expect(touches.every(touch => touch.evidence_level === "unknown" && touch.click_ids === null)).toBe(true);
+  });
+});
+
+describe("public-form abuse controls", () => {
+  it("counts malformed quote attempts even when a trusted client IP is unavailable", async () => {
+    for (let i = 0; i < SUBMIT_RATE_LIMIT.limit; i++) {
+      expect((await submitRequest(null, meta(null))).ok).toBe(false);
+    }
+    const { input } = await draft({ email: "missing-ip-limited@example.com", phone: "2145550187" });
+    expect(await submitRequest(input, meta(null))).toEqual({ ok: false, kind: "rejected", reason: "rate_limited" });
+    expect((await pool().query("select count(*)::int as n from leads where email='missing-ip-limited@example.com'")).rows[0].n).toBe(0);
+  });
+  it("counts malformed ticket-preparation attempts instead of skipping the unknown-IP bucket", async () => {
+    for (let i = 0; i < COVERAGE_RATE_LIMIT.limit; i++) expect(await surveyCoverage(null, { ip: null })).toMatchObject({ ok: false, kind: "invalid" });
+    expect(await surveyCoverage(null, { ip: null })).toEqual({ ok: false, kind: "rate_limited" });
+  });
+  it("does not let changing IPv6 privacy suffixes reset quote submission limits", async () => {
+    const { input } = await draft({ email: "ipv6-limited@example.com", phone: "2145550188" });
+    for (let i = 1; i <= SUBMIT_RATE_LIMIT.limit; i++) await submitRequest({ ...input, website: "spam" }, meta(`2001:db8:abcd:1::${i}`));
+    expect(await submitRequest(input, meta("2001:db8:abcd:1::ffff"))).toEqual({ ok: false, kind: "rejected", reason: "rate_limited" });
+    expect((await submitRequest(input, meta("2001:db8:abcd:2::1"))).ok).toBe(true);
+  });
+  it("limits reuse of a harvested signed ticket across different networks", async () => {
+    const { input } = await draft({ email: "ticket-replay-limited@example.com", phone: "2145550189" });
+    for (let i = 0; i < TICKET_SUBMIT_RATE_LIMIT.limit; i++) expect((await submitRequest(input, meta(`192.0.2.${i + 10}`))).ok).toBe(true);
+    const before = (await pool().query("select count(*)::int as n from leads where email='ticket-replay-limited@example.com'")).rows[0].n;
+    expect(await submitRequest(input, meta("192.0.2.100"))).toEqual({ ok: false, kind: "rejected", reason: "rate_limited" });
+    expect((await pool().query("select count(*)::int as n from leads where email='ticket-replay-limited@example.com'")).rows[0].n).toBe(before);
   });
 });

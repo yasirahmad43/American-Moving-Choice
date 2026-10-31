@@ -5,7 +5,7 @@
  */
 import { CHANNEL_LABELS, MOVE_SIZE_LABELS, type Channel } from "@amc/core/src/survey";
 import type { MoveSize } from "@amc/core";
-import { Alert, Card, formatAbsoluteDate } from "@amc/ui";
+import { Card, formatAbsoluteDate } from "@amc/ui";
 import Link from "next/link";
 import type { Ref } from "react";
 import type { SurveyTexts } from "./texts";
@@ -50,13 +50,6 @@ export function ConfirmationView({
         </p>
         <p className="mt-2"><a href={manageUrl} className="inline-flex min-h-12 w-fit items-center rounded-control bg-brand-navy px-5 py-3 font-semibold text-white no-underline" rel="noreferrer">Manage your saved request</a></p>
       </header>
-
-      {c.joinedReferenceCode ? (
-        <Alert tone="info" title="We already had a request from you for this route">
-          This request joins your earlier request {c.joinedReferenceCode}. The lowest number of movers you chose applies, and movers that received your
-          contact details through the first request count toward it.
-        </Alert>
-      ) : null}
 
       <Card contentInset="card" as="section" title="Who can receive your request" titleAs="h2">
         <p className="mb-4 text-text">

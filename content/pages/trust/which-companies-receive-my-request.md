@@ -92,6 +92,10 @@ The secure request-management link on your confirmation lets you withdraw the re
 
 If you need help, use [Report a concern](/report-a-concern/) and include your request reference. Tell us the company name it gave you during contact, if available, and what happened. Avoid sending payment-card details or unrelated private documents.
 
+## Sending another request
+
+Each submission is saved as a separate request with its own reference, contact limit and private management link. Sending the same contact details or route again does not combine requests or change an earlier request. If you want to stop an earlier request, use its own private management link; withdrawing a newer request does not withdraw the earlier one.
+
 ## Example: a contact limit is a ceiling
 
 If you choose a maximum of two companies and only one contacts you, that is still within your choice. It is not a promise that a second company will call. Choosing one does not let you select a particular company by name.

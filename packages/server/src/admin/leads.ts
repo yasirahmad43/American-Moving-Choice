@@ -10,6 +10,7 @@ import { longDate, requestAvailableEmail, requestWithdrawnBuyerEmail } from "../
 import { env } from "../env/env";
 import { enqueueEmail } from "../outbox/outbox";
 import { AdminError, companyContactEmails, requireText, type AdminActor } from "./common";
+import type { AttributionClickKey } from "@amc/core";
 
 export type LeadStatus = "submitted" | "rejected" | "needs_review" | "qualified" | "unmatched";
 export const LEAD_STATUSES: readonly LeadStatus[] = ["submitted", "needs_review", "qualified", "unmatched", "rejected"];
@@ -121,7 +122,7 @@ export async function getLeadDetail(actor: AdminActor, leadId: string, db: Query
   const lead = found.rows[0];
   if (!lead) return null;
   const q = <R extends Record<string, unknown>>(text: string, values: unknown[]) => db.query<R>(text, values).then((r) => r.rows);
-  const [group, validation, consent, eligibility, purchases, siblings, messages, claims] = await Promise.all([
+  const [group, validation, consent, eligibility, purchases, siblings, messages, claims, attribution] = await Promise.all([
     q<{ id: string; sharing_limit: number; policy_version: string; status: GroupStatus; expires_at: Date; created_at: Date }>(
       "select id, sharing_limit, policy_version, status, expires_at, created_at from lead_groups where id = $1",
       [lead.group_id],
@@ -181,6 +182,11 @@ export async function getLeadDetail(actor: AdminActor, leadId: string, db: Query
       "select q.id, q.purchase_id, q.reason, q.status, q.created_at from lead_quality_claims q join purchases p on p.id = q.purchase_id where p.group_id = $1 order by q.created_at desc",
       [lead.group_id],
     ),
+    q<{ touch: "first" | "last"; landing_url: string | null; referrer: string | null; utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; utm_term: string | null; utm_content: string | null; click_ids: Partial<Record<AttributionClickKey, string>> | null; device: string | null; source_category: string; evidence_level: string; created_at: Date }>(
+      `select touch, landing_url, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, click_ids, device, source_category, evidence_level, created_at
+       from attribution_touches where lead_id = $1 order by case touch when 'first' then 0 else 1 end`,
+      [leadId],
+    ),
   ]);
   const namedIds = new Set(consent[0]?.named_company_ids ?? []);
   const allIds = [...(consent[0]?.named_company_ids ?? []), ...(consent[0]?.removed_company_ids ?? [])];
@@ -199,6 +205,7 @@ export async function getLeadDetail(actor: AdminActor, leadId: string, db: Query
     siblings,
     messages,
     claims,
+    attribution,
   };
 }
 

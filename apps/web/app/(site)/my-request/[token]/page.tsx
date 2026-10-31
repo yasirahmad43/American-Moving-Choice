@@ -68,8 +68,8 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
             title="We can't find this request"
             description="Open the full private management link shown when your request was saved. For your privacy, access can't be recovered from a reference number alone."
             action={
-              <LinkButton href="/get-quotes/" variant="secondary">
-                Start a quote request
+              <LinkButton href="/report-a-concern/" variant="secondary">
+                Get help with a request
               </LinkButton>
             }
           />
@@ -120,11 +120,6 @@ export default async function ManageRequestPage({ params }: { params: Promise<{ 
           <dt className="font-semibold text-text">Maximum movers who may contact you</dt>
           <dd className="tabular text-text-2">{r.limit}</dd>
         </dl>
-        {r.joined ? (
-          <p className="mt-4 type-small text-text-2">
-            You sent more than one request for this route, so they count as one. The lowest number you chose applies.
-          </p>
-        ) : null}
       </Card>
 
       {r.status !== "withdrawn" ? <Card contentInset="card" as="section" title="What happens next" titleAs="h2">
