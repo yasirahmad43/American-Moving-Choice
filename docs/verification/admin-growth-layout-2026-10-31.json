@@ -1,0 +1,72 @@
+{
+  "checkedAt": "2026-10-31T11:28:04.609Z",
+  "passed": true,
+  "actualComponent": true,
+  "actualAppShell": true,
+  "actualSharedCardAndButton": true,
+  "actualCompiledTailwindTheme": true,
+  "bundledFontsAndLogo": true,
+  "syntheticOfflineData": true,
+  "isolatedNewBrowser": true,
+  "noProductionSignIn": true,
+  "noLiveDatabase": true,
+  "noProviderCalls": true,
+  "noExternalRequests": true,
+  "noPostRequests": true,
+  "coverage": {
+    "widths": [
+      375,
+      390,
+      768,
+      1440
+    ],
+    "textSizesPercent": [
+      100,
+      200
+    ],
+    "states": [
+      "populated",
+      "long",
+      "zero",
+      "loading",
+      "unavailable",
+      "compact"
+    ],
+    "mainCases": 32,
+    "expandedDailyCases": 8,
+    "passed": 40,
+    "reducedMotion": true
+  },
+  "results": {
+    "maxDocumentOverflow": 0,
+    "containerOverflow": 0,
+    "textEdgeViolations": 0,
+    "clippedText": 0,
+    "overlaps": 0,
+    "animatedElements": 0,
+    "minimumCardPaddingPixels": 18
+  },
+  "sourceDigests": {
+    "apps/app/components/admin/growth/growth-dashboard.tsx": "7c31a247f16e609eb7a2b6cae69401a046dbd17a75caf711b7b5881dd52c8ae9",
+    "apps/app/components/admin/growth/growth.css": "e69329cd7bf5a2dc95af44eb4e61dad4e1676183425abd471403b1458257d195",
+    "apps/app/components/app-shell.tsx": "043e2c61e5da91703c664d6d0ecb11508c16821447ab5a0a159b048f844584ae",
+    "apps/app/components/app-shell.css": "0109dc0a6bf6daad33c3db4402549b81e3e23a810379966c239c63292e4f1e19",
+    "packages/ui/src/components/card.tsx": "c968001ecc34c11bd6d10456e8d444490f79140ae7087a8ffdfe154624b447e5",
+    "packages/ui/src/components/button.tsx": "6eb51ecd9aa67703502a376ffca0d05a2349425be20656a1f84f1244c21f53e9",
+    "packages/ui/src/components/wordmark.tsx": "c75aa6e69ab8b153ebf55d5a15c5b2b372835a6df66c7c44f02e286a39e43fc2",
+    "packages/ui/src/theme.css": "b8fd57db1f76e45db99693d8dc18efc451e2c0de6901ce81e8bc3d292fd5f071",
+    "packages/ui/src/tokens.css": "e4fa5e08a452fb79ddd2b2511d8919801fe7dadfa43895bc95a32da54228e39a"
+  },
+  "reportDigests": {
+    "results.json": "2feb772ba991bfeceb33e1ac5289105e30f2fd11458ce60dcd0a29645aa02c7e",
+    "daily-open-results.json": "37bc49c19c9aeaaaeaee4ed4d59db88a8dd17ca4b409aeca1ff11c85c3ae0a98",
+    "styles.css": "0b1edc936f1113ff29f0d4861902fad8c02980880551c2706f559ae512dcb460"
+  },
+  "screenshots": {
+    "phone": "screenshots/long-375-text100-viewport.png",
+    "desktop": "screenshots/long-1440-text100-viewport.png",
+    "text200Phone": "screenshots/long-375-text200.png",
+    "expandedText200Desktop": "screenshots/long-1440-text200-daily-open.png"
+  },
+  "scope": "The32-state matrix passed after metric, external-link and shell fixes. The only subsequent CSS change was the daily disclosure grid; its8 opened200-percent cases then passed. Rendered with synthetic hook state; navigation adapters are mocked. This is layout verification, not a deployed sign-in, live-provider or business-metrics check."
+}
