@@ -6,6 +6,7 @@ export * from "./content";
 export * from "./content-media";
 export * from "./coverage";
 export * from "./finance";
+export * from "./growth";
 export * from "./leads";
 export * from "./overview";
 export * from "./platform";
