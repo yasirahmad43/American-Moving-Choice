@@ -1,7 +1,7 @@
 /** Provider transport stays server-side and never exposes provider payloads or errors. */
 export class ReportingFailure extends Error {
   constructor(
-    readonly status: "access_denied" | "unavailable",
+    readonly status: "not_configured" | "access_denied" | "unavailable",
     readonly retryAfterMs?: number,
     readonly httpStatus?: number,
   ) {
@@ -13,6 +13,7 @@ export class ReportingFailure extends Error {
 const HOSTS = new Set([
   "oauth2.googleapis.com", "analyticsdata.googleapis.com", "www.googleapis.com",
   "tagmanager.googleapis.com", "www.bing.com",
+  "sts.googleapis.com", "iamcredentials.googleapis.com",
 ]);
 const MAX_BYTES = 262_144;
 const TIMEOUT_MS = 5_000;

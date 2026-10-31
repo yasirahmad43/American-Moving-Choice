@@ -61,8 +61,10 @@ export interface ReportingSnapshot {
 /** Server-only configuration; never include this object in a rendered response. */
 export interface ReportingConfiguration {
   WEB_URL: string;
+  APP_URL?: string;
   GOOGLE_REPORTING_CLIENT_EMAIL?: string;
   GOOGLE_REPORTING_PRIVATE_KEY?: string;
+  GOOGLE_REPORTING_WORKLOAD_IDENTITY_AUDIENCE?: string;
   GOOGLE_REPORTING_PROPERTY_ID?: string;
   GOOGLE_REPORTING_GTM_ACCOUNT_ID?: string;
   GOOGLE_REPORTING_GTM_CONTAINER_ID?: string;
@@ -76,4 +78,7 @@ export interface ReportingConfiguration {
 export interface ReportingDependencies {
   fetch?: typeof globalThis.fetch;
   now?: () => number;
+  /** Production's encrypted, row-locked credential store; omitted by legacy env-only fixtures. */
+  bingAccessToken?: () => Promise<string>;
+  bingInvalidateAccessToken?: () => Promise<void>;
 }

@@ -2,12 +2,8 @@ import { createPrivateKey, sign, type KeyObject } from "node:crypto";
 import type { ReportResult } from "./cache";
 import { count, dateTime, publicProviderUrl, readReportingJson, record, reportingSiteUrl, ReportingFailure } from "./http";
 import { REPORTING_EVENTS, type Ga4ReportingData, type ReportingConfiguration, type ReportingEvent, type SearchConsoleReportingData, type TagManagerReportingData } from "./types";
-
-export const GOOGLE_REPORTING_SCOPES = [
-  "https://www.googleapis.com/auth/analytics.readonly",
-  "https://www.googleapis.com/auth/webmasters.readonly",
-  "https://www.googleapis.com/auth/tagmanager.readonly",
-] as const;
+import { exchangeGoogleFederation, GOOGLE_REPORTING_SCOPES, normalizeGoogleFederationAudience, type GoogleSubjectTokenSupplier } from "./google-federation";
+export { GOOGLE_REPORTING_SCOPES } from "./google-federation";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const isNumericId = (value: string): boolean => /^\d{1,20}$/.test(value);
 const wholeCount = (value: unknown): number => {
@@ -17,7 +13,8 @@ const wholeCount = (value: unknown): number => {
 };
 
 export function hasGoogleCredentials(config: ReportingConfiguration): boolean {
-  return Boolean(config.GOOGLE_REPORTING_CLIENT_EMAIL?.trim() && config.GOOGLE_REPORTING_PRIVATE_KEY?.trim());
+  return Boolean(config.GOOGLE_REPORTING_CLIENT_EMAIL?.trim() &&
+    (config.GOOGLE_REPORTING_PRIVATE_KEY?.trim() || normalizeGoogleFederationAudience(config.GOOGLE_REPORTING_WORKLOAD_IDENTITY_AUDIENCE)));
 }
 
 class GoogleReadClient {
@@ -29,6 +26,7 @@ class GoogleReadClient {
     private readonly config: ReportingConfiguration,
     private readonly fetcher: typeof globalThis.fetch,
     private readonly now: () => number,
+    private readonly subjectTokenSupplier?: GoogleSubjectTokenSupplier,
   ) {}
 
   private async accessToken(): Promise<string> {
@@ -39,6 +37,11 @@ class GoogleReadClient {
 
   private async exchange(): Promise<string> {
     try {
+      // Configured federation is authoritative. A failure must never fall back to a private key.
+      if (this.config.GOOGLE_REPORTING_WORKLOAD_IDENTITY_AUDIENCE?.trim()) {
+        this.token = await exchangeGoogleFederation(this.config, { fetch: this.fetcher, now: this.now, subjectTokenSupplier: this.subjectTokenSupplier });
+        return this.token.value;
+      }
       const email = this.config.GOOGLE_REPORTING_CLIENT_EMAIL ?? "";
       if (!/^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\.iam\.gserviceaccount\.com$/.test(email)) throw new ReportingFailure("access_denied");
       this.key ??= createPrivateKey((this.config.GOOGLE_REPORTING_PRIVATE_KEY ?? "").replaceAll("\\n", "\n"));
@@ -111,13 +114,13 @@ function shiftDate(date: string, days: number): string {
 
 export function createGoogleReporters(
   config: ReportingConfiguration,
-  dependencies: { fetch: typeof globalThis.fetch; now: () => number },
+  dependencies: { fetch: typeof globalThis.fetch; now: () => number; subjectTokenSupplier?: GoogleSubjectTokenSupplier },
 ): {
   ga4: () => Promise<ReportResult<Ga4ReportingData>>;
   searchConsole: () => Promise<ReportResult<SearchConsoleReportingData>>;
   tagManager: () => Promise<ReportResult<TagManagerReportingData>>;
 } {
-  const client = new GoogleReadClient(config, dependencies.fetch, dependencies.now);
+  const client = new GoogleReadClient(config, dependencies.fetch, dependencies.now, dependencies.subjectTokenSupplier);
   const site = (): string => reportingSiteUrl(config.WEB_URL);
   const searchSite = (): string => {
     const configured = config.GOOGLE_REPORTING_SITE_URL;

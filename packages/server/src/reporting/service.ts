@@ -1,5 +1,5 @@
-import { createBingReporter, hasBingCredentials } from "./bing";
-import { notConfigured, providerCache } from "./cache";
+import { createBingReporter, hasBingAppCredentials, hasBingCredentials } from "./bing";
+import { bingReportingCacheEpoch, notConfigured, providerCache } from "./cache";
 import { createGoogleReporters, hasGoogleCredentials } from "./google";
 import type { BingReportingData, Ga4ReportingData, ReportingConfiguration, ReportingDependencies, ReportingSnapshot, SearchConsoleReportingData, TagManagerReportingData } from "./types";
 
@@ -15,8 +15,8 @@ export function createReportingService(
   const ga4 = configuredGoogle ? providerCache(30_000, now, google.ga4) : async () => notConfigured<Ga4ReportingData>();
   const searchConsole = configuredGoogle ? providerCache(1_800_000, now, google.searchConsole) : async () => notConfigured<SearchConsoleReportingData>();
   const tagManager = configuredGoogle ? providerCache(300_000, now, google.tagManager) : async () => notConfigured<TagManagerReportingData>();
-  const bing = hasBingCredentials(config)
-    ? providerCache(21_600_000, now, createBingReporter(config, { fetch: fetcher, now }))
+  const bing = hasBingCredentials(config) || (hasBingAppCredentials(config) && dependencies.bingAccessToken)
+    ? providerCache(21_600_000, now, createBingReporter(config, { fetch: fetcher, now, accessToken: dependencies.bingAccessToken, invalidateAccessToken: dependencies.bingInvalidateAccessToken }), bingReportingCacheEpoch)
     : async () => notConfigured<BingReportingData>();
 
   return async () => {
