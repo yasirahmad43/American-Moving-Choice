@@ -92,6 +92,17 @@ export default function PrivacyPage() {
         The quote survey and its confirmation page load no advertising, retargeting or social-media tags, no chat widgets and no session recording.{" "}
         <Note kind="build">script allowlist per survey step checked in CI (site architecture §8.8)</Note>
       </p>
+      <h2>Optional measurement and campaign cookies</h2>
+      <p>
+        If you allow optional measurement, Google Analytics and Google Tag Manager help us measure public page views and survey progress and completion.
+        Our measurement events exclude your contact details, moving answers and private request-management links. You can change your choice using
+        Analytics choices in the footer. You can submit a moving request without enabling optional measurement.
+      </p>
+      <p>
+        With that permission, first-party campaign cookies retain the public landing page, referrer origin, campaign labels and ad click identifiers.
+        These source records can accompany a saved moving request for authorized admin review. They are not included in our analytics events or
+        supplied to moving companies as part of the request.
+      </p>
     </PageFrame>
   );
 }

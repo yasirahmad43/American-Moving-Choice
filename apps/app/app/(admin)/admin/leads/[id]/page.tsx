@@ -112,6 +112,26 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         </Card>
       </div>
 
+      <Card title="Campaign attribution" titleAs="h2" description="First touch and latest non-direct touch, recorded with the request. Missing or declined measurement appears as unknown evidence. Click identifiers stay in this authenticated admin view.">
+        {detail.attribution.length ? <div className="grid gap-6 lg:grid-cols-2">{detail.attribution.map(touch => <section key={touch.touch} className="min-w-0 rounded-control border border-border p-4">
+          <h3 className="mb-3 type-h4">{touch.touch === "first" ? "First touch" : "Last non-direct touch"}</h3>
+          <Facts items={[
+            { label: "Source category", value: humanize(touch.source_category) },
+            { label: "Evidence", value: humanize(touch.evidence_level) },
+            { label: "Landing page", value: touch.landing_url },
+            { label: "Referrer origin", value: touch.referrer },
+            { label: "UTM source", value: touch.utm_source },
+            { label: "UTM medium", value: touch.utm_medium },
+            { label: "UTM campaign", value: touch.utm_campaign },
+            { label: "UTM term", value: touch.utm_term },
+            { label: "UTM content", value: touch.utm_content },
+            { label: "Device class", value: touch.device },
+            { label: "Recorded", value: <When value={touch.created_at} /> },
+          ]} />
+          {touch.click_ids && Object.keys(touch.click_ids).length ? <details className="mt-4"><summary className="min-h-11 cursor-pointer font-semibold">Ad click identifiers · admin only</summary><div className="pt-3"><Facts items={Object.entries(touch.click_ids).map(([key, value]) => ({ label: key, value: <Mono>{value}</Mono> }))} /></div></details> : null}
+        </section>)}</div> : <p className="text-text-2">No campaign attribution was recorded for this request.</p>}
+      </Card>
+
       <Table sortable
         caption="Validation results"
         compact

@@ -2,6 +2,8 @@
 
 import { HOUSEHOLD_REQUEST_STEP_COUNT, MOVE_SIZE_LABELS, PREFILL_STORAGE_KEY, SURVEY_MOVE_SIZES, addMonths, cleanZip, isSurveyMoveSize, parseWhen } from "@amc/core/src/survey";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { trackSurveyStart, trackSurveyStep } from "@/lib/analytics/runtime";
+import { captureCampaignAttribution } from "@/lib/attribution";
 
 type Errors = { originZip?: string; destZip?: string; moveSize?: string; moveDate?: string };
 export interface HeroSurveyStartProps {
@@ -58,6 +60,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    captureCampaignAttribution();
     if (step === 0) {
       const next: Errors = {};
       if (!/^\d{5}$/.test(originZip)) next.originZip = "Enter the 5-digit ZIP code you're moving from.";
@@ -69,6 +72,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
         return;
       }
       setAnnouncement(`Step 2 of ${HOUSEHOLD_REQUEST_STEP_COUNT}. Your move details.`);
+      trackSurveyStep("date", "starter");
       stepChanged.current = true;
       setStep(1);
       return;
@@ -102,7 +106,7 @@ export function HeroSurveyStart({ originExample, destinationExample, contextLabe
   const error = (key: keyof Errors) => errors[key] ? <p id={`${id}-${key}-error`} className="vsh-start__error">{errors[key]}</p> : null;
   return (
     // The server-rendered first step has no named inputs: without JS it opens a clean survey URL.
-    <form className="vsh-start" data-vsh-starter="quote" data-ready={ready || undefined} action={PATH} method="get" noValidate onSubmit={submit} aria-labelledby={`${id}-heading`}>
+    <form onFocusCapture={() => { trackSurveyStart("starter"); trackSurveyStep(step === 0 ? "route" : "date", "starter"); }} className="vsh-start" data-vsh-starter="quote" data-ready={ready || undefined} action={PATH} method="get" noValidate onSubmit={submit} aria-labelledby={`${id}-heading`}>
       <div className="vsh-start__topline" data-content-inset="compact"><span className="vsh-start__progress"><span>{labels.topline ?? "Let's get you moving"}</span><strong>Step {step + 1} of {HOUSEHOLD_REQUEST_STEP_COUNT}</strong></span><span className="vsh-start__free"><span aria-hidden="true">✓</span> Free to request</span></div>
       <ol className="vsh-start__steps" aria-label="Start your move">
         <li aria-current={step === 0 ? "step" : undefined} data-complete={step === 1 || undefined}><span aria-hidden="true">{step === 1 ? "✓" : "01"}</span> Your route</li>

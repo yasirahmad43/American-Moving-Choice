@@ -7,7 +7,7 @@
  */
 import type pg from "pg";
 import { audit } from "../audit/audit";
-import { checkRateLimit, rateLimitKey } from "../auth/rate-limit";
+import { publicFormRateLimit } from "../public-forms/guards";
 import { getPool, tx } from "../db/pool";
 import { parseCarrierNumber, type ConcernInput } from "./schema";
 
@@ -73,8 +73,8 @@ export async function createConcernCase(
 
 /** Counts one report attempt for this IP. Missing IPs share one bucket so they can't bypass the limit. */
 export async function concernRateLimit(ip: string | null): Promise<{ allowed: boolean }> {
-  const result = await checkRateLimit(
-    rateLimitKey("concern:ip", ip ?? "unknown"),
+  const result = await publicFormRateLimit(
+    "concern:ip", ip,
     CONCERN_RATE_LIMIT.limit,
     CONCERN_RATE_LIMIT.windowSeconds,
   );

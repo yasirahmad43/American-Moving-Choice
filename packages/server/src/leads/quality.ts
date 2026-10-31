@@ -3,7 +3,7 @@
  * signed elapsed time, the risk score, source attribution and the validation-result rows.
  * Pure, so tests import it directly.
  */
-import { hmacHex, safeEqual } from "../auth/tokens";
+import { hmacHex, newToken, safeEqual } from "../auth/tokens";
 
 // ------------------------------------------------------------------ survey ticket (minimum completion time)
 
@@ -18,16 +18,20 @@ export const TICKET_MAX_AGE_SECONDS = 6 * 60 * 60;
 
 export function issueSurveyTicket(secret: string, now: number = Date.now()): string {
   const issued = String(Math.floor(now));
-  return `${issued}.${hmacHex(secret, `survey-ticket\u0000${issued}`).slice(0, 32)}`;
+  // Different visitors starting in the same millisecond must not share a replay counter.
+  const payload = `${issued}.${newToken()}`;
+  return `${payload}.${hmacHex(secret, `survey-ticket\u0000${payload}`).slice(0, 32)}`;
 }
 
 export type TicketCheck = { ok: true; elapsedSeconds: number } | { ok: false; reason: "invalid" | "too_fast" | "expired" };
 
 export function checkSurveyTicket(secret: string, ticket: string, now: number = Date.now(), minimumSeconds: 0 | typeof MIN_COMPLETION_SECONDS = MIN_COMPLETION_SECONDS): TicketCheck {
-  const match = /^(\d{13})\.([0-9a-f]{32})$/.exec(ticket);
+  // Accept still-valid tickets from an older deployment during the six-hour transition.
+  const match = /^(\d{13})(?:\.([A-Za-z0-9_-]{43}))?\.([0-9a-f]{32})$/.exec(ticket);
   if (!match) return { ok: false, reason: "invalid" };
-  const [, issued, mac] = match as unknown as [string, string, string];
-  if (!safeEqual(mac, hmacHex(secret, `survey-ticket\u0000${issued}`).slice(0, 32))) return { ok: false, reason: "invalid" };
+  const [, issued, nonce, mac] = match;
+  const payload = nonce ? `${issued}.${nonce}` : issued!;
+  if (!safeEqual(mac!, hmacHex(secret, `survey-ticket\u0000${payload}`).slice(0, 32))) return { ok: false, reason: "invalid" };
   const elapsedSeconds = (now - Number(issued)) / 1000;
   if (elapsedSeconds < 0) return { ok: false, reason: "invalid" };
   if (elapsedSeconds < minimumSeconds) return { ok: false, reason: "too_fast" };
@@ -83,13 +87,7 @@ export function riskScore(input: RiskInput): RiskResult {
 
 export type SourceCategory = "organic_search" | "paid_search" | "paid_social" | "referral" | "direct" | "other";
 
-export interface AttributionInput {
-  /** Origin of document.referrer when the survey loaded (no path or query). */
-  referrerOrigin?: string | null;
-  utmSource?: string | null;
-  utmMedium?: string | null;
-  utmCampaign?: string | null;
-}
+export type AttributionInput = import("@amc/core").AttributionTouch;
 
 const SEARCH_HOSTS = /(^|\.)(google|bing|duckduckgo|yahoo|ecosia|baidu|yandex|search\.brave)\./i;
 const SOCIAL_HOSTS = /(^|\.)(facebook|instagram|tiktok|pinterest|reddit|linkedin|x|twitter|snapchat|youtube)\.com$/i;
@@ -98,7 +96,9 @@ const SOCIAL_HOSTS = /(^|\.)(facebook|instagram|tiktok|pinterest|reddit|linkedin
 export function sourceCategory(input: AttributionInput, ownOrigins: readonly string[]): SourceCategory {
   const medium = (input.utmMedium ?? "").toLowerCase();
   const source = (input.utmSource ?? "").toLowerCase();
+  if ((/^(paid_social|paidsocial|social_paid|cpm)$/u.test(medium) || /^(paid|cpc|ppc)$/u.test(medium) && /^(facebook|instagram|tiktok|pinterest|reddit|linkedin|x|twitter|snapchat|youtube)(?:\.com)?$/u.test(source))) return "paid_social";
   if (/^(cpc|ppc|paid_search|paidsearch|sem)$/.test(medium)) return "paid_search";
+  if (input.clickIds?.gclid || input.clickIds?.gbraid || input.clickIds?.wbraid || input.clickIds?.msclkid) return "paid_search";
   if (/^(paid_social|paidsocial|social_paid|cpm)$/.test(medium) || (medium === "paid" && SOCIAL_HOSTS.test(`${source}.com`))) return "paid_social";
   if (medium === "referral" || medium === "affiliate") return "referral";
   let host = "";
@@ -107,7 +107,7 @@ export function sourceCategory(input: AttributionInput, ownOrigins: readonly str
   } catch {
     host = "";
   }
-  if (!host || ownOrigins.some((origin) => safeHost(origin) === host)) return input.utmSource ? "other" : "direct";
+  if (!host || ownOrigins.some((origin) => safeHost(origin) === host)) return input.utmSource || input.utmMedium || input.utmCampaign || input.utmTerm || input.utmContent || input.clickIds?.fbclid ? "other" : "direct";
   if (SEARCH_HOSTS.test(`${host}.`)) return "organic_search";
   return "referral";
 }

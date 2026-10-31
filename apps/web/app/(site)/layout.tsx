@@ -1,7 +1,8 @@
 import "@/components/site/prose.css";
 import "@/components/site/compact-layout.css";
 import { env } from "@amc/server/env";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
+import { AnalyticsController } from "@/components/analytics/analytics-controller";
 import { SiteChrome } from "@/components/site-chrome";
 import { JsonLd, organizationId } from "@/components/site/json-ld";
 import { PUBLIC_ROLE_STATEMENT } from "@/lib/public-copy";
@@ -14,10 +15,11 @@ import { token } from "@/lib/content/pages";
  * omit address, contact points and sameAs until the owner supplies real ones.
  */
 export default function SiteLayout({ children }: { children: ReactNode }) {
-  const { WEB_URL } = env();
+  const { WEB_URL, ANALYTICS_ENABLED, GTM_CONTAINER_ID } = env();
   const legalName = token("org.legal_name");
   return (
     <SiteChrome>
+      <Suspense fallback={null}><AnalyticsController enabled={ANALYTICS_ENABLED} containerId={GTM_CONTAINER_ID} origin={WEB_URL} /></Suspense>
       <JsonLd
         data={{
           "@context": "https://schema.org",

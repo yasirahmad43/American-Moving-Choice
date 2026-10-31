@@ -81,6 +81,16 @@ export const envSchema = z.object({
   /** Explicit demo-owner preference; ignored whenever DEMO_MODE is false. */
   DEMO_ADMIN_PASSWORD_ONLY: flag(false),
   SITE_INDEXABLE: flag(false),
+  /** Only enable on direct Vercel production traffic; US/PK plus scoped verified crawler reads. */
+  COUNTRY_ACCESS_ENABLED: flag(false),
+  /** Public measurement is optional, opt-in per visitor, and uses one GTM container. */
+  ANALYTICS_ENABLED: flag(false),
+  /** Free invisible Basic checks for public request/report submissions on Vercel. */
+  BOT_PROTECTION_ENABLED: flag(false),
+  GTM_CONTAINER_ID: z.preprocess(blankToUndefined, z.string().trim().regex(/^GTM-[A-Z0-9]{4,16}$/, "must be a GTM container ID").optional()),
+  GOOGLE_SITE_VERIFICATION: optionalString,
+  BING_SITE_VERIFICATION: optionalString,
+  INDEXNOW_KEY: z.preprocess(blankToUndefined, z.string().trim().regex(/^[A-Za-z0-9-]{8,128}$/, "must contain 8–128 letters, digits or hyphens").optional()),
 
   // Claude manuscript generation is private and opt-in; no public request can turn it on.
   ANTHROPIC_API_KEY: optionalString,

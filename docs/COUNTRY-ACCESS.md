@@ -1,0 +1,25 @@
+# Country access and public crawler reads
+
+`COUNTRY_ACCESS_ENABLED` defaults to `false` for local work. When enabled, both Next.js 16 Node proxies enforce visitor IP countries `US` and `PK` before page rendering and cached content. Unknown countries fail closed for ordinary visitors. The flag applies across deployment aliases, not just the canonical domain. The private app retains its existing login redirect, session handling and server authorization checks.
+
+This feature relies on direct Vercel deployment metadata: `process.env.VERCEL=1`, `x-vercel-ip-country` and Vercel's client IP headers. A request cannot establish platform trust using its own header. Generic country/IP headers, cookies and query parameters are ignored. Do not put an unverified reverse proxy in front of the deployment: Vercel may see that proxy's location. A VPN also changes the observed egress country; IP geography is not a claim about a person's physical location.
+
+The public web exception is narrowly scoped to `GET`/`HEAD`, positive public content paths, and a matching pair of official CIDR range plus the corresponding bot user agent. It covers Google common crawlers/InspectionTool, Google-controlled Site Verifier, Bingbot, OAI-SearchBot, ChatGPT-User, PerplexityBot and Perplexity-User. It never allows a user-agent-only exception. It excludes API, auth, account, private/token/confirmation paths, encoded paths and filtered/query URLs. Bare complaints/report/verification landing pages contain public guidance or an empty form and remain crawlable; their POST actions and query-bearing URLs receive no exception. There are no crawler exceptions on the private app.
+
+On the private app, only exact registered cron `GET` paths with the actual `Bearer CRON_SECRET` can bypass country access. An exact `POST /api/webhooks/stripe` may reach the existing raw-body Stripe signature verifier globally; this grants no page or customer-data access. Invalid signatures still fail in the handler. Vercel's exact `/.well-known/vercel/security` namespace remains platform-handled for BotID. The public web proxy also preserves the installed SDK's exact `/149e9513-01fa-4fb0-aad4-566afd725d1b/2d206a39-8ed7-437e-a3be-862e0f06eea3` security-service prefix, confirmed live by the release owner. Neither is a general UUID or `.well-known` bypass; SDK upgrades must recheck their actual reserved routing.
+
+Denied requests return generic HTTP 403 with `Cache-Control: private, no-store, max-age=0`, CDN no-store directives and noindex. They set no session cookie. Allowed content is unchanged and gets no country-specific cached representation. Security decisions perform no database query, reverse DNS or network request.
+
+The committed `packages/server/data/access/crawler-ranges.json` contains source URLs, primary documentation, fetch/publication dates, digests, counts and exact canonical IPv4/IPv6 CIDRs. No ranges are broadened or aggregated. The bounded refresh tool fetches seven fixed official HTTPS endpoints and Vercel's public OpenAPI schema; it rejects redirects, malformed/private CIDRs, oversize responses and rules exceeding current schema limits. It prepares an auditable snapshot and a **draft** public-web WAF policy. It never writes platform configuration.
+
+Manual refresh from the repository root:
+
+```powershell
+& '<python-executable>' -B tools/build-crawler-policy.py --out work/security/crawler-policy-YYYY-MM-DD --bundle
+```
+
+Use a new output directory each time. Review source/count/digest changes and run the focused access/proxy tests before releasing the refreshed committed bundle. There is no scheduled refresh job and no new service charge. Without refresh, newly published provider addresses may be denied; existing exact ranges stay enforced. The WAF draft must never be applied to the private app, and its `ninc` missing-country behavior must be checked independently. The application gate handles missing countries explicitly.
+
+Before enabling production, verify allowed US/PK browser access, denied foreign/unknown access, fake bot user agents, spoofed alternate headers, authenticated cron, Stripe signature rejection and search verification/crawl access. In particular, test an incoming forged country header against the deployed Vercel edge; unit tests cannot establish a cloud edge's header behavior. Rollback is the opt-in flag, without removing existing Vercel firewall protections.
+
+Primary references: [Vercel geolocation headers](https://vercel.com/kb/guide/geo-ip-headers-geolocation-vercel-functions), [Vercel request header trust](https://vercel.com/docs/headers/request-headers), [Next.js 16 proxy runtime](https://nextjs.org/docs/app/guides/upgrading/version-16#middleware-to-proxy), [Google crawler verification](https://developers.google.com/crawling/docs/crawlers-fetchers/verify-google-requests), [OpenAI crawler IPs](https://developers.openai.com/api/docs/bots), [Perplexity crawler IPs](https://docs.perplexity.ai/docs/resources/perplexity-crawlers).

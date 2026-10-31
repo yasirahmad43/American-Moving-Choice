@@ -43,6 +43,8 @@ jobs:
         run: pnpm test
       - name: Offline content spending and replay tests
         run: node --test tools/claude-content/runner.test.mjs
+      - name: Official crawler range validation tests
+        run: python tools/test-build-crawler-policy.py
       - name: Public content, media and presentation tests
         run: pnpm test:content
       - name: Build both apps

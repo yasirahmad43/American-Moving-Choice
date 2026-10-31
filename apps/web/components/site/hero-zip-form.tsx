@@ -4,11 +4,13 @@
  * Home hero survey entry (VD §13.1; implications §2.1, §8.2): only the From and To ZIP fields and
  * the CTA. On submit the ZIPs go to sessionStorage (amc.survey.prefill) and the visitor moves to
  * /get-quotes/ with no query string: ZIP codes never go in URLs (site architecture §8.8). Nothing is
- * sent to the server or to analytics from this form.
+ * sent to the server or analytics from this form; optional funnel events contain no answers.
  */
 import { Button, FieldError } from "@amc/ui";
 import { useRouter } from "next/navigation";
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { trackSurveyStart, trackSurveyStep } from "@/lib/analytics/runtime";
+import { captureCampaignAttribution } from "@/lib/attribution";
 
 export const PREFILL_STORAGE_KEY = "amc.survey.prefill";
 const GET_QUOTES_PATH = "/get-quotes/";
@@ -38,6 +40,7 @@ export function HeroZipForm({ moneyLine }: { moneyLine: ReactNode }) {
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    captureCampaignAttribution();
     const next: Errors = { from: zipError(fromZip, "from"), to: zipError(toZip, "to") };
     setErrors(next);
     const count = Number(Boolean(next.from)) + Number(Boolean(next.to));
@@ -62,7 +65,7 @@ export function HeroZipForm({ moneyLine }: { moneyLine: ReactNode }) {
   return (
     // The inputs carry no name, so even a submit without JavaScript sends no ZIP code anywhere: it
     // simply opens the survey (action), which asks for both ZIPs again.
-    <form action={GET_QUOTES_PATH} method="get" noValidate onSubmit={onSubmit} aria-labelledby={`${id}-title`} className="grid gap-5">
+    <form onFocusCapture={() => { trackSurveyStart("hero_zip"); trackSurveyStep("route", "hero_zip"); }} action={GET_QUOTES_PATH} method="get" noValidate onSubmit={onSubmit} aria-labelledby={`${id}-title`} className="grid gap-5">
       <h2 id={`${id}-title`} className="type-h3 text-text">
         Where are you moving?
       </h2>

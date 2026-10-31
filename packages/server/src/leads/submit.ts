@@ -5,7 +5,7 @@
  * validation results, consent record and eligibility snapshot are written in one transaction;
  * the emails are enqueued after it commits.
  */
-import type { MoveSize, Service } from "@amc/core";
+import { hasCampaign, normalizeAttributionPayload, type MoveSize, type Service } from "@amc/core";
 import {
   AB_VARIANT_NONE,
   SURVEY_FORM_VERSION,
@@ -30,6 +30,7 @@ import {
 } from "@amc/core/src/survey";
 import { audit } from "../audit/audit";
 import { checkRateLimit, rateLimitKey } from "../auth/rate-limit";
+import { publicFormRateLimit } from "../public-forms/guards";
 import { newToken, sha256Hex } from "../auth/tokens";
 import { contactHash } from "../contact/contact-hash";
 import { getPool, isUniqueViolation, tx, type Queryable } from "../db/pool";
@@ -42,7 +43,7 @@ import {
   RISK_REVIEW_THRESHOLD,
   MIN_COMPLETION_SECONDS,
   checkSurveyTicket,
-  cleanUtm,
+  TICKET_MAX_AGE_SECONDS,
   riskScore,
   sourceCategory,
   type ValidationRow,
@@ -55,6 +56,8 @@ export const PRIVACY_VERSION = "privacy-draft-v0";
 
 /** Survey submissions per IP address per hour (build plan §6). */
 export const SUBMIT_RATE_LIMIT = { limit: 10, windowSeconds: 60 * 60 } as const;
+/** Prevent a harvested signed ticket from authorizing unlimited requests across rotating IPs. */
+export const TICKET_SUBMIT_RATE_LIMIT = { limit: 10, windowSeconds: TICKET_MAX_AGE_SECONDS } as const;
 
 export interface SubmitMeta {
   ip: string | null;
@@ -74,7 +77,7 @@ export interface ConfirmationMover {
 
 export interface Confirmation {
   referenceCode: string;
-  /** The group's maximum: the lowest number chosen across repeat requests. */
+  /** The maximum chosen for this independent request. */
   limit: number;
   /** Legacy shape retained for compatibility; new consumer responses carry no company identities. */
   movers: ConfirmationMover[];
@@ -83,7 +86,7 @@ export interface Confirmation {
   moveDateFlexible: boolean;
   moveSize: MoveSize;
   channels: Channel[];
-  /** The earlier request this one joined (duplicate within duplicate_window_days), if any. */
+  /** Legacy response shape; public submissions never join or disclose an earlier request. */
   joinedReferenceCode: string | null;
 }
 
@@ -128,6 +131,8 @@ interface Recipient {
 }
 
 export async function submitRequest(raw: unknown, meta: SubmitMeta, options: EnqueueOptions = {}): Promise<SubmitResult> {
+  const network = await publicFormRateLimit("survey:submit:ip", meta.ip, SUBMIT_RATE_LIMIT.limit, SUBMIT_RATE_LIMIT.windowSeconds);
+  if (!network.allowed) return { ok: false, kind: "rejected", reason: "rate_limited" };
   const parsed = submissionSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, kind: "invalid", errors: { form: "Something in the form didn't come through. Check your answers and try again." } };
   const input: SubmissionInput = parsed.data;
@@ -135,10 +140,6 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const pool = getPool();
 
   // ---------------------------------------------------------------- bot defenses
-  if (meta.ip) {
-    const limit = await checkRateLimit(rateLimitKey("survey:submit:ip", meta.ip), SUBMIT_RATE_LIMIT.limit, SUBMIT_RATE_LIMIT.windowSeconds);
-    if (!limit.allowed) return { ok: false, kind: "rejected", reason: "rate_limited" };
-  }
   if (input.website.trim() !== "") return { ok: false, kind: "rejected", reason: "automated" };
   // A fast autofilled compact request still needs a valid signed ticket and full active-notice
   // validation below. Speed alone is a quality flag, never a reason to discard that request.
@@ -211,6 +212,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const renderedSha = consentTextSha256(renderedText);
   if (renderedSha !== input.renderedTextSha256) return changed();
 
+  const ticketLimit = await checkRateLimit(rateLimitKey("survey:submit:ticket", input.ticket), TICKET_SUBMIT_RATE_LIMIT.limit, TICKET_SUBMIT_RATE_LIMIT.windowSeconds);
+  if (!ticketLimit.allowed) return { ok: false, kind: "rejected", reason: "rate_limited" };
+
   // ---------------------------------------------------------------- quality and risk
   const { email, phone, firstName, lastName } = details.value;
   const emailHash = contactHash("email", email)!;
@@ -231,7 +235,9 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   const riskRequiresReview = risk.score >= RISK_REVIEW_THRESHOLD;
   const status = named.length === 0 ? "unmatched" : riskRequiresReview ? "needs_review" : "qualified";
   const disclosureMode = intake ? "request_intake" : "contact_introduction";
-  const source = sourceCategory(input.attribution, ownOrigins());
+  const attribution = normalizeAttributionPayload(input.attribution, ownOrigins(), meta.pageUrl);
+  // Summary uses the latest non-direct acquisition; both original touches remain auditable.
+  const source = sourceCategory(attribution.last, ownOrigins());
 
   const manageToken = newToken();
   const formVersion = submitButton ? REQUEST_SUBMIT_FORM_VERSION : SURVEY_FORM_VERSION;
@@ -268,9 +274,10 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
   for (let attempt = 0; attempt < 3 && !outcome; attempt++) {
     try {
       outcome = await tx(async (client) => {
-        // Serialize submissions from the same contact details so two at once can't both start a group.
+        // Serialize contact checks so concurrent potential duplicates receive consistent admin flags.
         for (const key of [emailHash, phoneHash].sort()) await client.query("select pg_advisory_xact_lock(hashtextextended($1, 0))", [key]);
-        // Duplicate: same email or phone hash, same route, inside the window, not withdrawn (lead lifecycle §4).
+        // Contact details are not proof of ownership. This lookup is an admin-only quality signal;
+        // it must never grant a new anonymous submission access to an earlier request's group.
         const duplicate = await client.query<{ group_id: string; reference_code: string }>(
           `select l.group_id, p.reference_code
              from leads l
@@ -285,20 +292,15 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           [emailHash, phoneHash, where.value.originZip, where.value.destZip, settings.duplicate_window_days],
         );
         const dup = duplicate.rows[0] ?? null;
-        let groupId: string;
-        if (dup) {
-          groupId = dup.group_id;
-          await client.query("select attach_duplicate($1, $2)", [groupId, input.limit]);
-        } else {
-          const group = await client.query<{ id: string }>(
-            `insert into lead_groups (sharing_limit, policy_version, expires_at)
-             values ($1, $2, now() + make_interval(hours => $3)) returning id`,
-            [input.limit, settings.active_policy_version, settings.sale_window_hours],
-          );
-          groupId = group.rows[0]!.id;
-        }
-        // The group lock also orders concurrent duplicate submissions. A pending intake
-        // must stop reservations and settlements even when an older sibling qualified.
+        // Each submission owns a separate capability boundary, even when both contacts match.
+        // Its management token can therefore affect only the request it just created.
+        const group = await client.query<{ id: string }>(
+          `insert into lead_groups (sharing_limit, policy_version, expires_at)
+           values ($1, $2, now() + make_interval(hours => $3)) returning id`,
+          [input.limit, settings.active_policy_version, settings.sale_window_hours],
+        );
+        const groupId = group.rows[0]!.id;
+        // Pending intake applies only to this new request, never to an earlier contact match.
         await client.query("update lead_groups set request_intake_pending = $2 where id = $1", [groupId, named.length === 0]);
 
         const referenceCode = generateReferenceCode();
@@ -312,7 +314,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
                    $22, $23, $24::text[], $25, $26, $27, $28, $29, $30)
            returning id`,
           [
-            groupId, input.limit, firstName, lastName, email, phone, where.value.originZip, where.value.destZip, !dup,
+            groupId, input.limit, firstName, lastName, email, phone, where.value.originZip, where.value.destZip, true,
             referenceCode, status, when.value.moveDate, when.value.flexible, size.value.moveSize, services,
             coverage.move.origin.city, coverage.move.origin.state, coverage.move.origin.countyFips,
             coverage.move.destination.city, coverage.move.destination.state, coverage.move.destination.countyFips,
@@ -325,7 +327,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
         const validations: ValidationRow[] = [
           { check_type: "honeypot", result: "pass", reason: "Hidden field left empty." },
           { check_type: "min_completion_time", result: ticket.elapsedSeconds < MIN_COMPLETION_SECONDS ? "flag" : "pass", reason: `Sent ${Math.round(ticket.elapsedSeconds)} seconds after the coverage check.${ticket.elapsedSeconds < MIN_COMPLETION_SECONDS ? " Accepted compact request; short completion time contributes to quality scoring." : ""}` },
-          { check_type: "rate_limit", result: meta.ip ? "pass" : "skipped", reason: meta.ip ? "Under the per-IP submission limit." : "No client IP address available." },
+          { check_type: "rate_limit", result: "pass", reason: "Within the public network and signed-ticket submission limits." },
           { check_type: "phone_format", result: "pass", reason: "Valid NANP number." },
           { check_type: "phone_line_type", result: "skipped", reason: "No carrier lookup provider is configured." },
           { check_type: "email_syntax", result: "pass", reason: "Valid address syntax." },
@@ -335,7 +337,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           { check_type: "coverage", result: named.length ? "pass" : "flag", reason: named.length ? `${named.length} eligible participating companies in the current server snapshot.` : "Request accepted for follow-up; no eligible recipient is currently available." },
           { check_type: "route", result: "pass", reason: `Known ZIP codes; ${coverage.move.moveType} move of ${coverage.move.distanceMiles} miles.` },
           dup
-            ? { check_type: "duplicate_check", result: "flag", reason: `Same contact and route as ${dup.reference_code} within ${settings.duplicate_window_days} days; joined its group.` }
+            ? { check_type: "duplicate_check", result: "flag", reason: `Potential duplicate of ${dup.reference_code}: contact and route overlap within ${settings.duplicate_window_days} days. Saved separately; contact ownership has not been verified.` }
             : { check_type: "duplicate_check", result: "pass", reason: `No matching request in the last ${settings.duplicate_window_days} days.` },
           {
             check_type: "risk_score",
@@ -366,17 +368,8 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           ],
         );
 
-        // Eligibility snapshot: removed movers keep a row with named_in_consent false, so they can
-        // never buy. A repeat request's consent replaces the group's list: movers it names may buy,
-        // movers it doesn't name can't, and the group keeps the lowest number chosen
-        // [Owner: which movers a repeat names (lead lifecycle §4; Which companies receive my request,
-        // "Repeat requests") — the latest consent is the build default].
-        if (dup) {
-          await client.query("update lead_eligibility set named_in_consent = false where group_id = $1 and not (company_id = any($2::uuid[]))", [
-            groupId,
-            named.map((m) => m.companyId),
-          ]);
-        }
+        // Eligibility belongs only to this request. An unverified repeat cannot replace an
+        // earlier request's consent, recipient scope, sharing limit or purchase availability.
         await client.query(
           `insert into lead_eligibility (group_id, company_id, matched_rule_id, named_in_consent, coverage_version)
            select $1, e.company_id, e.rule_id, e.named, e.coverage_version
@@ -393,15 +386,16 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
           ],
         );
 
-        await client.query(
-          `insert into attribution_touches (lead_id, touch, landing_url, referrer, utm_source, utm_medium, utm_campaign, source_category, evidence_level)
-           values ($1, 'first', $2, $3, $4, $5, $6, $7, $8)`,
-          [
-            leadId, meta.pageUrl, safeOrigin(input.attribution.referrerOrigin), cleanUtm(input.attribution.utmSource),
-            cleanUtm(input.attribution.utmMedium), cleanUtm(input.attribution.utmCampaign), source,
-            input.attribution.utmSource || input.attribution.utmMedium ? "observed" : input.attribution.referrerOrigin ? "referrer_inferred" : "unknown",
-          ],
-        );
+        for (const kind of ["first", "last"] as const) {
+          const touch = attribution[kind];
+          await client.query(
+            `insert into attribution_touches (lead_id, touch, landing_url, referrer, utm_source, utm_medium, utm_campaign, utm_term, utm_content, click_ids, device, source_category, evidence_level)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13)`,
+            [leadId, kind, `${env().WEB_URL}${touch.landingPath}`, touch.referrerOrigin, touch.utmSource, touch.utmMedium, touch.utmCampaign,
+              touch.utmTerm, touch.utmContent, touch.clickIds ? JSON.stringify(touch.clickIds) : null, touch.device ?? null,
+              sourceCategory(touch, ownOrigins()), hasCampaign(touch) ? "observed" : touch.referrerOrigin ? "referrer_inferred" : "unknown"],
+          );
+        }
 
         await audit(
           {
@@ -409,14 +403,13 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
             action: dup ? "lead.submit_duplicate" : "lead.submit",
             entity: "lead",
             entityId: leadId,
-            after: { group_id: groupId, status, selected_limit: input.limit, named: named.length, removed: removedMovers.length },
+            after: { group_id: groupId, status, selected_limit: input.limit, named: named.length, removed: removedMovers.length, potential_duplicate: Boolean(dup) },
             ip: meta.ip,
           },
           client,
         );
 
-        const group = await client.query<{ sharing_limit: number }>("select sharing_limit from lead_groups where id = $1", [groupId]);
-        // Only a new, qualified request is announced; a repeat joins a request movers already know about.
+        // Potential repeats remain flagged for admin review and do not send another announcement.
         const recipients =
           status === "qualified" && !dup
             ? (
@@ -428,7 +421,7 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
                 )
               ).rows
             : [];
-        return { leadId, groupId, referenceCode, limit: group.rows[0]!.sharing_limit, joinedReferenceCode: dup?.reference_code ?? null, recipients };
+        return { leadId, groupId, referenceCode, limit: input.limit, joinedReferenceCode: null, recipients };
       });
     } catch (error) {
       if (isUniqueViolation(error, "leads_reference_code_key") && attempt < 2) continue;
@@ -479,15 +472,4 @@ export async function submitRequest(raw: unknown, meta: SubmitMeta, options: Enq
       joinedReferenceCode: outcome.joinedReferenceCode,
     },
   };
-}
-
-
-function safeOrigin(value: string | null | undefined): string | null {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:" ? url.origin : null;
-  } catch {
-    return null;
-  }
 }

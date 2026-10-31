@@ -5,6 +5,7 @@ import { env } from "@amc/server/env";
 import { JsFlag } from "@amc/ui";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import { searchVerificationMetadata } from "@/lib/search-verification";
 
 export function generateMetadata(): Metadata {
   const { WEB_URL, SITE_INDEXABLE } = env();
@@ -14,6 +15,7 @@ export function generateMetadata(): Metadata {
     // No default description: ST-1c is only for the home, About and "How AMC makes money" pages,
     // which set it themselves (content/stored-texts.md, site architecture §8.2).
     applicationName: "American Moving Choice",
+    verification: searchVerificationMetadata(env()),
     // Preview: noindex, nofollow on every page unless SITE_INDEXABLE=true (build plan §8).
     robots: SITE_INDEXABLE ? undefined : { index: false, follow: false, googleBot: { index: false, follow: false } },
   };

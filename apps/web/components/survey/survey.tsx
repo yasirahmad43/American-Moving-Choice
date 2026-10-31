@@ -9,8 +9,8 @@
  * - Move details persist in sessionStorage so back navigation and reloads keep them; contact
  *   details are never stored client-side (VD §9.3).
  * - Eligibility stays internal; it never blocks a valid request. Permission is given by Send.
- * - No ZIP code, date, size or contact detail goes into a URL or any analytics; this page loads no
- *   third-party script (site architecture §8.8).
+ * - No ZIP code, date, size or contact detail goes into a URL or analytics. Optional analytics
+ *   records only allowlisted funnel events after the visitor grants analytics permission.
  */
 import {
   COMPACT_SURVEY_STEPS,
@@ -44,12 +44,16 @@ import {
   type SurveyStep,
 } from "@amc/core/src/survey";
 import type { SubmitResult, SurveyCoverageResult } from "@amc/server/leads";
+import type { AttributionPayload as Attribution } from "@amc/core";
+import { captureCampaignAttribution } from "@/lib/attribution";
 import { Alert, Button, Checkbox, Field, FieldError, Input, RadioCardGroup, Stepper, cx, errorId, formatAbsoluteDate } from "@amc/ui";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { ConfirmationView, type ConfirmationData } from "./confirmation-view";
 import { EMPTY_DRAFT, restoreSurveyDraft, type SurveyDraft as Draft } from "./draft";
 import { StoredTextLine, type SurveyTexts } from "./texts";
+import { completeLeadAnalytics, trackSurveyStart, trackSurveyStep } from "@/lib/analytics/runtime";
+import type { AnalyticsStep } from "@/lib/analytics/events";
 
 type FoundState = Extract<SurveyCoverageResult, { ok: true }>;
 type Coverage = Extract<FoundState["coverage"], { ok: true }>;
@@ -63,14 +67,8 @@ interface Contact {
   phone: string;
 }
 
-interface Attribution {
-  referrerOrigin: string | null;
-  utmSource: string | null;
-  utmMedium: string | null;
-  utmCampaign: string | null;
-}
-
 const EMPTY_CONTACT: Contact = { channels: [...REQUEST_SUBMIT_CHANNELS], firstName: "", lastName: "", email: "", phone: "" };
+const ANALYTICS_STEP: Record<SurveyStep, AnalyticsStep> = { need: "move_type", where: "route", when: "date", size: "services", details: "contact", review: "review", found: "contact", count: "contact" };
 
 /** The input each answer's error points at, for focus and aria-describedby. */
 const FIELD_IDS: Record<string, string> = {
@@ -140,22 +138,7 @@ function initialDraft(): { draft: Draft; prefilled: boolean } {
 }
 
 function readAttribution(): Attribution {
-  const params = new URLSearchParams(window.location.search);
-  let referrerOrigin: string | null = null;
-  try {
-    if (document.referrer) {
-      const origin = new URL(document.referrer).origin;
-      if (origin !== window.location.origin) referrerOrigin = origin;
-    }
-  } catch {
-    referrerOrigin = null;
-  }
-  return {
-    referrerOrigin,
-    utmSource: params.get("utm_source"),
-    utmMedium: params.get("utm_medium"),
-    utmCampaign: params.get("utm_campaign"),
-  };
+  return captureCampaignAttribution();
 }
 
 function localToday(): string {
@@ -179,7 +162,6 @@ export function Survey(props: SurveyProps) {
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const [prefilled, setPrefilled] = useState(false);
   const [today, setToday] = useState("");
-  const attribution = useRef<Attribution>({ referrerOrigin: null, utmSource: null, utmMedium: null, utmCampaign: null });
 
   useEffect(() => {
     // A one-shot prefill must not be consumed twice by development Strict Mode effect replay.
@@ -187,7 +169,7 @@ export function Survey(props: SurveyProps) {
     setDraft(restored);
     setPrefilled(wasPrefilled);
     setToday(localToday());
-    attribution.current = readAttribution();
+    readAttribution();
     setMounted(true);
   }, []);
 
@@ -198,7 +180,7 @@ export function Survey(props: SurveyProps) {
       </p>
     );
   }
-  return <SurveyFlow {...props} initial={draft} prefilled={prefilled} today={today} attribution={attribution.current} />;
+  return <SurveyFlow {...props} initial={draft} prefilled={prefilled} today={today} />;
 }
 
 function SurveyFlow({
@@ -210,8 +192,7 @@ function SurveyFlow({
   initial,
   prefilled,
   today,
-  attribution,
-}: SurveyProps & { initial: Draft; prefilled: boolean; today: string; attribution: Attribution }) {
+}: SurveyProps & { initial: Draft; prefilled: boolean; today: string }) {
   const [draft, setDraft] = useState<Draft>(initial);
   const draftRef = useRef(initial);
   const [editingSize, setEditingSize] = useState(false);
@@ -234,6 +215,7 @@ function SurveyFlow({
   const focusField = useRef<string | null>(null);
   const honeypot = useRef<HTMLInputElement>(null);
   const firstRender = useRef(true);
+  const analyticsConversionSent = useRef(false);
 
   const steps = useMemo<SurveyStep[]>(() => (draft.entry === "household" ? COMPACT_SURVEY_STEPS.filter((s) => s !== "need") : [...COMPACT_SURVEY_STEPS]), [draft.entry]);
   const stepIndex = Math.max(0, steps.indexOf(draft.step));
@@ -276,6 +258,7 @@ function SurveyFlow({
     (step: SurveyStep) => {
       setErrors({});
       setAlert(null);
+      trackSurveyStep(ANALYTICS_STEP[step], "survey");
       update({ step: step === "found" || step === "count" ? "details" : step });
     },
     [update],
@@ -400,6 +383,10 @@ function SurveyFlow({
 
   const handleResult = (result: SubmitResult) => {
     if (result.ok) {
+      if (analyticsConversionSent.current) return;
+      analyticsConversionSent.current = true;
+      writeSession(DRAFT_STORAGE_KEY, null);
+      if (completeLeadAnalytics(true, () => window.location.assign("/get-quotes/confirmation/"))) return;
       setDone({ confirmation: result.confirmation, manageUrl: `${webUrl}/my-request/${result.manageToken}/` });
       writeSession(DRAFT_STORAGE_KEY, null);
       try {
@@ -505,7 +492,7 @@ function SurveyFlow({
       renderedTextSha256: consentTextSha256(consentText),
       website: honeypot.current?.value ?? "",
       ticket: found.ticket,
-      attribution,
+      attribution: readAttribution(),
     };
     startTransition(async () => {
       try {
@@ -845,7 +832,7 @@ function SurveyFlow({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-12">
+    <div onFocusCapture={() => { trackSurveyStart("survey"); trackSurveyStep(ANALYTICS_STEP[draft.step], "survey"); }} className="grid gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-12">
       <div className="grid content-start gap-6">
         <details className="rounded-card border border-border bg-surface p-4 lg:hidden">
           <summary className="cursor-pointer font-semibold text-text">Your move{summaryLine(draft, coverage) ? `: ${summaryLine(draft, coverage)}` : ""}</summary>

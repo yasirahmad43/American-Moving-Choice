@@ -8,6 +8,7 @@
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, sessionCookieOptions } from "@amc/server/session-cookie";
+import { countryAccessResponse } from "@amc/server/access";
 
 const PATHNAME_HEADER = "x-amc-pathname";
 
@@ -15,7 +16,11 @@ const isProtected = (pathname: string) =>
   pathname === "/portal" || pathname.startsWith("/portal/") || pathname === "/admin" || pathname.startsWith("/admin/");
 
 export function proxy(request: NextRequest) {
+  const countryDenied = countryAccessResponse(request, { publicWeb: false });
+  if (countryDenied) return countryDenied;
   const { pathname, search } = request.nextUrl;
+  // Preserve the original auth-proxy exclusions after the country gate checks every route.
+  if (["/api/", "/_next/static", "/_next/image", "/favicon.ico"].some(prefix => pathname.startsWith(prefix))) return NextResponse.next();
   const token = request.cookies.get(SESSION_COOKIE)?.value;
 
   if (isProtected(pathname) && !token) {
@@ -33,5 +38,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api/|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!\\.well-known/vercel/security(?:/|$)).*)"],
 };

@@ -3,7 +3,7 @@
 /**
  * The report form (VD §9.2): labels above fields, help and errors linked with aria-describedby, a
  * polite count of fields that need attention and focus on the first one, and a confirmation with
- * the case reference that takes focus. Works without JavaScript (server action form post).
+ * the case reference that takes focus. JavaScript supplies the invisible spam-check headers.
  */
 import { Alert, Button, Field, FieldError, Input, Textarea, errorId } from "@amc/ui";
 import type { ConcernField, ConcernType } from "@amc/server/concerns";

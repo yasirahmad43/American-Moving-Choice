@@ -103,7 +103,11 @@ async function findLead(token: string, db: Queryable, lock = false): Promise<Lea
   );
   const row = result.rows[0];
   // The index lookup matched the hash; compare again in constant time before trusting the row.
-  if (!row || !safeEqual(row.manage_token_hash, hash)) return null;
+  // Older intake joined unverified contact matches into one group. Neither its primary nor a
+  // sibling token proves ownership of the other requests. Refuse every combined-group public
+  // capability; the count is computed from stored rows above, not a cached/caller-supplied flag.
+  // Admin access and the records themselves remain intact for a privacy review.
+  if (!row || !safeEqual(row.manage_token_hash, hash) || row.group_size !== 1) return null;
   return row;
 }
 
@@ -180,11 +184,6 @@ export async function getRequestByToken(token: string, meta: { ip: string | null
 export async function getConfirmationByToken(token: string, db: Queryable = getPool()): Promise<Confirmation | null> {
   const row = await findLead(token, db);
   if (!row || !row.move_size || !row.move_date) return null;
-  let joinedReferenceCode: string | null = null;
-  if (!row.is_primary) {
-    const primary = await db.query<{ reference_code: string }>("select reference_code from leads where group_id = $1 and is_primary", [row.group_id]);
-    joinedReferenceCode = primary.rows[0]?.reference_code ?? null;
-  }
   return {
     referenceCode: row.reference_code,
     limit: row.sharing_limit,
@@ -194,7 +193,7 @@ export async function getConfirmationByToken(token: string, db: Queryable = getP
     moveDateFlexible: row.move_date_flexible,
     moveSize: row.move_size,
     channels: row.channel_scope,
-    joinedReferenceCode,
+    joinedReferenceCode: null,
   };
 }
 

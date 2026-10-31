@@ -66,6 +66,14 @@ describe("environment", () => {
     for (const budget of ["51", "-1", "Infinity", "not-money"]) expect(() => parseEnv({ AI_CONTENT_BUDGET_USD: budget })).toThrow(EnvError);
   });
 
+  it("keeps optional analytics off by default and validates public integration identifiers", () => {
+    expect(parseEnv({}).ANALYTICS_ENABLED).toBe(false);
+    const configured=parseEnv({ANALYTICS_ENABLED:"true",GTM_CONTAINER_ID:"GTM-TEST1234",GOOGLE_SITE_VERIFICATION:"  google-public-token  ",BING_SITE_VERIFICATION:"bing-public-token",INDEXNOW_KEY:"public-indexnow-key-1234"});
+    expect(configured).toMatchObject({ANALYTICS_ENABLED:true,GTM_CONTAINER_ID:"GTM-TEST1234",GOOGLE_SITE_VERIFICATION:"google-public-token",INDEXNOW_KEY:"public-indexnow-key-1234"});
+    for(const GTM_CONTAINER_ID of ["G-TEST1234","<script>","https://example.test"])expect(()=>parseEnv({GTM_CONTAINER_ID})).toThrow(EnvError);
+    for(const INDEXNOW_KEY of ["short","private/key","<script>public</script>"])expect(()=>parseEnv({INDEXNOW_KEY})).toThrow(EnvError);
+  });
+
   it("strips SSL parameters from connection strings when DATABASE_SSL decides", () => {
     const url = "postgres://u:p@host:6543/postgres?sslmode=require&application_name=x";
     expect(connectionStringFor(url, "require")).toBe("postgres://u:p@host:6543/postgres?application_name=x");

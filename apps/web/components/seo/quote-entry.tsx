@@ -9,6 +9,7 @@
 import { LinkButton } from "@amc/ui";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
+import { captureCampaignAttribution } from "@/lib/attribution";
 
 export const PREFILL_STORAGE_KEY = "amc.survey.prefill";
 
@@ -16,6 +17,7 @@ export function QuoteEntryButton({ originZip, destZip, label }: { originZip?: st
   const router = useRouter();
   const start = (event: MouseEvent) => {
     event.preventDefault();
+    captureCampaignAttribution();
     try {
       const prefill: Record<string, string> = { entry: "household" };
       if (originZip && /^\d{5}$/.test(originZip)) prefill.originZip = originZip;

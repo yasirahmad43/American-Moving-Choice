@@ -41,12 +41,6 @@ export function requestReceivedEmail(input: {
     `We received your moving request ${input.referenceCode}: ${routeLine(input.route)}.`,
     "",
   ];
-  if (input.joinedReferenceCode) {
-    lines.push(
-      `We already had a request from you for this route (${input.joinedReferenceCode}), so this one joins it. The lowest number of movers you chose applies, and companies that already received your first request count toward it.`,
-      "",
-    );
-  }
   lines.push(
     input.limit === 1
       ? "Only 1 participating moving company can receive your request and contact details."
