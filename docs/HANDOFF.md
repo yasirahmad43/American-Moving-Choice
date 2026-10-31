@@ -5,6 +5,23 @@ verifiable from the repository; nothing here depends on the previous assistant's
 
 ### Country access, request security and measurement — PR #31, 2026-10-31
 
+Production rollout: PR #31 is merged (`6695ecb`) and both projects deployed it. Live HTTP
+checks passed for public pages, forged location headers, private admin redirects/noindex,
+unauthenticated cron rejection, inactive Stripe rejection and reserved security scripts;
+evidence is `work/security/live-security-verification.json`. This is not a foreign-egress
+test. All 4,806 public URLs were received by IndexNow with HTTP 200 (one initial URL, then
+4,805 more, no uncertain deliveries); evidence/ledger is under `work/tracking/indexnow`.
+Receipt does not mean indexing or rankings. Do not resubmit unchanged versions.
+
+PR #32 (`ec64011`) keeps first-party privacy choices available with Google off, narrows
+BotID to exact quote/report form routes and derives client enablement from the same server
+flag, permitting a real rollback on the next build. Automated live-browser preparation was
+refused by the security check without issuing a ticket; that proves automated refusal,
+not a successful human flow. Ordinary Chrome preparation is still a required check.
+Windows Computer Use is currently misreading Chrome's second-display coordinates; the
+owner has been asked to move Chrome to the main display as a normal, unmaximized window.
+No Google or Bing account settings were changed through that unreliable control.
+
 PR #31 adds the owner-requested US/Pakistan visitor restriction to both Next 16 proxies,
 without replacing Vercel's firewall configuration or changing the owner's sign-in/MFA
 preference. `COUNTRY_ACCESS_ENABLED=true` is configured for Production and Preview on both
