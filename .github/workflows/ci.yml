@@ -47,6 +47,8 @@ jobs:
         run: python tools/test-build-crawler-policy.py
       - name: Public content, media and presentation tests
         run: pnpm test:content
+      - name: Admin reporting authorization and live updates
+        run: pnpm test:admin-growth
       - name: Build both apps
         env:
           # Placeholders only: the builds read no database and no real secret.

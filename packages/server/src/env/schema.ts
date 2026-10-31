@@ -90,6 +90,17 @@ export const envSchema = z.object({
   GTM_CONTAINER_ID: z.preprocess(blankToUndefined, z.string().trim().regex(/^GTM-[A-Z0-9]{4,16}$/, "must be a GTM container ID").optional()),
   GOOGLE_SITE_VERIFICATION: optionalString,
   BING_SITE_VERIFICATION: optionalString,
+  // Admin-only read-only reporting. These are independent of public tracking consent/IDs.
+  GOOGLE_REPORTING_CLIENT_EMAIL: optionalString,
+  GOOGLE_REPORTING_PRIVATE_KEY: optionalString,
+  GOOGLE_REPORTING_PROPERTY_ID: optionalString,
+  GOOGLE_REPORTING_GTM_ACCOUNT_ID: optionalString,
+  GOOGLE_REPORTING_GTM_CONTAINER_ID: optionalString,
+  GOOGLE_REPORTING_SITE_URL: optionalString,
+  BING_REPORTING_CLIENT_ID: optionalString,
+  BING_REPORTING_CLIENT_SECRET: optionalString,
+  BING_REPORTING_REFRESH_TOKEN: optionalString,
+  BING_REPORTING_SITE_URL: optionalString,
   INDEXNOW_KEY: z.preprocess(blankToUndefined, z.string().trim().regex(/^[A-Za-z0-9-]{8,128}$/, "must contain 8–128 letters, digits or hyphens").optional()),
 
   // Claude manuscript generation is private and opt-in; no public request can turn it on.

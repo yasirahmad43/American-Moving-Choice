@@ -1,11 +1,12 @@
 import { dashboardStats } from "@amc/server/admin";
-import { requireAdmin } from "@amc/server/auth";
+import { hasAdminRole, requireAdmin } from "@amc/server/auth";
 import { runDueJobs } from "@amc/server/jobs";
 import { Card, Money, PageHeader, Table } from "@amc/ui";
 import type { Metadata } from "next";
 import { after } from "next/server";
 import { SectionTitle, StatTile, Status, When, humanize } from "@/components/admin/admin-ui";
 import { adminNavItem } from "@/lib/nav/admin";
+import { GrowthDashboard } from "@/components/admin/growth/growth-dashboard";
 
 const item = adminNavItem("/admin");
 
@@ -17,7 +18,7 @@ const LAZY_JOBS = ["expire_lead_groups", "release_expired_attempts", "deliver_ou
 const percent = (part: number, whole: number) => (whole > 0 ? `${Math.round((part / whole) * 1000) / 10}%` : "No data");
 
 export default async function AdminDashboard() {
-  await requireAdmin({ roles: item.roles });
+  const { adminRole } = await requireAdmin({ roles: item.roles });
   const stats = await dashboardStats();
   after(async () => {
     try {
@@ -31,6 +32,8 @@ export default async function AdminDashboard() {
   return (
     <div className="grid gap-8">
       <PageHeader size="portal" overline="Operations overview" title="Admin dashboard" description="The work that needs attention, and the numbers behind your marketplace. All times are US Eastern." />
+
+      {hasAdminRole(adminRole, ["super_admin", "ops"]) ? <section aria-labelledby="live-growth"><SectionTitle id="live-growth" description="Saved website requests, updated automatically while this tab is visible.">Live website activity</SectionTitle><GrowthDashboard compact /></section> : null}
 
       <section aria-labelledby="queues">
         <SectionTitle id="queues" description="Open a queue to review the records behind each total.">Needs attention</SectionTitle>

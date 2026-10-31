@@ -17,6 +17,7 @@
     "test": "pnpm -r test",
     "test:db": "pnpm --filter @amc/db test",
     "test:server": "pnpm --filter @amc/server test",
+    "test:admin-growth": "pnpm --filter @amc/server exec vitest run --root ../../apps/app --config ../../apps/app/vitest.config.ts",
     "test:content": "pnpm --filter @amc/server exec vitest run --root ../../apps/web --globals lib/content lib/assistant-faq lib/analytics lib/security lib/attribution.test.mjs lib/search-verification.test.mjs lib/public-form-actions.test.mjs lib/country-proxy.test.mjs lib/page-media-plan.test.mjs lib/public-copy.test.mjs lib/sitemaps.test.mjs components/seo components/survey components/site/adaptive-react-tables.test.mjs",
     "geo:build": "pnpm --filter @amc/server build:zip-data",
     "e2e": "pnpm --filter @amc/e2e e2e",

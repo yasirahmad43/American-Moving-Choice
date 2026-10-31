@@ -23,7 +23,10 @@ const EVERY_ADMIN: readonly AdminRole[] = ["super_admin", "ops", "verification",
 export const ADMIN_NAV: AdminNavSection[] = [
   {
     title: "Overview",
-    items: [{ href: "/admin", label: "Dashboard", description: "Queues, open cases and today's activity.", roles: EVERY_ADMIN }],
+    items: [
+      { href: "/admin", label: "Dashboard", description: "Queues, open cases and today's activity.", roles: EVERY_ADMIN },
+      { href: "/admin/growth", label: "Growth & analytics", description: "Live move requests, campaign sources and search visibility, with clear update times.", roles: ["super_admin", "ops"] },
+    ],
   },
   {
     title: "Network",
