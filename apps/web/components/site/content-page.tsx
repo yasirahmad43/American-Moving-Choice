@@ -14,6 +14,8 @@ import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
 import { EditorialHeader } from "./page-frame";
 import { ReviewLegend } from "./review-notes";
 import { htmlChapters, separateEditorialNotes, StoryNextSteps, StorySections } from "./story-sections";
+import { AssistantFaq } from "./assistant-faq";
+import { staticAssistantFaq } from "@/lib/assistant-faq/static";
 
 /** The page's level-2 headings (id and text) for the "On this page" rail. */
 export function headingsOf(html: string): { id: string; text: string }[] {
@@ -98,6 +100,7 @@ export function ContentPageView({ page }: { page: ContentPage }) {
             </nav>
           ) : null}
           <article><StorySections chapters={chapters} images={media.chapterImages} planned url={page.meta.url} topic={page.h1} /></article>
+          {staticAssistantFaq(page.meta.url) ? <AssistantFaq url={page.meta.url} items={staticAssistantFaq(page.meta.url)!} /> : null}
           <StoryNextSteps url={page.meta.url} items={media.steps} />
           <aside className="story-reader-cta" data-content-inset="card" data-motion="rise" data-band="">
             <div><p className="type-overline">Your move. Your choice.</p><h2>Ready to compare movers?</h2>

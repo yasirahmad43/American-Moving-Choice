@@ -3,6 +3,37 @@
 Updated 2026-10-30 for whoever (or whatever tool) continues this project. Everything below is
 verifiable from the repository; nothing here depends on the previous assistant's chat history.
 
+### Page-specific assistant questions — owner follow-up, 2026-10-30
+
+The owner explicitly requested four or five natural, page-specific questions on every public
+page, with each answer 40–80 words and directly quotable on its own. Visible questions use
+`h3` followed by `p`. The same strings, without alternate schema-only copy, populate one
+`FAQPage` JSON-LD block. This supersedes the older blanket “never FAQPage” code comment.
+
+`apps/web/lib/assistant-faq` holds the shared plain-text/count/identity contract, curated core
+and editorial questions, source-bound SEO answers, and count-aware hub answers. Only use
+reader-facing `publicSeoPage` facts, preserving location, price/model scope, dates and legal
+conditions. No AMC license, certification, years in business, mover availability or company
+identity may be invented. Every answer names American Moving Choice; its documented role
+is a guide and quote-request service, not a carrier providing transportation or binding prices.
+
+`AssistantFaq` renders open, padded answer cards and emits structured data from that exact
+array. Previous substantive SEO FAQ notes remain available as reference notes. Private token
+records, confirmation states, retired paths and redirect-only URLs do not gain discovery FAQ
+markup. Filtered catalog states use the same live helper; they are not separate canonical pages.
+
+The offline export tool `tools/export-assistant-faq.ts` accepts a read-only public-page snapshot,
+not database credentials. It writes page-by-page h3/p fragments and matching FAQPage JSON,
+with a URL manifest and checksums, and refuses to overwrite an earlier export. Keep raw
+snapshot files under ignored `work/assistant-faq`; do not commit private configuration or raw
+legacy records. Titles must match the actual visible catalog; preserve SQL URL order when
+reproducing pagination because database and JavaScript collations can differ.
+
+Run the assistant FAQ/public content tests, both app typechecks/builds, and rendered HTML
+versus JSON-LD parity checks at phone/desktop widths after changing this contract. Schema.org
+FAQPage remains valid; Google ended its FAQ rich-result display in May 2026, so do not promise
+that appearance or an AI citation. Search indexing/demo launch settings remain unchanged.
+
 ### Bounded Claude content pilot — owner follow-up, 2026-10-30
 
 The owner authorized the supplied Anthropic credential and a **$50 ceiling**. The key is a

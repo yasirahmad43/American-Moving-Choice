@@ -1,0 +1,22 @@
+{
+  "task": "Page-specific assistant questions with identical visible HTML and FAQPage JSON-LD",
+  "sourceGuideCount": 4745,
+  "exportedPublicUrlStates": 4885,
+  "questionsAndAnswers": 24247,
+  "sourceSnapshotSha256": "01cbc7dc056542f256ea1476c1299a1a09646631f1371527808e62b7b19dfb1c",
+  "source": "Read-only snapshot of published public guides, plus canonical core pages and unfiltered directory pagination",
+  "checks": {
+    "allExportedPagesValidated": true,
+    "questionsPerPage": "4–5",
+    "answerWords": "40–80",
+    "businessNamedInEveryAnswer": true,
+    "decodedHtmlEqualsJsonLd": true,
+    "heldPages": 0,
+    "localContentTestsPassed": 256,
+    "localTypecheckPassed": true,
+    "packagerTestsPassed": 8,
+    "paidProviderCalls": 0
+  },
+  "reviewLimits": "All records received structural and source-binding validation. Targeted semantic review covered representative families and corrected cases; this is not a claim that every page was manually reviewed. No ranking or AI citation guarantee.",
+  "scope": "Private token, admin, retired and redirect-only routes are excluded. Interactive filters use the same helpers live. Demo and noindex settings remain unchanged."
+}

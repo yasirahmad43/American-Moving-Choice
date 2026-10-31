@@ -13,15 +13,17 @@ import { PUBLIC_REQUEST_ASSURANCE, PUBLIC_ROLE_STATEMENT, publicMarketingText } 
 import { storedText, storedTextParts } from "@/lib/stored-texts";
 import { checkCoverageAction, submitRequestAction } from "./actions";
 import { lookupZipAction } from "./zip-action";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { staticAssistantFaq } from "@/lib/assistant-faq/static";
 
 const PAGE = "/get-quotes/";
 
 export const metadata: Metadata = {
   title: "Request Quotes From Moving Companies",
   description:
-    "Tell us about your move, check availability, choose how many can contact you, and send your request. Free to request. You choose your contact preferences.",
+    "Tell us about your move, choose how many companies may contact you, and review your request before sending. Free to request.",
   alternates: { canonical: "/get-quotes/" },
-  ...socialMetadata(PAGE, "Request Moving Quotes | American Moving Choice", "Tell us about your move, check availability, and choose how many companies may contact you and how. Free to request.", { topic: "survey household route" }),
+  ...socialMetadata(PAGE, "Request Moving Quotes | American Moving Choice", "Tell us about your move, choose your company contact limit, and review before sending. Free to request.", { topic: "survey household route" }),
 };
 
 // Settings and the active consent text are read per request.
@@ -56,6 +58,6 @@ export default function GetQuotesPage() {
         <li className="flex items-center gap-2"><InfoIcon size={17} /><Link href="/which-companies-receive-my-request/" className="inline-flex min-h-11 items-center text-white underline underline-offset-4">Who receives my request</Link></li>
       </ul>
     </VideoSurveyHero>
-    <Container><StoryNextSteps url={PAGE} images={plan.images} /></Container>
+    <Container><AssistantFaq url={PAGE} items={staticAssistantFaq(PAGE)!} /><StoryNextSteps url={PAGE} images={plan.images} /></Container>
   </>;
 }

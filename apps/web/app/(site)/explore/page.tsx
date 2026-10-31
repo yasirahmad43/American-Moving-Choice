@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { catalogAssistantFaq } from "@/lib/assistant-faq/hubs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowRightIcon, Container } from "@amc/ui";
@@ -109,5 +111,6 @@ export default async function ExplorePage({ searchParams }: Props) {
         </div>
       </Container>
     </section>
+    <Container><AssistantFaq url={catalogUrl(filters)} items={catalogAssistantFaq({ filters: { query: filters.query, type: filters.type, stateName: state?.name, page: filters.page }, total: result.total, perPage: CATALOG_PAGE_SIZE, entries: result.pages })} title="Questions about these moving guides" /></Container>
   </>;
 }

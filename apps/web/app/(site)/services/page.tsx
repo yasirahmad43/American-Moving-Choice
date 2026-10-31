@@ -7,8 +7,8 @@ const SPEC: HubSpec = {
   family: "service",
   title: "Moving Services: Local, Long-Distance, Interstate, Packing, Storage and Specialty",
   h1: "Moving services",
-  description: "What each kind of moving service covers, how movers price it, which rules apply, and how many movers in our network offer it today.",
-  lede: "Six service pages, each with the pricing method movers use, the federal or state rules that apply and a dated count of network movers that offer the service.",
+  description: "What local, long-distance, interstate, packing, storage and specialty moving services cover, how pricing works, and which rules to check.",
+  lede: "Six moving-service guides explain the work involved, the pricing methods companies use and the relevant federal or state rules. Read the guide for the service you need before comparing written estimates.",
 };
 
 export const metadata: Metadata = hubMetadata(SPEC);
