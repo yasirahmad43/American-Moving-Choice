@@ -23,28 +23,75 @@ reporting APIs return private/no-store 401 responses. No production sign-in or l
 read was verified. Proof: `docs/verification/admin-growth-layout-2026-10-31.json` and
 `docs/verification/admin-growth-live-2026-10-31.json`.
 
-**Provider connection remains unfinished.** The app has secure optional read-only Google/Bing
-adapters, but no reporting credentials are configured. Browser sign-in and public tracking IDs
-do not grant backend API access. Panels honestly show unconnected/null data. The existing
-public GA4/GTM tracking and GSC/Bing verification/sitemap setup below remain in place.
+### Reporting connections — PR #39, 2026-10-31
 
-The owner explicitly approved creating **AMC Website Reporting** under `d1techcreative.com`,
-a dedicated read-only Google reporting connection and a read-only Bing connection, with no
-paid services. The Google Cloud project now exists: **`amc-website-reporting-513311`**.
-The current Chrome tab is its Analytics Data API library page; the **Enable** button is still
-shown. No reporting API enablement, service-account/key creation or Bing OAuth registration
-has been completed. Do not ask for the already-granted setup approval again. The initial
-project-creation automatic-review rejection was superseded by the owner's explicit approval.
+PR #39 is merged (`9f022b877e48a5967a51f33c83fa59aa8f7cc0ad`). CI `41208321418`
+passed the complete suite and both builds, including all 12 new isolated PostgreSQL Bing
+connection regressions. Production deployments are READY: app
+`dpl_Baq1ZJFpkzLyRcvZYLanZxA5sRFM` and web `dpl_HDEP4AAGZgwpZYda8NDUzX888yvJ`.
+The source adds request-scoped keyless Google authentication plus the owner-only Bing
+connection flow and encrypted, transactionally locked credential rotation (migration 270).
 
-Continuation needs working browser placement. Native control again sees Chrome on monitor2
-(x=1920) but its inputs sometimes restore the old 1215×354 position and target the desktop;
-the safety guard refused those clicks. Browser Use also failed to initialize with
-`failed to write kernel assets ... (os error 3)`. A pending user question asks them to move
-Chrome onto the main screen in a large normal window and reply **Ready**. Wait for that
-readiness before resuming browser input. Use fresh states; do not bypass geometry guards,
-extract browser cookies, alter other projects or enable paid services. BotID/country controls
-and the owner's app sign-in preference are unchanged. Bing refresh-token rotation currently
-fails closed until secure reconnection; durable encrypted rotation is not implemented.
+The owner approved dedicated read-only Google/Bing reporting, without paid services. Google
+Cloud project `amc-website-reporting-513311` / `652176198135` and service account
+`amc-reporting@amc-website-reporting-513311.iam.gserviceaccount.com` exist. Analytics Data,
+Search Console and Tag Manager APIs were enabled. Production-only WIF pool
+`amc-production-reporting`, provider `vercel`, maps `google.subject = assertion.sub` and
+restricts owner/project/environment/exact subject to this team's production **amc-app**.
+Its exact-subject impersonation grant was saved and the service account appeared linked.
+The issuer, audience and full condition are documented in `docs/ADMIN-GROWTH.md`.
+
+Google's two public reporting configuration variables are saved on **app Production only**.
+The existing Production `APP_URL` and `WEB_URL` were verified as the canonical app/public
+origins. Vercel accepted enabling team-issuer OIDC, but its normalized connector response
+omits that field; a successful deployed exchange is still needed to verify it end to end.
+Native product permission lists confirm the service account has GA4 property `561692313`
+**Viewer**, the exact canonical Search Console property **Restricted**, and GTM container
+`284497986` **Read / Has access**. No downloaded Google private key was created. Automatic
+approval rejected that method; the implemented alternative is keyless. Do not retry key
+creation or re-request the already-approved general reporting setup.
+
+Bing OAuth client **American Moving Choice Reporting** was registered in the signed-in
+Webmaster Tools account with exact callback
+`https://app.americanmovingchoice.com/api/admin/growth/bing/callback`. Newly created
+credentials were transferred through native UI directly into Vercel without being printed
+or written to repository files. Metadata confirms `BING_REPORTING_CLIENT_ID` and
+`BING_REPORTING_CLIENT_SECRET` are **sensitive / Production only**. Temporary credential
+copies in working memory were cleared after the save. App redeployment
+`dpl_8GR2KEde9htVgfiyN2ms3fb2dW7e` is READY at `app.americanmovingchoice.com`, on the same
+main commit `9f022b877e48a5967a51f33c83fa59aa8f7cc0ad`. No Bing consent, token exchange,
+stored grant or live report has been verified yet. The new code's
+durable encrypted rotation is implemented and CI-tested; the older fail-closed-only
+description no longer applies to this deployment.
+
+Native Computer Use stopped during the prior turn at a New tab action because it could
+not verify the browser URL. The user replied Ready in a new turn, window selection was
+refreshed, and the Vercel secret save/redeployment completed successfully. No additional
+setup permission is needed. Avoid opening blank tabs; navigate a known current tab instead.
+Browser Use also
+continues to fail initialization with `failed to write kernel assets ... (os error 3)`.
+
+The user completed normal admin sign-in. Native read-only observations of `/admin/growth`
+confirm **Search Console Connected** (0 clicks/impressions in the historical report window,
+4,806 submitted URLs, 0 sitemap errors and 12 warnings) and **Tag Manager Connected**
+(published version 3). These actual reads prove the deployed keyless exchange and those
+asset permissions. Analytics still reports **Provider unavailable**, with no invented visitor
+count. The user manually clicked Connect Bing and approved, but the app returned
+`bing_failed`; the panel remains **API access not connected**. No stored Bing grant or
+successful Bing read is verified. Source diagnostics are being added to identify the exact
+GA4 request/parser stage and Bing callback/exchange/parser stage without exposing credentials.
+
+Native browser control remains unreliable: it sometimes maps clicks to the wrong monitor,
+and browser Find caused a URL-confidence guard stop. Do not bypass these guards or use
+unrelated Chrome windows. After the user asked to keep AMC in front, the final Bing attempt
+was performed manually by the user. Browser Use still cannot initialize. Read-only native
+observations are possible; use provider APIs/runtime logs and manual handoff for any blocked
+browser input. Do not automate authentication dialogs or extract cookies.
+
+Next: deploy and inspect the bounded diagnostics, fix the actual responses, then verify
+Analytics and Bing before calling the connections complete. BotID, country controls,
+public consent and password-only demo admin preference are unchanged. No paid services or
+billing attachment were enabled.
 
 ### Country access, request security and measurement — PR #31, 2026-10-31
 

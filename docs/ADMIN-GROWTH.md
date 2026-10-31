@@ -114,11 +114,24 @@ seconds. The environment-only refresh adapter remains legacy compatibility for f
 the owner connection flow uses the durable store. Reporting calls use fixed read methods,
 not submission or account-mutation methods.
 
-Live setup remains incomplete until the service account's GA4/Search Console/GTM read
-grants and an actual deployed WIF exchange are verified, and Bing's real client registration,
-owner consent and reporting read are completed. Configured trust, stored credentials and
-successful report reads are separate states; the guide does not claim these pending provider
-checks have passed.
+As of 2026-10-31, native permission lists confirm the service account's GA4 Viewer,
+Search Console Restricted and GTM container Read grants. Bing's dedicated client is
+registered with the fixed Production callback. Its two credentials are saved as sensitive
+app Production-only variables; deployment `dpl_8GR2KEde9htVgfiyN2ms3fb2dW7e` is READY on
+the canonical app alias. The signed-in dashboard has returned actual Search Console and
+Tag Manager reports, proving the deployed WIF exchange. Analytics currently reports
+unavailable. The user approved Bing, but the app returned a connection-failed notice; no
+stored grant or successful Bing report is verified. Configured trust, stored credentials
+and successful report reads are separate states. Bounded server diagnostics are being
+prepared to identify the remaining failures without exposing private provider data.
+
+Failure diagnostics use server-only events `reporting_ga4_failure`,
+`reporting_bing_connection_failure` and `reporting_bing_callback_failure`. Their fields are
+fixed request/parser/connection stages and reason enums, optional bounded HTTP status,
+and for Bing only two whitelisted SQLSTATE codes or a fixed scope category. They never
+include callback values, provider payloads, errors/messages/stacks, URLs, credentials,
+user identifiers or event/customer values. Success and cancellation stay silent; no
+diagnostics are added to reporting responses. Scope/auth/state checks are unchanged.
 
 The browser checks provider summaries every minute. Server process caches/singleflight use
 30 seconds for GA4, 30 minutes for Search Console, 5 minutes for GTM and 6 hours for Bing.
@@ -161,9 +174,10 @@ Bing tests cover read-only scope, retained/replaced refresh tokens, stored-grant
 committed consumption, callback replay and concurrent replay, owner/session revocation,
 scope enforcement, AES-GCM purpose binding, metadata/audit redaction, serialized refresh
 rotation across independent managers, and actual RLS/ACL/no-realtime migration checks.
-Provider traffic is mocked. These database tests were not run locally because the disposable
-PostgreSQL listener was unavailable; migration 270 and these regressions must pass isolated
-CI before merge. No live grant/consent result is inferred from mocked tests.
+Provider traffic is mocked. The disposable local PostgreSQL listener was unavailable, so
+the database tests were verified in isolated CI: run `41208321418` passed all 12 new
+regressions, the complete existing suite, typechecks and both builds. PR #39 is merged and
+both Production projects are READY. No live grant/consent result is inferred from mocked tests.
 
 API resource references: [GA4 Realtime](https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/properties/runRealtimeReport),
 [Search Console](https://developers.google.com/webmaster-tools/v1/how-tos/all-your-data),

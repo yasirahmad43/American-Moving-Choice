@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocked = vi.hoisted(() => ({
   user: vi.fn(), requireAdmin: vi.fn(), begin: vi.fn(), complete: vi.fn(), available: vi.fn(),
@@ -15,6 +15,7 @@ import { GET as callback } from "../../app/api/admin/growth/bing/callback/route.
 import GrowthPage from "../../app/(admin)/admin/growth/page.tsx";
 
 const APP = "https://app.americanmovingchoice.com", STATE = "A".repeat(43), CODE = "SYNTHETIC_TEST_CODE";
+let diagnostic;
 const owner = (adminRole = "super_admin", mfa = "ok") => ({ id: "owner-user", adminRole, mfa, session: { id: "owner-session" } });
 function authorize() {
   const url = new URL("https://www.bing.com/webmasters/oauth/authorize");
@@ -38,10 +39,12 @@ async function noPrivateEcho(response, additional = []) {
   privateHeaders(response);
 }
 beforeEach(() => {
+  diagnostic = vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.clearAllMocks(); mocked.config.APP_URL = APP;
   mocked.user.mockResolvedValue(owner()); mocked.requireAdmin.mockResolvedValue({ adminRole: "super_admin" });
   mocked.available.mockReturnValue(true); mocked.begin.mockResolvedValue({ authorizeUrl: authorize() }); mocked.complete.mockResolvedValue(undefined);
 });
+afterEach(() => vi.restoreAllMocks());
 
 describe("Bing native owner connect", () => {
   it.each([null, owner("super_admin", "verify"), owner("super_admin", "setup")])("requires a completed session before creating state", async user => {
@@ -187,5 +190,48 @@ describe("growth page configuration boundary", () => {
     const page = await GrowthPage({ searchParams: Promise.resolve({ connection, code: CODE, state: STATE }) });
     expect(page.props.children[1].props.connectionNotice).toBeUndefined();
     expect(JSON.stringify(page.props.children[1].props)).not.toMatch(/SYNTHETIC_TEST_CODE|AAAAA|untrusted-provider-private-detail/u);
+  });
+});
+
+describe("Bing callback failure-only diagnostics", () => {
+  it.each([
+    ["missing_state", { code: CODE }],
+    ["malformed_state", { state: "private-malformed-state", code: CODE }],
+    ["missing_code", { state: STATE }],
+    ["malformed_code", { state: STATE, code: "private malformed code" }],
+    ["provider_error", { state: STATE, error: "private-provider-error", error_description: "private-provider-description" }],
+  ])("records only category %s after owner authorization", async (reason, parameters) => {
+    const response = await callback(returned(parameters));
+    expect(response.headers.get("location")).toBe(APP + "/admin/growth?connection=bing_failed");
+    expect(diagnostic).toHaveBeenCalledTimes(1);
+    expect(diagnostic).toHaveBeenCalledWith("reporting_bing_callback_failure", { stage: "callback_input", reason });
+    expect(mocked.complete).not.toHaveBeenCalled();
+    const encoded = JSON.stringify(diagnostic.mock.calls);
+    for (const value of [STATE, CODE, "private-malformed-state", "private malformed code", "private-provider-error", "private-provider-description", APP, "owner-user", "owner-session"]) expect(encoded).not.toContain(value);
+    await noPrivateEcho(response);
+  });
+
+  it.each(["state", "code"])("distinguishes duplicate %s without copying either value", async key => {
+    const url = new URL(returned().url); url.searchParams.append(key, "private-duplicate-value");
+    await callback(new Request(url));
+    expect(diagnostic).toHaveBeenCalledWith("reporting_bing_callback_failure", { stage: "callback_input", reason: "duplicate_" + key });
+    expect(JSON.stringify(diagnostic.mock.calls)).not.toMatch(/private-duplicate-value|SYNTHETIC_TEST_CODE|AAAAA|owner-user|owner-session/);
+  });
+
+  it.each([null, owner("ops"), owner("super_admin", "verify")])("does not inspect/log callback input for an unauthorized session", async user => {
+    mocked.user.mockResolvedValue(user);
+    await callback(returned({ code: CODE }));
+    expect(diagnostic).not.toHaveBeenCalled();
+    expect(mocked.complete).not.toHaveBeenCalled();
+  });
+
+  it("keeps normal success/cancellation silent and service outages generic", async () => {
+    await callback(returned());
+    await callback(returned({ state: STATE, error: "access_denied" }));
+    expect(diagnostic).not.toHaveBeenCalled();
+    mocked.user.mockRejectedValue(new Error("private-auth-error"));
+    await callback(returned());
+    expect(diagnostic).toHaveBeenCalledWith("reporting_bing_callback_failure", { stage: "callback_auth", reason: "unavailable" });
+    expect(JSON.stringify(diagnostic.mock.calls)).not.toContain("private-auth-error");
   });
 });
