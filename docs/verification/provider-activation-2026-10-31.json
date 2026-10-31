@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-31",
+  "publicOrigin": "https://www.americanmovingchoice.com",
+  "sourceCommit": "c07eeb041b393ee888ceca373af92acf157eddd7",
+  "sourcePRs": [34, 35],
+  "ga4": {
+    "accountId": "414235382",
+    "propertyId": "561692313",
+    "streamId": "16241880293",
+    "measurementId": "G-7P7TKLBZXH",
+    "dashboard": "https://analytics.google.com/analytics/web/#/a414235382p561692313/reports/intelligenthome",
+    "enhancedMeasurement": false,
+    "keyEvent": "generate_lead",
+    "defaultMonetaryValue": null,
+    "customDimensions": {"Form placement": "form_placement", "Survey step": "step_name"},
+    "remoteDelivery": {
+      "mode": "one opted-in homepage page_view",
+      "collectorHTTPStatus": 204,
+      "deliveredRequests": 1,
+      "receipt": "work/tracking/qa-analytics/2026-10-31T10-24-37-425Z.json",
+      "reportingIngestionVerified": false
+    }
+  },
+  "gtm": {
+    "accountId": "6401413548",
+    "containerId": "284497986",
+    "publicId": "GTM-569KB26S",
+    "liveVersion": 3,
+    "liveVersionName": "Scoped consent privacy controls",
+    "providerSandboxExecution": "Executed 1 test (SUCCESS)",
+    "googleTags": 5,
+    "consentTags": 1,
+    "additionalWriteKeys": ["ads_data_redaction", "url_passthrough"]
+  },
+  "production": {
+    "analyticsEnabled": true,
+    "googleMeasurementScope": "public web Production only",
+    "botProtectionEnabled": true,
+    "countryAccessEnabled": true,
+    "latestReadyDeployment": "dpl_5cJfYQUF2pD9mdKGE3gQbUYxSgFg",
+    "bingProofDeployment": "dpl_5cJfYQUF2pD9mdKGE3gQbUYxSgFg"
+  },
+  "searchConsole": {
+    "property": "https://www.americanmovingchoice.com/",
+    "ownership": "verified by HTML meta tag",
+    "sitemap": "https://www.americanmovingchoice.com/sitemap.xml",
+    "processingResult": "Sitemap index processed successfully",
+    "childSitemaps": 12,
+    "canonicalPageURLs": 4806,
+    "indexingEstablished": false
+  },
+  "bing": {"signedIn": true, "siteAdded": true, "metaTagConfigured": true, "ownership": "verified by HTML meta tag", "sitemapSubmission": "accepted", "sitemapStatus": "Processing"},
+  "privacyQA": {
+    "mode": "isolated Chromium, collect locally intercepted with 204",
+    "receipt": "work/tracking/qa-analytics/2026-10-31T10-22-57-996Z.json",
+    "checksPassed": 6,
+    "strictFieldChecksPassed": 10,
+    "remoteCollectRequests": 0,
+    "leadSubmissions": 0,
+    "note": "Interception proves outgoing field behavior, not remote GA4 ingestion. Token-path exclusion was a client-guard simulation; no management-token lookup was performed."
+  }
+}

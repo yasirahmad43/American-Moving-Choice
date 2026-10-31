@@ -66,8 +66,15 @@ not prove measurement is live. Google Search Console ownership for the canonical
 verified using the deployed HTML meta tag. Google accepted `/sitemap.xml` and reports
 **Sitemap index processed successfully**. Live checks found valid XML in the index and all
 12 children, with 4,806 canonical page URLs. This does not establish indexing or rankings.
-Bing account sign-in remains pending. Tracking proof and sanitized QA receipts belong in
-`work/tracking`; do not treat intercepted test requests as remote GA4 report ingestion.
+Bing ownership is also verified by HTML meta tag, and its sitemap submission was accepted
+with status **Processing**. GTM version **3**, “Scoped consent privacy controls”, is live.
+Corrected Production code `c07eeb0` passed all six live privacy checks and ten strict field
+checks. A separate opted-in homepage pageview received HTTP 204 from Google's collector;
+this proves HTTP receipt, not GA4 reporting ingestion. No contacts or leads were submitted.
+See `docs/verification/provider-activation-2026-10-31.json` for the sanitized setup receipt.
+Full local evidence belongs in `work/tracking`; do not treat intercepted test requests as
+remote GA4 report ingestion. The token-path check simulated the client guard without a
+real management-token lookup. BotID remained enabled throughout.
 Chrome access and account setup were authorized; do not ask for Chrome permission again.
 See `docs/ANALYTICS.md`.
 
