@@ -20,10 +20,31 @@ export interface CountryAccessInput {
   userAgent: string | null;
   authorization: string | null;
 }
-export type CountryAccessDecision = { allowed: true; reason: "disabled" | "country" | "crawler" | "cron" | "stripe" } | { allowed: false; reason: "untrusted_platform" | "unknown_country" | "country_denied" };
+export type CountryAccessDecision = { allowed: true; reason: "disabled" | "country" | "crawler" | "cron" | "stripe" | "ownership" } | { allowed: false; reason: "untrusted_platform" | "unknown_country" | "country_denied" };
 
 const publicPath = new RegExp(crawlerSnapshot.publicPathPattern, "iu");
 const unsafePath = new RegExp(crawlerSnapshot.unsafePathPattern, "u");
+// Installed Next defaults; apps/web has no custom image width/quality configuration.
+const imageWidths = new Set([32, 48, 64, 96, 128, 256, 384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840]);
+const publicRaster = /^\/(?:media\/(?:images|videos)|brand|icons\/3d)\/(?:[a-z0-9_-]+\/)*[a-z0-9_-]+\.(?:avif|gif|jpe?g|png|webp)$/iu;
+const requestPath = (value: string, parsed: URL): string => /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+([^?#]*)/iu.exec(value)?.[1] ?? parsed.pathname;
+
+/** This does not admit arbitrary optimizer sources or query-bearing HTML/API requests. */
+function isPublicImageOptimization(url: URL): boolean {
+  if (url.pathname !== "/_next/image" || url.hash || url.search.length > 1_024) return false;
+  const entries = [...url.searchParams.entries()];
+  if (entries.length !== 3 || new Set(entries.map(([key]) => key)).size !== 3 || entries.some(([key]) => !["url", "w", "q"].includes(key))) return false;
+  // Next's actual loader emits these exact names and decimal numbers; encoded names are unnecessary.
+  const fields = url.search.slice(1).split("&");
+  if (fields.some(field => !/^(?:url|w|q)=/u.test(field))) return false;
+  const width = url.searchParams.get("w")!, quality = url.searchParams.get("q")!;
+  if (!/^[1-9]\d{0,3}$/u.test(width) || !imageWidths.has(Number(width)) || quality !== "75") return false;
+  if (!fields.includes(`w=${width}`) || !fields.includes(`q=${quality}`)) return false;
+  const source = url.searchParams.get("url")!; // URLSearchParams decodes once, exactly as the optimizer does.
+  if (source.length > 768 || unsafePath.test(source) || !publicRaster.test(source)) return false;
+  const encoded = fields.find(field => field.startsWith("url="))!.slice(4);
+  return encoded === encodeURIComponent(source); // No nested encoding, absolute URL, query, fragment or raw ambiguity.
+}
 const crawlerLists = crawlerSnapshot.bots.map(bot => {
   const blockList = new BlockList();
   for (const cidr of bot.prefixes) {
@@ -52,9 +73,10 @@ const realBearer = (authorization: string | null, secret: string | undefined): b
 export function isOfficialPublicCrawler(input: CountryAccessInput): boolean {
   if (!["GET", "HEAD"].includes(input.method) || !input.clientIp || !input.userAgent || input.userAgent.length > 2_048) return false;
   const url = new URL(input.url);
-  const rawPath = /^[a-z][a-z0-9+.-]*:\/\/[^/?#]+([^?#]*)/iu.exec(input.url)?.[1] ?? url.pathname;
-  // Positive public read scope; no encoded paths, dot segments or filtered/token URLs.
-  if (url.search || url.hash || unsafePath.test(rawPath) || unsafePath.test(url.pathname) || !publicPath.test(url.pathname)) return false;
+  const rawPath = requestPath(input.url, url);
+  // The only allowed query is a tightly validated request for a public raster image.
+  if (input.url.includes("#") || unsafePath.test(rawPath) || unsafePath.test(url.pathname)) return false;
+  if (input.url.includes("?") ? !isPublicImageOptimization(url) : !publicPath.test(url.pathname)) return false;
   const version = isIP(input.clientIp);
   if (!version) return false;
   return crawlerLists.some(bot => bot.userAgent.test(input.userAgent!) && bot.blockList.check(input.clientIp!, version === 4 ? "ipv4" : "ipv6"));
@@ -65,6 +87,8 @@ export function evaluateCountryAccess(input: CountryAccessInput, config: Country
   // A request header cannot make a self-hosted process a trusted Vercel deployment.
   if (!config.onVercel) return { allowed: false, reason: "untrusted_platform" };
   const url = new URL(input.url);
+  // Intentionally public proof only: no HTML, consumer record or API is exposed globally.
+  if (config.publicWeb && ["GET", "HEAD"].includes(input.method) && url.pathname === "/indexnow-key.txt" && requestPath(input.url, url) === url.pathname && !/[?#]/u.test(input.url)) return { allowed: true, reason: "ownership" };
   if (!config.publicWeb && !url.search && !url.hash && !unsafePath.test(url.pathname)) {
     if (input.method === "GET" && REGISTERED_CRON_PATHS.has(url.pathname) && realBearer(input.authorization, config.cronSecret)) return { allowed: true, reason: "cron" };
     // This only reaches the existing raw-body Stripe signature verifier; it grants no page/data access.

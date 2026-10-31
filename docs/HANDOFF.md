@@ -33,8 +33,11 @@ only in authorized admin lead details. Optional Google measurement remains disab
 real GA4/GTM accounts and a published container are connected. Choices still work for
 first-party campaign attribution with no Google container. No contact details, ZIPs, dates,
 services or request IDs enter Google events. Private/token documents do not load Google.
-Google Analytics, Tag Manager, Search Console and Bing account setup is still pending the
-owner's Chrome access; do not claim those connections are complete. See `docs/ANALYTICS.md`.
+Google Analytics, Tag Manager, Search Console and Bing account setup is still pending reliable
+browser control. Chrome access was approved, but Computer Use stopped because it could not
+verify the current browser URL. The owner was asked to open Google Analytics and reply ready;
+do not ask for Chrome permission again or claim these account connections are complete.
+See `docs/ANALYTICS.md`.
 
 Production web has a public `INDEXNOW_KEY` configured; `/indexnow-key.txt` proves ownership.
 The bounded IndexNow runner defaults to a read-only plan; live delivery is a separate

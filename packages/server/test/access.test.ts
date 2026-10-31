@@ -6,6 +6,7 @@ import {
   type CountryAccessConfig, type CountryAccessInput,
 } from "../src/access";
 import snapshot from "../data/access/crawler-ranges.json";
+import { getImageProps } from "next/image";
 
 const config: CountryAccessConfig = { enabled: true, onVercel: true, publicWeb: true };
 const input = (changes: Partial<CountryAccessInput> = {}): CountryAccessInput => ({
@@ -60,6 +61,40 @@ describe("country access and authenticated public crawler reads", () => {
   it("grants no crawler exception on the private app", () => {
     expect(evaluateCountryAccess(google(), { ...config, publicWeb: false }).allowed).toBe(false);
     expect(evaluateCountryAccess(google({ country: null }), { ...config, publicWeb: false }).allowed).toBe(false);
+  });
+  it("allows actual NextImage raster URLs only for verified crawler reads", () => {
+    const manifest = JSON.parse(readFileSync(new URL("../../../apps/web/content/media/manifest.json", import.meta.url), "utf8"));
+    const asset = manifest.assets.find((item: { kind: string; src: string }) => item.kind === "image" && item.src.startsWith("/media/images/") && item.src.endsWith(".webp"));
+    const { props } = getImageProps({ src: asset.src, width: asset.width, height: asset.height, alt: asset.alt, sizes: "100vw" });
+    const rendered = [props.src, ...props.srcSet!.split(", ").map(item => item.split(" ")[0]!)];
+    expect(rendered.length).toBeGreaterThan(1);
+    for (const path of rendered) {
+      expect(path).toMatch(/^\/_next\/image\?url=/u);
+      expect(evaluateCountryAccess(google({ url: `https://www.americanmovingchoice.com${path}` }), config)).toEqual({ allowed: true, reason: "crawler" });
+      expect(evaluateCountryAccess(google({ method: "HEAD", url: `https://www.americanmovingchoice.com${path}` }), config).allowed).toBe(true);
+    }
+    const url = `https://www.americanmovingchoice.com${rendered[0]}`;
+    expect(evaluateCountryAccess(input({ url, userAgent: botAgents["google-common"] }), config).allowed).toBe(false);
+    expect(evaluateCountryAccess(google({ url, method: "POST" }), config).allowed).toBe(false);
+    expect(evaluateCountryAccess(google({ url }), { ...config, publicWeb: false }).allowed).toBe(false);
+    for (const source of ["/media/videos/home-hero-crew-loading-golden-hour-poster.webp", "/brand/american-moving-choice-logo.png", "/icons/3d/key-128.webp"]) expect(isOfficialPublicCrawler(google({ url: `https://www.americanmovingchoice.com/_next/image?url=${encodeURIComponent(source)}&w=640&q=75` }))).toBe(true);
+  });
+  it("rejects image-optimizer exfiltration, traversal, nested encodings and ambiguous parameters", () => {
+    const optimize = (source: string, extra = "") => `https://www.americanmovingchoice.com/_next/image?url=${encodeURIComponent(source)}&w=640&q=75${extra}`;
+    for (const source of ["https://evil.example/image.png", "https://www.americanmovingchoice.com/media/images/truck.webp", "//evil.example/a.png", "/api/private.png", "/my-request/token.png", "/media/images/../../api/private.png", "/media/images/%2e%2e/api/private.png", "/media/images/%252e%252e/private.png", "/media/images/a.webp?token=secret", "/media/images/a.webp#fragment", "/media/images/a.svg", "/media/images/a.webp/extra", "/media/images/../brand/logo.png", "/media/images/\\..\\api.png", "/media/images/a\u0000.png", "/_next/image", "/media/images/a.json"]) expect(isOfficialPublicCrawler(google({ url: optimize(source) })), source).toBe(false);
+    const valid = optimize("/media/images/home-truck-suburban-autumn-street-1600.webp");
+    for (const extra of ["&url=%2Fmedia%2Fimages%2Fa.webp", "&w=640", "&q=75", "&token=secret", "&dpl=anything", "&%77=640", "#fragment"]) expect(isOfficialPublicCrawler(google({ url: valid + extra })), extra).toBe(false);
+    for (const width of ["0", "-1", "0640", "100", "99999", "1e3", "%36%34%30"]) expect(isOfficialPublicCrawler(google({ url: valid.replace("w=640", `w=${width}`) })), width).toBe(false);
+    for (const quality of ["0", "100", "075", "-1", "%37%35"]) expect(isOfficialPublicCrawler(google({ url: valid.replace("q=75", `q=${quality}`) })), quality).toBe(false);
+    for (const path of [valid.replace("/_next/image?", "/_next/image/?"), valid.replace("url=", "%75rl="), valid.replace("%2Fmedia", "%252Fmedia"), valid.replace("/_next/image?", "/_next/%69mage?")]) expect(isOfficialPublicCrawler(google({ url: path }))).toBe(false);
+    expect(isOfficialPublicCrawler(google({ url: "https://www.americanmovingchoice.com/_next/image?w=640&q=75" }))).toBe(false);
+  });
+  it("permits only the exact bare public ownership proof globally", () => {
+    for (const method of ["GET", "HEAD"]) expect(evaluateCountryAccess(input({ method, country: null, url: "https://www.americanmovingchoice.com/indexnow-key.txt" }), config)).toEqual({ allowed: true, reason: "ownership" });
+    for (const path of ["/indexnow-key.txt/", "/indexnow-key.txt?", "/indexnow-key.txt#", "/indexnow-key.txt?key=value", "/indexnow-key.txt#fragment", "/%69ndexnow-key.txt", "/indexnow-key.txt/../about/", "/about/", "/api/indexnow-key.txt"]) expect(evaluateCountryAccess(input({ url: `https://www.americanmovingchoice.com${path}` }), config).allowed, path).toBe(false);
+    expect(evaluateCountryAccess(input({ method: "POST", url: "https://www.americanmovingchoice.com/indexnow-key.txt" }), config).allowed).toBe(false);
+    expect(evaluateCountryAccess(input({ url: "https://admin.example.com/indexnow-key.txt" }), { ...config, publicWeb: false }).allowed).toBe(false);
+    expect(evaluateCountryAccess(input({ url: "https://www.americanmovingchoice.com/indexnow-key.txt" }), { ...config, onVercel: false }).allowed).toBe(false);
   });
   it("only exempts exact registered cron GETs with the actual secret, and exact Stripe POST", () => {
     const app = { ...config, publicWeb: false, cronSecret: "test-real-cron-secret" };

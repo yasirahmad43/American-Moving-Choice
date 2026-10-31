@@ -11,7 +11,7 @@ No Google request or measurement queue is created before analytics opt-in. The c
 non-modal choice bar offers Allow analytics and Keep analytics off; the footer's Analytics
 choices button reopens it. These choices also work before a Google container is configured:
 optional first-party campaign capture can run after permission while Google stays off. The
-bar explains the shared permission and explicitly states when Google measurement is off.
+bar explains optional campaign cookies and the scope of Google measurement.
 The preference lasts 180 days. GPC or Do Not Track keeps both campaign capture and analytics
 off. Consent withdrawal clears campaign attribution, updates the Google consent state, clears analytics cookies and reloads
 the document to remove the already-executed tag runtime.
