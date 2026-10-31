@@ -28,7 +28,7 @@ const attribution = [
   touch(3, "first", { landing_url: "https://www.americanmovingchoice.com/routes/california-to-texas/" }),
   touch(3, "last", { source_category: "paid_search", evidence_level: "observed", utm_source: "person@example.invalid", utm_medium: "cpc", utm_campaign: "301-555-0199", landing_url: "https://www.americanmovingchoice.com/my-request/" + "Q".repeat(43) + "/" }),
   touch(5, "first", { source_category: "direct", evidence_level: "unknown", landing_url: "https://www.americanmovingchoice.com/get-quotes/" }),
-  touch(5, "last", { source_category: "direct", evidence_level: "unknown", landing_url: "https://www.americanmovingchoice.com/get-quotes/" }),
+  touch(5, "last", { source_category: "paid_search", evidence_level: "unknown", utm_campaign: "Unobserved legacy campaign", landing_url: "https://www.americanmovingchoice.com/get-quotes/" }),
   touch(6, "first", { landing_url: "https://www.americanmovingchoice.com/movers/texas/?utm_campaign=private#fragment" }),
   touch(6, "last", { utm_source: "Q".repeat(43), utm_medium: "organic", utm_campaign: "sb_secret_should_not_leak", landing_url: "https://www.americanmovingchoice.com/movers/texas/?utm_campaign=private#fragment" }),
 ];
@@ -85,6 +85,7 @@ describe("growth SQL over inline read-only records", () => {
     }
     const first = await growthSnapshot({ touch: "first" }, inlineDb);
     const last = await growthSnapshot({ touch: "last" }, inlineDb);
+    expect(last.campaigns.some(row => row.campaign === "Unobserved legacy campaign")).toBe(false);
     expect(first.campaigns).toContainEqual({ source: "google", medium: "cpc", campaign: "Autumn moves", requests: 1 });
     expect(last.campaigns).not.toContainEqual({ source: "google", medium: "cpc", campaign: "Autumn moves", requests: 1 });
     expect(first.landingPages).toHaveLength(3);

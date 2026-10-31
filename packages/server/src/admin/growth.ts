@@ -74,7 +74,8 @@ function campaignSql(column: "utm_source" | "utm_medium" | "utm_campaign"): stri
 
 const ACQUISITION_SQL = `/* growth:acquisition */
 with cohort as materialized (
-  select coalesce(a.source_category, 'direct') as source,
+  select case when a.evidence_level in ('observed', 'referrer_inferred')
+           then coalesce(a.source_category, 'direct') else 'direct' end as source,
          a.evidence_level in ('observed', 'referrer_inferred') as measured,
          ${campaignSql("utm_source")} as utm_source, ${campaignSql("utm_medium")} as utm_medium,
          ${campaignSql("utm_campaign")} as utm_campaign,
@@ -96,7 +97,7 @@ select count(*)::int as total, count(*) filter (where measured)::int as measured
        ) s), '[]'::jsonb) as sources,
        coalesce((select jsonb_agg(c order by c.requests desc, c.source, c.medium, c.campaign) from (
          select utm_source as source, utm_medium as medium, utm_campaign as campaign, count(*)::int as requests
-         from cohort where utm_source is not null or utm_medium is not null or utm_campaign is not null
+         from cohort where measured and (utm_source is not null or utm_medium is not null or utm_campaign is not null)
          group by utm_source, utm_medium, utm_campaign
          order by requests desc, utm_source nulls last, utm_medium nulls last, utm_campaign nulls last limit 10
        ) c), '[]'::jsonb) as campaigns,

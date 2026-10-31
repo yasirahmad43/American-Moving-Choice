@@ -1,4 +1,7 @@
 .workspace-topbar { box-shadow: 0 1px 0 rgba(6, 49, 103, 0.025); }
+/* Keep the brand lockup within its gutter when browser text sizing enlarges rem units. */
+.workspace-topbar a[aria-label="American Moving Choice home"],
+.workspace-topbar a[aria-label="American Moving Choice home"] > span { max-width: 100%; }
 .workspace-sidebar { max-height: calc(100dvh - 8rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.35) transparent; }
 .workspace-main > .grid > header { padding-bottom: 1.5rem; }
 .workspace-main > .grid > header h1 { letter-spacing: -.035em; }
