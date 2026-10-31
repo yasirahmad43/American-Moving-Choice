@@ -1,6 +1,6 @@
 /**
- * Server-rendered JSON-LD (site architecture §8.5). Only what the page shows; never FAQPage, HowTo
- * or ratings for American Moving Choice itself.
+ * Server-rendered JSON-LD (site architecture §8.5). Only what the page shows. FAQPage is
+ * generated from the same visible h3/p answer array; never invent business ratings or credentials.
  */
 
 /** Escapes "<" so a value can never close the script element. */

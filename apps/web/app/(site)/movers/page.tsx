@@ -3,6 +3,8 @@ import { GEO_THRESHOLDS } from "@amc/server/geo-pages";
 import { publishedStateUrls } from "@amc/server/seo";
 import { getSettings } from "@amc/server/settings";
 import type { Metadata } from "next";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { moversIndexAssistantFaq } from "@/lib/assistant-faq/hubs";
 import Link from "next/link";
 import { connection } from "next/server";
 import { JsonLd, breadcrumbJsonLd, canonical } from "@/components/directory/seo";
@@ -69,13 +71,14 @@ export default async function MoversIndexPage() {
             {[
               <><strong>Movers set their own coverage.</strong> Each sets where moves may start and end (whole states, counties or ZIP codes), which kinds of move it takes (local, in-state long-distance or between states), home sizes and services. The capabilities approved for it cap what its coverage can include.</>,
               <><strong>Coverage follows your route.</strong> A company&apos;s home city alone doesn&apos;t decide whether it can receive your request. Its approved coverage must include where your move starts and ends.</>,
-              <><strong>Your answers decide who can receive your request.</strong> The quote survey checks your move against every mover&apos;s coverage before it asks for contact details, shows the number of eligible movers, and asks how many may contact you, up to <span className="tabular">{settings.max_sharing_limit}</span>.</>,
+              <><strong>Your request starts with your moving details.</strong> Enter your route, date, move size and services, then choose the maximum number of companies who may contact you, up to <span className="tabular">{settings.max_sharing_limit}</span>. Review your information before sending. Each company introduces itself if it contacts you.</>,
               <><strong>Only screened movers count.</strong> Eligible companies are approved moving carriers with no broker authority. Each company introduces itself when it contacts you; this site doesn&apos;t present a public list to browse.</>,
             ].map((item, index) => <li key={index}><span className={styles.listPhoto} aria-hidden="true"><MediaFrame asset={images[index]!} alt="" sizes="72px" /></span><span className={styles.listBody}>{item}</span></li>)}
           </ul><p className="flex flex-wrap gap-x-4 gap-y-1"><Link href="/which-companies-receive-my-request/" className="link inline-flex min-h-11 items-center">Which companies receive my request</Link><Link href="/how-we-verify-movers/" className="link inline-flex min-h-11 items-center">How we verify movers</Link><Link href="/review-methodology/" className="link inline-flex min-h-11 items-center">How reviews work</Link><Link href="/get-quotes/" className="link inline-flex min-h-11 items-center">Start your quote request</Link></p></div>
         </Reveal>
 
         <Reveal as="section" aria-labelledby="movers-next-step" className={styles.quoteBand}><figure className={styles.quotePhoto} data-editorial-image={images[4]!.id}><MediaFrame asset={images[4]!} sizes="(min-width: 760px) 35vw, 100vw" /></figure><div className={styles.quoteCopy}><p className="type-overline">Ready when you are</p><h2 id="movers-next-step">A new place.<br />A plan that feels like yours.</h2><p>Start with your route. Add the details. Choose your contact limit. Companies introduce themselves when they contact you.</p><div><LinkButton href="/get-quotes/" variant="cta">Plan my move</LinkButton></div></div></Reveal>
+        <AssistantFaq url="/movers/" items={moversIndexAssistantFaq({ states: hubs })} title="Questions about choosing a state guide" />
         <p className="type-legal text-text-3">Photography and video are commissioned editorial illustrations. State imagery provides general context and does not identify a particular city, customer or moving company.</p>
       </Container>
     </>

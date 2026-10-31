@@ -1,5 +1,7 @@
 import { Container, Reveal, TrustStrip } from "@amc/ui";
 import type { Metadata } from "next";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { staticAssistantFaq } from "@/lib/assistant-faq/static";
 import { Calculator } from "@/components/calculator/calculator";
 import { calculatorPageContent, renderTokens } from "@/components/calculator/content";
 import { MOVING_COSTS } from "@/components/calculator/copy";
@@ -98,6 +100,7 @@ export default function MovingCostCalculatorPage() {
             </nav>
           </div> },
         ]} />
+        <AssistantFaq url={PAGE} items={staticAssistantFaq(PAGE)!} />
         <StoryNextSteps url={PAGE} images={plan.images} usedCount={3} />
       </Container>
     </>

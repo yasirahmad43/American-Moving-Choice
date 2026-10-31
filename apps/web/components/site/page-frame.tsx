@@ -13,6 +13,8 @@ import { reactChapters, StoryNextSteps, StorySections } from "./story-sections";
 import { DraftBanner } from "./draft-banner";
 import { JsonLd, breadcrumbListLd, webPageLd } from "./json-ld";
 import { ReviewLegend } from "./review-notes";
+import { AssistantFaq } from "./assistant-faq";
+import { staticAssistantFaq } from "@/lib/assistant-faq/static";
 
 export interface PageFrameProps {
   url: string;
@@ -36,6 +38,7 @@ export function PageFrame({ url, h1, description, trail, lede, overline, legend 
   const crumbs = [{ label: "Home", href: "/" }, ...trail];
   const chapters = reactChapters(children);
   const media = storyMediaPlan(mediaManifest(), url, chapters, h1);
+  const faq = staticAssistantFaq(url);
   return (
     <>
       <JsonLd data={breadcrumbListLd(WEB_URL, crumbs)} />
@@ -49,6 +52,7 @@ export function PageFrame({ url, h1, description, trail, lede, overline, legend 
           </div>
           {aside ? <aside className="grid gap-4 rounded-2xl border border-border bg-surface-2 p-5 lg:grid-cols-2">{aside}</aside> : null}
           <StorySections chapters={chapters} images={media.chapterImages} planned url={url} topic={h1} />
+          {faq ? <AssistantFaq url={url} items={faq} /> : null}
           <StoryNextSteps url={url} items={media.steps} />
         </div>
       </Container>

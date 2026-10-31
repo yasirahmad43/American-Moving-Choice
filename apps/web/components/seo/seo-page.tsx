@@ -5,11 +5,11 @@
  * listings and identity-first copy are removed before any content is rendered or passed to
  * client components. This file skins the remaining content with the Route Ledger premium
  * system: cinematic survey hero, reusable editorial illustrations, a visual reading map,
- * complete sourced facts/tables, expandable FAQs, image-led related cards and a mobile CTA.
+ * complete sourced facts/tables, visible question-and-answer cards, image-led related cards and a mobile CTA.
  */
 import { env } from "@amc/server/env";
 import { publishedAmong, publishedRelated, type ContentBlock, type SeoPageRecord } from "@amc/server/seo";
-import { Container, ExpandableCard, Icon3D, IdCardIcon, LedgerStrip, LineIcon, Reveal, RouteMark, SectionHeader, StickyCta, Table, type Icon3DName, type LineIconName } from "@amc/ui";
+import { Container, Icon3D, IdCardIcon, LedgerStrip, LineIcon, Reveal, RouteMark, SectionHeader, StickyCta, Table, type Icon3DName, type LineIconName } from "@amc/ui";
 import Link from "next/link";
 import { MediaFrame } from "@/components/media/media-frame";
 import { JsonLd } from "@/components/site/json-ld";
@@ -22,6 +22,8 @@ import { breadcrumbLd, pageLd, seoPageHeading, type Crumb } from "./seo-metadata
 import { GuideContents } from "./guide-contents";
 import { seoHeroCopy } from "./hero-copy";
 import { publicSeoPage } from "./public-content";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { seoAssistantFaq } from "@/lib/assistant-faq/seo";
 import styles from "./seo-reader.module.css";
 
 /** Presentation copy only: retain stored facts, assumptions and link destinations exactly. */
@@ -202,6 +204,7 @@ function routeEnds(page: SeoPageRecord): { from: string; to: string } | null {
 
 export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageRecord; crumbs: Crumb[] }) {
   const page = publicSeoPage(storedPage);
+  const assistantFaq = seoAssistantFaq(page);
   const tablePrefix = `seo-${page.url.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
   const { WEB_URL } = env();
   const related = await publishedRelated(page);
@@ -278,7 +281,7 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
           </a>)}
         </nav> : null}
 
-        <GuideContents sections={page.content.sections} hasFacts={facts.length > 0} hasFaq={page.content.faq.length > 0} className={styles.guideContents} />
+        <GuideContents sections={page.content.sections} hasFacts={facts.length > 0} hasFaq={assistantFaq.length > 0} className={styles.guideContents} />
         <p className={styles.readingMeta}><span><strong className="tabular">{page.evidenceCount}</strong> sourced data points</span><span>Data as of {page.content.dataAsOf}</span></p>
 
         <div className={styles.bodyGrid}>
@@ -303,13 +306,8 @@ export async function SeoPageView({ page: storedPage, crumbs }: { page: SeoPageR
               </div>)}</dl>
             </Reveal> : null}
 
-            {page.content.faq.length ? <Reveal as="section" id="faq" aria-labelledby="faq-h" className="grid min-w-0 gap-6 scroll-mt-24">
-              <SectionHeader id="faq-h" overline="Good questions. Clear answers." title="Questions about this page" />
-              <div className={styles.faqLayout}>
-                <figure className={styles.faqVisual} data-editorial-image={faqImage!.id}><MediaFrame asset={faqImage!} sizes="(min-width: 1024px) 20vw, 100vw" /><figcaption className={styles.faqCaption}>A little clarity goes a long way.</figcaption></figure>
-                <div className={`${styles.faqCards} ${page.content.faq.every(item => item.question.length <= 88) ? styles.faqCardsCompact : ""}`}>{page.content.faq.map((item) => <ExpandableCard key={item.question} title={item.question} name="seo-faq" contentInset="compact"><p><InlineText text={item.answer} allow={allow} /></p></ExpandableCard>)}</div>
-              </div>
-            </Reveal> : null}
+            <Reveal><AssistantFaq id="faq" url={page.url} items={assistantFaq} title="Questions for this move" image={faqImage ? <figure className={styles.faqVisual} data-editorial-image={faqImage.id}><MediaFrame asset={faqImage} sizes="(min-width: 1024px) 20vw, 100vw" /><figcaption className={styles.faqCaption}>A little clarity goes a long way.</figcaption></figure> : undefined} /></Reveal>
+            {page.content.faq.length ? <details className={styles.sources} data-content-inset="card"><summary>More reference notes from this guide</summary><div className="grid gap-4 pt-4">{page.content.faq.map(item => <p key={item.question}><strong>{item.question}</strong> <InlineText text={item.answer} allow={allow} /></p>)}</div></details> : null}
 
             <Reveal as="section" aria-labelledby="quote-heading" className={styles.quoteBand}>
               <figure className={styles.quotePhoto} data-editorial-image={images[4]!.id}><MediaFrame asset={images[4]!} sizes="(min-width: 1024px) 30vw, 100vw" /></figure>

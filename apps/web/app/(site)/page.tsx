@@ -15,6 +15,8 @@ import { claimMediaById } from "@/lib/media";
 import { publishedStateUrls } from "@amc/server/seo";
 import { StateGuideMap } from "@/components/site/state-guide-map";
 import { socialMetadata } from "@/components/site/social-metadata";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { staticAssistantFaq } from "@/lib/assistant-faq/static";
 
 const TITLE = "Moving Quotes, on Your Terms | American Moving Choice";
 const DESCRIPTION = "Tell us your route, choose how many moving companies may contact you, and compare their quotes directly. Free to request.";
@@ -24,16 +26,9 @@ export const metadata: Metadata = {
 };
 const STEPS = [
   { icon: "origin" as const, title: "Tell us where life is taking you", body: "Start with your ZIP codes, moving date, and the size of your move.", meta: "Your move" },
-  { icon: "route" as const, title: "We check your route", body: "We check our network for companies that serve your move. If we don't have coverage, we'll tell you.", meta: "Your route" },
+  { icon: "route" as const, title: "Keep your move together", body: "Review your route, date and moving needs together before sending your request.", meta: "Your plan" },
   { icon: "chat" as const, title: "Set your contact preferences", body: "Choose how many moving companies may contact you and how you'd like to hear from them.", meta: "Your choice" },
   { icon: "verified" as const, title: "Compare quotes. Make your move.", body: "Companies introduce themselves when they reach out. Compare their estimates and decide who feels right.", meta: "Your decision" },
-];
-const FAQ = [
-  { q: "Is it free to request moving quotes?", a: "Yes. Requesting quotes through American Moving Choice is free. Your moving price and any estimate charges are agreed directly with the company you choose." },
-  { q: "How many moving companies will contact me?", a: "You choose the maximum before sending your request. We share it only with eligible participating companies, up to that limit. Each company identifies itself when it contacts you." },
-  { q: "Are you a moving company?", a: "We're a platform connecting people with independent moving carriers. We don't transport belongings, book your move, or give estimates on a mover's behalf. The companies provide their own quotes directly." },
-  { q: "What if you don't cover my route?", a: "We'll tell you before asking for your contact details. You can still use our moving guides and planning resources." },
-  { q: "Can I withdraw my request?", a: "Yes. Use the secure link on your confirmation page or in your confirmation email. Withdrawing stops additional movers from receiving your contact details, and we tell companies that already received them to stop contacting you. It cannot take back details already shared." },
 ];
 const SERVICES = [
   { title: "Across town.", label: "Local moving", body: "A new neighborhood. A little more room. Plan a local move with the details in hand.", href: "/services/local/", asset: "home-family-carrying-labeled-boxes-toward" },
@@ -92,10 +87,10 @@ export default async function HomePage() {
       <div className="home-planning-art" data-motion="scale"><div className="home-planning-media"><MediaFrame asset={planning} sizes="(min-width: 1024px) 48vw, 100vw" /></div><div className="home-planning-stamp" data-content-inset="card"><Icon3D name="calculator" size={60} /><span>A clearer plan.<br /><strong>A calmer move.</strong></span></div></div>
       <div className="home-planning-copy" data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />Before the first box</p><h2 id="plan-ahead">Know a little more.<br />Worry a little less.</h2><p>From understanding an estimate to planning your packing, a little preparation goes a long way.</p><div className="home-resource-list">{RESOURCES.map((r) => <Link href={r.href} key={r.href} data-content-inset="compact"><Icon3D name={r.icon} size={42} /><span><strong>{r.title}</strong><small>{r.body}</small></span><LineIcon name="arrow-right" size={18} /></Link>)}</div></div>
     </div></Section>
-    <Section tone="alt" aria-labelledby="home-faq" className="home-faq-section"><div className="home-faq-grid">
-      <div data-motion="rise"><p className="home-eyebrow"><span aria-hidden="true" />A few things to know</p><h2 id="home-faq">Good questions.<br />Clear answers.</h2><p className="home-faq-intro">Moving comes with enough unknowns.<br />Here’s how requesting quotes works.</p><Link href="/questions/" className="home-text-link">More moving questions<LineIcon name="arrow-right" size={18} /></Link></div>
-      <div className="home-faq-list">{FAQ.map((f, i) => <details key={f.q} data-content-inset="compact"><summary><span className="home-faq-number">0{i + 1}</span><span>{f.q}</span><span className="home-faq-plus" aria-hidden="true" /></summary><p>{f.a}</p></details>)}</div>
-    </div></Section>
+    <Section tone="alt" aria-labelledby="home-faq-title" className="home-faq-section">
+      <AssistantFaq id="home-faq" url="/" items={staticAssistantFaq("/")!} title="Before you request moving quotes" />
+      <Link href="/questions/" className="home-text-link">More moving questions<LineIcon name="arrow-right" size={18} /></Link>
+    </Section>
     <section className="home-final" aria-labelledby="ready-to-move"><div className="home-final-photo" aria-hidden="true"><MediaFrame asset={care} alt="" sizes="100vw" /></div><div className="home-final-shade" aria-hidden="true" /><div className="mx-auto max-w-content gutter" data-motion="rise"><p className="home-eyebrow">Good things are ahead</p><h2 id="ready-to-move">Let’s get you<br />to your next chapter.</h2><p>Start with your route. Take it one step at a time.</p><LinkButton href="/get-quotes/" variant="cta" data-magnetic="">Start my moving request</LinkButton><span className="home-final-note">Free to request · Your contact preferences · No brokers</span></div></section>
     <StickyCta href="/get-quotes/" watch="hero-survey" label="Get moving quotes" />
   </>;

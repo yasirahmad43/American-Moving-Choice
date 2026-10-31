@@ -23,6 +23,8 @@ import { socialMetadata } from "@/components/site/social-metadata";
 import { Fragment } from "react";
 import { hubPageNumbers, hubPagePath } from "./hub-pagination";
 import styles from "./seo-reader.module.css";
+import { AssistantFaq } from "@/components/site/assistant-faq";
+import { hubAssistantFaq } from "@/lib/assistant-faq/hubs";
 import hubStyles from "./hub-compact.module.css";
 
 export interface HubSpec {
@@ -148,6 +150,7 @@ export async function HubPage({ spec, page = 1 }: { spec: HubSpec; page?: number
   ]);
   const pages = listed.pages;
   const total = spec.perPage ? listed.total : pages.length;
+  const assistantFaq = hubAssistantFaq({ family: spec.family, url: hubPageUrl(spec, page), title: spec.h1, description: spec.description, page, total, perPage: spec.perPage, entries: pages });
   if (page > 1 && (!pages.length || !spec.perPage || page > Math.ceil(total / spec.perPage))) notFound();
   const url = hubPageUrl(spec, page);
   const crumbs = [{ label: "Home", href: "/" }, { label: spec.h1, href: spec.url }, ...(page > 1 ? [{ label: `Page ${page}`, href: url }] : [])];
@@ -189,6 +192,7 @@ export async function HubPage({ spec, page = 1 }: { spec: HubSpec; page?: number
         </section>
         {spec.perPage ? <PageNav spec={spec} page={page} total={total} /> : null}
         <Reveal as="section" aria-labelledby="hub-next-step" className={styles.quoteBand}><figure className={styles.quotePhoto} data-editorial-image={images[4]!.id}><MediaFrame asset={images[4]!} sizes="(min-width: 760px) 35vw, 100vw" /></figure><div className={styles.quoteCopy} data-content-inset="card"><p className="type-overline">Your move, your terms</p><h2 id="hub-next-step">Turn a little research into a real next step.</h2><p>Check your route, tell us what you need, and choose the maximum number of screened movers who may contact you.</p><div><LinkButton href="/get-quotes/" variant="cta">Start my moving request</LinkButton></div></div></Reveal>
+        <AssistantFaq url={url} items={assistantFaq} title={`Questions about ${spec.h1.toLowerCase()}`} />
         <p className="type-legal text-text-3">Photography and video are commissioned editorial illustrations. They illustrate moving situations and do not identify a particular customer or moving company.</p>
       </Container>
     </>
